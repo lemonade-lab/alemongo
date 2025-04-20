@@ -1,0 +1,50 @@
+package alemonjs
+
+import (
+	"io/ioutil"
+	"os"
+	"os/exec"
+	"path"
+	"strconv"
+)
+
+// 运行机器人
+func Run(name string) (string, error) {
+	// 检查系统是否安装了 Node.js
+	if _, err := exec.LookPath("node"); err != nil {
+		return "未找到NodeJS", err
+	}
+	if !Exists(name) {
+		return "机器人不存在", os.ErrNotExist
+	}
+	if IsRunning(name) {
+		return "机器人已经在运行", nil
+	}
+	if !ExistsNodeModules(name) {
+		return "请先安装依赖", os.ErrNotExist
+	}
+	// 是否在运行
+	pidFilePath := GetPidFilePath(name)
+	// 启动脚本
+	indexPath := path.Join("alemonjs", "index.js")
+	// 执行
+	cmd := exec.Command("node", indexPath)
+	// 设置工作目录为机器人的路径
+	cmd.Dir = GetBotPath(name)
+	// 设置命令的标准输入输出
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	if err := cmd.Start(); err != nil {
+		// 启动失败。需要删除 pid 文件
+		if err := os.Remove(pidFilePath); err != nil {
+			return "删除pid文件失败", err
+		}
+		return "启动失败", err
+	}
+	// 保存 PID 到文件
+	pid := cmd.Process.Pid
+	if err := ioutil.WriteFile(pidFilePath, []byte(strconv.Itoa(pid)), 0644); err != nil {
+		return "写入pid失败", err
+	}
+	return "", nil
+}

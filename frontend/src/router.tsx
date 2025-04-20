@@ -1,0 +1,62 @@
+import {createBrowserRouter} from "react-router-dom";
+import Home from "./pages/home/App";
+import NotRoute from "./pages/404";
+import Login from "./pages/login/App";
+import Panel from "./pages/home/panel/App";
+import Main from "./pages/Main";
+import Configs from "./pages/home/config/App";
+import Bots from "./pages/home/Bots/App";
+import ButtonTemplate from "./pages/home/ButtonTemplate/App";
+import UpdatePassWord from "./pages/UpdatePassWord/App";
+import OneBot from "./pages/home/OneBot/App";
+const router = createBrowserRouter([
+  {
+    path: "/login",
+    element: <Login />,
+  },
+  {
+    path: "/",
+    element: <Main />,
+    children: [
+      {
+        path: "/",
+        element: <Home />,
+        children: [
+          {
+            path: "/",
+            element: <Bots />,
+          },
+          {
+            path: "/config",
+            element: <Configs />,
+          },
+          {
+            path: "/panel/:name",
+            element: <Panel />,
+          },
+          {
+            path: "button-template",
+            element: <ButtonTemplate />,
+          },
+          {
+            path: "/onebot",
+            element: <OneBot />,
+          }
+        ],
+      },
+      {
+        path: "/update-password",
+        element: <UpdatePassWord />,
+      },
+      {
+        path: "*",
+        element: <NotRoute />,
+      },
+    ],
+  },
+  {
+    path: "*",
+    element: <NotRoute />,
+  },
+]);
+export default router;

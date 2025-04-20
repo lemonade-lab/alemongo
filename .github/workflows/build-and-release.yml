@@ -1,0 +1,197 @@
+name: Build and Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: '版本号 (例: 0.0.1)'
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build and Upload Release Assets
+    runs-on: ubuntu-latest
+
+    steps:
+      # 检出代码
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # 创建 GitHub Release
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        with:
+          tag_name: v${{ github.event.inputs.version }}
+          release_name: Release v${{ github.event.inputs.version }}
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # 缓存 Node.js 依赖
+      - name: Cache Node.js modules
+        uses: actions/cache@v3
+        with:
+           path: |
+              frontend/node_modules
+           key: ${{ runner.os }}-node-${{ hashFiles('frontend/package-lock.json', 'frontend/yarn.lock') }}
+           restore-keys: |
+              ${{ runner.os }}-node-
+
+      # 设置 Node.js 环境
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      # 安装依赖
+      - name: Install dependencies
+        run: |
+          cd frontend 
+          npm install yarn@1.19.0 -g
+          yarn install --ignore-engines
+          cd ../
+      
+      # 构建前端
+      - name: Build frontend
+        run: |
+          cd frontend
+          yarn build
+          cd ../
+
+      # 缓存 Go 模块
+      - name: Cache Go modules
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      # 设置 Go 环境
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.20'
+
+      # 构建二进制文件
+      - name: Build binaries
+        run: |
+          # Linux 架构
+          mkdir -p apps/linux/amd64
+          mkdir -p apps/linux/arm64
+          mkdir -p apps/linux/386
+          GOOS=linux GOARCH=amd64 go build -o apps/linux/amd64/alemongo
+          GOOS=linux GOARCH=arm64 go build -o apps/linux/arm64/alemongo
+          GOOS=linux GOARCH=386 go build -o apps/linux/386/alemongo
+          # macOS 架构
+          mkdir -p apps/darwin/amd64
+          mkdir -p apps/darwin/arm64
+          GOOS=darwin GOARCH=amd64 go build -o apps/darwin/amd64/alemongo
+          GOOS=darwin GOARCH=arm64 go build -o apps/darwin/arm64/alemongo
+          # Windows 架构
+          mkdir -p apps/windows/amd64
+          mkdir -p apps/windows/386
+          GOOS=windows GOARCH=amd64 go build -o apps/windows/amd64/alemongo.exe
+          GOOS=windows GOARCH=386 go build -o apps/windows/386/alemongo.exe
+
+      # 打包二进制文件
+      - name: Archive binaries
+        run: |
+          root_path=$(pwd)
+          # linux
+          cd $root_path/apps/linux/amd64
+          tar -czf alemongo.tar.gz alemongo
+          cd $root_path/apps/linux/arm64
+          tar -czf alemongo.tar.gz alemongo
+          cd $root_path/apps/linux/386
+          tar -czf alemongo.tar.gz alemongo
+          # macOS
+          cd $root_path/apps/darwin/amd64
+          tar -czf alemongo.tar.gz alemongo
+          cd $root_path/apps/darwin/arm64
+          tar -czf alemongo.tar.gz alemongo
+          # windows
+          cd $root_path/apps/windows/amd64
+          zip alemongo.zip alemongo.exe
+          cd $root_path/apps/windows/386
+          zip alemongo.zip alemongo.exe
+          # back
+          cd  $root_path
+
+      # 上传到 GitHub Release
+      - name: Upload Linux amd64 binary
+        uses: actions/upload-release-asset@v1.0.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: apps/linux/amd64/alemongo.tar.gz
+          asset_name: alemongo-linux-amd64-${{ github.event.inputs.version }}.tar.gz
+          asset_content_type: application/gzip
+
+      - name: Upload Linux arm64 binary
+        uses: actions/upload-release-asset@v1.0.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: apps/linux/arm64/alemongo.tar.gz
+          asset_name: alemongo-linux-arm64-${{ github.event.inputs.version }}.tar.gz
+          asset_content_type: application/gzip
+
+      - name: Upload Linux 386 binary
+        uses: actions/upload-release-asset@v1.0.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: apps/linux/386/alemongo.tar.gz
+          asset_name: alemongo-linux-386-${{ github.event.inputs.version }}.tar.gz
+          asset_content_type: application/gzip
+
+      - name: Upload macOS amd64 binary
+        uses: actions/upload-release-asset@v1.0.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: apps/darwin/amd64/alemongo.tar.gz
+          asset_name: alemongo-darwin-amd64-${{ github.event.inputs.version }}.tar.gz
+          asset_content_type: application/gzip
+
+      - name: Upload macOS arm64 binary
+        uses: actions/upload-release-asset@v1.0.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: apps/darwin/arm64/alemongo.tar.gz
+          asset_name: alemongo-darwin-arm64-${{ github.event.inputs.version }}.tar.gz
+          asset_content_type: application/gzip
+
+      - name: Upload Windows amd64 binary
+        uses: actions/upload-release-asset@v1.0.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: apps/windows/amd64/alemongo.zip
+          asset_name: alemongo-windows-amd64-${{ github.event.inputs.version }}.zip
+          asset_content_type: application/zip
+
+      - name: Upload Windows 386 binary
+        uses: actions/upload-release-asset@v1.0.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: apps/windows/386/alemongo.zip
+          asset_name: alemongo-windows-386-${{ github.event.inputs.version }}.zip
+          asset_content_type: application/zip

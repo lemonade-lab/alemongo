@@ -1,0 +1,21 @@
+{
+  "name": "alemonb",
+  "type": "module",
+  "dependencies": {
+    "@alemonjs/db": "latest",
+    "@alemonjs/gui": "latest",
+    "@alemonjs/process": "latest",
+    "alemonjs": "latest",
+    "jsxp": "latest"
+  },
+  "devDependencies": {
+    "npm": "^11.0.0",
+    "yarn": "^1.22.22"
+  },
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "plugins/*",
+    "extensions/*"
+  ]
+}
