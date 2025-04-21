@@ -1,6 +1,7 @@
 import {Button, Tooltip} from "antd";
 import {CloseCircleOutlined, PlusCircleOutlined} from "@ant-design/icons";
 import {DataButton} from "./types";
+import classNames from "classnames";
 
 // 按钮行组件
 const ButtonRow = ({
@@ -27,25 +28,24 @@ const ButtonRow = ({
             className="ellipsis flex-1 relative flex items-center gap-2"
           >
             {
-              // 根据类型渲染不同的按钮
-              button.render_data.style === 1 ? (
-                <Button
-                  type="primary"
-                  className="bg-blue-500 w-full"
-                  onClick={() => onEditButton(rowId, button.id)}
-                >
-                  {button.render_data.label}
-                </Button>
-              ) : (
-                <Button
-                  type="default"
-                  className="w-full"
-                  onClick={() => onEditButton(rowId, button.id)}
-                >
-                  {button.render_data.label}
-                </Button>
-              )
+              // button.render_data.style 根据类型渲染不同的按钮
+              // 0: 黑字&灰框&白背景, 1: 篮字&蓝框&白背景, 3: 红文&红框&白背景, 4: 白字蓝框蓝背景
             }
+            <Button
+              className={classNames("w-full", {
+                "bg-white text-gray-900 border-gray-300 hover:bg-gray-50":
+                  button.render_data.style === 0,
+                "bg-white text-blue-600 border-blue-600 hover:bg-blue-50":
+                  button.render_data.style === 1,
+                "bg-white text-red-600 border-red-600 hover:bg-red-50":
+                  button.render_data.style === 3,
+                "bg-blue-600 text-white border-blue-600 hover:bg-blue-700":
+                  button.render_data.style === 4,
+              })}
+              onClick={() => onEditButton(rowId, button.id)}
+            >
+              {button.render_data.label}
+            </Button>
             <Tooltip title="删除当前按钮">
               <div
                 className="absolute -top-1 right-0 z-10 cursor-pointer text-gray-500"

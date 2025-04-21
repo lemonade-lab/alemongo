@@ -158,11 +158,18 @@ const Navbars = () => {
   };
   const moreMenus = [
     {
+      id: 0,
+      go: "/settings",
+      name: "设置",
+    },
+    {
       id: 1,
+      go: "/update-password",
       name: "改密",
     },
     {
       id: 2,
+      go: "/logout",
       name: "退出",
     },
   ];
@@ -221,8 +228,8 @@ const Navbars = () => {
                       onClick={() => {
                         if (item.id === 2) {
                           goLogout();
-                        } else if (item.id === 1) {
-                          navicate("/update-password");
+                        } else {
+                          navigate(item.go);
                         }
                       }}
                     >

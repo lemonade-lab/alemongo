@@ -1,7 +1,7 @@
 import {useEffect, useState} from "react";
 import {useNavigate} from "react-router-dom";
 import {apiBotInfo, BotInfo} from "../../../api";
-import {Descriptions, DescriptionsProps} from "antd";
+import {Button, Descriptions, DescriptionsProps} from "antd";
 import Tags from "../../../commom/Tags";
 
 const Panel = () => {
@@ -68,11 +68,28 @@ const Panel = () => {
     },
   ];
 
+  const [data, setData] = useState<string[]>([]);
+  useEffect(() => {
+    setData(["待更新"]);
+  }, []);
+
   return (
     <div className="p-4 flex-1 flex flex-col">
       <Descriptions className="flex-1" bordered items={items} />
-      <div className="flex-1 h-full w-full bg-slate-500 rounded-md p-2 text-white">
-        执行记录x x x s
+      <div className=" overflow-auto flex-1 h-full w-full bg-slate-500 rounded-md p-2 text-white">
+        {data.map((item, index) => (
+          <div
+            key={index}
+            className="flex gap-2 items-center justify-between p-2 bg-slate-600 rounded-md mb-2"
+          >
+            <div className="flex gap-2">
+              <span>{item}</span>
+            </div>
+            <div className="flex gap-2">
+              <Button type="text">删除</Button>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );

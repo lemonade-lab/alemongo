@@ -1,33 +1,27 @@
-import {useEffect, useState} from "react";
+import {useState} from "react";
 import {EditOutlined, SettingOutlined} from "@ant-design/icons";
 import {Card, message, Modal} from "antd";
-import CreateForm from "./CreateForm";
+import CreateForm, { CreateFormValues } from "./CreateForm";
 import {useForm} from "antd/es/form/Form";
-
-type CardDateType = {
-  name: string;
-  port: string;
-};
-
+ 
 const Configs = () => {
   const [visible, setVisible] = useState(false);
-  const [data, setData] = useState<CardDateType[]>([]);
-  useEffect(() => {
-    setData([
-      {
-        name: "config1",
-        port: "12127",
-      },
-    ]);
-  }, []);
+  const [data, setData] = useState<CreateFormValues[]>([]);
   const onCreateConfig = () => {
     setVisible(true);
   };
-  const regPort = /^21|22|443|80|3389|3306|1433|8000-9000/;
   // 添加
-  const onFinishAdd = (values: CardDateType) => {
+  const onFinishAdd = (values: CreateFormValues) => {
+    // 可取1024-49151，但禁用3389|3306|1433|8000-8999
     // 检查端口
-    if (regPort.test(values.port)) {
+    const port = String(values.port);
+    if (
+      !/^[0-9]{1,5}$/.test(port) ||
+      /^(3389|3306|1433)$/.test(port) ||
+      /^(8[0-9]{3})$/.test(port) ||
+      values.port < 1024 ||
+      values.port > 49151
+    ) {
       message.error("端口不合法");
       return;
     }

@@ -1,9 +1,13 @@
-import {Form, Input, message, Modal} from "antd";
+import {Form, message, Modal} from "antd";
 import {OneBotClient} from "./sdk/wss";
 import {Button, Table, Tag} from "antd";
-import type {TableProps} from "antd";
+import type {TableProps, TabsProps} from "antd";
 import {useState} from "react";
-import Menu from "./views/Menu";
+import {Tabs} from "antd";
+import {
+  MailOutlined,
+} from "@ant-design/icons";
+import ConnectForm from "./ConnectFrom";
 
 // 扩展window对象的类型
 declare global {
@@ -24,32 +28,46 @@ const OneBot = () => {
   const [data, setData] = useState<DataType[]>([]);
   const [form] = Form.useForm();
   const [show, setShow] = useState(false);
+  const [isConnect, setIsConnect] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   /**
    * @param values
    * @returns
    */
   const onFinish = (values: {host: string; port: string}) => {
-    if (window?.wsClient) {
+    if (window?.wsClient || isConnect) {
       message.error("请先断开连接");
       return;
     }
+    if (isLoading) {
+      message.error("正在连接中，请稍后");
+      return;
+    }
+    setIsLoading(true);
+
     const wsClient = new OneBotClient({
       url: `ws://${values.host}:${values.port}`,
     });
     wsClient.connect();
-    wsClient.on("META", () => {});
+    wsClient.on("META", () => {
+      message.success("连接成功");
+      setIsConnect(true);
+      setShow(false);
+      setIsLoading(false);
+    });
+    wsClient.on("CLOSE", () => {
+      message.error("连接已断开");
+      window.wsClient = null;
+      setIsConnect(false);
+      setIsLoading(false);
+    });
     wsClient.on("ERROR", (event) => {
       console.error(event);
-      window.wsClient = null;
     });
     // 得到api结果。
     wsClient.on("API_RESULT", (event) => {
       console.log("API_RESULT", event);
-    });
-    wsClient.on("CLOSE", () => {
-      window.wsClient = null;
-      message.error("连接已断开");
     });
     wsClient.on("REQUEST_ADD_GROUP", (event) => {
       console.log("REQUEST_ADD_GROUP", event);
@@ -144,34 +162,93 @@ const OneBot = () => {
       ),
     },
   ];
+  const [activeKey, setActiveKey] = useState("request");
+  const onChange = (key: string) => {
+    console.log("Tab changed to: ", key);
+    setActiveKey(key);
+  };
+  const items: TabsProps["items"] = [
+    {
+      label: (
+        <div className="flex items-center gap-2">
+          <MailOutlined />
+          <span>请求</span>
+        </div>
+      ),
+      key: "request",
+      children: <Table columns={columns} dataSource={data} />,
+    },
+    {
+      label: (
+        <div className="flex items-center gap-2">
+          <MailOutlined />
+          <span>通知</span>
+        </div>
+      ),
+      key: "notice",
+    }
+  ];
+
+  const TabBarExtraContent = ({
+    onConnect,
+    onClose,
+  }: {
+    onConnect: () => void;
+    onClose: () => void;
+  }) => {
+    return (
+      <div className="flex gap-2">
+        {isConnect ? (
+          <Button type="primary" onClick={onClose}>
+            断开
+          </Button>
+        ) : (
+          <Button type="primary" onClick={onConnect}>
+            连接
+          </Button>
+        )}
+      </div>
+    );
+  };
+
   return (
-    <div className="flex flex-col">
-      <Menu />
-      <Table columns={columns} dataSource={data} />
+    <div className="flex  p-2 md:p-4 flex-col">
+      <h2 className="text-2xl/7 font-bold text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
+        OneBot 消息监听
+        <span className="text-sm text-gray-500 mx-2">
+           减少频繁在不同地点登陆造成的账号安全问题
+        </span>
+      </h2>
+      <div className="flex-1 overflow-auto w-full">
+        <Tabs
+          activeKey={activeKey}
+          items={items}
+          onChange={onChange}
+          tabBarExtraContent={
+            <TabBarExtraContent
+              onConnect={() => {
+                setShow(true);
+              }}
+              onClose={() => {
+                if (window?.wsClient) {
+                  window.wsClient.close();
+                  window.wsClient = null;
+                  message.success("断开连接成功");
+                }
+                setIsConnect(false);
+              }}
+            />
+          }
+        />
+      </div>
       <Modal
         open={show}
         title="连接"
+        loading={isLoading}
         onCancel={() => setShow(false)}
         onOk={() => form.submit()}
       >
-        <Form name="basic" form={form} labelCol={{span: 4}} onFinish={onFinish}>
-          <Form.Item
-            label="host"
-            name="host"
-            initialValue="gz.xhh.pw"
-            rules={[{required: true, message: "Please input your host!"}]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item
-            label="port"
-            name="port"
-            initialValue="6700"
-            rules={[{required: true, message: "Please input your port!"}]}
-          >
-            <Input />
-          </Form.Item>
-        </Form>
+        <ConnectForm form={form} onFinish={onFinish} />
       </Modal>
     </div>
   );

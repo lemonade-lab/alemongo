@@ -99,9 +99,9 @@ export class OneBotClient {
    * @param val 事件处理函数
    */
   on<T extends keyof OneBotEventMap>(key: T, val: (event: OneBotEventMap[T]) => void) {
-     if(!this.#events) this.#events = {}
+    if (!this.#events) this.#events = {}
     if (!this.#events[key]) {
-        this.#events[key] = [] 
+      this.#events[key] = []
     }
     this.#events[key].push(val)
     return this
@@ -144,12 +144,12 @@ export class OneBotClient {
           if (event?.notice_type == 'group_increase') {
             // 群成员增加
             // if (this.#events['NOTICE_GROUP_MEMBER_INCREASE'])
-              // this.#events['NOTICE_GROUP_MEMBER_INCREASE'](event)
+            // this.#events['NOTICE_GROUP_MEMBER_INCREASE'](event)
             this.handleEvent('NOTICE_GROUP_MEMBER_INCREASE', event)
           } else if (event?.notice_type == 'group_decrease') {
             // 群成员减少
             // if (this.#events['NOTICE_GROUP_MEMBER_REDUCE'])
-              // this.#events['NOTICE_GROUP_MEMBER_REDUCE'](event)
+            // this.#events['NOTICE_GROUP_MEMBER_REDUCE'](event)
             this.handleEvent('NOTICE_GROUP_MEMBER_REDUCE', event)
           }
           return
@@ -224,6 +224,13 @@ export class OneBotClient {
         onClose(code, null)
       }
 
+    }
+  }
+
+  close() {
+    if (this.#ws) {
+      this.#ws.close()
+      this.#ws = null
     }
   }
 

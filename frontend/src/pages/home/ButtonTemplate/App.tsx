@@ -7,7 +7,7 @@ import LoadForm from "./LoadFrom";
 import EditForm from "./EditForm";
 import {QQ_TEMPLATE_KEY} from "../../../api/base";
 import {useForm} from "antd/es/form/Form";
-import './index.css';
+import "./index.css";
 
 /**
  * @returns
@@ -309,7 +309,6 @@ const ButtonTemplate: React.FC = () => {
         />
         <OutputSection output={output} onCopy={copyTemplate} />
       </div>
-
       <Modal
         title="加载模板"
         open={visible}

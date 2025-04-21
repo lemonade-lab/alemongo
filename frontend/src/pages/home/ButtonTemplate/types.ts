@@ -4,7 +4,7 @@ export type DataButton = {
     "render_data": {
         "label": string,
         "visited_label": string,
-        "style": number
+        "style": number // 0: 灰色线框, 1: 蓝色线框, 3: 红色文字, 4: 蓝色背景
     },
     "action": {
         "type": number,
@@ -37,5 +37,5 @@ export type EditFormValues = {
     unsupport_tips: string;
     at_bot_show_channel_list: boolean;
     enter: boolean;
-  };
-  
+};
+

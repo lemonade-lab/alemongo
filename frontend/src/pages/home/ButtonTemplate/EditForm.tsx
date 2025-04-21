@@ -5,7 +5,7 @@ const EditForm = (props: {
   onFinish: (values: EditFormValues) => void;
 }) => {
   return (
-    <Form form={props.form} onFinish={props.onFinish}>
+    <Form labelCol={{span: 5}} form={props.form} onFinish={props.onFinish}>
       <Form.Item
         label="按钮文字"
         name="label"
@@ -51,7 +51,7 @@ const EditForm = (props: {
         </Select>
       </Form.Item>
       <Form.Item
-        label="点击次数限制"
+        label="点击次数"
         name="click_limit"
         rules={[{required: true, message: "请输入点击次数限制"}]}
       >

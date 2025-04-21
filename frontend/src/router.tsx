@@ -9,6 +9,7 @@ import Bots from "./pages/home/Bots/App";
 import ButtonTemplate from "./pages/home/ButtonTemplate/App";
 import UpdatePassWord from "./pages/UpdatePassWord/App";
 import OneBot from "./pages/home/OneBot/App";
+import Settings from "./pages/Settings/App";
 const router = createBrowserRouter([
   {
     path: "/login",
@@ -41,12 +42,16 @@ const router = createBrowserRouter([
           {
             path: "/onebot",
             element: <OneBot />,
-          }
+          },
         ],
       },
       {
         path: "/update-password",
         element: <UpdatePassWord />,
+      },
+      {
+        path: "/settings",
+        element: <Settings />,
       },
       {
         path: "*",
