@@ -1,6 +1,6 @@
-import {useEffect, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import {useNavigate} from "react-router-dom";
-import {apiBotInfo, BotInfo} from "../../../api";
+import {apiBotInfo, apiBotLog, BotInfo} from "../../../api";
 import {Button, Descriptions, DescriptionsProps} from "antd";
 import Tags from "../../../commom/Tags";
 
@@ -13,12 +13,12 @@ const Panel = () => {
     create_at: "",
   });
   const navigate = useNavigate();
-  const getInfo = async () => {
+  useEffect(() => {
     try {
       // 获得参数 /panel/tag
       const path = window.location.pathname;
       const name = path.split("/")[2];
-      await apiBotInfo({
+      apiBotInfo({
         name,
       }).then((res) => {
         setInfo(res);
@@ -27,12 +27,7 @@ const Panel = () => {
       console.log("error", e);
       navigate("/");
     }
-  };
-
-  useEffect(() => {
-    getInfo();
-  }, []);
-
+  }, [navigate]);
   const items: DescriptionsProps["items"] = [
     {
       label: "名称",
@@ -69,23 +64,68 @@ const Panel = () => {
   ];
 
   const [data, setData] = useState<string[]>([]);
+
+  const pollingRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const length = useRef(0);
+  const logRef = useRef(null);
+
+  // 开始轮训
+  const startPolling = (name: string) => {
+    clearTimeout(pollingRef.current!);
+    pollingRef.current = setTimeout(() => {
+      apiBotLog({name})
+        .then((res) => {
+          // 根据换行符分割
+          const lines = res.split("\n");
+          // 过滤掉空行
+          const filteredLines = lines.filter((line) => line.trim() !== "");
+          setData(filteredLines);
+        })
+        .catch((err) => {
+          console.log("err", err);
+        })
+        .finally(() => {
+          startPolling(name);
+        });
+    }, 1000);
+  };
+
   useEffect(() => {
-    setData(["待更新"]);
-  }, []);
+    if (!info.name) return;
+    startPolling(info.name);
+
+    return () => {
+      // 清除轮训
+      clearTimeout(pollingRef.current!);
+    };
+  }, [info]);
+
+  useEffect(() => {
+    // 长度增加时，滚动到底部
+    if (length.current < data.length) {
+      // 滚动到底部
+      if (logRef.current) {
+        const element = logRef.current as HTMLDivElement;
+        element.scrollTop = element.scrollHeight;
+      }
+    }
+    length.current = data.length;
+  }, [data]);
 
   return (
     <div className="p-4 flex-1 flex flex-col">
       <Descriptions className="flex-1" bordered items={items} />
-      <div className=" overflow-auto flex-1 h-full w-full bg-slate-500 rounded-md p-2 text-white">
+      <div
+        ref={logRef}
+        className="overflow-auto flex-1 max-h-80 bg-slate-500 rounded-md p-1 text-white"
+      >
         {data.map((item, index) => (
-          <div
-            key={index}
-            className="flex gap-2 items-center justify-between p-2 bg-slate-600 rounded-md mb-2"
-          >
-            <div className="flex gap-2">
+          <div key={index} className="flex justify-between px-1 bg-slate-600">
+            <div className="flex">
               <span>{item}</span>
             </div>
-            <div className="flex gap-2">
+            <div className="flex">
               <Button type="text">删除</Button>
             </div>
           </div>

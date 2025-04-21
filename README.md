@@ -19,6 +19,12 @@ alemonjs 框架，机器人管理端
 > 根目录下，创建`config.yaml`文件
 
 ```yaml
+# 服务器
+server: 
+  port: 17187 # 端口
+  host: "localhost" # 仅作打印
+  key: 'alemongo' # 密钥
+
 # 用户
 users: 
    - identity: "admin" # 管理员
@@ -34,12 +40,6 @@ users:
      mastername: "ningmengchongshui"
      username: "test_acount"
      password: "123456"
-
-# 服务器
-server: 
-  port: 17187 # 端口
-  host: "localhost" # 仅作打印
-  key: 'alemongo' # 密钥
 ```
 
 ## 机器人迁移

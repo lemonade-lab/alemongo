@@ -32,8 +32,17 @@ func Run(name string) (string, error) {
 	// 设置工作目录为机器人的路径
 	cmd.Dir = GetBotPath(name)
 	// 设置命令的标准输入输出
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
+	// cmd.Stdout = os.Stdout
+	// cmd.Stderr = os.Stderr
+	logPath := GetBotLogPath(name)
+	// 把输出内容丢到指定log文件中
+	logFile, err := os.OpenFile(logPath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	if err != nil {
+		return "打开日志文件失败", err
+	}
+	// 设置输出到日志文件
+	cmd.Stdout = logFile
+	cmd.Stderr = logFile
 	if err := cmd.Start(); err != nil {
 		// 启动失败。需要删除 pid 文件
 		if err := os.Remove(pidFilePath); err != nil {

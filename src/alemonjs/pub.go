@@ -6,6 +6,7 @@ import (
 	"os"
 	"path"
 	"strconv"
+	"time"
 
 	"github.com/shirou/gopsutil/v3/process"
 )
@@ -76,4 +77,35 @@ func IsRunning(name string) bool {
 
 	}
 	return false
+}
+
+func GetBotLogPath(name string) string {
+	botPath := GetBotPath(name)
+	today := time.Now().Format("2006-01-02")
+	logPath := path.Join(botPath, "alemonjs", "log", today+".log")
+	// 判断是否存在，不存在。写入空文件
+	if _, err := os.Stat(logPath); os.IsNotExist(err) {
+		// 得到该文件的目录
+		dir := path.Dir(logPath)
+		// 判断目录是否存在
+		if _, err := os.Stat(dir); os.IsNotExist(err) {
+			// 创建目录
+			if err := os.MkdirAll(dir, os.ModePerm); err != nil {
+				// 创建目录失败
+			}
+		}
+		// 创建文件
+		file, err := os.Create(logPath)
+		if err != nil {
+			// 创建文件失败
+		}
+		defer file.Close()
+	}
+	return logPath
+}
+
+func GetBotLogByDate(name string, date time.Time) string {
+	botPath := GetBotPath(name)
+	today := date.Format("2006-01-02")
+	return path.Join(botPath, "alemonjs", "log", today+".log")
 }

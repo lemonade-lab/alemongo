@@ -1,5 +1,5 @@
 import { message } from "antd";
-import  { request } from "./base";
+import { request } from "./base";
 import { BotInfo } from "./types";
 
 
@@ -118,6 +118,26 @@ export const apiBotInfo = async (data: {
     return new Promise((resolve, reject) => {
         request({
             url: "/bot/info",
+            method: "post",
+            data,
+        })
+            .then((res) => res.data)
+            .then(resolve)
+            .catch((err) => {
+                if (err?.response?.data?.msg) {
+                    message.error(err.response.data.msg);
+                }
+                reject(err);
+            });
+    });
+}
+
+export const apiBotLog = async (data: {
+    name: string
+}): Promise<string> => {
+    return new Promise((resolve, reject) => {
+        request({
+            url: "/bot/log",
             method: "post",
             data,
         })

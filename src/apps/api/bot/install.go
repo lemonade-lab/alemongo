@@ -30,13 +30,13 @@ func Install(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"code": http.StatusBadRequest,
 			"msg":  msg,
-			"data": nil,
+			"data": err,
 		})
 		return
 	}
 	ctx.JSON(http.StatusOK, gin.H{
 		"code": http.StatusOK,
-		"msg":  "请求成功",
-		"data": msg,
+		"msg":  msg,
+		"data": nil,
 	})
 }

@@ -2,11 +2,11 @@
   "name": "alemonb",
   "type": "module",
   "dependencies": {
-    "@alemonjs/db": "latest",
-    "@alemonjs/gui": "latest",
-    "@alemonjs/process": "latest",
-    "alemonjs": "latest",
-    "jsxp": "latest"
+    "@alemonjs/db": "^0.0.5",
+    "@alemonjs/gui": "^0.4.1",
+    "@alemonjs/process": "^0.0.7",
+    "alemonjs": "^2.0.14",
+    "jsxp": "^1.2.1"
   },
   "devDependencies": {
     "npm": "^11.0.0",
