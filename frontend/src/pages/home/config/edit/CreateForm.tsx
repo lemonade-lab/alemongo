@@ -14,7 +14,7 @@ const CreateForm = (props: {
   onFinish: (values: CreateFormValues) => void;
 }) => {
   return (
-    <Form labelCol={{span: 5}} form={props.form} onFinish={props.onFinish}>
+    <Form labelCol={{span: 4}} form={props.form} onFinish={props.onFinish}>
       <Form.Item
         label="名称name"
         name="name"
@@ -35,7 +35,7 @@ const CreateForm = (props: {
       <Form.Item label="登录login" name="login">
         <Input placeholder="取qq-bot、qq、discord、onebot、kook等"></Input>
       </Form.Item>
-      <Form.Item label="平台platform" name="login">
+      <Form.Item label="平台platform" name="platform">
         <Input placeholder="取alemonjs-qq等（强制覆盖login）"></Input>
       </Form.Item>
       <Form.Item label="事件过滤" name="repeated_event_time">

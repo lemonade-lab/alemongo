@@ -21,7 +21,11 @@ const ButtonRow = ({
 }) => {
   return (
     <div className="flex w-full flex-1 justify-between items-center gap-2 ">
-      <div className="flex w-full max-w-60 flex-wrap gap-2 p-1 bg-white ">
+      <div
+        className={classNames("flex w-full max-w-60 flex-wrap gap-2 bg-white", {
+          "p-1": buttons.length > 0,
+        })}
+      >
         {buttons.map((button) => (
           <div
             key={button.id}

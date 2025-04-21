@@ -28,9 +28,11 @@ const ButtonTemplate: React.FC = () => {
 
   // 删除行
   const deleteRow = (rowId: number) => {
-    setRows(rows.filter((row) => row.id !== rowId));
+    const currentRow = rows.filter((row) => row.id !== rowId);
+    setRows(currentRow);
   };
 
+  // 创建按钮数据
   const createButtonData = () => {
     return {
       id: Date.now().toString(),
@@ -73,6 +75,7 @@ const ButtonTemplate: React.FC = () => {
     );
   };
 
+  // 删除按钮
   const deleteButton = (rowId: number, buttonId: string) => {
     setRows(
       rows.map((row) =>
@@ -86,6 +89,7 @@ const ButtonTemplate: React.FC = () => {
     );
   };
 
+  // 编辑按钮
   const editButton = (rowId: number, buttonId: string) => {
     const row = rows.find((row) => row.id === rowId);
     if (!row) {
@@ -101,17 +105,43 @@ const ButtonTemplate: React.FC = () => {
     setEditVisible(true);
   };
 
-  //  解析模板
-  const generateButtons = (output: string) => {
+  /**
+   * 解析模板。同时确保rows中有id
+   * @param output 
+   * @returns 
+   */
+  const analysisButtonContent = (output: string) => {
     try {
       const json = JSON.parse(output);
       if (!json.rows) {
         message.error("模板格式错误");
         return;
       }
-      const newRows: DataRow[] = json.rows;
-      setRows(newRows);
+      // 设置输出
       setOutput(JSON.stringify(json, null, 2));
+      // 格式化数据
+      const newRows: DataRow[] = json.rows;
+      // 检测是否有id。么有id就添加一个
+      let id = 0;
+      const rows = newRows.map((row) => {
+        if (!row.id) {
+          id += 1;
+          return {
+            ...row,
+            id: id,
+          };
+        }
+        // 存在，看看是否小于当前最大值
+        if (row.id <= id) {
+          id += 1;
+          return {
+            ...row,
+            id: id,
+          };
+        }
+        return row;
+      });
+      setRows(rows);
     } catch {
       message.error("解析模板失败，请检查格式");
     }
@@ -125,10 +155,9 @@ const ButtonTemplate: React.FC = () => {
   };
 
   // 创建模板
-  const createTemplate = useCallback(() => {
+  const generateOutput = useCallback(() => {
     return {
       rows: rows.map((row) => ({
-        // id: row.id,
         buttons: row.buttons.map((button) => ({
           id: button.id,
           render_data: button.render_data,
@@ -140,9 +169,9 @@ const ButtonTemplate: React.FC = () => {
 
   // 时时更新输出
   useEffect(() => {
-    const template = createTemplate();
+    const template = generateOutput();
     setOutput(JSON.stringify(template, null, 2));
-  }, [rows, createTemplate]);
+  }, [rows, generateOutput]);
 
   // 时时存储到本地
   useEffect(() => {
@@ -150,14 +179,14 @@ const ButtonTemplate: React.FC = () => {
     if (!output) {
       const localOutput = localStorage.getItem(QQ_TEMPLATE_KEY);
       if (localOutput) {
-        generateButtons(localOutput);
+        analysisButtonContent(localOutput);
         return;
       }
     }
     // 存在数据。不是init。只要发生变化就存储到本地
-    const template = createTemplate();
+    const template = generateOutput();
     localStorage.setItem(QQ_TEMPLATE_KEY, JSON.stringify(template, null, 2));
-  }, [output, createTemplate]);
+  }, [output, generateOutput]);
 
   // 加载模板
   const [visible, setVisible] = useState(false);
@@ -167,7 +196,7 @@ const ButtonTemplate: React.FC = () => {
     try {
       const json = JSON.parse(values.template);
       if (Array.isArray(json.rows)) {
-        generateButtons(values.template);
+        analysisButtonContent(values.template);
         message.success("加载成功");
         setVisible(false);
       } else {
@@ -239,7 +268,6 @@ const ButtonTemplate: React.FC = () => {
         at_bot_show_channel_list: button.action.at_bot_show_channel_list,
         enter: button.action.enter,
       };
-      console.log("values", values);
       from.setFieldsValue(values);
     }
   }, [editVisible, currentEdit, rows, from]);

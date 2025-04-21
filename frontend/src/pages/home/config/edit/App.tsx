@@ -1,14 +1,13 @@
-import {EditOutlined, SettingOutlined} from "@ant-design/icons";
-import {Card, message} from "antd";
-import {useEffect, useState} from "react";
+import CreateForm from "./CreateForm";
+import {useForm} from "antd/es/form/Form";
 import {useNavigate} from "react-router-dom";
-import {CreateFormValues} from "./edit/CreateForm";
-const Configs = () => {
+const ConfigEdit = () => {
+  const [form] = useForm();
+  const output = "";
   const navigate = useNavigate();
-  const [data, setData] = useState<CreateFormValues[]>([]);
-  useEffect(() => {
-    setData([]);
-  }, []);
+  const onFinishAdd = () => {
+    //
+  };
   return (
     <div className="p-4 flex gap-4 flex-col bg-slate-100 flex-1">
       <div className="h-11  rounded-md p-1 flex justify-between items-center text-white">
@@ -18,7 +17,7 @@ const Configs = () => {
         <button
           type="button"
           onClick={() => {
-            navigate("/config/create");
+            navigate("/config/list");
           }}
           className="inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
         >
@@ -33,37 +32,28 @@ const Configs = () => {
               clipRule="evenodd"
             />
           </svg>
-          新增
+          列表
         </button>
       </div>
-      <div className="flex gap-2 flex-wrap">
-        {data.map((item, index) => (
-          <Card
-            key={index}
-            variant="borderless"
-            actions={[
-              <div>
-                <EditOutlined key="edit" />
-              </div>,
-              <div onClick={() => message.info("待支持")}>
-                <SettingOutlined key="setting" />
-              </div>,
-            ]}
-            style={{minWidth: 300}}
-          >
-            <Card.Meta
-              title={item.name}
-              description={
-                <div className="flex flex-col">
-                  <div className="flex gap-2">端口：{item.port}</div>
-                </div>
-              }
+      <div className="flex gap-2 flex-cow">
+        <div className="flex-1 p-2 bg-white rounded-md">
+          <CreateForm form={form} onFinish={onFinishAdd} />
+        </div>
+        <div className="flex-1 flex flex-col rounded-md bg-white">
+          <div className="p-1 bg-slate-400 rounded-t-md">
+            alemon.config.yaml 源码
+          </div>
+          <div className="p-2 flex-1">
+            <textarea
+              className="w-full h-full outline-none resize-none "
+              value={output}
+              readOnly
             />
-          </Card>
-        ))}
+          </div>
+        </div>
       </div>
     </div>
   );
 };
 
-export default Configs;
+export default ConfigEdit;
