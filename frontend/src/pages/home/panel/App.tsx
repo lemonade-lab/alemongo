@@ -152,22 +152,40 @@ const Panel = () => {
   };
 
   return (
-    <div className="p-4 flex-1 flex flex-col">
-      <div className="flex-1">
-        <div className="flex gap-2 justify-between">
-          <div className="flex gap-2 items-center">
-            <div className="text-xl">机器人: {info.name}</div>
+    <div className="p-4 flex-1 flex bg-slate-100 gap-2 flex-col xl:flex-row">
+      <div className="flex-1 bg-white rounded-md p-2">
+        <div className="flex gap-2 justify-between items-center">
+          <div className="text-xl">
+            <span className="mr-4">
+            {info.name}
+            </span>
+            <Tags type='pink'>{info.create_at}</Tags>
+          </div>
+          <div
+            className=" cursor-pointer flex items-center"
+            onClick={() => {
+              if (!info.node_modules) {
+                message.warning("请先安装依赖");
+                return;
+              }
+              navigate(`/panel/${info.name}/package`);
+            }}
+          >
+            {"package.json >>"}
+          </div>
+        </div>
+      </div>
+      <div className="flex-1 flex flex-col">
+        <div className="bg-slate-600 p-1 rounded-t-md flex justify-between items-center">
+          <div className="text-white flex gap-2   items-center">
+            <div>控制台</div>
             {info.status ? (
               <Tags type="green">running</Tags>
             ) : (
               <Tags type="yellow">stop</Tags>
             )}
           </div>
-        </div>
-      </div>
-      <div className="flex-1">
-        <div className="bg-slate-600 p-1 rounded-t-md flex justify-between items-center">
-          <div className="text-white">日志</div>
+          {info.pid ? <div className="text-white">PID: {info.pid}</div> : null}
           <div className="">
             <Spin spinning={isLoading} size="small">
               {info.node_modules && info.status ? (
@@ -202,7 +220,7 @@ const Panel = () => {
         </div>
         <div
           ref={logRef}
-          className="overflow-auto max-h-80 bg-slate-500 rounded-b-md p-1 text-white"
+          className="overflow-auto flex-1 min-h-20  bg-slate-500 rounded-b-md p-1 text-white"
         >
           {data.map((item, index) => (
             <div key={index} className="flex justify-between px-1 ">

@@ -16,7 +16,7 @@ const Main = () => {
       navigate("/login");
       return;
     }
-  }, [storeLogin.login]);
+  }, [storeLogin.login,navigate]);
 
   const getInfo = () => {
     apiCommonInfo()

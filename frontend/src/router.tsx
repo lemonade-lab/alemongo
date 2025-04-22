@@ -11,6 +11,7 @@ import UpdatePassWord from "./pages/UpdatePassWord/App";
 import OneBot from "./pages/home/OneBot/App";
 import Settings from "./pages/Settings/App";
 import ConfigEdit from "./pages/home/config/edit/App";
+import Package from "./pages/home/panel/pkg/App";
 const router = createBrowserRouter([
   {
     path: "/login",
@@ -39,6 +40,10 @@ const router = createBrowserRouter([
           {
             path: "/panel/:name",
             element: <Panel />,
+          },
+          {
+            path: "/panel/:name/package",
+            element: <Package />,
           },
           {
             path: "button-template",

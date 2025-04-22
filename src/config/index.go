@@ -17,9 +17,10 @@ const (
 )
 
 type User struct {
-	Identity string `yaml:"identity"`
-	UserName string `yaml:"username"`
-	PassWord string `yaml:"password"`
+	Identity   string `yaml:"identity"`
+	UserName   string `yaml:"username"`
+	PassWord   string `yaml:"password"`
+	MasterName string `yaml:"mastername"`
 }
 
 // 修复 Users 类型定义

@@ -64,7 +64,8 @@ func Create() *gin.Engine {
 				ApiBot.POST("/stop", bot.Stop)
 				ApiBot.POST("/restart", bot.Restart)
 				ApiBot.POST("/config", bot.Config)
-				ApiBot.POST(("/log"), bot.Log)
+				ApiBot.POST("/log", bot.Log)
+				ApiBot.POST("/package", bot.Package)
 			}
 		}
 	}

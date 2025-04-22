@@ -10,7 +10,7 @@ const OutputSection = ({
   onCopy: () => void;
 }) => {
   return (
-    <div className="flex-1 flex flex-col p-1 bg-gray-100 rounded-md shadow-md">
+    <div className="flex-1 flex flex-col p-1 bg-white rounded-md shadow-md">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-bold">生成结果</h2>
         <div className="flex gap-4">
@@ -19,8 +19,8 @@ const OutputSection = ({
           </Button>
         </div>
       </div>
-      <div className="flex-1 flex bg-white shadow-inner overflow-auto">
-        <textarea className="min-h-60 flex-1" value={output} readOnly />
+      <div className="flex-1 flex  shadow-inner overflow-auto">
+        <textarea className="min-h-60 flex-1 outline-none resize-none border rounded-md" value={output} readOnly />
       </div>
     </div>
   );
