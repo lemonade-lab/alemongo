@@ -1,47 +1,44 @@
 
 ## linux
 
+- 移动至 /usr/local
+
 ```sh
+mkdir -p /usr/local/alemongo
 mv ./alemongo /usr/local/alemongo/alemongo
 ```
 
-- 创建 service
+- run
 
 ```sh
-sudo vi /etc/systemd/system/alemongo.service
+/usr/local/alemongo/alemongo
 ```
 
-```service
-[Unit]
-Description=alemongo
+## GLIBC_2.32
 
-[Service]
-Type=simple
-WorkingDirectory=/usr/local/alemongo/alemongo
-ExecStart=/usr/local/alemongo/alemongo
+> 推荐更换Centos Steam9 或 ubuntu 
 
-[Install]
-WantedBy=multi-user.target
+- error
+
 ```
+./alemongo: /lib64/libc.so.6: version `GLIBC_2.32' not found (required by ./alemongo)
+```
+
+- 安装
 
 ```sh
-sudo systemctl daemon-reload
+wget http://ftp.gnu.org/gnu/libc/glibc-2.34.tar.gz
+tar -xvzf glibc-2.34.tar.gz
+cd glibc-2.34
+mkdir build
+cd build
+../configure --prefix=/opt/glibc-2.34
+make -j$(nproc)
+sudo make install
 ```
 
-- 操作
+- 使用2.24进行运行
 
 ```sh
-sudo systemctl start alemongo
-```
-
-```sh
-sudo systemctl stop alemongo
-```
-
-```sh
-sudo systemctl status alemongo
-```
-
-```sh
-sudo systemctl restart alemongo
+/opt/glibc-2.34/lib/ld-linux-x86-64.so.2 ./alemongo
 ```

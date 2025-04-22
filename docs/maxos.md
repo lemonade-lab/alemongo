@@ -13,6 +13,7 @@
 ### 移动应用到 `~/alemongo`
 
 ```sh
+mkdir -p ~/alemongo
 mv ./alemongo ~/alemongo/alemongo
 ```
 
@@ -48,8 +49,8 @@ vi ~/Library/LaunchAgents/com.alemongo.plist
 3. 加载并启动服务：
    
 ```sh
-   launchctl load ~/Library/LaunchAgents/com.alemongo.plist
-   launchctl start com.alemongo
+launchctl load ~/Library/LaunchAgents/com.alemongo.plist
+launchctl start com.alemongo
 ```
 
 ### 停止和卸载服务

@@ -38,7 +38,12 @@ users:
 
    - identity: "sub" # 子账户
      mastername: "ningmengchongshui"
-     username: "test_acount"
+     username: "sub_1"
+     password: "123456"
+
+   - identity: "tourist" # 游客（API数据为*，仅展示UI和UE）
+     mastername: "ningmengchongshui"
+     username: "tourist_acount"
      password: "123456"
 ```
 
