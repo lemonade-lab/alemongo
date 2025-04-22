@@ -1,32 +1,19 @@
 import {apiBotPackage} from "@/api";
-import {message} from "antd";
 import {useEffect, useState} from "react";
-import {useNavigate} from "react-router-dom";
 
 const Package = () => {
   const [pkgData, setPkgData] = useState<string>("");
   const [list, setList] = useState<string[]>([]);
-  const navigate = useNavigate();
   useEffect(() => {
-    try {
-      // /panel/:name/pakcage
-      const path = window.location.pathname;
-      const name = path.split("/")[2];
-      apiBotPackage({
-        name: name,
-      })
-        .then((res) => {
-          setPkgData(res);
-        })
-        .catch((err) => {
-          console.log("err", err);
-          message.error("获取依赖失败");
-        });
-    } catch (e) {
-      console.log("error", e);
-      navigate("/");
-    }
-  }, [navigate]);
+    // /panel/:name/pakcage
+    const path = window.location.pathname;
+    const name = path.split("/")[2];
+    apiBotPackage({
+      name: name,
+    }).then((res) => {
+      setPkgData(res);
+    });
+  }, []);
   useEffect(() => {
     if (!pkgData) {
       return;

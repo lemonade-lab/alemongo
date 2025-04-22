@@ -156,10 +156,7 @@ const Panel = () => {
       <div className="flex-1 bg-white rounded-md p-2">
         <div className="flex gap-2 justify-between items-center">
           <div className="text-xl">
-            <span className="mr-4">
-            {info.name}
-            </span>
-            <Tags type='pink'>{info.create_at}</Tags>
+            <span className="mr-4">{info.name}</span>
           </div>
           <div
             className=" cursor-pointer flex items-center"
@@ -172,6 +169,23 @@ const Panel = () => {
             }}
           >
             {"package.json >>"}
+          </div>
+        </div>{" "}
+        <div className="flex gap-2 justify-between items-center">
+          <div className="text-xl">
+            <Tags type="pink">{info.create_at}</Tags>
+          </div>
+          <div
+            className=" cursor-pointer flex items-center"
+            onClick={() => {
+              if (!info.node_modules) {
+                message.warning("请先安装依赖");
+                return;
+              }
+              navigate(`/panel/${info.name}/config`);
+            }}
+          >
+            {"alemon.config.yaml >>"}
           </div>
         </div>
       </div>

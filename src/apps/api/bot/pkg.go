@@ -27,22 +27,20 @@ func Package(ctx *gin.Context) {
 		})
 		return
 	}
-
 	pkgPath := alemonjs.GetBotPKGPath(name)
 	if _, err := os.Stat(pkgPath); os.IsNotExist(err) {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"code": http.StatusBadRequest,
-			"msg":  "机器人包不存在",
+			"msg":  "机器人依赖配置不存在",
 			"data": nil,
 		})
 		return
 	}
-	// 读取包文件
 	data, err := os.ReadFile(pkgPath)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"code": http.StatusInternalServerError,
-			"msg":  "读取包文件失败",
+			"msg":  "读取依赖配置失败",
 			"data": nil,
 		})
 		return
@@ -53,5 +51,4 @@ func Package(ctx *gin.Context) {
 		"msg":  "获取成功",
 		"data": string(data),
 	})
-	return
 }

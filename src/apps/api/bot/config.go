@@ -2,7 +2,6 @@ package bot
 
 import (
 	"alemongo/src/alemonjs"
-	"io/ioutil"
 	"net/http"
 	"os"
 
@@ -28,41 +27,28 @@ func Config(ctx *gin.Context) {
 		})
 		return
 	}
-	// 获取当前的机器人独立配置。
-	botPath := alemonjs.GetBotPath(name)
-	// 判断是否存在配置文件
-	if !alemonjs.Exists(botPath) {
+	configPath := alemonjs.GetBotConfigPath(name)
+	if _, err := os.Stat(configPath); os.IsNotExist(err) {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"code": http.StatusBadRequest,
-			"msg":  "配置文件不存在",
+			"msg":  "机器人配置不存在",
 			"data": nil,
 		})
 		return
 	}
-	// 配置地址
-	configPath := alemonjs.GetBotConfigPath(name)
-	// io 读取配置文件。不解析。直接丢字符串。
-	pidData, err := ioutil.ReadFile(configPath)
-	if os.IsNotExist(err) {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"code": http.StatusBadRequest,
-			"msg":  "配置文件不存在",
-			"data": "",
-		})
-		return
-	} else if err == nil {
-		ctx.JSON(http.StatusOK, gin.H{
-			"code": http.StatusOK,
-			"msg":  "请求成功",
-			"data": string(pidData),
-		})
-		return
-	} else {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"code": http.StatusBadRequest,
-			"msg":  "读取配置文件失败",
-			"data": "",
+	data, err := os.ReadFile(configPath)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"code": http.StatusInternalServerError,
+			"msg":  "读取配置失败",
+			"data": nil,
 		})
 		return
 	}
+	// 返回字符串
+	ctx.JSON(http.StatusOK, gin.H{
+		"code": http.StatusOK,
+		"msg":  "获取成功",
+		"data": string(data),
+	})
 }

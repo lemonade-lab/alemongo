@@ -171,3 +171,23 @@ export const apiBotPackage = async (data: {
             });
     });
 }
+
+export const apiBotConfig = async (data: {
+    name: string
+}): Promise<string> => {
+    return new Promise((resolve, reject) => {
+        request({
+            url: "/bot/config",
+            method: "post",
+            data,
+        })
+            .then((res) => res.data)
+            .then(resolve)
+            .catch((err) => {
+                if (err?.response?.data?.msg) {
+                    message.error(err.response.data.msg);
+                }
+                reject(err);
+            });
+    });
+}
