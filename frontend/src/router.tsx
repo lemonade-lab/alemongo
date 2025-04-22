@@ -13,6 +13,7 @@ import Settings from "./pages/Settings/App";
 import ConfigEdit from "./pages/home/config/edit/App";
 import Package from "./pages/home/panel/pkg/App";
 import Config from "./pages/home/panel/config/App";
+import XtermDate from "./pages/home/panel/xterm-date/App";
 const router = createBrowserRouter([
   {
     path: "/login",
@@ -49,6 +50,10 @@ const router = createBrowserRouter([
           {
             path: "/panel/:name/config",
             element: <Config />,
+          },
+          {
+            path: "/panel/:name/xterm-date",
+            element: <XtermDate />,
           },
           {
             path: "button-template",

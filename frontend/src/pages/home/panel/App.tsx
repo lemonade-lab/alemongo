@@ -10,6 +10,7 @@ import {
 } from "../../../api";
 import {Button, message, Spin} from "antd";
 import Tags from "../../../commom/Tags";
+import {FullscreenOutlined} from "@ant-design/icons";
 
 const Panel = () => {
   const [info, setInfo] = useState<BotInfo>({
@@ -30,16 +31,11 @@ const Panel = () => {
   };
 
   useEffect(() => {
-    try {
-      // 获得参数 /panel/tag
-      const path = window.location.pathname;
-      const name = path.split("/")[2];
-      initBotInfo(name);
-    } catch (e) {
-      console.log("error", e);
-      navigate("/");
-    }
-  }, [navigate]);
+    // 获得参数 /panel/tag
+    const path = window.location.pathname;
+    const name = path.split("/")[2];
+    initBotInfo(name);
+  }, []);
 
   const [data, setData] = useState<string[]>([]);
   const pollingRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -200,7 +196,15 @@ const Panel = () => {
             )}
           </div>
           {info.pid ? <div className="text-white">PID: {info.pid}</div> : null}
-          <div className="">
+          <div className="flex gap-2">
+            <div
+              className=" right-2 bottom-2 cursor-pointer z-10 bg-slate-700 text-white py-1 px-2 rounded-md"
+              onClick={() => {
+                navigate(`/panel/${info.name}/xterm-date`);
+              }}
+            >
+              <FullscreenOutlined />
+            </div>
             <Spin spinning={isLoading} size="small">
               {info.node_modules && info.status ? (
                 <Button
@@ -234,7 +238,7 @@ const Panel = () => {
         </div>
         <div
           ref={logRef}
-          className="overflow-auto flex-1 min-h-20  bg-slate-500 rounded-b-md p-1 text-white"
+          className="overflow-auto max-h-80 flex-1 min-h-20  bg-slate-500 rounded-b-md p-1 text-white"
         >
           {data.map((item, index) => (
             <div key={index} className="flex justify-between px-1 ">

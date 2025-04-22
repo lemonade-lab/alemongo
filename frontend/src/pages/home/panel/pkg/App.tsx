@@ -35,13 +35,19 @@ const Package = () => {
           依赖列表
         </h2>
       </div>
-      <div className="flex flex-col gap-2">
-        <div className="flex-1 flex flex-col bg-slate-100 rounded-md p-2">
+      <div className="flex flex-1 flex-col xl:flex-row gap-2">
+        <div className="flex-1 flex flex-col  rounded-md p-2">
           {list.map((item, index) => (
             <div key={index} className="bg-white p-2 rounded-md shadow-md mb-2">
               {item}
             </div>
           ))}
+        </div>
+        <div className="flex-1 flex bg-white rounded-md">
+          <textarea
+            className="flex-1  outline-none resize-none bg-white p-2 rounded-md shadow-md"
+            value={pkgData}
+          ></textarea>
         </div>
       </div>
     </div>

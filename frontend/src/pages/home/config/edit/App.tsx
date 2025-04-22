@@ -41,7 +41,7 @@ const ConfigEdit = () => {
         </div>
         <div className="flex-1 flex flex-col rounded-md bg-white">
           <div className="p-1 bg-slate-400 rounded-t-md">
-            alemon.config.yaml 源码
+            alemon.config.yaml
           </div>
           <div className="p-2 flex-1">
             <textarea

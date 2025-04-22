@@ -134,6 +134,7 @@ export const apiBotInfo = async (data: {
 
 export const apiBotLog = async (data: {
     name: string
+    timestamp?: number
 }): Promise<string> => {
     return new Promise((resolve, reject) => {
         request({

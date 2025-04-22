@@ -29,22 +29,22 @@ func Log(ctx *gin.Context) {
 		})
 		return
 	}
-
 	// 时间戳
 	timestamp := ctx.PostForm("timestamp")
 	var date time.Time
 	if timestamp != "" {
 		// 解析时间戳
-		ts, err := strconv.ParseInt(timestamp, 10, 64)
+		timestampInt, err := strconv.ParseInt(timestamp, 10, 64)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{
 				"code": http.StatusBadRequest,
-				"msg":  "无效的时间戳",
+				"msg":  "时间戳格式错误",
 				"data": nil,
 			})
 			return
 		}
-		date = time.Unix(ts, 0)
+		// 转换为时间（毫秒转秒）
+		date = time.Unix(timestampInt/1000, (timestampInt%1000)*int64(time.Millisecond))
 	} else {
 		// 如果没有提供时间戳，使用当前时间
 		date = time.Now()
