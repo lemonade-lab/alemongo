@@ -72,12 +72,12 @@ export const apiBotStop = async (data: {
     });
 }
 
-export const apiBotInstall = async (data: {
+export const apiBotYarnInstall = async (data: {
     name: string
 }) => {
     return new Promise((resolve, reject) => {
         request({
-            url: "/bot/install",
+            url: "/bot/yarn/install",
             method: "post",
             data,
         })

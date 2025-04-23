@@ -2,12 +2,13 @@ package bot
 
 import (
 	"alemongo/src/alemonjs"
+	"alemongo/src/alemonjs/yarn"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
-func Install(ctx *gin.Context) {
+func YarnInstall(ctx *gin.Context) {
 	name := ctx.PostForm("name")
 	if name == "" {
 		ctx.JSON(http.StatusBadRequest, gin.H{
@@ -25,7 +26,7 @@ func Install(ctx *gin.Context) {
 		})
 		return
 	}
-	msg, err := alemonjs.Install(name)
+	msg, err := yarn.Install(name)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"code": http.StatusBadRequest,

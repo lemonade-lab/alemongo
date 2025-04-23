@@ -1,5 +1,6 @@
 import {apiBotLog} from "@/api";
 import {DatePicker, DatePickerProps} from "antd";
+import dayjs from "dayjs";
 import {useEffect, useState} from "react";
 
 const XtermDate = () => {
@@ -37,7 +38,11 @@ const XtermDate = () => {
             <div>控制台日志</div>
           </div>
           <div className="">
-            <DatePicker onChange={onChange} />
+            <DatePicker
+              // 默认今天
+              defaultValue={dayjs()}
+              onChange={onChange}
+            />
           </div>
         </div>
         <div className="overflow-auto max-h-80 relative flex-1 min-h-20  bg-slate-500 rounded-b-md p-1 text-white">

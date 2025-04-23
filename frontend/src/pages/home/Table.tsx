@@ -2,7 +2,7 @@ import {PropsWithChildren, useEffect, useState} from "react";
 import {
   apiBotDelete,
   apiBotInfo,
-  apiBotInstall,
+  apiBotYarnInstall,
   apiBotList,
   apiBotRun,
   apiBotStop,
@@ -123,7 +123,7 @@ const Table = () => {
     }
     setNames((prev) => [...prev, name]);
     // 安装依赖
-    apiBotInstall({
+    apiBotYarnInstall({
       name,
     })
       .then((res) => {
@@ -162,7 +162,7 @@ const Table = () => {
   };
 
   const TD = ({children}: PropsWithChildren) => {
-    return <td className="px-6 py-4 whitespace-nowrap">{children}</td>;
+    return <td className="px-6 py-4 whitespace-nowrap min-w-20">{children}</td>;
   };
 
   return (
@@ -196,7 +196,7 @@ const Table = () => {
                 <TD>{item.create_at}</TD>
                 <TD>
                   <Spin spinning={names.includes(item.name)} size="small">
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 justify-end">
                       {item.node_modules && item.status ? (
                         <Button
                           type="primary"
@@ -230,9 +230,18 @@ const Table = () => {
                           className=" bg-blue-500"
                           onClick={() => onGoPanel(item.name)}
                         >
-                          查看
+                          详细
                         </Button>
                       ) : null}
+                      <Button
+                        type="primary"
+                        className=" bg-blue-500"
+                        onClick={() => {
+                          navigate(`/panel/${item.name}/xterm-date`);
+                        }}
+                      >
+                        日志
+                      </Button>
                       <Popconfirm
                         title="彻底删除"
                         description="你确定删除这个机器人吗?"

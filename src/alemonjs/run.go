@@ -4,7 +4,6 @@ import (
 	"io/ioutil"
 	"os"
 	"os/exec"
-	"path"
 	"strconv"
 )
 
@@ -14,19 +13,16 @@ func Run(name string) (string, error) {
 	if _, err := exec.LookPath("node"); err != nil {
 		return "未找到NodeJS", err
 	}
-	if !Exists(name) {
-		return "机器人不存在", os.ErrNotExist
-	}
 	if IsRunning(name) {
 		return "机器人已经在运行", nil
 	}
 	if !ExistsNodeModules(name) {
 		return "请先安装依赖", os.ErrNotExist
 	}
-	// 是否在运行
+	// pid 文件路径
 	pidFilePath := GetPidFilePath(name)
 	// 启动脚本
-	indexPath := path.Join("alemonjs", "index.js")
+	indexPath := GetBotIndexRelativePath()
 	// 执行
 	cmd := exec.Command("node", indexPath)
 	// 设置工作目录为机器人的路径

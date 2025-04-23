@@ -1,6 +1,7 @@
-package alemonjs
+package yarn
 
 import (
+	"alemongo/src/alemonjs"
 	"os"
 	"os/exec"
 	"path"
@@ -12,7 +13,7 @@ func Install(name string) (string, error) {
 	if _, err := exec.LookPath("node"); err != nil {
 		return "未找到NodeJS", err
 	}
-	if IsRunning(name) {
+	if alemonjs.IsRunning(name) {
 		return "机器人在运行", os.ErrExist
 	}
 	// yarn.cjs
@@ -20,10 +21,10 @@ func Install(name string) (string, error) {
 	// yanr install
 	cmd := exec.Command("node", cliDir, "install", "--ignore-engines")
 	// 设置工作目录为机器人的路径
-	cmd.Dir = GetBotPath(name)
+	cmd.Dir = alemonjs.GetBotPath(name)
 	// cmd.Stdout = os.Stdout
 	// cmd.Stderr = os.Stderr
-	logPath := GetBotLogPath(name)
+	logPath := alemonjs.GetBotLogPath(name)
 	// 把输出内容丢到指定log文件中
 	logFile, err := os.OpenFile(logPath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 	if err != nil {
@@ -34,7 +35,7 @@ func Install(name string) (string, error) {
 	cmd.Stderr = logFile
 	// 执行命令
 	if err := cmd.Run(); err != nil {
-		return "依赖安装失败", err
+		return "依赖安装异常", err
 	}
 	return "依赖安装成功", nil
 }

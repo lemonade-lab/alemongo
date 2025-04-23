@@ -9,11 +9,14 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+// 增、删、改、查权限。
+
 // Identity 枚举定义
 const (
 	IdentityAdmin  = "admin"
 	IdentityMaster = "master"
 	IdentitySub    = "sub"
+	IdentityUser   = "tourist"
 )
 
 type User struct {

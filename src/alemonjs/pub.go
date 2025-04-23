@@ -21,6 +21,10 @@ func GetPidFilePath(name string) string {
 	return path.Join(botPath, "alemonjs", name+".pid")
 }
 
+func GetBotIndexRelativePath() string {
+	return path.Join("alemonjs", "index.js")
+}
+
 func GetBotPKGPath(name string) string {
 	botPath := GetBotPath(name)
 	return path.Join(botPath, "package.json")
