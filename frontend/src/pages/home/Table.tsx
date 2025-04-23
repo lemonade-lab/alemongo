@@ -1,4 +1,4 @@
-import {PropsWithChildren, useEffect, useState} from "react";
+import {useEffect, useState} from "react";
 import {
   apiBotDelete,
   apiBotInfo,
@@ -8,28 +8,23 @@ import {
   apiBotStop,
   BotInfo,
 } from "../../api";
-import {Button, message, Popconfirm, Spin} from "antd";
+import {Button, message, Popconfirm, Spin, Table, TableProps, Tag} from "antd";
 import {useNavigate} from "react-router-dom";
 import Pagination from "../../commom/Pagination";
-import Tags from "../../commom/Tags";
-const Table = () => {
-  // 表头
-  const headings = [
-    {id: 2, name: "Name"},
-    {id: 3, name: "Status"},
-    {id: 1, name: "Pid"},
-    {id: 4, name: "Create"},
-    {id: 5, name: "Action"},
-  ];
-
-  const [pageInfo, setPageInfo] = useState({
-    page: 1,
-    pageSize: 10,
-    total: 0,
-  });
-
+const BotTable = () => {
   // 数据
   const [data, setData] = useState<BotInfo[]>([]);
+  const [curData, setCurData] = useState<BotInfo[]>([]);
+  const [pageInfo, setPageInfo] = useState({
+    page: 1,
+    pageSize: 8,
+    total: 0,
+  });
+  useEffect(() => {
+    const start = (pageInfo.page - 1) * pageInfo.pageSize;
+    const end = pageInfo.page * pageInfo.pageSize;
+    setCurData(data.slice(start, end));
+  }, [data, pageInfo.page, pageInfo.pageSize]);
 
   const initData = () => {
     // fetch data
@@ -161,105 +156,104 @@ const Table = () => {
     navigate(`/panel/${name}`);
   };
 
-  const TD = ({children}: PropsWithChildren) => {
-    return <td className="px-6 py-4 whitespace-nowrap min-w-20">{children}</td>;
-  };
-
+  const columns: TableProps<BotInfo>["columns"] = [
+    {
+      title: "昵称",
+      dataIndex: "name",
+      key: "name",
+    },
+    {
+      title: "状态",
+      dataIndex: "status",
+      render: (status) => (status == 1 ? <Tag>running</Tag> : <Tag>stop</Tag>),
+    },
+    {
+      title: "PID",
+      dataIndex: "pid",
+      key: "pid",
+    },
+    {
+      title: "创建时间",
+      dataIndex: "create_at",
+      key: "create_at",
+    },
+    {
+      title: "操作",
+      key: "action",
+      render: (_, record) => (
+        <Spin spinning={names.includes(record.name)} size="small">
+          <div className="flex gap-2 justify-end">
+            {record.node_modules && record.status ? (
+              <Button
+                type="primary"
+                className="bg-red-500 "
+                onClick={() => onStop(record.name)}
+              >
+                停止
+              </Button>
+            ) : null}
+            {record.node_modules && !record.status ? (
+              <Button
+                type="primary"
+                className=""
+                onClick={() => onRun(record.name)}
+              >
+                运行
+              </Button>
+            ) : null}
+            {!record.node_modules ? (
+              <Button
+                type="primary"
+                className="text-black bg-yellow-500"
+                onClick={() => onInstall(record.name)}
+              >
+                加载依赖
+              </Button>
+            ) : null}
+            {record.node_modules ? (
+              <Button
+                type="primary"
+                className=" bg-blue-500"
+                onClick={() => onGoPanel(record.name)}
+              >
+                详细
+              </Button>
+            ) : null}
+            <Button
+              type="primary"
+              className=" bg-blue-500"
+              onClick={() => {
+                navigate(`/panel/${record.name}/xterm-date`);
+              }}
+            >
+              日志
+            </Button>
+            <Popconfirm
+              title="彻底删除"
+              description="你确定删除这个机器人吗?"
+              onConfirm={() => onDelete(record.name)}
+              okText="确定"
+              cancelText="取消"
+            >
+              <Button type="primary" className="bg-red-500">
+                删除
+              </Button>
+            </Popconfirm>
+          </div>
+        </Spin>
+      ),
+    },
+  ];
   return (
-    <>
-      <div className="flex-1 overflow-auto w-60 md:w-full">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              {headings.map((item) => (
-                <th
-                  key={item.id}
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                >
-                  {item.name}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {data.map((item) => (
-              <tr key={item.name}>
-                <TD>{item.name}</TD>
-                <TD>
-                  {item.status ? (
-                    <Tags type="green">running</Tags>
-                  ) : (
-                    <Tags type="yellow">stop</Tags>
-                  )}
-                </TD>
-                <TD>{item.pid}</TD>
-                <TD>{item.create_at}</TD>
-                <TD>
-                  <Spin spinning={names.includes(item.name)} size="small">
-                    <div className="flex gap-2 justify-end">
-                      {item.node_modules && item.status ? (
-                        <Button
-                          type="primary"
-                          className="bg-red-500 "
-                          onClick={() => onStop(item.name)}
-                        >
-                          停止
-                        </Button>
-                      ) : null}
-                      {item.node_modules && !item.status ? (
-                        <Button
-                          type="primary"
-                          className=""
-                          onClick={() => onRun(item.name)}
-                        >
-                          运行
-                        </Button>
-                      ) : null}
-                      {!item.node_modules ? (
-                        <Button
-                          type="primary"
-                          className="text-black bg-yellow-500"
-                          onClick={() => onInstall(item.name)}
-                        >
-                          加载依赖
-                        </Button>
-                      ) : null}
-                      {item.node_modules ? (
-                        <Button
-                          type="primary"
-                          className=" bg-blue-500"
-                          onClick={() => onGoPanel(item.name)}
-                        >
-                          详细
-                        </Button>
-                      ) : null}
-                      <Button
-                        type="primary"
-                        className=" bg-blue-500"
-                        onClick={() => {
-                          navigate(`/panel/${item.name}/xterm-date`);
-                        }}
-                      >
-                        日志
-                      </Button>
-                      <Popconfirm
-                        title="彻底删除"
-                        description="你确定删除这个机器人吗?"
-                        onConfirm={() => onDelete(item.name)}
-                        okText="确定"
-                        cancelText="取消"
-                      >
-                        <Button type="primary" className="bg-red-500">
-                          删除
-                        </Button>
-                      </Popconfirm>
-                    </div>
-                  </Spin>
-                </TD>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+    <div className="flex-1 flex flex-col">
+      <div className="flex-1 overflow-auto">
+        <Table
+          className="min-w-full divide-y divide-gray-200"
+          pagination={false}
+          rowKey={(item) => item.name}
+          columns={columns}
+          dataSource={curData}
+        />
       </div>
       <Pagination
         total={pageInfo.total}
@@ -267,10 +261,14 @@ const Table = () => {
         page={pageInfo.page}
         onPageChange={(page) => {
           console.log("page", page);
+          setPageInfo({
+            ...pageInfo,
+            page,
+          });
         }}
       />
-    </>
+    </div>
   );
 };
 
-export default Table;
+export default BotTable;

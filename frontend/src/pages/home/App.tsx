@@ -3,7 +3,7 @@ import {useEffect, useState} from "react";
 import {DesktopOutlined, PieChartOutlined} from "@ant-design/icons";
 import type {MenuProps} from "antd";
 import lodash from "lodash";
-import {Outlet, useNavigate} from "react-router-dom";
+import {Outlet, useLocation, useNavigate} from "react-router-dom";
 
 type MenuItem = Required<MenuProps>["items"][number];
 const menuItems: MenuItem[] = [
@@ -18,6 +18,19 @@ const menuItems: MenuItem[] = [
  * @returns
  */
 const Home = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [selectedKeys, setSelectedKeys] = useState<string[]>(["/"]);
+  useEffect(() => {
+    const path = location.pathname;
+    const menuItem = menuItems.find((item) => item?.key === path);
+    if (menuItem?.key && typeof menuItem?.key == "string") {
+      setSelectedKeys([menuItem.key]);
+    } else {
+      setSelectedKeys([]);
+    }
+  }, [location]);
+
   const [collapsed, setCollapsed] = useState(false);
   useEffect(() => {
     // 使用节流
@@ -34,21 +47,18 @@ const Home = () => {
       window.removeEventListener("resize", reSize);
     };
   }, []);
-  const navigate = useNavigate();
   return (
     <section className="flex flex-1">
       <aside className="flex">
         <Menu
+          rootClassName="bg-gray-800 border-t border-gray-500"
           className="flex-1"
-          defaultSelectedKeys={["1"]}
-          // defaultOpenKeys={["sub1"]}
+          selectedKeys={selectedKeys}
+          onSelect={(e) => navigate(e.key)}
           mode="inline"
           theme="dark"
-          onSelect={(e) => navigate(e.key)}
-          // 要根据屏幕大小来设置
           inlineCollapsed={collapsed}
           items={menuItems}
-          rootClassName="bg-gray-800 border-t border-gray-500"
         />
       </aside>
       <article className="flex-1 flex flex-col">

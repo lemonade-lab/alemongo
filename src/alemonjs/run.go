@@ -4,6 +4,7 @@ import (
 	"io/ioutil"
 	"os"
 	"os/exec"
+	"path"
 	"strconv"
 )
 
@@ -23,6 +24,23 @@ func Run(name string) (string, error) {
 	pidFilePath := GetPidFilePath(name)
 	// 启动脚本
 	indexPath := GetBotIndexRelativePath()
+	// alemonjs/index.js, index.js, src/index.js, lib/index.js
+	// 如果启动脚本不存在
+	if _, err := os.Stat(indexPath); os.IsNotExist(err) {
+		indexPath = path.Join("index.js")
+		// 如果还是不存在
+		if _, err := os.Stat(indexPath); os.IsNotExist(err) {
+			indexPath = path.Join("src", "index.js")
+			// 如果还是不存在
+			if _, err := os.Stat(indexPath); os.IsNotExist(err) {
+				indexPath = path.Join("lib", "index.js")
+				// 如果还是不存在
+				if _, err := os.Stat(indexPath); os.IsNotExist(err) {
+					return "启动脚本不存在,请新建index.js", os.ErrNotExist
+				}
+			}
+		}
+	}
 	// 执行
 	cmd := exec.Command("node", indexPath)
 	// 设置工作目录为机器人的路径

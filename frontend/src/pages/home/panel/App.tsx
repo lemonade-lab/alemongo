@@ -153,7 +153,7 @@ const Panel = () => {
         <div className="text-2xl">信息</div>
         <div className="flex gap-2">
           <div className="min-w-20">名称:</div>
-          <div>{info.name}</div>
+          <Tags type='purple'>{info.name}</Tags>
         </div>
         <div className="flex gap-2">
           <div className="min-w-20">状态:</div>
@@ -218,7 +218,7 @@ const Panel = () => {
         </div>
         <div className="flex gap-2">
           <div className="min-w-20">创建时间:</div>
-          <div>{info.create_at}</div>
+          <Tags type='indigo'>{info.create_at}</Tags>
         </div>
       </div>
       <div className="flex-1 flex flex-col">
@@ -234,7 +234,7 @@ const Panel = () => {
           {info.pid ? <div className="text-white">PID: {info.pid}</div> : null}
           <div className="flex gap-2">
             <div
-              className=" right-2 bottom-2 cursor-pointer z-10 bg-slate-700 text-white py-1 px-2 rounded-md"
+              className=" right-2 bottom-2 cursor-pointer  bg-slate-700 text-white py-1 px-2 rounded-md"
               onClick={() => {
                 navigate(`/panel/${info.name}/xterm-date`);
               }}

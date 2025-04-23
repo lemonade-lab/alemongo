@@ -81,17 +81,17 @@ const Pagination = ({page, total, pageSize, onPageChange}: PaginationProps) => {
                 &lt;
               </button>
             )}
-            {pages.map((page) => (
+            {pages.map((pageNumber) => (
               <button
-                key={page}
-                onClick={() => onPageChange(page)}
+                key={pageNumber}
+                onClick={() => onPageChange(pageNumber)}
                 className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold ${
-                  page === page
+                  page === pageNumber
                     ? "bg-indigo-600 text-white"
                     : "text-gray-900 ring-1 ring-gray-300 ring-inset hover:bg-gray-50"
                 }`}
               >
-                {page}
+                {pageNumber}
               </button>
             ))}
             {total > 0 && (
