@@ -1,0 +1,53 @@
+name: 构建检验
+
+on:
+  push:
+    branches:
+      - dev-*
+
+jobs:
+  build-to-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 检出代码库
+        uses: actions/checkout@v2
+
+        # 缓存 Node.js 依赖
+      - name: Cache Node.js modules
+        uses: actions/cache@v3
+        with:
+           path: |
+              frontend/node_modules
+           key: ${{ runner.os }}-node-${{ hashFiles('frontend/package-lock.json', 'frontend/yarn.lock') }}
+           restore-keys: |
+              ${{ runner.os }}-node-
+
+      - name: 设置nodejs版本
+        uses: actions/setup-node@v2
+        with:
+          node-version: '18'
+
+      - name: 安装依赖
+        run: |
+          cd frontend
+          npm install yarn@1.19.1 -g
+          yarn install --ignore-engines
+          cd ..
+
+      # 缓存 Go 模块
+      - name: Cache Go modules
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      # 设置 Go 环境
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.20'
