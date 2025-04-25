@@ -28,8 +28,3 @@ jobs:
           echo "Creating branch: $NEW_BRANCH"
           git checkout -b $NEW_BRANCH
           git push origin $NEW_BRANCH
-
-      # 构建二进制文件
-      - name: Build GO
-        run: |
-          go build
