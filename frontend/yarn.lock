@@ -1614,10 +1614,10 @@ co@^4.6.0:
   resolved "https://registry.npmmirror.com/co/-/co-4.6.0.tgz#6ea6bdf3d853ae54ccb8e47bfa0bf3f9031fb184"
   integrity sha512-QVb0dM5HvG+uaxitm8wONl7jltx8dqhfU33DcqtOZcLSVIKSDDLDi7+0LbAKiyI8hD9u42m2YxXSkMGWThaecQ==
 
-codemirror@^5:
-  version "5.65.18"
-  resolved "https://registry.npmmirror.com/codemirror/-/codemirror-5.65.18.tgz#d7146e4271135a9b4adcd023a270185457c9c428"
-  integrity sha512-Gaz4gHnkbHMGgahNt3CA5HBk5lLQBqmD/pBgeB4kQU6OedZmqMBjlRF0LSrp2tJ4wlLNPm2FfaUd1pDy0mdlpA==
+codemirror@5:
+  version "5.65.19"
+  resolved "https://registry.npmmirror.com/codemirror/-/codemirror-5.65.19.tgz#71016c701d6a4b6e1982b0f6e7186be65e49653d"
+  integrity sha512-+aFkvqhaAVr1gferNMuN8vkTSrWIFvzlMV9I2KBLCWS2WpZ2+UAkZjlMZmEuT+gcXTi6RrGQCkWq1/bDtGqhIA==
 
 color-convert@^2.0.1:
   version "2.0.1"
@@ -4282,17 +4282,17 @@ rc-virtual-list@^3.14.2, rc-virtual-list@^3.5.1, rc-virtual-list@^3.5.2:
     rc-resize-observer "^1.0.0"
     rc-util "^5.36.0"
 
-react-codemirror2@^8.0.0:
-  version "8.0.1"
-  resolved "https://registry.npmmirror.com/react-codemirror2/-/react-codemirror2-8.0.1.tgz#a229c9dda2a6ee9ea18bdb8a4c33a1b2df823613"
-  integrity sha512-ZALowE5sGK1t66i0Fm1hoJLWT/iZHNjaAmcjwgYl9gyl2v1sqWwxzWHLmgq6K9KCk7p5+I+U3jMF1vsLaIkrmA==
+react-codemirror2@8.0.0:
+  version "8.0.0"
+  resolved "https://registry.npmmirror.com/react-codemirror2/-/react-codemirror2-8.0.0.tgz#0ce624d024ba4ac7bab8979c2fd6596500d6bf51"
+  integrity sha512-JIbhXoghvX0BrasIoCQvRxBPIU78plfjF1Buz0gaMFvZXwEDjkCYBkQhucoOtudQ7ikbB1jJUnmCsutElti7yA==
 
-react-dom@^19.0.0:
-  version "19.0.0"
-  resolved "https://registry.npmmirror.com/react-dom/-/react-dom-19.0.0.tgz#43446f1f01c65a4cd7f7588083e686a6726cfb57"
-  integrity sha512-4GV5sHFG0e/0AD4X+ySy6UJd3jVl1iNsNHdpad0qhABJ11twS3TTBnseqsKurKcsNqCEFeGL3uLpVChpIO3QfQ==
+react-dom@^19.1.0:
+  version "19.1.0"
+  resolved "https://registry.npmmirror.com/react-dom/-/react-dom-19.1.0.tgz#133558deca37fa1d682708df8904b25186793623"
+  integrity sha512-Xs1hdnE+DyKgeHJeJznQmYMIBG3TKIHJJT95Q58nHLSrElKlGQqDTR2HQ9fx5CN/Gk6Vh/kupBTDLU11/nDk/g==
   dependencies:
-    scheduler "^0.25.0"
+    scheduler "^0.26.0"
 
 react-floater@^0.7.9:
   version "0.7.9"
@@ -4383,10 +4383,10 @@ react-router@7.3.0:
     set-cookie-parser "^2.6.0"
     turbo-stream "2.4.0"
 
-react@^19.0.0:
-  version "19.0.0"
-  resolved "https://registry.npmmirror.com/react/-/react-19.0.0.tgz#6e1969251b9f108870aa4bff37a0ce9ddfaaabdd"
-  integrity sha512-V8AVnmPIICiWpGfm6GLzCR/W5FXLchHop40W4nXBmdlEceh16rCN8O8LNWm5bh5XUX91fh7KpA+W0TgMKmgTpQ==
+react@^19.1.0:
+  version "19.1.0"
+  resolved "https://registry.npmmirror.com/react/-/react-19.1.0.tgz#926864b6c48da7627f004795d6cce50e90793b75"
+  integrity sha512-FS+XFBNvn3GTAWq26joslQgWNoFu08F4kl0J4CgdNKADkdSGXQyTCnKteIAJy96Br6YbpEU1LSzV5dYtjMkMDg==
 
 read-cache@^1.0.0:
   version "1.0.0"
@@ -4709,10 +4709,10 @@ sass@^1.72.0:
   optionalDependencies:
     "@parcel/watcher" "^2.4.1"
 
-scheduler@^0.25.0:
-  version "0.25.0"
-  resolved "https://registry.npmmirror.com/scheduler/-/scheduler-0.25.0.tgz#336cd9768e8cceebf52d3c80e3dcf5de23e7e015"
-  integrity sha512-xFVuu11jh+xcO7JOAGJNOXld8/TcEHK/4CituBUeUb5hqxJLj9YuemAEuvm9gQ/+pgXYfbQuqAkiYu+u7YEsNA==
+scheduler@^0.26.0:
+  version "0.26.0"
+  resolved "https://registry.npmmirror.com/scheduler/-/scheduler-0.26.0.tgz#4ce8a8c2a2095f13ea11bf9a445be50c555d6337"
+  integrity sha512-NlHwttCI/l5gCPR3D1nNXtWABUmBwvZpEQiD4IXSbIDq8BzLIK/7Ir5gTFSGZDUu37K5cMNp0hFtzO38sC7gWA==
 
 scroll-into-view-if-needed@^3.1.0:
   version "3.1.0"

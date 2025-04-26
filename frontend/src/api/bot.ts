@@ -186,3 +186,32 @@ export const apiBotPackagesList = async (data: {
             .catch(reject);
     });
 }
+
+export const apiBotConfigsList = async (): Promise<string[]> => {
+    return new Promise((resolve, reject) => {
+        request({
+            url: "/bot/configs/list",
+            method: "get",
+        })
+            .then((res) => res.data)
+            .then(resolve)
+            .catch(reject);
+    });
+}
+
+// /configs/create
+export const apiBotConfigsCreate = async (data: {
+    name: string
+    content: string
+}): Promise<null> => {
+    return new Promise((resolve, reject) => {
+        request({
+            url: "/bot/configs/create",
+            method: "post",
+            data,
+        })
+            .then((res) => res.data)
+            .then(resolve)
+            .catch(reject);
+    });
+}

@@ -1,19 +1,16 @@
-import Code from "@/commom/CodeMirror";
-import CreateForm from "./CreateForm";
-import {useForm} from "antd/es/form/Form";
 import {useNavigate} from "react-router-dom";
+import CommonConfgEdit from "../../panel/CommonConfgEdit";
 const ConfigEdit = () => {
-  const [form] = useForm();
   const output = "";
   const navigate = useNavigate();
-  const onFinishAdd = () => {
-    //
+  const onSave = (name: string, value: string) => {
+    console.log(name, value);
   };
   return (
     <div className="p-4 flex gap-4 flex-col bg-slate-100 flex-1">
       <div className="h-11  rounded-md flex justify-between   text-white items-start">
         <h2 className="text-2xl/7 font-bold text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
-          配置管理
+          配置编辑
         </h2>
         <button
           type="button"
@@ -36,19 +33,11 @@ const ConfigEdit = () => {
           列表
         </button>
       </div>
-      <div className="flex gap-2 flex-cow">
-        <div className="flex-1 p-2 bg-white rounded-md">
-          <CreateForm form={form} onFinish={onFinishAdd} />
-        </div>
-        <div className="flex-1 flex flex-col rounded-md bg-white">
-          <div className="p-1 bg-slate-400 rounded-t-md">
-            alemon.config.yaml
-          </div>
-          <div className="p-2 flex-1">
-            <Code mode={"yaml"} value={output} />
-          </div>
-        </div>
-      </div>
+      <CommonConfgEdit
+        onSave={onSave}
+        name={window.location.pathname.split("/")[2]}
+        value={output}
+      />
     </div>
   );
 };

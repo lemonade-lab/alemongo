@@ -5,7 +5,7 @@
     "@alemonjs/db": "^0.0.5",
     "@alemonjs/gui": "^0.4.1",
     "@alemonjs/process": "^0.0.7",
-    "alemonjs": "^2.0.14",
+    "alemonjs": "^2.0.15",
     "jsxp": "^1.2.1"
   },
   "devDependencies": {
@@ -14,8 +14,6 @@
   },
   "private": true,
   "workspaces": [
-    "packages/*",
-    "plugins/*",
-    "extensions/*"
+    "packages/*"
   ]
 }

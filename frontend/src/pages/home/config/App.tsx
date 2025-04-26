@@ -2,12 +2,14 @@ import {EditOutlined, SettingOutlined} from "@ant-design/icons";
 import {Card, message} from "antd";
 import {useEffect, useState} from "react";
 import {useNavigate} from "react-router-dom";
-import {CreateFormValues} from "./edit/CreateForm";
+import {apiBotConfigsList} from "@/api";
 const Configs = () => {
   const navigate = useNavigate();
-  const [data, setData] = useState<CreateFormValues[]>([]);
+  const [concifgNames, setConfigNames] = useState<string[]>([]);
   useEffect(() => {
-    setData([]);
+    apiBotConfigsList().then((res) => {
+      setConfigNames(res);
+    });
   }, []);
   return (
     <div className="p-4 flex gap-4 flex-col bg-slate-100 flex-1">
@@ -37,7 +39,7 @@ const Configs = () => {
         </button>
       </div>
       <div className="flex gap-2 flex-wrap">
-        {data.map((item, index) => (
+        {concifgNames.map((name, index) => (
           <Card
             key={index}
             variant="borderless"
@@ -49,16 +51,8 @@ const Configs = () => {
                 <SettingOutlined key="setting" />
               </div>,
             ]}
-            style={{minWidth: 300}}
           >
-            <Card.Meta
-              title={item.name}
-              description={
-                <div className="flex flex-col">
-                  <div className="flex gap-2">端口：{item.port}</div>
-                </div>
-              }
-            />
+            <Card.Meta title={name} />
           </Card>
         ))}
       </div>

@@ -12,7 +12,7 @@ import OneBot from "./pages/home/OneBot/App";
 import Settings from "./pages/Settings/App";
 import ConfigEdit from "./pages/home/config/edit/App";
 import Package from "./pages/home/panel/pkg/App";
-import Config from "./pages/home/panel/config/App";
+import Config from "./pages/home/panel/Conifg/App";
 import XtermDate from "./pages/home/panel/xterm-date/App";
 import Response from "./pages/home/panel/response/App";
 import Packages from "./pages/home/panel/packages/App";

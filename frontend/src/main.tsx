@@ -1,6 +1,6 @@
 import {StrictMode} from "react";
 import {createRoot} from "react-dom/client";
-import "./index.scss";
+import "@/assets/css/index.scss";
 import router from "./router";
 import {Provider} from "react-redux";
 import store from "./redux/index";

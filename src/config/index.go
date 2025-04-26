@@ -135,6 +135,12 @@ func GetResourcesPath() string {
 	return path.Join(GetWorkPath(), "resources")
 }
 
+// 获取目录
+func GetConfigsPath() string {
+	configsPath := path.Join(GetWorkPath(), "configs")
+	return configsPath
+}
+
 var processRunAt string
 
 // 获取当前进程运行时间

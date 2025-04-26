@@ -1,31 +1,26 @@
-*::-webkit-scrollbar {
-  // 隐藏滚动条
-  width: 0px;
-  height: 0px;
+$scrollbar-thumb-color: #64748b; // 滚动条滑块颜色
+$scrollbar-thumb-radius: 1rem; // 滚动条滑块圆角
+$scrollbar-width: thin; // 滚动条宽度 (Firefox)
+$scrollbar-color: #64748b transparent; // 滚动条颜色 (Firefox)
+
+// 通用滚动条样式
+* {
+  scrollbar-width: $scrollbar-width; // Firefox 滚动条宽度
+  scrollbar-color: $scrollbar-color; // Firefox 滚动条颜色
 }
 
-$scrollbar-thumb-color: #64748b;
-$scrollbar-track-color: transparent;
-$scrollbar-thumb-radius: 1rem;
-$scrollbar-width: thin; // "auto", "thin", or "none" (for Firefox)
-$scrollbar-color: #b5b7ba6b $scrollbar-track-color; // For Firefox
+*::-webkit-scrollbar {
+  width: 8px; // 滚动条宽度
+  height: 8px; // 滚动条高度 (水平滚动条)
+}
 
-.scrollbar {
-  // Firefox scrollbar styling
-  scrollbar-color: $scrollbar-color;
-  scrollbar-width: $scrollbar-width;
+*::-webkit-scrollbar-track {
+  background: transparent; // 滚动条轨道背景透明
+  border-radius: $scrollbar-thumb-radius; // 滚动条轨道圆角
+}
 
-  overflow-x: overlay;
-
-  scrollbar-gutter: stable;
-  /* 保证滚动条出现时不会改变布局 */
-
-  &::-webkit-scrollbar-track {
-    background: $scrollbar-track-color;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background-color: $scrollbar-thumb-color;
-    border-radius: $scrollbar-thumb-radius;
-  }
+*::-webkit-scrollbar-thumb {
+  background-color: $scrollbar-thumb-color; // 滚动条滑块颜色
+  border-radius: $scrollbar-thumb-radius; // 滚动条滑块圆角
+  border: 2px solid transparent; // 滑块边框透明，避免视觉干扰
 }

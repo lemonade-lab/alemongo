@@ -71,6 +71,9 @@ func Create() *gin.Engine {
 				// Packages
 				ApiBot.POST("/packages/clone", bot.PackagesClone)
 				ApiBot.POST("/packages/list", bot.PackagesList)
+				// configs
+				ApiBot.GET("/configs/list", bot.ConfigsList)
+				ApiBot.POST("/configs/create", bot.ConfigsCreate)
 			}
 		}
 	}
