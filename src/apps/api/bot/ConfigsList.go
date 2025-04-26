@@ -39,7 +39,9 @@ func ConfigsList(ctx *gin.Context) {
 			continue
 		}
 		if path := file.Name(); path[len(path)-5:] == ".yaml" {
-			configs = append(configs, file.Name())
+			// 去掉后缀
+			name := path[:len(path)-5]
+			configs = append(configs, name)
 		}
 	}
 	ctx.JSON(http.StatusOK, gin.H{

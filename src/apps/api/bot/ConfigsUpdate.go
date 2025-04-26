@@ -9,8 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// 获得指定名机器人的信息
-func ConfigsCreate(ctx *gin.Context) {
+func ConfigsUpdate(ctx *gin.Context) {
 	name := ctx.PostForm("name")
 	if name == "" {
 		ctx.JSON(http.StatusBadRequest, gin.H{
@@ -37,14 +36,14 @@ func ConfigsCreate(ctx *gin.Context) {
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"code": http.StatusBadRequest,
-			"msg":  "创建配置失败",
+			"msg":  "配置失败",
 			"data": nil,
 		})
 		return
 	}
 	ctx.JSON(http.StatusOK, gin.H{
 		"code": http.StatusOK,
-		"msg":  "创建配置成功",
+		"msg":  "配置成功",
 		"data": curPath,
 	})
 }

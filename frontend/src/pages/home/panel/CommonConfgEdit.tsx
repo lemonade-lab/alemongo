@@ -78,10 +78,10 @@ const CommonConfgEdit = ({
   }, 500);
   return (
     <div className="flex flex-1 flex-col xl:flex-row gap-2">
-      <div className="flex-1 flex flex-col rounded-md p-2 bg-white">
+      <div className="flex-1 flex flex-col rounded-md px-4 py-2 bg-white">
         <Form
           form={form}
-          labelCol={{span: 4}}
+          labelCol={{span: 3}}
           onValuesChange={throttledUpdateYaml} // 监听表单值变化
         >
           {name && (

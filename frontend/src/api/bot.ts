@@ -161,13 +161,13 @@ export const apiBotConfigsList = async (): Promise<string[]> => {
 }
 
 // /configs/create
-export const apiBotConfigsCreate = async (data: {
+export const apiBotConfigsUpdate = async (data: {
     name: string
     content: string
 }): Promise<null> => {
     return new Promise((resolve, reject) => {
         request({
-            url: "/bot/configs/create",
+            url: "/bot/configs/update",
             method: "post",
             data,
         })
@@ -251,6 +251,22 @@ export const apiBotConfigUpdate = async (data: {
     return new Promise((resolve, reject) => {
         request({
             url: "/bot/config/update",
+            method: "post",
+            data,
+        })
+            .then((res) => res.data)
+            .then(resolve)
+            .catch(reject);
+    });
+}
+
+
+export const apiBotConfigs = async (data: {
+    name: string
+}): Promise<string> => {
+    return new Promise((resolve, reject) => {
+        request({
+            url: "/bot/configs",
             method: "post",
             data,
         })
