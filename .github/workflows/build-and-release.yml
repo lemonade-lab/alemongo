@@ -66,7 +66,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
-          go-version: '1.20'
+          go-version: '1.23.0'
 
       # 构建二进制文件
       - name: Build binaries
@@ -88,17 +88,6 @@ jobs:
           mkdir -p apps/windows/386
           GOOS=windows GOARCH=amd64 go build -o apps/windows/amd64/alemongo.exe
           GOOS=windows GOARCH=386 go build -o apps/windows/386/alemongo.exe
-  
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        with:
-          tag_name: v${{ github.event.inputs.version }}
-          release_name: Release v${{ github.event.inputs.version }}
-          draft: false
-          prerelease: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # 打包二进制文件
       - name: Archive binaries
@@ -122,7 +111,18 @@ jobs:
           cd $root_path/apps/windows/386
           zip alemongo.zip alemongo.exe
           # back
-          cd  $root_path
+          cd  $root_path  
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        with:
+          tag_name: v${{ github.event.inputs.version }}
+          release_name: Release v${{ github.event.inputs.version }}
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # 上传到 GitHub Release
       - name: Upload Linux amd64 binary
