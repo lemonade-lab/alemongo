@@ -103,7 +103,6 @@ func PackagesClone(ctx *gin.Context) {
 	// 设置日志输出到文件
 	logger := log.New(logFile, "", log.LstdFlags)
 
-	// 克隆仓库
 	auth, err := getSSHAuth()
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{

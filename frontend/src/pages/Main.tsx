@@ -16,19 +16,15 @@ const Main = () => {
       navigate("/login");
       return;
     }
-  }, [storeLogin.login,navigate]);
+  }, [storeLogin.login, navigate]);
 
-  const getInfo = () => {
+  useEffect(() => {
     apiCommonInfo()
       .then((res) => res.data)
       .then((res) => {
         dispatch(setInfo(res));
       });
-  };
-
-  useEffect(() => {
-    getInfo();
-  }, []);
+  }, [dispatch]);
 
   return (
     <div className="size-full flex flex-col">

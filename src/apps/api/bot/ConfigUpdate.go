@@ -9,7 +9,7 @@ import (
 )
 
 // 获得指定名机器人的信息
-func Config(ctx *gin.Context) {
+func ConfigUpdate(ctx *gin.Context) {
 	name := ctx.PostForm("name")
 	if name == "" {
 		ctx.JSON(http.StatusBadRequest, gin.H{
@@ -36,19 +36,20 @@ func Config(ctx *gin.Context) {
 		})
 		return
 	}
-	data, err := os.ReadFile(configPath)
+	content := ctx.PostForm("content")
+	// 把数据写入该文件
+	err := os.WriteFile(configPath, []byte(content), 0644)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"code": http.StatusInternalServerError,
-			"msg":  "读取配置失败",
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"code": http.StatusBadRequest,
+			"msg":  "配置失败",
 			"data": nil,
 		})
 		return
 	}
-	// 返回字符串
 	ctx.JSON(http.StatusOK, gin.H{
 		"code": http.StatusOK,
-		"msg":  "获取成功",
-		"data": string(data),
+		"msg":  "配置成功",
+		"data": nil,
 	})
 }

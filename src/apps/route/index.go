@@ -61,9 +61,11 @@ func Create() *gin.Engine {
 				ApiBot.POST("/run", bot.Run)
 				ApiBot.POST("/stop", bot.Stop)
 				ApiBot.POST("/restart", bot.Restart)
-				ApiBot.POST("/config", bot.Config)
 				ApiBot.POST("/log", bot.Log)
 				ApiBot.POST("/package", bot.Package)
+				// config
+				ApiBot.POST("/config", bot.ConfigData)
+				ApiBot.POST("/config/update", bot.ConfigUpdate)
 				// yarn
 				ApiBot.POST("/yarn/install", bot.YarnInstall)
 				ApiBot.POST("/yarn/add", bot.YarnAdd)
@@ -71,6 +73,7 @@ func Create() *gin.Engine {
 				// Packages
 				ApiBot.POST("/packages/clone", bot.PackagesClone)
 				ApiBot.POST("/packages/list", bot.PackagesList)
+				ApiBot.POST("/packages/pull", bot.PackagesPull)
 				// configs
 				ApiBot.GET("/configs/list", bot.ConfigsList)
 				ApiBot.POST("/configs/create", bot.ConfigsCreate)

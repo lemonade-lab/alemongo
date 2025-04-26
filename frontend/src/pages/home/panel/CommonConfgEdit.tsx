@@ -1,4 +1,4 @@
-import {Button, Input} from "antd";
+import {Button, Input, message} from "antd";
 import {useEffect, useState} from "react";
 import {Form} from "antd";
 import Code from "@/commom/CodeMirror";
@@ -25,39 +25,52 @@ const CommonConfgEdit = ({
   value,
   onSave,
 }: {
-  name: string;
+  name?: string;
   value: string;
   onSave: (name: string, value: string) => void;
 }) => {
+  const [curData, setCurData] = useState<YamlDataType>({
+    gui: {
+      port: 0,
+    },
+    login: "",
+    platform: "",
+    repeated_event_time: 0,
+    repeated_user_time: 0,
+  });
   const [yamlData, setYamlData] = useState<string>("");
   const [form] = Form.useForm();
   useEffect(() => {
-    setYamlData(value);
-    const data = YAML.load(value) as YamlDataType;
+    if (!value) {
+      form.setFieldsValue({
+        name: name,
+      });
+      return;
+    }
+    const values = YAML.load(value) as YamlDataType;
+    setCurData(values);
+    setYamlData(YAML.dump(values));
     form.setFieldsValue({
       name: name,
-      port: data?.gui.port,
-      login: data?.login,
-      platform: data?.platform,
-      repeated_event_time: data?.repeated_event_time,
-      repeated_user_time: data?.repeated_user_time,
+      ...values,
     });
   }, [form, name, value]);
+
   // 节流更新 YAML 数据
-  const throttledUpdateYaml = throttle((formData) => {
-    delete formData.name; // 删除 name 字段
-    const yamlString = YAML.dump(formData);
-    setYamlData(yamlString);
-  }, 500);
-  // 表单值变化时更新 YAML 数据
-  const handleFormChange = () => {
+  const throttledUpdateYaml = throttle(() => {
     const formData = form.getFieldsValue();
-    throttledUpdateYaml(formData);
-  };
+    delete formData.name;
+    setYamlData(
+      YAML.dump({
+        ...curData,
+        ...formData,
+      })
+    );
+  }, 500);
+
   // 节流更新 form 数据
   const throttledUpdateform = throttle((values) => {
     const formData = form.getFieldsValue();
-    // setYamlData(value);
     form.setFieldsValue({
       ...formData,
       ...values,
@@ -69,15 +82,17 @@ const CommonConfgEdit = ({
         <Form
           form={form}
           labelCol={{span: 4}}
-          onValuesChange={handleFormChange} // 监听表单值变化
+          onValuesChange={throttledUpdateYaml} // 监听表单值变化
         >
-          <Form.Item
-            label="名称"
-            name="name"
-            rules={[{required: true, message: "请输入名称"}]}
-          >
-            <Input placeholder="name" />
-          </Form.Item>
+          {name && (
+            <Form.Item
+              label="名称"
+              name="name"
+              rules={[{required: true, message: "请输入名称"}]}
+            >
+              <Input placeholder="name" />
+            </Form.Item>
+          )}
           <Form.Item
             label="端口"
             name={["gui", "port"]}
@@ -108,20 +123,27 @@ const CommonConfgEdit = ({
           <Button
             onClick={() => {
               const name = form.getFieldValue("name");
-              onSave(name, yamlData);
+              try {
+                onSave(name, YAML.dump(curData));
+              } catch {
+                message.error("yaml格式错误");
+              }
             }}
           >
             保存
           </Button>
         </div>
-        <div className="h-[calc(100vh/2-15rem)]  xl:h-[calc(100vh-15rem)] overflow-x-auto">
+        <div className="h-[calc(100vh/2-15rem)] w-[calc(100vw-6rem)]  xl:w-[calc(100vw/2-6rem)] xl:h-[calc(100vh-15rem)] overflow-x-auto">
           <Code
             mode="yaml"
             value={yamlData}
             onChange={(_editor, _data, value) => {
               try {
                 const values = YAML.load(value) as YamlDataType;
-                // 得到当前的表单数据
+                setCurData({
+                  ...curData,
+                  ...values,
+                });
                 throttledUpdateform(values);
               } catch {
                 console.log("yaml格式错误");

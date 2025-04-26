@@ -96,11 +96,21 @@ func PackagesList(ctx *gin.Context) {
 		if err != nil {
 			continue
 		}
-		head, err := repo.Head()
+		// 获取当前仓库源
+		remote, err := repo.Remote("origin")
 		if err != nil {
 			continue
 		}
-		branchName := head.Name().Short()
+		// 读取当前分支
+		branch, err := repo.Head()
+		if err != nil {
+			continue
+		}
+		// commit
+		commit, err := repo.CommitObject(branch.Hash())
+		if err != nil {
+			continue
+		}
 
 		// 读取 README.md
 		mdData := ""
@@ -111,8 +121,15 @@ func PackagesList(ctx *gin.Context) {
 
 		// 添加到结果
 		data = append(data, map[string]interface{}{
-			"name":   name,
-			"branch": branchName,
+			"name": name,
+			"git": map[string]string{
+				"repo":   remote.Config().URLs[0],
+				"branch": branch.Name().Short(),
+				"commit": branch.Hash().String(),
+				"author": commit.Author.Name,
+				"email":  commit.Author.Email,
+				"date":   commit.Author.When.String(),
+			},
 			"pkg":    string(pkgData),
 			"md":     mdData,
 			"status": isExist,

@@ -3,6 +3,7 @@ import {
   apiBotInfo,
   apiBotPackageClone,
   apiBotPackagesList,
+  apiBotPackagesPull,
   apiBotYarnInstall,
   BotInfo,
   BotPackages,
@@ -84,6 +85,25 @@ const Panel = () => {
       });
   };
   const [form] = Form.useForm();
+
+  const onUpdate = (item: BotPackages) => {
+    if (isLoading) return;
+    setIsLoading(true);
+    apiBotPackagesPull({
+      name: info.name,
+      repo_name: item.name,
+      branch_name: item.git.branch,
+    })
+      .then((res) => {
+        console.log(res);
+        message.success("更新成功");
+        initPKGNames(info.name);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  };
+
   return (
     <div className="p-4 flex-1 flex bg-slate-100 gap-2 flex-col xl:flex-row">
       <div className="flex-1 gap-2 flex flex-col bg-white rounded-md p-2">
@@ -97,37 +117,54 @@ const Panel = () => {
             新增
           </Button>
         </div>
-        <Collapse
-          items={pkgs.map((item) => {
-            const pkgJSON = JSON.parse(item.pkg);
-            return {
-              key: item.name,
-              label: (
-                <div className="flex justify-between">
-                  <div>
-                    {item.name} <Tag>{pkgJSON["version"]}</Tag>{" "}
+        <div className="flex-1 overflow-auto h-[calc(100vh-20rem)] xl:h-[calc(100vh/2-20rem)]">
+          <Collapse
+            items={pkgs.map((item) => {
+              const pkgJSON = JSON.parse(item.pkg);
+              return {
+                key: item.name,
+                label: (
+                  <div className="flex justify-between">
+                    <div className="">
+                      <Tag>{item.name}</Tag>
+                      <Tag>{pkgJSON["version"]}</Tag>
+                      <Tag>{item.git.branch}</Tag>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        type="text"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onUpdate(item);
+                        }}
+                      >
+                        更新
+                      </Button>
+                      <Button
+                        type="text"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onInstall(info.name);
+                        }}
+                      >
+                        安装
+                      </Button>
+                    </div>
                   </div>
-                  <div className="flex gap-2">
-                    <Button
-                      type="text"
-                      onClick={() => {
-                        onInstall(item.name);
-                      }}
-                    >
-                      安装
-                    </Button>
+                ),
+                children: (
+                  <div className="overflow-auto h-[calc(100vh-20rem)]">
+                    <div className="flex gap-2 flex-wrap">
+                      <Tag>{item.git.date}</Tag>
+                    </div>
+                    <Markdown source={item.md}></Markdown>
                   </div>
-                </div>
-              ),
-              children: (
-                <div className="overflow-auto h-[calc(100vh-20rem)]">
-                  <Markdown source={item.md}></Markdown>
-                </div>
-              ),
-            };
-          })}
-          defaultActiveKey={["1"]}
-        />
+                ),
+              };
+            })}
+            defaultActiveKey={["1"]}
+          />
+        </div>
       </div>
       <Xterm info={info} onUpdate={(name) => initBotInfo(name)} />
       <Modal

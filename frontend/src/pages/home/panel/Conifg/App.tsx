@@ -1,6 +1,7 @@
-import {apiBotConfig} from "@/api";
+import {apiBotConfig, apiBotConfigUpdate} from "@/api";
 import {useEffect, useState} from "react";
 import CommonConfgEdit from "../CommonConfgEdit";
+import {message} from "antd";
 
 const Conifg = () => {
   const [yamlData, setYamlData] = useState<string>("");
@@ -9,11 +10,25 @@ const Conifg = () => {
     apiBotConfig({
       name: name,
     }).then((res) => {
+      console.log("res", res);
       setYamlData(res);
     });
   }, []);
-  const onSave = (name: string, value: string) => {
-    console.log(name, value);
+  const onSave = (_name: string, value: string) => {
+    const name = window.location.pathname.split("/")[2];
+    apiBotConfigUpdate({
+      name: name,
+      content: value,
+    })
+      .then((res) => {
+        console.log("res", res);
+        message.success("保存成功");
+        setYamlData(value);
+      })
+      .catch((err) => {
+        message.error("保存失败");
+        console.log("err", err);
+      });
   };
   return (
     <div className="p-4 flex gap-4 flex-col bg-slate-100 flex-1">
@@ -22,11 +37,7 @@ const Conifg = () => {
           配置文件
         </h2>
       </div>
-      <CommonConfgEdit
-        name={window.location.pathname.split("/")[2]}
-        value={yamlData}
-        onSave={onSave}
-      />
+      <CommonConfgEdit value={yamlData} onSave={onSave} />
     </div>
   );
 };
