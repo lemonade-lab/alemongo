@@ -20,18 +20,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # 创建 GitHub Release
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        with:
-          tag_name: v${{ github.event.inputs.version }}
-          release_name: Release v${{ github.event.inputs.version }}
-          draft: false
-          prerelease: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       # 缓存 Node.js 依赖
       - name: Cache Node.js modules
         uses: actions/cache@v3
@@ -100,6 +88,17 @@ jobs:
           mkdir -p apps/windows/386
           GOOS=windows GOARCH=amd64 go build -o apps/windows/amd64/alemongo.exe
           GOOS=windows GOARCH=386 go build -o apps/windows/386/alemongo.exe
+  
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        with:
+          tag_name: v${{ github.event.inputs.version }}
+          release_name: Release v${{ github.event.inputs.version }}
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # 打包二进制文件
       - name: Archive binaries
