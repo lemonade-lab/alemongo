@@ -9,10 +9,7 @@ type YamlDataType = {
   gui: {
     port: number;
   };
-  login: string;
-  platform: string;
-  repeated_event_time: number;
-  repeated_user_time: number;
+  [key: string]: unknown;
 };
 
 /**
@@ -31,12 +28,8 @@ const CommonConfgEdit = ({
 }) => {
   const [curData, setCurData] = useState<YamlDataType>({
     gui: {
-      port: 0,
+      port: 17127,
     },
-    login: "",
-    platform: "",
-    repeated_event_time: 0,
-    repeated_user_time: 0,
   });
   const [yamlData, setYamlData] = useState<string>("");
   const [form] = Form.useForm();
@@ -48,13 +41,17 @@ const CommonConfgEdit = ({
       return;
     }
     const values = YAML.load(value) as YamlDataType;
-    setCurData(values);
-    setYamlData(YAML.dump(values));
+    const DB = {
+      ...curData,
+      ...values,
+    };
+    setCurData(DB);
+    setYamlData(YAML.dump(DB));
     form.setFieldsValue({
       name: name,
-      ...values,
+      ...DB,
     });
-  }, [form, name, value]);
+  }, [curData, form, name, value]);
 
   // 节流更新 YAML 数据
   const throttledUpdateYaml = throttle(() => {
@@ -76,12 +73,19 @@ const CommonConfgEdit = ({
       ...values,
     });
   }, 500);
+  const [showKey, setShowKey] = useState<string[]>([]);
+  const onAddKey = (key: string) => {
+    setShowKey((prev) => [key, ...prev]);
+  };
+  const onRemoveKey = (key: string) => {
+    setShowKey((prev) => prev.filter((item) => item !== key));
+  };
   return (
     <div className="flex flex-1 flex-col xl:flex-row gap-2">
-      <div className="flex-1 flex flex-col rounded-md p-2 bg-white">
+      <div className="flex-1 flex flex-col rounded-md px-4 py-2 bg-white">
         <Form
           form={form}
-          labelCol={{span: 4}}
+          labelCol={{span: 3}}
           onValuesChange={throttledUpdateYaml} // 监听表单值变化
         >
           {name && (
@@ -103,18 +107,114 @@ const CommonConfgEdit = ({
               placeholder="gui.port: 取1024-49151，但禁用3389|3306|1433|8000-8999"
             />
           </Form.Item>
-          <Form.Item label="登录" name="login">
-            <Input placeholder="login: 取qq-bot、qq、discord、onebot、kook等" />
-          </Form.Item>
-          <Form.Item label="平台" name="platform">
-            <Input placeholder="platform: 取alemonjs-qq等（强制覆盖login）" />
-          </Form.Item>
-          <Form.Item label="事件过滤" name="">
-            <Input placeholder="repeated_event_time: 多少毫秒内的相同事件消息将丢弃" />
-          </Form.Item>
-          <Form.Item label="用户过滤" name="">
-            <Input placeholder="repeated_user_time: 多少毫秒内的相同用户消息将丢弃" />
-          </Form.Item>
+
+          <div className="flex flex-col gap-2">
+            {showKey.includes("Login") ? (
+              <>
+                <div className="flex justify-between gap-2 my-2">
+                  <div>登录选择</div>
+                  <Button onClick={() => onRemoveKey("Login")}>删除</Button>
+                </div>
+
+                <Form.Item label="登录" name="login">
+                  <Input placeholder="login: 取qq-bot、qq、discord、onebot、kook等" />
+                </Form.Item>
+                <Form.Item label="平台" name="platform">
+                  <Input placeholder="platform: 取alemonjs-qq等（强制覆盖login）" />
+                </Form.Item>
+              </>
+            ) : (
+              <div className="flex justify-end">
+                <Button className="min-w-32" onClick={() => onAddKey("Login")}>
+                  添加登录
+                </Button>
+              </div>
+            )}
+            {showKey.includes("Event") ? (
+              <>
+                <div className="flex justify-between gap-2 my-2">
+                  <div>过滤</div>
+                  <Button onClick={() => onRemoveKey("Event")}>删除</Button>
+                </div>
+                <Form.Item label="事件过滤" name="repeated_event_time">
+                  <Input
+                    type="number"
+                    placeholder="repeated_event_time: 多少毫秒内的相同事件消息将丢弃"
+                  />
+                </Form.Item>
+                <Form.Item label="用户过滤" name="repeated_user_time">
+                  <Input
+                    type="number"
+                    placeholder="repeated_user_time: 多少毫秒内的相同用户消息将丢弃"
+                  />
+                </Form.Item>
+              </>
+            ) : (
+              <div className="flex justify-end">
+                <Button className="min-w-32" onClick={() => onAddKey("Event")}>
+                  添加框架过滤
+                </Button>
+              </div>
+            )}
+            {showKey.includes("Redis") ? (
+              <>
+                <div className="flex justify-between gap-2 my-2">
+                  <div>Redis</div>
+                  <Button onClick={() => onRemoveKey("Redis")}>删除</Button>
+                </div>
+                <Form.Item label="地址" name={["redis", "host"]}>
+                  <Input placeholder="host: localhost" />
+                </Form.Item>
+                <Form.Item label="端口" name={["redis", "port"]}>
+                  <Input type="number" placeholder="port" />
+                </Form.Item>
+                <Form.Item label="用户" name={["redis", "user"]}>
+                  <Input placeholder="user" />
+                </Form.Item>
+                <Form.Item label="密码" name={["redis", "password"]}>
+                  <Input placeholder="password" />
+                </Form.Item>
+                <Form.Item label="数据" name={["reids", "db"]}>
+                  <Input type="number" placeholder="db" />
+                </Form.Item>
+              </>
+            ) : (
+              <div className="flex justify-end">
+                <Button className="min-w-32" onClick={() => onAddKey("Redis")}>
+                  添加Redis
+                </Button>
+              </div>
+            )}
+            {showKey.includes("MySQL") ? (
+              <>
+                <div className="flex justify-between gap-2 my-2">
+                  <div>MySQL</div>
+                  <Button onClick={() => onRemoveKey("MySQL")}>删除</Button>
+                </div>
+                <Form.Item label="地址" name={["mysql", "host"]}>
+                  <Input placeholder="host: localhost" />
+                </Form.Item>
+                <Form.Item label="端口" name={["mysql", "port"]}>
+                  <Input type="number" placeholder="port" />
+                </Form.Item>
+                <Form.Item label="用户" name={["mysql", "user"]}>
+                  <Input placeholder="user" />
+                </Form.Item>
+                <Form.Item label="密码" name={["mysql", "password"]}>
+                  <Input placeholder="password" />
+                </Form.Item>
+                <Form.Item label="数据" name={["reids", "db"]}>
+                  <Input type="number" placeholder="db" />
+                </Form.Item>
+              </>
+            ) : (
+              <div className="flex justify-end">
+                <Button className="min-w-32" onClick={() => onAddKey("MySQL")}>
+                  添加MySQL
+                </Button>
+              </div>
+            )}
+          </div>
         </Form>
       </div>
       <div className="flex-1 flex flex-col rounded-md bg-white">

@@ -1,5 +1,5 @@
 import {EditOutlined, SettingOutlined} from "@ant-design/icons";
-import {Card, message} from "antd";
+import {Button, Card, message} from "antd";
 import {useEffect, useState} from "react";
 import {useNavigate} from "react-router-dom";
 import {apiBotConfigsList} from "@/api";
@@ -17,12 +17,9 @@ const Configs = () => {
         <h2 className="text-2xl/7 font-bold text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
           配置管理
         </h2>
-        <button
-          type="button"
-          onClick={() => {
-            navigate("/config/create");
-          }}
+        <Button
           className="inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+          onClick={() => navigate("/configs/create")}
         >
           <svg
             className="mr-1.5 -ml-0.5 size-5"
@@ -36,7 +33,7 @@ const Configs = () => {
             />
           </svg>
           新增
-        </button>
+        </Button>
       </div>
       <div className="flex gap-2 flex-wrap">
         {concifgNames.map((name, index) => (
@@ -44,7 +41,7 @@ const Configs = () => {
             key={index}
             variant="borderless"
             actions={[
-              <div>
+              <div onClick={() => navigate(`/configs/update/${name}`)}>
                 <EditOutlined key="edit" />
               </div>,
               <div onClick={() => message.info("待支持")}>

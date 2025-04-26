@@ -4,13 +4,13 @@ import NotRoute from "./pages/404";
 import Login from "./pages/login/App";
 import Panel from "./pages/home/panel/App";
 import Main from "./pages/Main";
-import Configs from "./pages/home/config/App";
+import Configs from "./pages/home/configs/App";
 import Bots from "./pages/home/Bots/App";
 import ButtonTemplate from "./pages/home/ButtonTemplate/App";
 import UpdatePassWord from "./pages/UpdatePassWord/App";
 import OneBot from "./pages/home/OneBot/App";
 import Settings from "./pages/Settings/App";
-import ConfigEdit from "./pages/home/config/edit/App";
+import ConfigEdit from "./pages/home/configs/create/App";
 import Package from "./pages/home/panel/pkg/App";
 import Config from "./pages/home/panel/Conifg/App";
 import XtermDate from "./pages/home/panel/xterm-date/App";
@@ -34,11 +34,15 @@ const router = createBrowserRouter([
             element: <Bots />,
           },
           {
-            path: "/config/list",
+            path: "/configs/list",
             element: <Configs />,
           },
           {
-            path: "/config/create",
+            path: "/configs/create",
+            element: <ConfigEdit />,
+          },
+          {
+            path: "/configs/update/:name",
             element: <ConfigEdit />,
           },
           {
