@@ -133,7 +133,16 @@ const CommonConfgEdit = ({
             保存
           </Button>
         </div>
-        <div className="h-[calc(100vh/2-15rem)] w-[calc(100vw-6rem)]  xl:w-[calc(100vw/2-6rem)] xl:h-[calc(100vh-15rem)] overflow-x-auto">
+        <div
+          className="
+        overflow-x-auto
+        h-[calc(100vh/2-8rem)] 
+        w-[calc(100vw-2rem)]
+        sm:w-[calc(100vw-10rem)]
+        xl:w-[calc(100vw/2-6rem)]
+        xl:h-[calc(100vh-11rem)]
+        "
+        >
           <Code
             mode="yaml"
             value={yamlData}

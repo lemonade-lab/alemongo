@@ -4,10 +4,8 @@ import {message} from "antd";
 import {useSelector} from "react-redux";
 import {RootState} from "../../redux";
 import Modal from "../../commom/Modal";
-// import {useNavigate} from "react-router-dom";
 
 const Headings = ({onUpdate}: {onUpdate: () => void}) => {
-  const [show, setShow] = useState(false);
   const [visible, setVisible] = useState(false);
   const installed = useSelector(
     (state: RootState) => state.info.node.installed
@@ -40,7 +38,7 @@ const Headings = ({onUpdate}: {onUpdate: () => void}) => {
     });
   };
   return (
-    <div className="lg:flex lg:items-center lg:justify-between">
+    <header className="lg:flex lg:items-center lg:justify-between p-4">
       <div className="min-w-0 flex-1">
         <h2 className="text-2xl/7 font-bold text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
           机器人列表
@@ -93,22 +91,6 @@ const Headings = ({onUpdate}: {onUpdate: () => void}) => {
       </div>
       {installed && (
         <div className="mt-5 flex lg:mt-0 lg:ml-4">
-          {/* <span className="hidden sm:block">
-            <button
-              type="button"
-              onClick={() => onGoConfig()}
-              className="inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 shadow-xs ring-gray-300 ring-inset hover:bg-gray-50"
-            >
-              <svg
-                className="mr-1.5 -ml-0.5 size-5 text-gray-400"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path d="m2.695 14.762-1.262 3.155a.5.5 0 0 0 .65.65l3.155-1.262a4 4 0 0 0 1.343-.886L17.5 5.501a2.121 2.121 0 0 0-3-3L3.58 13.419a4 4 0 0 0-.885 1.343Z" />
-              </svg>
-              配置
-            </button>
-          </span> */}
           <span className="sm:ml-3">
             <button
               type="button"
@@ -129,33 +111,6 @@ const Headings = ({onUpdate}: {onUpdate: () => void}) => {
               新建
             </button>
           </span>
-          <div className="relative ml-3 sm:hidden">
-            <button
-              type="button"
-              className="inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 shadow-xs ring-gray-300 ring-inset hover:ring-gray-400"
-              onClick={() => setShow(!show)}
-            >
-              更多
-              <svg
-                className="-mr-1 ml-1.5 size-5 text-gray-400"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z"
-                  clipRule="evenodd"
-                />
-              </svg>
-            </button>
-
-            {show && (
-              <div className="absolute right-0 z-10 mt-2 -mr-1 w-48 origin-top-right rounded-md bg-white py-1 ring-1 shadow-lg ring-black/5 focus:outline-hidden">
-                <a className="block px-4 py-2 text-sm text-gray-700">编辑</a>
-                {/* <a className="block px-4 py-2 text-sm text-gray-700">查看</a> */}
-              </div>
-            )}
-          </div>
         </div>
       )}
       <Modal open={visible}>
@@ -217,7 +172,7 @@ const Headings = ({onUpdate}: {onUpdate: () => void}) => {
           </form>
         </div>
       </Modal>
-    </div>
+    </header>
   );
 };
 

@@ -31,29 +31,28 @@ const XtermDate = () => {
     setTimestamp(timestamp);
   };
   return (
-    <div className="p-4 bg-slate-100 flex-1">
-      <div className="flex-1 flex flex-col">
-        <div className="bg-slate-600 p-1 rounded-t-md flex justify-between items-center">
-          <div className="text-white flex gap-2   items-center">
-            <div>控制台日志</div>
-          </div>
-          <div className="">
-            <DatePicker
-              // 默认今天
-              defaultValue={dayjs()}
-              onChange={onChange}
-            />
-          </div>
+    <div className="flex-1 p-4 bg-slate-100 ">
+      <div className="bg-slate-600 p-1 rounded-t-md flex justify-between items-center">
+        <div className="text-white flex gap-2 items-center">
+          <div>控制台日志</div>
         </div>
-        <div className="overflow-auto max-h-80 relative flex-1 min-h-20  bg-slate-500 rounded-b-md p-1 text-white">
-          {data.map((item, index) => (
-            <div key={index} className="flex justify-between px-1 ">
-              <div className="flex">
-                <span>{item}</span>
-              </div>
+        <div className="">
+          <DatePicker defaultValue={dayjs()} onChange={onChange} />
+        </div>
+      </div>
+      <div
+        className="flex-1  bg-slate-500 rounded-b-md p-1 text-white overflow-auto 
+         w-[calc(100vw-2rem)] sm:w-[calc(100vw-10rem)]
+         h-[calc(100vh-8rem)]
+      "
+      >
+        {data.map((item, index) => (
+          <div key={index} className="flex justify-between px-1 ">
+            <div className="flex">
+              <span>{item}</span>
             </div>
-          ))}
-        </div>
+          </div>
+        ))}
       </div>
     </div>
   );

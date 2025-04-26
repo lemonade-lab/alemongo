@@ -46,7 +46,16 @@ const Package = () => {
         </div>
         <div className="flex-1 flex-col flex bg-white rounded-md">
           <div className="text-xl px-2 py-1 bg-slate-400">package.json</div>
-          <div className="h-[calc(100vh-15rem)] overflow-x-auto ">
+          <div
+            className="
+        overflow-x-auto
+        h-[calc(100vh/2-8rem)] 
+        w-[calc(100vw-2rem)]
+        sm:w-[calc(100vw-10rem)]
+        xl:w-[calc(100vw/2-6rem)]
+        xl:h-[calc(100vh-11rem)]
+          "
+          >
             <Code mode={"json"} value={pkgData} />
           </div>
         </div>

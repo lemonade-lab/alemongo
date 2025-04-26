@@ -183,7 +183,18 @@ const Xterm = ({
       </div>
       <div
         ref={logRef}
-        className="overflow-auto  max-h-[calc(100vh/2-10rem)] xl:max-h-[calc(100vh-10rem)] flex-1 min-h-20  bg-slate-500 rounded-b-md p-1 text-white"
+        className="
+        overflow-auto 
+        bg-slate-500 
+        rounded-b-md
+        text-white
+         p-1
+         w-[calc(100vw-2rem)] 
+         sm:w-[calc(100vw-10rem)]
+         xl:w-full
+         h-[calc(100vh/2-6rem)]
+         xl:h-[calc(100vh-8rem)]
+        "
       >
         {data.map((item, index) => (
           <div key={index} className="flex justify-between px-1 ">

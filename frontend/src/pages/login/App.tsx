@@ -20,7 +20,7 @@ const Login = () => {
     const username = e.target.username.value;
     apiLogin({
       password,
-      username
+      username,
     })
       .then((res) => {
         console.log("res", res);
@@ -37,18 +37,18 @@ const Login = () => {
   };
   // 忘记密码
   const handleForgetPassword = () => {
-    message.warning("请在服务中使用执行 alemongo get password 以生成临时密码");
+    message.warning("请联系超级管理员或编辑服务配置文件");
   };
   return (
-    <div className=" flex min-h-full flex-col justify-center items-center px-6 py-12 lg:px-8">
-      <div className="flex gap-6 flex-col shadow-md rounded-md p-8 max-w-96">
+    <div className="bg-slate-100 flex size-full flex-col justify-center items-center">
+      <div className="animate__animated animate__fadeIn flex gap-4 flex-col shadow-md bg-white rounded-md p-4">
         <div className="">
           <h2 className=" text-center text-2xl/9 font-bold tracking-tight text-gray-900">
             登录到您的账户
           </h2>
         </div>
-        <div className="">
-          <form className="space-y-6" onSubmit={handleSubmit}>
+        <div className="p-4">
+          <form className="flex flex-col gap-4 " onSubmit={handleSubmit}>
             <div>
               <div className="flex items-center justify-between">
                 <label
@@ -67,7 +67,8 @@ const Login = () => {
                   className="border block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
                 />
               </div>
-
+            </div>
+            <div>
               <div className="flex items-center justify-between">
                 <label
                   htmlFor="password"
@@ -78,7 +79,7 @@ const Login = () => {
                 <div className="text-sm">
                   <span
                     onClick={handleForgetPassword}
-                    className="font-semibold text-indigo-600 hover:text-indigo-500"
+                    className="font-semibold cursor-pointer text-indigo-600 hover:text-indigo-500"
                   >
                     忘记密码？
                   </span>

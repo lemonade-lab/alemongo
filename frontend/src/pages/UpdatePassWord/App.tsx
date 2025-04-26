@@ -1,8 +1,7 @@
 import {Form, Input, message} from "antd";
-import React from "react";
 import {useNavigate} from "react-router-dom";
 import {apiPassword} from "../../api";
-const UpdatePassWord: React.FC = () => {
+const UpdatePassWord = () => {
   const navigate = useNavigate();
   const handleSubmit = (values: {
     oldPassword: string;
@@ -29,13 +28,13 @@ const UpdatePassWord: React.FC = () => {
       });
   };
   return (
-    <div className="flex bg-slate-100 justify-center items-center flex-1">
+    <div className="flex bg-slate-100 justify-center items-center flex-1 p-4">
       <Form
         onFinish={handleSubmit}
-        className="w-full max-w-lg bg-white shadow-md rounded   p-4"
-        labelCol={{span: 4}}
+        className=" bg-white shadow-m rounded-md p-4"
+        labelCol={{span: 8}}
       >
-        <h2 className="text-2xl font-bold mb-4">修改密码</h2>
+        <h2 className="text-xl font-bold mb-4 flex items-center">修改密码</h2>
         <Form.Item label="旧密码" name="oldPassword">
           <Input
             type="password"

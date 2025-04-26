@@ -199,9 +199,9 @@ const BotTable = () => {
   ];
   return (
     <div className="flex-1 flex flex-col">
-      <div className="flex-1 overflow-auto">
+      <div className="flex-1 border">
         <Table
-          className="min-w-full divide-y divide-gray-200"
+          className="overflow-auto w-screen h-[calc(100vh-20rem)] xl:size-full"
           pagination={false}
           rowKey={(item) => item.name}
           columns={columns}
@@ -213,7 +213,6 @@ const BotTable = () => {
         pageSize={pageInfo.pageSize}
         page={pageInfo.page}
         onPageChange={(page) => {
-          console.log("page", page);
           setPageInfo({
             ...pageInfo,
             page,

@@ -31,8 +31,8 @@ const Home = () => {
   const installed = useSelector(
     (state: RootState) => state.info.node.installed
   );
-
   const [visible, setVisible] = useState(false);
+  const [value, onForceUpdate] = useForceUpdate();
 
   const onChange = (key: string) => {
     console.log(key);
@@ -55,25 +55,18 @@ const Home = () => {
       children: "Content of Tab Pane 3",
     },
   ];
-
-  const [value, onForceUpdate] = useForceUpdate();
-
   return (
     <>
-      <header className="bg-white shadow-lg p-4">
-        <Headings onUpdate={() => onForceUpdate()} />
-      </header>
+      <Headings onUpdate={() => onForceUpdate()} />
       {installed && value ? (
-        <main className="bg-slate-100 flex-1 flex flex-col">
-          <Table />
-        </main>
+        <Table />
       ) : (
-        <main className="flex-1 flex flex-col justify-center items-center">
+        <section className="flex-1 flex flex-col justify-center items-center">
           <div className="flex flex-col gap-6 items-center">
             <div className="text-3xl">NodeJS 未安装，无法管理机器人</div>
             <Button onClick={() => setVisible(true)}>了解如何安装</Button>
           </div>
-        </main>
+        </section>
       )}
       <Modal
         open={visible}

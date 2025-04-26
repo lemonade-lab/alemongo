@@ -73,15 +73,15 @@ const router = createBrowserRouter([
             path: "/onebot",
             element: <OneBot />,
           },
+          {
+            path: "/update-password",
+            element: <UpdatePassWord />,
+          },
+          {
+            path: "/settings",
+            element: <Settings />,
+          },
         ],
-      },
-      {
-        path: "/update-password",
-        element: <UpdatePassWord />,
-      },
-      {
-        path: "/settings",
-        element: <Settings />,
       },
       {
         path: "*",
