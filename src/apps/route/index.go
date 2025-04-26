@@ -55,9 +55,9 @@ func Create() *gin.Engine {
 				// 开始鉴权
 				ApiBot.Use(token.AuthMiddleware)
 				ApiBot.GET("/list", bot.List)
+				ApiBot.POST("/create", bot.Create)
 				ApiBot.POST("/info", bot.Info)
 				ApiBot.DELETE("/info", bot.Delete)
-				ApiBot.POST("/create", bot.Create)
 				ApiBot.POST("/run", bot.Run)
 				ApiBot.POST("/stop", bot.Stop)
 				ApiBot.POST("/restart", bot.Restart)
@@ -68,6 +68,9 @@ func Create() *gin.Engine {
 				ApiBot.POST("/yarn/install", bot.YarnInstall)
 				ApiBot.POST("/yarn/add", bot.YarnAdd)
 				ApiBot.POST("/yarn/remove", bot.YarnRemove)
+				// Packages
+				ApiBot.POST("/packages/clone", bot.PackagesClone)
+				ApiBot.POST("/packages/list", bot.PackagesList)
 			}
 		}
 	}

@@ -24,11 +24,6 @@ func Add(name string, args []string) (string, error) {
 		return "未提供依赖名称", os.ErrInvalid
 	}
 
-	// 检查系统是否安装了 Node.js
-	if _, err := exec.LookPath("node"); err != nil {
-		return "未找到 Node.js，请先安装 Node.js", err
-	}
-
 	// 检查机器人是否正在运行
 	if alemonjs.IsRunning(name) {
 		return "机器人正在运行，请先停止机器人", os.ErrExist
@@ -51,7 +46,6 @@ func Add(name string, args []string) (string, error) {
 
 	// 获取日志文件路径
 	logPath := alemonjs.GetBotLogPath(name)
-
 	// 打开日志文件
 	logFile, err := os.OpenFile(logPath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 	if err != nil {

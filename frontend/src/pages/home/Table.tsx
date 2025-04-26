@@ -4,8 +4,6 @@ import {
   apiBotInfo,
   apiBotYarnInstall,
   apiBotList,
-  apiBotRun,
-  apiBotStop,
   BotInfo,
 } from "../../api";
 import {Button, message, Popconfirm, Spin, Table, TableProps, Tag} from "antd";
@@ -46,36 +44,9 @@ const BotTable = () => {
     });
   };
 
-  const initDataByName = (name: string) => {
-    apiBotInfo({name}).then((res) => {
-      // 更新数据
-      setDateByAPI(res);
-    });
-  };
-
   useEffect(() => {
     initData();
   }, []);
-
-  const onRun = (name: string) => {
-    console.log(name);
-    apiBotRun({
-      name,
-    }).then((res) => {
-      console.log("res", res);
-      initDataByName(name);
-    });
-  };
-
-  const onStop = (name: string) => {
-    console.log(name);
-    apiBotStop({
-      name,
-    }).then((res) => {
-      console.log("res", res);
-      initDataByName(name);
-    });
-  };
 
   const [names, setNames] = useState<string[]>([]);
 
@@ -183,24 +154,6 @@ const BotTable = () => {
       render: (_, record) => (
         <Spin spinning={names.includes(record.name)} size="small">
           <div className="flex gap-2 justify-end">
-            {record.node_modules && record.status ? (
-              <Button
-                type="primary"
-                className="bg-red-500 "
-                onClick={() => onStop(record.name)}
-              >
-                停止
-              </Button>
-            ) : null}
-            {record.node_modules && !record.status ? (
-              <Button
-                type="primary"
-                className=""
-                onClick={() => onRun(record.name)}
-              >
-                运行
-              </Button>
-            ) : null}
             {!record.node_modules ? (
               <Button
                 type="primary"

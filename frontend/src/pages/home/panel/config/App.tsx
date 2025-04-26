@@ -2,6 +2,7 @@ import {apiBotConfig} from "@/api";
 import {Input} from "antd";
 import {useEffect, useState} from "react";
 import {Form} from "antd";
+import Code from "@/commom/CodeMirror";
 const Config = () => {
   const [yamlData, setYamlData] = useState<string>("");
   useEffect(() => {
@@ -63,11 +64,7 @@ const Config = () => {
             alemon.config.yaml
           </div>
           <div className="p-2 flex-1">
-            <textarea
-              className="w-full h-full outline-none resize-none "
-              value={yamlData}
-              readOnly
-            />
+            <Code mode={"yaml"} value={yamlData} />
           </div>
         </div>
       </div>

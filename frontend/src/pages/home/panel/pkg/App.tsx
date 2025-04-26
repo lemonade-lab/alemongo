@@ -1,4 +1,5 @@
 import {apiBotPackage} from "@/api";
+import Code from "@/commom/CodeMirror";
 import {useEffect, useState} from "react";
 
 const Package = () => {
@@ -43,11 +44,9 @@ const Package = () => {
             </div>
           ))}
         </div>
-        <div className="flex-1 flex bg-white rounded-md">
-          <textarea
-            className="flex-1  outline-none resize-none bg-white p-2 rounded-md shadow-md"
-            value={pkgData}
-          ></textarea>
+        <div className="flex-1 flex-col flex bg-white rounded-md">
+          <div className="text-xl px-2 py-1 bg-slate-400">package.json</div>
+          <Code mode={"json"} value={pkgData} />
         </div>
       </div>
     </div>

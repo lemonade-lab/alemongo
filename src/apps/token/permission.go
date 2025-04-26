@@ -18,7 +18,7 @@ func Permission(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"code": http.StatusBadRequest,
 			"msg":  "无效token",
-			"data": ctx.Request.Header,
+			"data": nil,
 		})
 		ctx.Abort()
 		return
@@ -31,10 +31,10 @@ func Permission(ctx *gin.Context) {
 	claims, err := Verify(tokenValue)
 
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"code": http.StatusBadRequest,
+		ctx.JSON(http.StatusUnauthorized, gin.H{
+			"code": http.StatusUnauthorized,
 			"msg":  "失效token",
-			"data": ctx.Request.Header,
+			"data": nil,
 		})
 		ctx.Abort()
 		return

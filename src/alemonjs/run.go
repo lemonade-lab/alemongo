@@ -24,18 +24,20 @@ func Run(name string) (string, error) {
 	pidFilePath := GetPidFilePath(name)
 	// 启动脚本
 	indexPath := GetBotIndexRelativePath()
+	// 机器人目录
+	botPath := GetBotPath(name)
 	// alemonjs/index.js, index.js, src/index.js, lib/index.js
 	// 如果启动脚本不存在
-	if _, err := os.Stat(indexPath); os.IsNotExist(err) {
+	if _, err := os.Stat(path.Join(botPath, indexPath)); os.IsNotExist(err) {
 		indexPath = path.Join("index.js")
 		// 如果还是不存在
-		if _, err := os.Stat(indexPath); os.IsNotExist(err) {
+		if _, err := os.Stat(path.Join(botPath, indexPath)); os.IsNotExist(err) {
 			indexPath = path.Join("src", "index.js")
 			// 如果还是不存在
-			if _, err := os.Stat(indexPath); os.IsNotExist(err) {
+			if _, err := os.Stat(path.Join(botPath, indexPath)); os.IsNotExist(err) {
 				indexPath = path.Join("lib", "index.js")
 				// 如果还是不存在
-				if _, err := os.Stat(indexPath); os.IsNotExist(err) {
+				if _, err := os.Stat(path.Join(botPath, indexPath)); os.IsNotExist(err) {
 					return "启动脚本不存在,请新建index.js", os.ErrNotExist
 				}
 			}
@@ -44,7 +46,7 @@ func Run(name string) (string, error) {
 	// 执行
 	cmd := exec.Command("node", indexPath)
 	// 设置工作目录为机器人的路径
-	cmd.Dir = GetBotPath(name)
+	cmd.Dir = botPath
 	// 设置命令的标准输入输出
 	// cmd.Stdout = os.Stdout
 	// cmd.Stderr = os.Stderr

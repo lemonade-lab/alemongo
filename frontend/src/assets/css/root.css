@@ -1,0 +1,5 @@
+:root {
+  --font-family: 'Roboto', 'Noto Sans SC', Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  --code-font: 'Fira Code', 'Roboto', 'Noto Sans SC', Inter, system-ui, Avenir, Helvetica, Arial,
+    sans-serif;
+}

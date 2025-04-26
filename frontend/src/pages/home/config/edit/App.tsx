@@ -1,3 +1,4 @@
+import Code from "@/commom/CodeMirror";
 import CreateForm from "./CreateForm";
 import {useForm} from "antd/es/form/Form";
 import {useNavigate} from "react-router-dom";
@@ -44,11 +45,7 @@ const ConfigEdit = () => {
             alemon.config.yaml
           </div>
           <div className="p-2 flex-1">
-            <textarea
-              className="w-full h-full outline-none resize-none "
-              value={output}
-              readOnly
-            />
+            <Code mode={"yaml"} value={output} />
           </div>
         </div>
       </div>

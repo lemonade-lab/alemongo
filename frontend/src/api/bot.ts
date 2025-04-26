@@ -1,7 +1,6 @@
-import { message } from "antd";
+
 import { request } from "./base";
 import { BotInfo } from "./types";
-
 
 export const apiBotList = async (): Promise<BotInfo[]> => {
     return request({
@@ -23,12 +22,7 @@ export const apiBotCreate = async (data: { name: string }) => {
         })
             .then((res) => res.data)
             .then(resolve)
-            .catch((err) => {
-                if (err?.response?.data?.msg) {
-                    message.error(err.response.data.msg);
-                }
-                reject(err);
-            });
+            .catch(reject);
     });
 };
 
@@ -43,12 +37,7 @@ export const apiBotRun = async (data: {
         })
             .then((res) => res.data)
             .then(resolve)
-            .catch((err) => {
-                if (err?.response?.data?.msg) {
-                    message.error(err.response.data.msg);
-                }
-                reject(err);
-            });
+            .catch(reject);
     });
 }
 
@@ -63,12 +52,7 @@ export const apiBotStop = async (data: {
         })
             .then((res) => res.data)
             .then(resolve)
-            .catch((err) => {
-                if (err?.response?.data?.msg) {
-                    message.error(err.response.data.msg);
-                }
-                reject(err);
-            });
+            .catch(reject);
     });
 }
 
@@ -83,12 +67,7 @@ export const apiBotYarnInstall = async (data: {
         })
             .then((res) => res.data)
             .then(resolve)
-            .catch((err) => {
-                if (err?.response?.data?.msg) {
-                    message.error(err.response.data.msg);
-                }
-                reject(err);
-            });
+            .catch(reject);
     });
 }
 
@@ -103,12 +82,7 @@ export const apiBotDelete = async (data: {
         })
             .then((res) => res.data)
             .then(resolve)
-            .catch((err) => {
-                if (err?.response?.data?.msg) {
-                    message.error(err.response.data.msg);
-                }
-                reject(err);
-            });
+            .catch(reject);
     });
 }
 
@@ -123,12 +97,7 @@ export const apiBotInfo = async (data: {
         })
             .then((res) => res.data)
             .then(resolve)
-            .catch((err) => {
-                if (err?.response?.data?.msg) {
-                    message.error(err.response.data.msg);
-                }
-                reject(err);
-            });
+            .catch(reject);
     });
 }
 
@@ -144,12 +113,7 @@ export const apiBotLog = async (data: {
         })
             .then((res) => res.data)
             .then(resolve)
-            .catch((err) => {
-                if (err?.response?.data?.msg) {
-                    message.error(err.response.data.msg);
-                }
-                reject(err);
-            });
+            .catch(reject);
     });
 }
 
@@ -164,12 +128,7 @@ export const apiBotPackage = async (data: {
         })
             .then((res) => res.data)
             .then(resolve)
-            .catch((err) => {
-                if (err?.response?.data?.msg) {
-                    message.error(err.response.data.msg);
-                }
-                reject(err);
-            });
+            .catch(reject);
     });
 }
 
@@ -184,11 +143,46 @@ export const apiBotConfig = async (data: {
         })
             .then((res) => res.data)
             .then(resolve)
-            .catch((err) => {
-                if (err?.response?.data?.msg) {
-                    message.error(err.response.data.msg);
-                }
-                reject(err);
-            });
+            .catch(reject);
+    });
+}
+
+export const apiBotPackageClone = async (data: {
+    name: string
+    repo_url: string
+    branch_name: string
+}): Promise<null> => {
+    return new Promise((resolve, reject) => {
+        request({
+            url: "/bot/packages/clone",
+            method: "post",
+            data,
+        })
+            .then((res) => res.data)
+            .then(resolve)
+            .catch(reject);
+    });
+}
+
+export type BotPackages = {
+    "name": string,
+    "git": string,
+    "pkg": string,
+    "md": string,
+    "status": number // 0:未安装 1:已安装
+}
+
+export const apiBotPackagesList = async (data: {
+    name: string
+}): Promise<BotPackages[]> => {
+    return new Promise((resolve, reject) => {
+        request({
+            url: "/bot/packages/list",
+            method: "post",
+            data,
+        })
+            .then((res) => res.data)
+            .then(resolve)
+            .catch(reject);
     });
 }
