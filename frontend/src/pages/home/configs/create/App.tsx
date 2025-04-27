@@ -1,5 +1,5 @@
 import {useNavigate} from "react-router-dom";
-import CommonConfgEdit from "../../panel/CommonConfgEdit";
+import CommonConfgEdit from "../../../../commom/ConfgEdit";
 import {Button, message} from "antd";
 import {apiBotConfigs, apiBotConfigsList, apiBotConfigsUpdate} from "@/api";
 import {useEffect, useState} from "react";

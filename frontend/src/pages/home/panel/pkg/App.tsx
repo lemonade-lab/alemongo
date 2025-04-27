@@ -1,5 +1,6 @@
 import {apiBotPackage} from "@/api";
 import Code from "@/commom/CodeMirror";
+import EditBox from "@/commom/EditBox";
 import {useEffect, useState} from "react";
 
 const Package = () => {
@@ -36,30 +37,24 @@ const Package = () => {
           依赖列表
         </h2>
       </div>
-      <div className="flex flex-1 flex-col xl:flex-row gap-2">
-        <div className="flex-1 flex flex-col  rounded-md p-2">
-          {list.map((item, index) => (
-            <div key={index} className="bg-white p-2 rounded-md shadow-md mb-2">
-              {item}
-            </div>
-          ))}
-        </div>
-        <div className="flex-1 flex-col flex bg-white rounded-md">
-          <div className="text-xl px-2 py-1 bg-slate-400">package.json</div>
-          <div
-            className="
-        overflow-x-auto
-        h-[calc(100vh/2-8rem)] 
-        w-[calc(100vw-2rem)]
-        sm:w-[calc(100vw-10rem)]
-        xl:w-[calc(100vw/2-6rem)]
-        xl:h-[calc(100vh-11rem)]
-          "
-          >
-            <Code mode={"json"} value={pkgData} />
+      <EditBox
+        left={
+          <div className="flex-1 flex flex-col p-2">
+            {list.map((item, index) => (
+              <div
+                key={index}
+                className="bg-white p-2 rounded-md shadow-md mb-2"
+              >
+                {item}
+              </div>
+            ))}
           </div>
-        </div>
-      </div>
+        }
+        rightHeader={
+          <div className="text-xl px-2 py-1 bg-slate-400">package.json</div>
+        }
+        right={<Code mode={"json"} value={pkgData} />}
+      />
     </div>
   );
 };

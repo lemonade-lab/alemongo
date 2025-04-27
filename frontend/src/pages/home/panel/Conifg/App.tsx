@@ -5,7 +5,7 @@ import {
   apiBotConfigUpdate,
 } from "@/api";
 import {useEffect, useState} from "react";
-import CommonConfgEdit from "../CommonConfgEdit";
+import CommonConfgEdit from "../../../../commom/ConfgEdit";
 import {Button, message, Select} from "antd";
 
 const Conifg = () => {
