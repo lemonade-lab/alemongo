@@ -1,4 +1,4 @@
-name: 构建检验
+name: 推送检验
 
 on:
   push:
