@@ -1,4 +1,4 @@
-name: Build and Release
+name: 发布版本
 
 on:
   workflow_dispatch:
@@ -12,7 +12,7 @@ permissions:
 
 jobs:
   build:
-    name: Build and Upload Release Assets
+    name: 打包并发布
     runs-on: ubuntu-latest
 
     steps:
