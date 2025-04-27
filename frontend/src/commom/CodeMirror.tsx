@@ -53,7 +53,7 @@ const useTheme = () => {
 const Code: React.FC<CodeMirrorProps> = React.memo((props) => {
   const {value, mode, onChange} = props;
   const theme = useTheme();
-  
+
   useEffect(() => {
     // 强制删除多余的 CodeMirror 实例，只保留最后一个
     const editors = document.querySelectorAll(".CodeMirror");
@@ -70,6 +70,7 @@ const Code: React.FC<CodeMirrorProps> = React.memo((props) => {
   return (
     <CodeMirror
       autoCursor={false}
+      className="flex-1"
       options={{
         mode: mode ?? "text/x-properties",
         theme: theme,

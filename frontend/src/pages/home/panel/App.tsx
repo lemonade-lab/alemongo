@@ -85,7 +85,7 @@ const Panel = () => {
             alemon.config.yaml
           </Button>
         </div>
-        <div className="flex gap-2">
+        {/* <div className="flex gap-2">
           <div className="min-w-20">功能:</div>
           <Button
             type="text"
@@ -95,7 +95,7 @@ const Panel = () => {
           >
             response && middleware
           </Button>
-        </div>
+        </div> */}
         <div className="flex gap-2">
           <div className="min-w-20">GIT扩展:</div>
           <Button
