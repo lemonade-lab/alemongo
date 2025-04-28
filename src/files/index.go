@@ -2,12 +2,14 @@ package files
 
 import (
 	"alemongo/src/config"
+	"embed"
 	"io"
 	"io/fs"
 	"log"
 	"net/http"
 	"os"
 	"path"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -62,18 +64,26 @@ func Create(ResourcesFiles fs.FS) {
 }
 
 // 文件服务
-func CreateFileServer(ctx *gin.Context, staticFiles fs.FS) {
+func CreateFileServer(ctx *gin.Context, staticFiles embed.FS) {
 	// 检查请求路径是否以 /api 开头
-	if len(ctx.Request.URL.Path) >= 4 && ctx.Request.URL.Path[:4] == "/api" {
+	if strings.HasPrefix(ctx.Request.URL.Path, "/api") {
 		// 如果是 /api 开头的路径，返回 404
 		ctx.JSON(http.StatusNotFound, gin.H{"error": "API route not found"})
 		return
 	}
+
 	// 创建一个子文件系统，指向 dist 目录
 	distFS, _ := fs.Sub(staticFiles, "dist")
 
 	// 创建一个文件服务
 	fileServer := http.FileServer(http.FS(distFS))
+
+	// 检查文件是否存在
+	_, err := distFS.Open(strings.TrimPrefix(ctx.Request.URL.Path, "/"))
+	if err != nil {
+		// 如果文件不存在，返回 index.html
+		ctx.Request.URL.Path = "/"
+	}
 
 	// 使用文件服务处理请求
 	fileServer.ServeHTTP(ctx.Writer, ctx.Request)
