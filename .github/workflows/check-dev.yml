@@ -8,7 +8,7 @@ on:
 
 jobs:
   build-to-deploy:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
 
     steps:
       - name: 检出代码库

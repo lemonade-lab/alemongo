@@ -13,7 +13,7 @@ permissions:
 jobs:
   build:
     name: 打包并发布
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
 
     steps:
       - name: 检出代码
