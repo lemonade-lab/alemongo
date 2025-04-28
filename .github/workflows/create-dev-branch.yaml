@@ -17,8 +17,9 @@ jobs:
       - name: 根据时间戳生成分支名称
         id: generate-branch
         run: |
-          TIMESTAMP=$(date -u +'%Y%m%d-%H%M')
-          BRANCH_NAME="dev-$TIMESTAMP"
+          DATE=$(date -u +'%Y%m%d')
+          TIMESTAMP=$(date +%s)
+          BRANCH_NAME="dev-$DATE-$TIMESTAMP"
           echo "Generated branch name: $BRANCH_NAME"
           echo "branch_name=$BRANCH_NAME" >> $GITHUB_OUTPUT
 

@@ -16,12 +16,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 检出代码
-      - name: Checkout code
+      - name: 检出代码
         uses: actions/checkout@v3
 
-      # 缓存 Node.js 依赖
-      - name: Cache Node.js modules
+      - name: 缓存 Node.js 依赖
         uses: actions/cache@v3
         with:
            path: |
@@ -30,29 +28,25 @@ jobs:
            restore-keys: |
               ${{ runner.os }}-node-
 
-      # 设置 Node.js 环境
-      - name: Set up Node.js
+      - name: 设置 Node.js 环境
         uses: actions/setup-node@v3
         with:
           node-version: '18'
 
-      # 安装依赖
-      - name: Install dependencies
+      - name: 安装依赖
         run: |
           cd frontend 
           npm install yarn@1.19.0 -g
           yarn install --ignore-engines
           cd ../
       
-      # 构建前端
-      - name: Build frontend
+      - name: 构建前端
         run: |
           cd frontend
           yarn build
           cd ../
 
-      # 缓存 Go 模块
-      - name: Cache Go modules
+      - name: 缓存 Go 模块
         uses: actions/cache@v3
         with:
           path: |
@@ -62,14 +56,12 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-go-
 
-      # 设置 Go 环境
-      - name: Set up Go
+      - name: 设置 Go 环境
         uses: actions/setup-go@v4
         with:
           go-version: '1.23.0'
 
-      # 构建二进制文件
-      - name: Build binaries
+      - name: 构建二进制
         run: |
           # Linux 架构
           mkdir -p apps/linux/amd64
@@ -89,8 +81,7 @@ jobs:
           GOOS=windows GOARCH=amd64 go build -o apps/windows/amd64/alemongo.exe
           GOOS=windows GOARCH=386 go build -o apps/windows/386/alemongo.exe
 
-      # 打包二进制文件
-      - name: Archive binaries
+      - name: 压缩文件
         run: |
           root_path=$(pwd)
           # linux
@@ -113,7 +104,7 @@ jobs:
           # back
           cd  $root_path  
 
-      - name: Create Release
+      - name: 创建版本
         id: create_release
         uses: actions/create-release@v1
         with:
@@ -124,7 +115,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # 上传到 GitHub Release
       - name: Upload Linux amd64 binary
         uses: actions/upload-release-asset@v1.0.2
         env:
