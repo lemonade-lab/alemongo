@@ -50,7 +50,7 @@ jobs:
 
       - name: 编译二进制
         run: |
-          GOOS=darwin GOARCH=amd64 go build -o alemongo
+          GOOS=linux GOARCH=amd64 go build -o apps/linux/amd64/alemongo
 
       - name: 安装 rsync
         run: |
@@ -66,4 +66,4 @@ jobs:
           # 上传 alemongo 二进制文件
           rsync -avz --delete ./alemongo $USER@$MYIP:/home/lighthouse/alemongo
           # 启动
-          ssh $USER@$MYIP "nohup '/opt/glibc-2.34/lib/ld-linux-x86-64.so.2 /home/lighthouse/alemongo' > app.log 2>&1 &"
+          ssh $USER@$MYIP "nohup /home/lighthouse/alemongo > app.log 2>&1 &"
