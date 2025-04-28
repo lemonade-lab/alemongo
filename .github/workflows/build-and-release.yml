@@ -33,18 +33,11 @@ jobs:
         with:
           node-version: '22'
 
-      - name: 安装依赖
-        run: |
-          cd frontend 
-          npm install yarn@1.19.1 -g
-          yarn install --ignore-engines
-          cd ../
-      
       - name: 构建前端
         run: |
-          cd frontend
-          yarn build
-          cd ../
+          npm install yarn@1.19.1 -g
+          yarn --cwd frontend install --ignore-engines
+          yarn --cwd frontend build
 
       - name: 缓存 Go 模块
         uses: actions/cache@v3

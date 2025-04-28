@@ -52,3 +52,8 @@ users:
 > 如果你想让alemongo管理已经独立安装的机器人
 
 > 只需启动 alemongo 后，将机器人拖进`./work/resources`文件夹内
+
+
+## 开发指南
+
+[README_DEV](./README_DEV.md)
