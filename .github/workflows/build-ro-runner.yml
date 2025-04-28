@@ -1,0 +1,69 @@
+name: 预览
+
+on:
+  push:
+    branches:
+      - dev-*
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: 在线预览
+    runs-on: self-hosted
+
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v3
+     
+      - name: 停止实例
+        run: |
+            pkill -f "main.go" || echo "没有找到正在运行的实例"
+
+      - name: 缓存 Node.js 依赖
+        uses: actions/cache@v3
+        with:
+           path: |
+              frontend/node_modules
+           key: ${{ runner.os }}-node-${{ hashFiles('frontend/package-lock.json', 'frontend/yarn.lock') }}
+           restore-keys: |
+              ${{ runner.os }}-node-
+
+      - name: 设置 Node.js 环境
+        uses: actions/setup-node@v3
+        with:
+          node-version: '22'
+
+      - name: 安装依赖
+        run: |
+          cd frontend 
+          npm install yarn@1.19.1 -g
+          yarn install --ignore-engines
+          cd ../
+      
+      - name: 构建前端
+        run: |
+          cd frontend
+          yarn build
+          cd ../
+
+      - name: 缓存 Go 模块
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      - name: 设置 Go 环境
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.23.0'
+
+      - name: 运行
+        run: |
+          go run main.go
+      
