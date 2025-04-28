@@ -20,7 +20,7 @@ jobs:
      
       - name: 停止实例
         run: |
-            pkill -f "main.go" || echo "没有找到正在运行的实例"
+            lsof -i :17187 | awk 'NR>1 {print $2}' | xargs -r kill -9 || echo "没有找到正在运行的实例"
 
       - name: 缓存 Node.js 依赖
         uses: actions/cache@v3
@@ -60,5 +60,4 @@ jobs:
 
       - name: 运行
         run: |
-          go run main.go
-      
+          nohup go run main.go > app.log 2>&1 &
