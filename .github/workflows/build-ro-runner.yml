@@ -12,24 +12,25 @@ permissions:
 jobs:
   build:
     name: 在线预览
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
 
     steps:
       - name: 检出代码
         uses: actions/checkout@v3
-     
-      - name: 停止实例
-        run: |
-            lsof -i :17187 | awk 'NR>1 {print $2}' | xargs -r kill -9 || echo "没有找到正在运行的实例"
 
-      - name: 缓存 Node.js 依赖
-        uses: actions/cache@v3
-        with:
-           path: |
-              frontend/node_modules
-           key: ${{ runner.os }}-node-${{ hashFiles('frontend/package-lock.json', 'frontend/yarn.lock') }}
-           restore-keys: |
-              ${{ runner.os }}-node-
+      - name: 创建 SSH 配置
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          echo "StrictHostKeyChecking no" >> ~/.ssh/config
+          echo "UserKnownHostsFile=/dev/null" >> ~/.ssh/config
+
+      - name: 测试 SSH 连接
+        run: |
+          USER=${{ secrets.SSH_SERVER_USER }}
+          MYIP=${{ secrets.SSH_SERVER_IP }}
+          ssh -o BatchMode=yes -o StrictHostKeyChecking=no $USER@$MYIP "echo 'SSH connection successful!' || echo 'Connection failed'"
 
       - name: 设置 Node.js 环境
         uses: actions/setup-node@v3
@@ -41,23 +42,29 @@ jobs:
             npm install yarn@1.19.1 -g
             yarn --cwd frontend install --ignore-engines
             yarn --cwd frontend build
-  
-
-      - name: 缓存 Go 模块
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.cache/go-build
-            ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-
 
       - name: 设置 Go 环境
         uses: actions/setup-go@v4
         with:
           go-version: '1.23.0'
 
-      - name: 运行
+      - name: 编译二进制
         run: |
-          nohup go run main.go > app.log 2>&1 &
+          GOOS=linux GOARCH=amd64 go build -o alemongo
+
+      - name: 安装 rsync
+        run: |
+          sudo apt-get update 
+          sudo apt-get install rsync -y
+          rsync --version
+
+      - name: 推送到服务器
+        run: |
+          # 先确保停止
+          USER=${{ secrets.SSH_SERVER_USER }}
+          MYIP=${{ secrets.SSH_SERVER_IP }}
+          ssh $USER@$MYIP "lsof -i :17187 | awk 'NR>1 {print $2}' | xargs -r kill -9 || echo '没有找到正在运行的实例'"  
+          # 上传 alemongo 二进制文件
+          rsync -avz --delete ./alemongo $USER@$MYIP:/home/lighthouse/alemongo
+          # 启动
+          ssh $USER@$MYIP "nohup '/opt/glibc-2.34/lib/ld-linux-x86-64.so.2 /home/lighthouse/alemongo/alemongo' > app.log 2>&1 &"
