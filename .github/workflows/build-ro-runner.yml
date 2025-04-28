@@ -50,7 +50,7 @@ jobs:
 
       - name: 编译二进制
         run: |
-          GOOS=linux GOARCH=amd64 go build -o apps/linux/amd64/alemongo
+          GOOS=linux GOARCH=amd64 go build -o alemongo
 
       - name: 安装 rsync
         run: |
