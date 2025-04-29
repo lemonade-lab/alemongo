@@ -108,17 +108,6 @@ const Panel = () => {
           </Button>
         </div>
         <div className="flex gap-2">
-          <div className="min-w-20">NPM扩展:</div>
-          <Button
-            type="text"
-            onClick={() => {
-              message.warning("等更新");
-            }}
-          >
-            node_modules
-          </Button>
-        </div>
-        <div className="flex gap-2">
           <div className="min-w-20">创建时间:</div>
           <Tags type="indigo">{info.create_at}</Tags>
         </div>

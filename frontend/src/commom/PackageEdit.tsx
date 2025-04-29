@@ -3,7 +3,6 @@ import {useEffect, useState, useCallback} from "react";
 import {Form} from "antd";
 import Code from "@/commom/CodeMirror";
 import {debounce} from "lodash";
-import YAML from "js-yaml";
 import EditBox from "./EditBox";
 
 type BaseType = string | number | string[] | number[];
@@ -269,7 +268,7 @@ const ConfigForm = ({
   );
 };
 
-const ConfgEdit = ({
+const PackageEdit = ({
   name,
   value,
   onSave,
@@ -294,10 +293,10 @@ const ConfgEdit = ({
       return;
     }
     try {
-      const values = YAML.load(value) as ObjectType;
+      const values = JSON.parse(value) as ObjectType;
       const mergedData = {...jsonData, ...values};
       setJsonData(mergedData);
-      setYamlData(YAML.dump(mergedData));
+      setYamlData(JSON.stringify(mergedData, null, 2));
       form.setFieldsValue({name, ...mergedData});
     } catch {
       message.error("加载配置失败，请检查 YAML 格式");
@@ -308,7 +307,7 @@ const ConfgEdit = ({
     debounceFn(() => {
       const formData = form.getFieldsValue();
       delete formData.name;
-      setYamlData(YAML.dump({...jsonData, ...formData}));
+      setYamlData(JSON.stringify({...jsonData, ...formData}, null, 2));
     });
   }, [jsonData, form]);
 
@@ -325,11 +324,12 @@ const ConfgEdit = ({
   const handleYamlChange = useCallback(
     (_editor: unknown, _data: unknown, value: string) => {
       try {
-        const values = YAML.load(value) as ObjectType;
+        // const values = JSON.parse(value) as ObjectType;
+        const values = JSON.parse(value);
         setJsonData({...jsonData, ...values});
         updateForm(values);
       } catch {
-        message.error("YAML 格式错误，请检查输入");
+        message.error("JSON 格式错误，请检查输入");
       }
     },
     [jsonData, updateForm]
@@ -375,7 +375,7 @@ const ConfgEdit = ({
 
       // 更新状态
       setJsonData(newData);
-      setYamlData(YAML.dump(newData));
+      setYamlData(JSON.stringify(newData, null, 2));
       form.setFieldsValue(newData);
     },
     [jsonData, form]
@@ -401,7 +401,7 @@ const ConfgEdit = ({
 
       // 更新状态
       setJsonData(newData);
-      setYamlData(YAML.dump(newData));
+      setYamlData(JSON.stringify(newData, null, 2));
       form.setFieldsValue(newData);
     },
     [jsonData, form]
@@ -410,7 +410,7 @@ const ConfgEdit = ({
   const handleSave = useCallback(() => {
     const name = form.getFieldValue("name");
     try {
-      onSave(name, YAML.dump(jsonData));
+      onSave(name, JSON.stringify(jsonData, null, 2));
     } catch {
       message.error("保存失败，请重试");
     }
@@ -422,7 +422,7 @@ const ConfgEdit = ({
         <Form
           className="flex-1 p-2"
           form={form}
-          labelCol={{span: 3}}
+          labelCol={{span: 5}}
           onValuesChange={updateYaml}
         >
           {name && (
@@ -449,13 +449,13 @@ const ConfgEdit = ({
       }
       rightHeader={
         <div className="flex items-center justify-between p-1 bg-slate-400 rounded-t-md">
-          <div>alemon.config.yaml</div>
+          <div>package.json</div>
           <Button onClick={handleSave}>保存</Button>
         </div>
       }
-      right={<Code mode="yaml" value={yamlData} onChange={handleYamlChange} />}
+      right={<Code mode="json" value={yamlData} onChange={handleYamlChange} />}
     />
   );
 };
 
-export default ConfgEdit;
+export default PackageEdit;

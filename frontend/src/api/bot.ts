@@ -132,6 +132,23 @@ export const apiBotPackage = async (data: {
     });
 }
 
+export const apiBotPackageUpdate = async (data: {
+    name: string
+    content: string
+}): Promise<string> => {
+    return new Promise((resolve, reject) => {
+        request({
+            url: "/bot/package/update",
+            method: "post",
+            data,
+        })
+            .then((res) => res.data)
+            .then(resolve)
+            .catch(reject);
+    });
+}
+
+
 export const apiBotConfig = async (data: {
     name: string
 }): Promise<string> => {

@@ -60,6 +60,7 @@ const Panel = () => {
       setPkgs(res);
     });
   };
+
   useEffect(() => {
     // 获得参数 /panel/tag
     const path = window.location.pathname;

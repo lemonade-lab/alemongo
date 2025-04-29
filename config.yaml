@@ -1,7 +1,7 @@
 users:
-- identity: "admin"
-  username: "lemonade"
-  password: "123456"
+  - identity: "admin"
+    username: "lemonade"
+    password: "123456"
 server:
   host: "localhost"
   port: "17187"
