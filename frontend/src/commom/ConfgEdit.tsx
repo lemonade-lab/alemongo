@@ -346,7 +346,7 @@ const ConfgEdit = ({
       let status = true;
 
       // 递归函数，用于根据 keyPath 更新嵌套对象
-      const updateNestedObject = (obj, keys: string[], value: ObjectType) => {
+      const updateNestedObject = (obj: any, keys: string[], value: ObjectType) => {
         const [currentKey, ...restKeys] = keys;
         if (restKeys.length === 0) {
           if (obj[currentKey]) {
