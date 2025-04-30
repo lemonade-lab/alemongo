@@ -20,7 +20,12 @@ const (
 	Guest  = BotRead                                     // 访客：只能查看机器人
 	Sub    = BotRead | BotUpdate                         // 普通用户：查看和更新机器人
 	Master = BotRead | BotUpdate | BotDelete | BotDelete // 主人：查看、更新和删除机器人
+	Admin  = BotRead | BotCreate | BotUpdate | BotDelete // 管理员：所有权限
+)
 
-	//
-	Admin = BotRead | BotCreate | BotUpdate | BotDelete // 管理员：所有权限
+const (
+	IdentityAdmin  = "admin"
+	IdentityMaster = "master"
+	IdentitySub    = "sub"
+	IdentityUser   = "tourist"
 )

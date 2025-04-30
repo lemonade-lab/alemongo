@@ -1,8 +1,8 @@
-package users
+package user
 
 import (
 	"alemongo/src/apps/token"
-	"alemongo/src/config"
+	"alemongo/src/users"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -10,21 +10,28 @@ import (
 
 // 登录
 func Login(ctx *gin.Context) {
-	password := ctx.PostForm("password")
 	username := ctx.PostForm("username")
 
-	user, exist := config.GetUserByUserName(username)
-	if !exist {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"code": http.StatusBadRequest,
-			"msg":  "用户不存在",
-			"data": nil,
-		})
-		return
+	userInfo := users.User{}
+	if users.IsSuperAdmin(username) {
+		// 得到超级管理员信息
+		userInfo = users.GetAdminAccount()
+	} else {
+		user, exist := users.GetUserByUserName(username)
+		if !exist {
+			ctx.JSON(http.StatusBadRequest, gin.H{
+				"code": http.StatusBadRequest,
+				"msg":  "用户不存在",
+				"data": nil,
+			})
+			return
+		}
+		userInfo = user
 	}
 
+	password := ctx.PostForm("password")
 	// 密码不对
-	if password != user.PassWord {
+	if password != userInfo.PassWord {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"code": http.StatusBadRequest,
 			"msg":  "密码错误",

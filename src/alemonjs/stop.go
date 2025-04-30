@@ -1,7 +1,6 @@
 package alemonjs
 
 import (
-	"io/ioutil"
 	"os"
 	"strconv"
 
@@ -13,7 +12,7 @@ func Stop(name string) (string, error) {
 	pidFile := GetPidFilePath(name)
 
 	// 读取 PID 文件
-	pidData, err := ioutil.ReadFile(pidFile)
+	pidData, err := os.ReadFile(pidFile)
 	if os.IsNotExist(err) {
 		return "PID 文件不存在", nil
 	} else if err != nil {

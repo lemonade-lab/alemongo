@@ -27,7 +27,7 @@ const useForceUpdate = (): [boolean, () => void] => {
  *
  * @returns
  */
-const Home = () => {
+const Account = () => {
   const installed = useSelector(
     (state: RootState) => state.info.node.installed
   );
@@ -80,4 +80,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default Account;

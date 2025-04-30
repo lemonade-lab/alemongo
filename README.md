@@ -24,28 +24,9 @@ server:
   port: 17187 # 端口
   host: "localhost" # 仅作打印
   key: 'alemongo' # 密钥
-
-# 用户
-users: 
-   - identity: "admin" # 管理员
-     username: "lemonade"  # 用户名
-     password: "123456"  # 密码
-
-   - identity: "master" # 主账户
-     mastername: "lemonade"
-     username: "ningmengchongshui"
-     password: "123456"
-
-   - identity: "sub" # 子账户
-     mastername: "ningmengchongshui"
-     username: "sub_1"
-     password: "123456"
-
-   - identity: "tourist" # 游客（API数据为*，仅展示UI和UE）
-     mastername: "ningmengchongshui"
-     username: "tourist_acount"
-     password: "123456"
 ```
+
+> 超级临时账户会在启动时打印，直到密码更改。
 
 ## 机器人迁移
 

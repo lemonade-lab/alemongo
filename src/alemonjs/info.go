@@ -1,7 +1,6 @@
 package alemonjs
 
 import (
-	"io/ioutil"
 	"os"
 	"strconv"
 
@@ -33,7 +32,7 @@ func Info(name string) (BotInfoResponse, error) {
 	createAt := fileInfo.ModTime().Format("2006-01-02 15:04:05")
 	// 获取 pid 文件
 	pidFilePath := GetPidFilePath(name)
-	pidData, err := ioutil.ReadFile(pidFilePath)
+	pidData, err := os.ReadFile(pidFilePath)
 	if err != nil {
 		return BotInfoResponse{
 			Code: 0,

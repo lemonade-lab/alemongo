@@ -1,28 +1,29 @@
-package users
+package user
 
 import (
 	"alemongo/src/apps/token"
+	"alemongo/src/users"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
-// 退出登录
-func Logout(ctx *gin.Context) {
-	tokenValue, exists := ctx.Get("token")
+// 获取用户信息
+func Info(ctx *gin.Context) {
+	username, exists := token.GetUserName(ctx)
 	if !exists {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"code": http.StatusBadRequest,
-			"msg":  "无效token",
+			"msg":  "错误请求",
 			"data": nil,
 		})
 		return
 	}
-	err := token.Delete(tokenValue.(string))
-	if err != nil {
+	userInfo, exists := users.GetUserByUserName(username)
+	if !exists {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"code": http.StatusBadRequest,
-			"msg":  "退出登录失败",
+			"msg":  "用户不存在",
 			"data": nil,
 		})
 		return
@@ -30,6 +31,6 @@ func Logout(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{
 		"code": http.StatusOK,
 		"msg":  "请求成功",
-		"data": nil,
+		"data": userInfo,
 	})
 }

@@ -2,7 +2,7 @@ package common
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net"
 	"net/http"
 )
@@ -15,7 +15,7 @@ func getPublicIP() (string, error) {
 	}
 	defer resp.Body.Close()
 
-	ip, err := ioutil.ReadAll(resp.Body)
+	ip, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return "", err
 	}
