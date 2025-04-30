@@ -30,9 +30,7 @@ const Headings = ({onUpdate}: {onUpdate: () => void}) => {
     }
     apiBotCreate({
       name,
-    }).then((res) => {
-      console.log("res", res);
-      // onCreate(name);
+    }).then(() => {
       setVisible(false);
       onUpdate();
     });

@@ -22,9 +22,7 @@ const Main = () => {
         dispatch(setInfo(res));
       });
     // 获得 info
-    apiInfo().then((res) => {
-      dispatch(setUserInfo(res.data));
-    });
+    apiInfo().then((res) => dispatch(setUserInfo(res)));
   }, [storeLogin.login, navigate, dispatch]);
   return (
     <div className="size-full flex flex-col">
