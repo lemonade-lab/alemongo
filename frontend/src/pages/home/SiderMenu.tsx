@@ -3,6 +3,8 @@ import {useEffect, useState} from "react";
 import lodash from "lodash";
 import {useLocation, useNavigate} from "react-router-dom";
 import {menuItems} from "./menuItems";
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux";
 /**
  *
  * @returns
@@ -36,6 +38,18 @@ const SiderMenu = () => {
       window.removeEventListener("resize", reSize);
     };
   }, []);
+
+  const storeMe = useSelector((state: RootState) => state.me);
+  // 过滤得到 item
+  const curMenuItems = menuItems.filter((item)=>{
+    if(item?.identity){
+      if(item?.identity !== storeMe.identity){
+        return false
+      }
+    }
+    return true
+  })
+
   return (
     <>
       {!collapsed && (
@@ -46,7 +60,7 @@ const SiderMenu = () => {
           onSelect={(e) => navigate(e.key)}
           mode="inline"
           theme="dark"
-          items={menuItems}
+          items={curMenuItems}
         />
       )}
     </>

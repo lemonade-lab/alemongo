@@ -3,6 +3,8 @@ import {apiLogout} from "../api";
 import {useNavigate} from "react-router-dom";
 import {Button, Dropdown, MenuProps, message} from "antd";
 import {menuItems} from "./home/menuItems";
+import {useSelector} from "react-redux";
+import {RootState} from "@/redux";
 
 const Navbars = () => {
   const [showMenu, setShowMenu] = useState(false);
@@ -32,7 +34,18 @@ const Navbars = () => {
     },
   ];
 
-  const MenuItems: MenuProps["items"] = menuItems.map((item, index) => {
+  const storeMe = useSelector((state: RootState) => state.me);
+  // 过滤得到 item
+  const curMenuItems = menuItems.filter((item) => {
+    if (item?.identity) {
+      if (item?.identity !== storeMe.identity) {
+        return false;
+      }
+    }
+    return true;
+  });
+
+  const MenuItems: MenuProps["items"] = curMenuItems.map((item, index) => {
     return {
       key: index,
       label: <div onClick={() => navigate(item.key)}>{item.label}</div>,

@@ -3,51 +3,101 @@ package users
 import (
 	"alemongo/src/config"
 	"encoding/json"
+	"log"
 	"os"
 	"path"
 )
 
-var users Users
-
-func getListPaht() string {
+func getListPath() string {
 	workPath := config.GetWorkPath()
+	userPath := path.Join(config.GetWorkPath(), "users")
 	userListPath := path.Join(workPath, "users", "list.json")
-	return userListPath
-}
-
-func GetList() []User {
-	userListPath := getListPaht()
-	// 不存在文件。创建空文件。并返回空。
 	if _, err := os.Stat(userListPath); os.IsNotExist(err) {
+		// 创建目录
+		err := os.MkdirAll(userPath, os.ModePerm)
+		if err != nil {
+		}
 		// 创建文件
 		file, err := os.Create(userListPath)
 		if err != nil {
-			return []User{}
 		}
 		defer file.Close()
 		data := []User{}
 		// 写入空数据
 		_, err = json.Marshal(data)
 		if err != nil {
-			return []User{}
 		}
 	}
+	return userListPath
+}
+
+func GetList() []User {
+	userListPath := getListPath()
 	// 存在文件
 	fileData, err := os.ReadFile(userListPath)
 	if err != nil {
 		return []User{}
 	}
 	// 解析json
+	users := []User{}
 	err = json.Unmarshal(fileData, &users)
 	if err != nil {
+		log.Println("解析json失败")
 		return []User{}
 	}
-	// 返回用户列表
+	// 返回
 	return users
 }
 
-func GetUserByUserName(username string) (User, bool) {
+// 是否存在指定用户
+func ExistUserByUserName(username string) bool {
+	users := GetList()
 	for _, user := range users {
+		if user.UserName == username {
+			return true
+		}
+	}
+	return false
+}
+
+// 创建用户
+func CreateUser(username string, password string) bool {
+	// 判断是否存在
+	if ExistUserByUserName(username) {
+		log.Println("用户已存在")
+		return false
+	}
+	users := GetList()
+	// 创建用户
+	user := User{
+		UserName: username,
+		PassWord: password,
+	}
+	users = append(users, user)
+	userListPath := getListPath()
+	fileData, err := json.Marshal(users)
+	if err == nil {
+		err = os.WriteFile(userListPath, fileData, 0644)
+		if err == nil {
+			return true
+		}
+	}
+	// 失败了，删除用户
+	users = users[:len(users)-1]
+	fileData, err = json.Marshal(users)
+	if err == nil {
+		err = os.WriteFile(userListPath, fileData, 0644)
+		if err == nil {
+			return false
+		}
+	}
+	return false
+}
+
+func GetUserByUserName(username string) (User, bool) {
+	users := GetList()
+	for _, user := range users {
+		log.Println("user.UserName:", user.UserName)
 		if user.UserName == username {
 			return user, true
 		}
@@ -56,6 +106,7 @@ func GetUserByUserName(username string) (User, bool) {
 }
 
 func SetUserByUserName(username string, password string) bool {
+	users := GetList()
 	// 得到 i
 	curI := -1
 	for i, user := range users {
@@ -71,7 +122,7 @@ func SetUserByUserName(username string, password string) bool {
 	i := curI
 	curPasswird := users[i].PassWord
 	users[i].PassWord = password
-	userListPath := getListPaht()
+	userListPath := getListPath()
 	// 写入文件
 	fileData, err := json.Marshal(users)
 	if err != nil {
@@ -86,4 +137,35 @@ func SetUserByUserName(username string, password string) bool {
 		return false
 	}
 	return false
+}
+
+// 删除用户
+func DeleteUserByUserName(username string) bool {
+	users := GetList()
+	// 得到 i
+	curI := -1
+	for i, user := range users {
+		if user.UserName == username {
+			curI = i
+			break
+		}
+	}
+	if curI == -1 {
+		// 删除失败
+		return false
+	}
+	// 删除用户
+	users = append(users[:curI], users[curI+1:]...)
+	userListPath := getListPath()
+	fileData, err := json.Marshal(users)
+	if err != nil {
+		// 删除失败
+		return false
+	}
+	err = os.WriteFile(userListPath, fileData, 0644)
+	if err != nil {
+		// 删除失败
+		return false
+	}
+	return true
 }

@@ -21,13 +21,11 @@ function isLogin() {
 
 
 interface State {
-  username: string,
   token: string
   login: boolean
 }
 
 const initialState: State = {
-  username: "柠檬冲水",
   token: localStorage.getItem(TOKEN_KEY) || '',
   login: isLogin()
 }

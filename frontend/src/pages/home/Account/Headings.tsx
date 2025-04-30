@@ -2,11 +2,13 @@ import {useState} from "react";
 import {useSelector} from "react-redux";
 import {RootState} from "../../../redux";
 import Modal from "../../../commom/Modal";
+import {apiUserCreate} from "@/api/users/admin";
+import {message} from "antd";
 
 /**
- * 
- * @param param0 
- * @returns 
+ *
+ * @param param0
+ * @returns
  */
 const Headings = ({onUpdate}: {onUpdate: () => void}) => {
   const [visible, setVisible] = useState(false);
@@ -21,7 +23,20 @@ const Headings = ({onUpdate}: {onUpdate: () => void}) => {
    * @param e
    * @returns
    */
-  const onSubmit = (values: HTMLFormElement) => {};
+  const onSubmit = (values: HTMLFormElement) => {
+    // 检查密码是否一致
+    if (values.password.value !== values.confirm_password.value) {
+      message.error("密码不一致");
+      return;
+    }
+    apiUserCreate({
+      username: values.username.value,
+      password: values.password.value,
+    }).then(() => {
+      onUpdate();
+      setVisible(false);
+    });
+  };
   return (
     <header className="lg:flex lg:items-center lg:justify-between p-4">
       <div className="min-w-0 flex-1">
@@ -92,9 +107,8 @@ const Headings = ({onUpdate}: {onUpdate: () => void}) => {
               </label>
               <div className="mt-2">
                 <input
-                  type="botname"
-                  name="botname"
-                  id="botname"
+                  name="username"
+                  id="username"
                   onClick={(e) => e.stopPropagation()}
                   required
                   className="block w-full border rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"

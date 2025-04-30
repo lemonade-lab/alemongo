@@ -23,7 +23,6 @@ const Login = () => {
       username,
     })
       .then((res) => {
-        console.log("res", res);
         dispatch(setToken(res.data));
         navigate("/");
       })

@@ -4,8 +4,9 @@ import {RootState} from "../redux";
 import {useEffect} from "react";
 import {useNavigate} from "react-router-dom";
 import Navbars from "./Navbars";
-import {apiCommonInfo} from "../api";
+import {apiCommonInfo, apiInfo} from "../api";
 import {setInfo} from "../redux/info";
+import {setUserInfo} from "@/redux/meInfo";
 const Main = () => {
   const storeLogin = useSelector((state: RootState) => state.login);
   const dispatch = useDispatch();
@@ -20,6 +21,10 @@ const Main = () => {
       .then((res) => {
         dispatch(setInfo(res));
       });
+    // 获得 info
+    apiInfo().then((res) => {
+      dispatch(setUserInfo(res.data));
+    });
   }, [storeLogin.login, navigate, dispatch]);
   return (
     <div className="size-full flex flex-col">

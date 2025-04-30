@@ -29,3 +29,7 @@ const (
 	IdentitySub    = "sub"
 	IdentityUser   = "tourist"
 )
+
+const (
+	DefaultUserName = "lemonade" // 超级管理默认名
+)

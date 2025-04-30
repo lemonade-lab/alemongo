@@ -49,6 +49,12 @@ func Create() *gin.Engine {
 				ApiUser.GET("/info", user.Info)
 				// 修改密码
 				ApiUser.PUT("/password", user.PassWord)
+				// 列表
+				ApiUser.GET("/list", user.List)
+				// 添加
+				ApiUser.POST("/create", user.Create)
+				// 删除
+				ApiUser.DELETE("/delete", user.Delete)
 			}
 			ApiBot := v1.Group("/bot")
 			{
@@ -62,23 +68,40 @@ func Create() *gin.Engine {
 				ApiBot.POST("/stop", bot.Stop)
 				ApiBot.POST("/restart", bot.Restart)
 				ApiBot.POST("/log", bot.Log)
-				ApiBot.POST("/package", bot.Package)
-				ApiBot.POST("/package/update", bot.PackageUpdate)
-				// config
-				ApiBot.POST("/config", bot.ConfigData)
-				ApiBot.POST("/config/update", bot.ConfigUpdate)
-				// yarn
-				ApiBot.POST("/yarn/install", bot.YarnInstall)
-				ApiBot.POST("/yarn/add", bot.YarnAdd)
-				ApiBot.POST("/yarn/remove", bot.YarnRemove)
-				// Packages
-				ApiBot.POST("/packages/clone", bot.PackagesClone)
-				ApiBot.POST("/packages/list", bot.PackagesList)
-				ApiBot.POST("/packages/pull", bot.PackagesPull)
-				// configs
-				ApiBot.GET("/configs/list", bot.ConfigsList)
-				ApiBot.POST("/configs", bot.ConfigsData)
-				ApiBot.POST("/configs/update", bot.ConfigsUpdate)
+
+				ApiPackage := ApiBot.Group("/package")
+				{
+					ApiPackage.POST("/", bot.Package)
+					ApiPackage.POST("/update", bot.PackageUpdate)
+				}
+
+				ApiYarn := ApiBot.Group("/yarn")
+				{
+					ApiYarn.POST("/install", bot.YarnInstall)
+					ApiYarn.POST("/add", bot.YarnAdd)
+					ApiYarn.POST("/remove", bot.YarnRemove)
+				}
+
+				ApiPackages := ApiBot.Group("/packages")
+				{
+					ApiPackages.POST("/clone", bot.PackagesClone)
+					ApiPackages.POST("/list", bot.PackagesList)
+					ApiPackages.POST("/pull", bot.PackagesPull)
+				}
+
+				ApiConfig := ApiBot.Group("/config")
+				{
+					ApiConfig.POST("/", bot.ConfigData)
+					ApiConfig.POST("/update", bot.ConfigUpdate)
+				}
+
+				ApiConfigs := ApiBot.Group("/configs")
+				{
+					ApiConfigs.POST("/", bot.ConfigsData)
+					ApiConfigs.GET("/list", bot.ConfigsList)
+					ApiConfigs.POST("/update", bot.ConfigsUpdate)
+				}
+
 			}
 		}
 	}
