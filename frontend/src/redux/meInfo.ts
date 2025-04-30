@@ -19,10 +19,11 @@ const notificationSlice = createSlice({
     initialState,
     reducers: {
         setUserInfo(state, action) {
-            state.username = action.payload.username
-            state.password = action.payload.password
-            state.identity = action.payload.identity
-            state.mastername = action.payload.mastername
+            console.log("setUserInfo", action.payload)
+            state.username = action.payload?.username
+            state.password = action.payload?.password
+            state.identity = action.payload?.identity
+            state.mastername = action.payload?.mastername
         }
     }
 })

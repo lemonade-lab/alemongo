@@ -57,7 +57,6 @@ const Code: React.FC<CodeMirrorProps> = React.memo((props) => {
   useEffect(() => {
     // 强制删除多余的 CodeMirror 实例，只保留最后一个
     const editors = document.querySelectorAll(".CodeMirror");
-    console.log("editors", editors.length);
     if (editors.length > 1) {
       editors.forEach((editor, index) => {
         if (index < editors.length - 1) {

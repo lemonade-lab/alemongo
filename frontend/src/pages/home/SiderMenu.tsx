@@ -44,6 +44,7 @@ const SiderMenu = () => {
   const curMenuItems = menuItems.filter((item)=>{
     if(item?.identity){
       if(item?.identity !== storeMe.identity){
+        console.log("没有权限", item?.identity, storeMe)
         return false
       }
     }
