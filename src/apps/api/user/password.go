@@ -1,7 +1,9 @@
-package users
+package user
 
 import (
+	"alemongo/src/apps/token"
 	"alemongo/src/config"
+	"alemongo/src/users"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -11,19 +13,16 @@ import (
 func PassWord(ctx *gin.Context) {
 	oldPassword := ctx.PostForm("old_assword")
 	password := ctx.PostForm("password")
-	// username 从 token 中 获取
-	var username string = ""
-	var name, exists = ctx.Get("username")
+	username, exists := token.GetUserName(ctx)
 	if !exists {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"code": http.StatusBadRequest,
-			"msg":  "用户不存在",
+			"msg":  "错误请求",
 			"data": nil,
 		})
 		return
 	}
-	username = name.(string)
-	user, exist := config.GetUserByUserName(username)
+	user, exist := users.GetUserByUserName(username)
 	if !exist {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"code": http.StatusBadRequest,
@@ -50,7 +49,7 @@ func PassWord(ctx *gin.Context) {
 		return
 	}
 	// 修改密码
-	ok := config.SetUserByUserName(username, password)
+	ok := users.SetUserByUserName(username, password)
 	if !ok {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"code": http.StatusBadRequest,

@@ -1,9 +1,9 @@
 import {useState} from "react";
-import {apiBotCreate} from "../../api";
+import {apiBotCreate} from "../../../api";
 import {message} from "antd";
 import {useSelector} from "react-redux";
-import {RootState} from "../../redux";
-import Modal from "../../commom/Modal";
+import {RootState} from "../../../redux";
+import Modal from "../../../commom/Modal";
 
 const Headings = ({onUpdate}: {onUpdate: () => void}) => {
   const [visible, setVisible] = useState(false);

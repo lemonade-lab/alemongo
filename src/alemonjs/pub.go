@@ -2,7 +2,6 @@ package alemonjs
 
 import (
 	"alemongo/src/config"
-	"io/ioutil"
 	"os"
 	"path"
 	"strconv"
@@ -55,7 +54,7 @@ func IsRunning(name string) bool {
 	pidFilePath := GetPidFilePath(name)
 	if _, err := os.Stat(pidFilePath); err == nil {
 		// 数据
-		pidData, err := ioutil.ReadFile(pidFilePath)
+		pidData, err := os.ReadFile(pidFilePath)
 		if err != nil {
 			return false
 		}

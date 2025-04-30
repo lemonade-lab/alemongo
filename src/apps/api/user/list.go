@@ -1,15 +1,15 @@
-package users
+package user
 
 import (
-	"alemongo/src/config"
+	"alemongo/src/users"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
 // 获取用户信息
-func Info(ctx *gin.Context) {
-	user := config.Get().User
+func List(ctx *gin.Context) {
+	user := users.GetList()
 	ctx.JSON(http.StatusOK, gin.H{
 		"code": http.StatusOK,
 		"msg":  "请求成功",

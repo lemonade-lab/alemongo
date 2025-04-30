@@ -5,10 +5,10 @@ import {
   apiBotYarnInstall,
   apiBotList,
   BotInfo,
-} from "../../api";
+} from "../../../api";
 import {Button, message, Popconfirm, Spin, Table, TableProps, Tag} from "antd";
 import {useNavigate} from "react-router-dom";
-import Pagination from "../../commom/Pagination";
+import Pagination from "../../../commom/Pagination";
 const BotTable = () => {
   // 数据
   const [data, setData] = useState<BotInfo[]>([]);

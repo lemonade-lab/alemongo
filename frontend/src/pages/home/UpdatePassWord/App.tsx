@@ -1,6 +1,6 @@
 import {Form, Input, message} from "antd";
 import {useNavigate} from "react-router-dom";
-import {apiPassword} from "../../api";
+import {apiPassword} from "../../../api";
 const UpdatePassWord = () => {
   const navigate = useNavigate();
   const handleSubmit = (values: {

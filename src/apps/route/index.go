@@ -3,7 +3,7 @@ package route
 import (
 	"alemongo/src/apps/api/bot"
 	"alemongo/src/apps/api/common"
-	"alemongo/src/apps/api/users"
+	"alemongo/src/apps/api/user"
 	"alemongo/src/apps/middleware"
 	"alemongo/src/apps/token"
 	"os"
@@ -40,15 +40,15 @@ func Create() *gin.Engine {
 			ApiUser := v1.Group("/user")
 			{
 				// 登录
-				ApiUser.POST("/login", users.Login)
+				ApiUser.POST("/login", user.Login)
 				// 开始鉴权
 				ApiUser.Use(token.AuthMiddleware)
 				// 退出登录
-				ApiUser.GET("/logout", users.Logout)
+				ApiUser.GET("/logout", user.Logout)
 				// 获取用户信息
-				ApiUser.GET("/info", users.Info)
+				ApiUser.GET("/info", user.Info)
 				// 修改密码
-				ApiUser.PUT("/password", users.PassWord)
+				ApiUser.PUT("/password", user.PassWord)
 			}
 			ApiBot := v1.Group("/bot")
 			{
