@@ -7,7 +7,6 @@ export type BotInfo = {
     create_at: string;
 }
 
-
 export type Info = {
     nvm: {
         installed: boolean;
@@ -27,4 +26,9 @@ export type Info = {
     },
     start_at: string
     location: string
+}
+
+export type User = {
+    username: string;
+    password: string;
 }

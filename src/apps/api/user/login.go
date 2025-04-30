@@ -11,6 +11,7 @@ import (
 // 登录
 func Login(ctx *gin.Context) {
 	username := ctx.PostForm("username")
+	password := ctx.PostForm("password")
 
 	userInfo := users.User{}
 	if users.IsSuperAdmin(username) {
@@ -29,7 +30,6 @@ func Login(ctx *gin.Context) {
 		userInfo = user
 	}
 
-	password := ctx.PostForm("password")
 	// 密码不对
 	if password != userInfo.PassWord {
 		ctx.JSON(http.StatusBadRequest, gin.H{

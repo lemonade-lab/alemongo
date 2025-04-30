@@ -19,6 +19,19 @@ func Info(ctx *gin.Context) {
 		})
 		return
 	}
+	// 是否是超级管理员
+	if users.IsSuperAdmin(username) {
+		// 得到超级管理员信息
+		userInfo := users.GetAdminAccount()
+		userInfo.PassWord = "******" // 隐藏密码
+		ctx.JSON(http.StatusOK, gin.H{
+			"code": http.StatusOK,
+			"msg":  "请求成功",
+			"data": userInfo,
+		})
+		return
+	}
+
 	userInfo, exists := users.GetUserByUserName(username)
 	if !exists {
 		ctx.JSON(http.StatusBadRequest, gin.H{
@@ -28,6 +41,7 @@ func Info(ctx *gin.Context) {
 		})
 		return
 	}
+	userInfo.PassWord = "******" // 隐藏密码
 	ctx.JSON(http.StatusOK, gin.H{
 		"code": http.StatusOK,
 		"msg":  "请求成功",

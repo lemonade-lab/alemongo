@@ -6,6 +6,3 @@ type User struct {
 	PassWord   string `json:"password"`
 	MasterName string `json:"mastername"`
 }
-
-// 修复 Users 类型定义
-type Users []User

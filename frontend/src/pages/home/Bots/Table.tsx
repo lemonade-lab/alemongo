@@ -203,7 +203,6 @@ const BotTable = () => {
         <Table
           className="overflow-auto w-screen h-[calc(100vh-20rem)] xl:size-full"
           pagination={false}
-          rowKey={(item) => item.name}
           columns={columns}
           dataSource={curData}
         />

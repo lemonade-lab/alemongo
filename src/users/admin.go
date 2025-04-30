@@ -33,12 +33,12 @@ func GetAdminAccount() User {
 	if _, err := os.Stat(userListPath); os.IsNotExist(err) {
 		// 生成随机密码
 		password := generateRandomPassword(16)
-		username := "lemonade"
+		username := config.DefaultUserName
 		admin = User{
-			Identity:   "admin",
+			Identity:   config.IdentityAdmin,
 			UserName:   username,
 			PassWord:   password,
-			MasterName: "lemonade",
+			MasterName: config.DefaultUserName,
 		}
 		return admin
 	}
@@ -68,10 +68,10 @@ func SetAdminPassword(password string) bool {
 	workPath := config.GetWorkPath()
 	userListPath := path.Join(workPath, "users", "admin.json")
 	fileData, err := json.Marshal(User{
-		Identity:   "admin",
+		Identity:   config.IdentityAdmin,
 		UserName:   admin.UserName,
 		PassWord:   password,
-		MasterName: "lemonade",
+		MasterName: config.DefaultUserName,
 	})
 	if err != nil {
 		return false

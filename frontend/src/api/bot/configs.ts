@@ -1,0 +1,47 @@
+import { request } from "../base";
+
+export const apiBotConfigsList = async (): Promise<string[]> => {
+    return new Promise((resolve, reject) => {
+        request({
+            url: "/bot/configs/list",
+            method: "get",
+        })
+            .then((res) => res.data)
+            .then(resolve)
+            .catch(reject);
+    });
+}
+
+
+// /configs/create
+export const apiBotConfigsUpdate = async (data: {
+    name: string
+    content: string
+}): Promise<null> => {
+    return new Promise((resolve, reject) => {
+        request({
+            url: "/bot/configs/update",
+            method: "post",
+            data,
+        })
+            .then((res) => res.data)
+            .then(resolve)
+            .catch(reject);
+    });
+}
+
+
+export const apiBotConfigs = async (data: {
+    name: string
+}): Promise<string> => {
+    return new Promise((resolve, reject) => {
+        request({
+            url: "/bot/configs",
+            method: "post",
+            data,
+        })
+            .then((res) => res.data)
+            .then(resolve)
+            .catch(reject);
+    });
+}
