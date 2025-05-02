@@ -100,6 +100,7 @@ func Create() *gin.Engine {
 					ApiConfigs.POST("/", bot.ConfigsData)
 					ApiConfigs.GET("/list", bot.ConfigsList)
 					ApiConfigs.POST("/update", bot.ConfigsUpdate)
+					ApiConfigs.DELETE("/delete", bot.ConfigsDelete)
 				}
 
 			}

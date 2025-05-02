@@ -4,6 +4,7 @@ import {apiBotInfo, BotInfo} from "@/api";
 import {Button, message} from "antd";
 import Tags from "@/commom/Tags";
 import Xterm from "./Xterm";
+import { getBotName } from "./core";
 
 const Panel = () => {
   const [info, setInfo] = useState<BotInfo>({
@@ -22,9 +23,7 @@ const Panel = () => {
     });
   };
   useEffect(() => {
-    // 获得参数 /panel/tag
-    const path = window.location.pathname;
-    const name = path.split("/")[2];
+      const name = getBotName();
     initBotInfo(name);
   }, []);
   return (
@@ -64,7 +63,7 @@ const Panel = () => {
                 message.warning("请先安装依赖");
                 return;
               }
-              navigate(`/panel/${info.name}/package`);
+              navigate(`/bots/${info.name}/package`);
             }}
           >
             package.json
@@ -79,29 +78,18 @@ const Panel = () => {
                 message.warning("请先安装依赖");
                 return;
               }
-              navigate(`/panel/${info.name}/config`);
+              navigate(`/bots/${info.name}/config`);
             }}
           >
             alemon.config.yaml
           </Button>
         </div>
-        {/* <div className="flex gap-2">
-          <div className="min-w-20">功能:</div>
-          <Button
-            type="text"
-            onClick={() => {
-              navigate(`/panel/${info.name}/response`);
-            }}
-          >
-            response && middleware
-          </Button>
-        </div> */}
         <div className="flex gap-2">
           <div className="min-w-20">GIT扩展:</div>
           <Button
             type="text"
             onClick={() => {
-              navigate(`/panel/${info.name}/packages`);
+              navigate(`/bots/${info.name}/packages`);
             }}
           >
             packages

@@ -77,7 +77,7 @@ const UserTable = () => {
     <div className="flex-1 flex flex-col">
       <div className="flex-1 border">
         <Table
-          className="overflow-auto w-screen h-[calc(100vh-20rem)] xl:size-full"
+          className="overflow-auto w-screen h-[calc(100vh-22rem)] xl:size-full"
           pagination={false}
           columns={columns}
           dataSource={curData}

@@ -6,10 +6,10 @@ import {
   UserOutlined,
 } from "@ant-design/icons";
 export const menuItems = [
-  {key: "/", icon: <DesktopOutlined />, label: "机器列表"},
-  {key: "/configs/list", icon: <FileTextOutlined />, label: "配置管理"},
+  {key: "/bots", icon: <DesktopOutlined />, label: "机器列表"},
+  {key: "/configs", icon: <FileTextOutlined />, label: "配置管理"},
   {
-    key: "/account/list",
+    key: "/account",
     icon: <UserOutlined />,
     label: "账户管理",
     identity: "admin",

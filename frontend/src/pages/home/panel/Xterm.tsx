@@ -145,7 +145,7 @@ const Xterm = ({
           <div
             className=" right-2 bottom-2 cursor-pointer  bg-slate-700 text-white py-1 px-2 rounded-md"
             onClick={() => {
-              navigate(`/panel/${info.name}/xterm-date`);
+              navigate(`/bots/${info.name}/xterm-date`);
             }}
           >
             <FullscreenOutlined />
@@ -193,7 +193,7 @@ const Xterm = ({
          sm:w-[calc(100vw-10rem)]
          xl:w-full
          h-[calc(100vh/2-6rem)]
-         xl:h-[calc(100vh-8rem)]
+         xl:h-[calc(100vh-10rem)]
         "
       >
         {data.map((item, index) => (

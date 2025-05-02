@@ -11,6 +11,7 @@ import {
 import Xterm from "../Xterm";
 import {Button, Collapse, Form, Input, message, Modal, Tag} from "antd";
 import Markdown from "@/commom/Markdown";
+import { getBotName } from "../core";
 
 const Panel = () => {
   const [pkgs, setPkgs] = useState<BotPackages[]>([]);
@@ -62,9 +63,7 @@ const Panel = () => {
   };
 
   useEffect(() => {
-    // 获得参数 /panel/tag
-    const path = window.location.pathname;
-    const name = path.split("/")[2];
+    const name = getBotName();
     initBotInfo(name);
     initPKGNames(name);
   }, []);
@@ -118,7 +117,7 @@ const Panel = () => {
             新增
           </Button>
         </div>
-        <div className="flex-1 overflow-auto h-[calc(100vh-20rem)] xl:h-[calc(100vh/2-20rem)]">
+        <div className="flex-1 overflow-auto h-[calc(100vh-22rem)] xl:h-[calc(100vh/2-22rem)]">
           <Collapse
             items={pkgs.map((item) => {
               const pkgJSON = JSON.parse(item.pkg);
@@ -154,7 +153,7 @@ const Panel = () => {
                   </div>
                 ),
                 children: (
-                  <div className="overflow-auto h-[calc(100vh-20rem)]">
+                  <div className="overflow-auto h-[calc(100vh-22rem)]">
                     <div className="flex gap-2 flex-wrap">
                       <Tag>{item.git.date}</Tag>
                     </div>
