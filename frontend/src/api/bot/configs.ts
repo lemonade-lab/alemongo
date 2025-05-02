@@ -45,3 +45,19 @@ export const apiBotConfigs = async (data: {
             .catch(reject);
     });
 }
+
+// delete
+export const apiBotConfigsDelete = async (data: {
+    name: string
+}): Promise<null> => {
+    return new Promise((resolve, reject) => {
+        request({
+            url: "/bot/configs/delete",
+            method: "delete",
+            params: data,
+        })
+            .then((res) => res.data)
+            .then(resolve)
+            .catch(reject);
+    });
+}

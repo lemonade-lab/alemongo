@@ -1,8 +1,12 @@
-import {EditOutlined, SettingOutlined} from "@ant-design/icons";
-import {Button, Card, message} from "antd";
+import {
+  EditOutlined,
+  ExclamationCircleOutlined,
+  SettingOutlined,
+} from "@ant-design/icons";
+import {Button, Card, Dropdown, MenuProps, Modal} from "antd";
 import {useEffect, useState} from "react";
 import {useNavigate} from "react-router-dom";
-import {apiBotConfigsList} from "@/api";
+import {apiBotConfigsDelete, apiBotConfigsList} from "@/api";
 const Configs = () => {
   const navigate = useNavigate();
   const [concifgNames, setConfigNames] = useState<string[]>([]);
@@ -11,6 +15,30 @@ const Configs = () => {
       setConfigNames(res);
     });
   }, []);
+
+  const items: MenuProps["items"] = [
+    {
+      key: "1",
+      label: <div>删除</div>,
+    },
+  ];
+
+  const onDelete = (name: string) => {
+    Modal.confirm({
+      title: "删除配置",
+      content: `确定删除配置 ${name} 吗？`,
+      icon: <ExclamationCircleOutlined />,
+      okType: "danger",
+      onOk: () => {
+        apiBotConfigsDelete({name}).then(() => {
+          setConfigNames((prev) => prev.filter((item) => item !== name));
+        });
+      },
+      okText: "确认",
+      cancelText: "取消",
+    });
+  };
+
   return (
     <div className="p-4 flex gap-4 flex-col bg-slate-100 flex-1">
       <div className="h-11  rounded-md flex justify-between   text-white items-start">
@@ -19,7 +47,7 @@ const Configs = () => {
         </h2>
         <Button
           className="inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-          onClick={() => navigate("/configs/create")}
+          onClick={() => navigate("/configs/alemon.config/create")}
         >
           <svg
             className="mr-1.5 -ml-0.5 size-5"
@@ -41,12 +69,25 @@ const Configs = () => {
             key={index}
             variant="borderless"
             actions={[
-              <div onClick={() => navigate(`/configs/update/${name}`)}>
+              <div onClick={() => navigate(`/configs/${name}`)}>
                 <EditOutlined key="edit" />
               </div>,
-              <div onClick={() => message.info("待支持")}>
-                <SettingOutlined key="setting" />
-              </div>,
+              <Dropdown
+                menu={{
+                  items: items.map((item) => {
+                    return {
+                      ...item,
+                      onClick: () => onDelete(name),
+                    };
+                  }),
+                }}
+                placement="bottom"
+                arrow
+              >
+                <div>
+                  <SettingOutlined key="setting" />
+                </div>
+              </Dropdown>,
             ]}
           >
             <Card.Meta title={name} />

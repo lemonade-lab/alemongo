@@ -1,16 +1,13 @@
-import {
-  apiBotPackage,
-  apiBotPackageUpdate,
-  apiBotYarnInstall,
-} from "@/api";
+import {apiBotPackage, apiBotPackageUpdate, apiBotYarnInstall} from "@/api";
 import PackageEdit from "@/commom/PackageEdit";
 import {Button, message, Spin} from "antd";
 import {useEffect, useState} from "react";
+import {getBotName} from "../core";
 
 const Package = () => {
   const [pkgData, setPkgData] = useState<string>("");
-  useEffect(() => {
-    const name = window.location.pathname.split("/")[2];
+  useEffect(() => { 
+    const name = getBotName();
     apiBotPackage({
       name: name,
     }).then((res) => {
@@ -21,8 +18,8 @@ const Package = () => {
   const onSave = (_name: string, value: string) => {
     if (isLoading) {
       return;
-    }
-    const name = window.location.pathname.split("/")[2];
+    } 
+    const name = getBotName();
     setIsLoading(true);
     apiBotPackageUpdate({
       name: name,
@@ -73,7 +70,7 @@ const Package = () => {
             loading={isInstallLoading}
             className="inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
             onClick={() => {
-              const name = window.location.pathname.split("/")[2];
+              const name = getBotName();
               onInstall(name);
             }}
           >

@@ -24,7 +24,7 @@ const Login = () => {
     })
       .then((res) => {
         dispatch(setToken(res.data));
-        navigate("/");
+        navigate("/bots");
       })
       .catch((err) => {
         if (err?.response?.data?.msg) {

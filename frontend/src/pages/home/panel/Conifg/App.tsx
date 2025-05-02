@@ -7,6 +7,7 @@ import {
 import {useEffect, useState} from "react";
 import CommonConfgEdit from "../../../../commom/ConfgEdit";
 import {Button, message, Select} from "antd";
+import {getBotName} from "../core";
 
 const Conifg = () => {
   const [yamlData, setYamlData] = useState<string>("");
@@ -19,7 +20,7 @@ const Conifg = () => {
   }, []);
 
   useEffect(() => {
-    const name = window.location.pathname.split("/")[2];
+    const name = getBotName();
     apiBotConfig({
       name: name,
     }).then((res) => {
@@ -28,7 +29,7 @@ const Conifg = () => {
     });
   }, []);
   const onSave = (_name: string, value: string) => {
-    const name = window.location.pathname.split("/")[2];
+    const name = getBotName();
     apiBotConfigUpdate({
       name: name,
       content: value,

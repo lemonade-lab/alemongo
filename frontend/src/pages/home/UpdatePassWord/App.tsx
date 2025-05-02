@@ -17,7 +17,7 @@ const UpdatePassWord = () => {
       password: values.newPassword,
     })
       .then(() => {
-        navigate("/");
+        navigate("/bots");
       })
       .catch((err) => {
         if (err?.response?.data?.msg) {

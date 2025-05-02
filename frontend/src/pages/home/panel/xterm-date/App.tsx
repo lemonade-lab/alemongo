@@ -2,13 +2,12 @@ import {apiBotLog} from "@/api";
 import {DatePicker, DatePickerProps} from "antd";
 import dayjs from "dayjs";
 import {useEffect, useState} from "react";
+import {getBotName} from "../core";
 
 const XtermDate = () => {
   const [timestamp, setTimestamp] = useState<number>(Date.now());
   useEffect(() => {
-    // 获得参数 /panel/tag
-    const path = window.location.pathname;
-    const name = path.split("/")[2];
+    const name = getBotName();
     apiBotLog({name, timestamp: timestamp}).then((res) => {
       // 根据换行符分割
       const lines = res.split("\n");
@@ -41,9 +40,11 @@ const XtermDate = () => {
         </div>
       </div>
       <div
-        className="flex-1  bg-slate-500 rounded-b-md p-1 text-white overflow-auto 
-         w-[calc(100vw-2rem)] sm:w-[calc(100vw-10rem)]
-         h-[calc(100vh-8rem)]
+        className="flex-1  bg-slate-500 rounded-b-md p-1 text-white 
+         overflow-auto 
+         w-[calc(100vw-2rem)] 
+         sm:w-[calc(100vw-10rem)]
+         h-[calc(100vh-10rem)]
       "
       >
         {data.map((item, index) => (

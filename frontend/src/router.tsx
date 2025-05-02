@@ -17,6 +17,8 @@ import XtermDate from "./pages/home/panel/xterm-date/App";
 import Response from "./pages/home/panel/response/App";
 import Packages from "./pages/home/panel/packages/App";
 import Account from "./pages/home/Account/App";
+import GoBots from "./GoBots";
+
 const router = createBrowserRouter([
   {
     path: "/login",
@@ -32,46 +34,42 @@ const router = createBrowserRouter([
         children: [
           {
             path: "/",
+            element: <GoBots />,
+          },
+          {
+            path: "/bots",
             element: <Bots />,
           },
           {
-            path: "/configs/list",
-            element: <Configs />,
-          },
-          {
-            path: "/configs/create",
-            element: <ConfigEdit />,
-          },
-          {
-            path: "/configs/update/:name",
-            element: <ConfigEdit />,
-          },
-          {
-            path: "/panel/:name",
+            path: "/bots/:name",
             element: <Panel />,
           },
           {
-            path: "/panel/:name/package",
+            path: "/bots/:name/package",
             element: <Package />,
           },
           {
-            path: "/panel/:name/config",
+            path: "/bots/:name/config",
             element: <Config />,
           },
           {
-            path: "/panel/:name/xterm-date",
+            path: "/bots/:name/xterm-date",
             element: <XtermDate />,
           },
           {
-            path: "/panel/:name/response",
+            path: "/bots/:name/response",
             element: <Response />,
           },
           {
-            path: "/panel/:name/packages",
+            path: "/bots/:name/packages",
             element: <Packages />,
           },
           {
-            path: "button-template",
+            path: "/settings",
+            element: <Settings />,
+          },
+          {
+            path: "/button-template",
             element: <ButtonTemplate />,
           },
           {
@@ -83,12 +81,20 @@ const router = createBrowserRouter([
             element: <UpdatePassWord />,
           },
           {
-            path: "/settings",
-            element: <Settings />,
+            path: "/account",
+            element: <Account />,
           },
           {
-            path: "/account/list",
-            element: <Account />,
+            path: "/configs",
+            element: <Configs />,
+          },
+          {
+            path: "/configs/:name",
+            element: <ConfigEdit />,
+          },
+          {
+            path: "/configs/:name/create",
+            element: <ConfigEdit />,
           },
         ],
       },

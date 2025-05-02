@@ -87,7 +87,7 @@ const Navbars = () => {
           </div>
           <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
             <Button
-              onClick={() => navigate("/")}
+              onClick={() => navigate("/bots")}
               type="text"
               className="flex shrink-0 items-center cursor-pointer"
             >

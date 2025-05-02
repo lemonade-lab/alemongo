@@ -7,11 +7,25 @@ const ConfigEdit = () => {
   const navigate = useNavigate();
   const [concifgNames, setConfigNames] = useState<string[]>([]);
   const [data, setData] = useState<string>("");
-  const isUpdate = window.location.pathname.includes("update");
+  // 是否是创建配置
+  const isCreate = window.location.pathname.includes("create");
+  // 获取当前配置名称
+  const getName = () => {
+    if (isCreate) {
+      const names = window.location.pathname.split("/");
+      // 获取倒数第二个元素
+      const name = names[names.length - 2];
+      return name || "alemon.config";
+    }
+    const path = window.location.pathname;
+    const name = path.split("/").pop();
+    return name;
+  };
+
   useEffect(() => {
-    if (isUpdate) {
+    if (!isCreate) {
       // 获取当前配置数据
-      const name = window.location.pathname.split("/").pop();
+      const name = getName();
       if (!name) {
         message.error("错误访问");
         return;
@@ -30,7 +44,7 @@ const ConfigEdit = () => {
         setConfigNames(res);
       });
     }
-  }, [isUpdate]);
+  }, [isCreate]);
 
   const updateContent = (name: string, value: string) => {
     apiBotConfigsUpdate({
@@ -39,11 +53,11 @@ const ConfigEdit = () => {
     })
       .then((res) => {
         console.log("res", res);
-        if(isUpdate){
+        if (!isCreate) {
           message.success("更新成功");
           return;
         }
-        navigate("/configs/list");
+        navigate("/configs");
       })
       .catch((err) => {
         console.log("err", err);
@@ -52,7 +66,7 @@ const ConfigEdit = () => {
   };
 
   const onSave = (name: string, value: string) => {
-    if (isUpdate) {
+    if (!isCreate) {
       const path = window.location.pathname;
       const name = path.split("/").pop();
       if (!name) {
@@ -76,7 +90,7 @@ const ConfigEdit = () => {
         </h2>
         <Button
           type="primary"
-          onClick={() => navigate("/configs/list")}
+          onClick={() => navigate("/configs")}
           className="inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
         >
           <svg
@@ -93,11 +107,7 @@ const ConfigEdit = () => {
           列表
         </Button>
       </div>
-      <CommonConfgEdit
-        onSave={onSave}
-        name={isUpdate ? "" : "alemon.config1"}
-        value={data}
-      />
+      <CommonConfgEdit onSave={onSave} name={getName()} value={data} />
     </div>
   );
 };

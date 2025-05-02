@@ -124,7 +124,7 @@ const BotTable = () => {
    */
   const onGoPanel = (name: string) => {
     // 前往 机器人面板，带上参数
-    navigate(`/panel/${name}`);
+    navigate(`/bots/${name}`);
   };
 
   const columns: TableProps<BotInfo>["columns"] = [
@@ -176,7 +176,7 @@ const BotTable = () => {
               type="primary"
               className=" bg-blue-500"
               onClick={() => {
-                navigate(`/panel/${record.name}/xterm-date`);
+                navigate(`/bots/${record.name}/xterm-date`);
               }}
             >
               日志
@@ -201,7 +201,7 @@ const BotTable = () => {
     <div className="flex-1 flex flex-col">
       <div className="flex-1 border">
         <Table
-          className="overflow-auto w-screen h-[calc(100vh-20rem)] xl:size-full"
+          className="overflow-auto w-screen h-[calc(100vh-22rem)] xl:size-full"
           pagination={false}
           columns={columns}
           dataSource={curData}
