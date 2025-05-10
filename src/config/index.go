@@ -95,3 +95,6 @@ func LogServerInfo() {
 	// 打印信息
 	log.Println("http://" + server.Host + ":" + server.Port)
 }
+
+const ServiceName = "alemongo"
+const ServiceDescription = "web service"

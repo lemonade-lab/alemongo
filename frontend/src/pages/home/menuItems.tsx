@@ -15,5 +15,6 @@ export const menuItems = [
     identity: "admin",
   },
   {key: "/button-template", icon: <QqOutlined />, label: "QQ按钮"},
+  {key: "/ssh", icon: <RobotOutlined />, label: "SSH"},
   {key: "/onebot", icon: <RobotOutlined />, label: "OneBot"},
 ];

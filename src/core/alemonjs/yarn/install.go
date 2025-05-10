@@ -1,7 +1,7 @@
 package yarn
 
 import (
-	"alemongo/src/alemonjs"
+	"alemongo/src/core/alemonjs"
 	"os"
 	"os/exec"
 	"path"

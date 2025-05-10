@@ -1,8 +1,8 @@
 package bot
 
 import (
-	"alemongo/src/alemonjs"
-	"alemongo/src/alemonjs/yarn"
+	"alemongo/src/core/alemonjs"
+	"alemongo/src/core/alemonjs/yarn"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
