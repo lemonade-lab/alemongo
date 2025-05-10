@@ -54,10 +54,14 @@ func main() {
 		log.Printf("password: %s", admin.PassWord)
 	}
 
-	registerRrr := autoregister.RegisterIfNeeded(config.ServiceName, config.ServiceDescription)
-	if registerRrr != nil {
-		log.Fatalf("注册服务失败: %v", err)
-		return
+	// 开发模式下不注册服务 go run main.go dev
+	args := os.Args
+	if len(args) <= 1 || args[1] != "dev" {
+		registerRrr := autoregister.RegisterIfNeeded(config.ServiceName, config.ServiceDescription)
+		if registerRrr != nil {
+			log.Fatalf("注册服务失败: %v", err)
+			return
+		}
 	}
 
 	err = app.Run(":" + config.Get().Server.Port)
