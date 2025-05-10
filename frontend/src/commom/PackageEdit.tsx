@@ -449,7 +449,7 @@ const PackageEdit = ({
       }
       rightHeader={
         <div className="flex items-center justify-between p-1 bg-slate-400 rounded-t-md">
-          <div>package.json</div>
+          <div className="px-2">package.json</div>
           <Button onClick={handleSave}>保存</Button>
         </div>
       }

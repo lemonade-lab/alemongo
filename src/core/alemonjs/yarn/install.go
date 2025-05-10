@@ -2,6 +2,7 @@ package yarn
 
 import (
 	"alemongo/src/core/alemonjs"
+	"alemongo/src/utils"
 	"os"
 	"os/exec"
 	"path"
@@ -19,7 +20,7 @@ func Install(name string) (string, error) {
 	// yarn.cjs
 	cliDir := path.Join("..", "bin", "yarn.cjs")
 	// yanr install
-	cmd := exec.Command("node", cliDir, "install", "--ignore-engines")
+	cmd := utils.Command("node", cliDir, "install", "--ignore-engines")
 	// 设置工作目录为机器人的路径
 	cmd.Dir = alemonjs.GetBotPath(name)
 	// cmd.Stdout = os.Stdout

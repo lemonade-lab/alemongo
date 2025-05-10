@@ -82,7 +82,7 @@ const SSHUpdate = () => {
     <div className="p-4 flex gap-4 flex-col bg-slate-100 flex-1">
       <div className="rounded-md flex justify-between items-start">
         <h2 className="text-2xl/7 font-bold text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
-          SSH编辑
+          SSH Edit
         </h2>
         <Button
           type="primary"

@@ -1,10 +1,11 @@
 package autoregister
 
 import (
+	"alemongo/src/config"
+	"alemongo/src/utils"
 	"fmt"
 	"log"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"runtime"
 	"text/template"
@@ -25,7 +26,6 @@ func RegisterIfNeeded(serviceName, description string) error {
 	if err != nil {
 		return fmt.Errorf("获取可执行文件路径失败: %w", err)
 	}
-
 	// 根据操作系统选择注册逻辑
 	switch runtime.GOOS {
 	case "linux":
@@ -35,14 +35,21 @@ func RegisterIfNeeded(serviceName, description string) error {
 	case "windows":
 		return registerWindows(serviceName, execPath)
 	default:
-		return fmt.Errorf("不支持的操作系统: %s", runtime.GOOS)
+		return fmt.Errorf("当前操作系统: %s, 不支持注册系统服务", runtime.GOOS)
 	}
+}
+
+func logCmd() {
+	// 提示用户启用和启动服务
+	log.Printf("要启动服务，请运行: systemctl start %s", config.ServiceName)
+	log.Printf("要停止服务，请运行: systemctl stop %s", config.ServiceName)
 }
 
 // Linux 注册逻辑
 func registerLinux(serviceName, description, execPath string) error {
+
 	if checkIfRegisteredLinux(serviceName) {
-		log.Printf("服务 %s 已在 Linux 上注册。\n", serviceName)
+		logCmd()
 		return nil
 	}
 
@@ -58,16 +65,14 @@ func registerLinux(serviceName, description, execPath string) error {
 		return fmt.Errorf("创建 Linux 服务文件失败: %w", err)
 	}
 
-	if err := enableAndStartServiceLinux(serviceName); err != nil {
-		return fmt.Errorf("启用/启动 Linux 服务失败: %w", err)
-	}
+	logCmd()
 
 	return nil
 }
 
 // checkIfRegisteredLinux 检查服务是否已注册
 func checkIfRegisteredLinux(serviceName string) bool {
-	cmd := exec.Command("systemctl", "is-enabled", serviceName)
+	cmd := utils.Command("systemctl", "is-enabled", serviceName)
 	err := cmd.Run()
 	return err == nil
 }
@@ -76,6 +81,20 @@ func checkIfRegisteredLinux(serviceName string) bool {
 func createServiceFileLinux(config ServiceConfig) error {
 	// 获取当前环境变量中的 PATH
 	pathEnv := os.Getenv("PATH")
+	// 获取当前用户的 HOME 目录
+	homeDir, err := os.UserHomeDir()
+
+	// 如果出现错误。默认使用 /root 目录
+	if err != nil {
+		homeDir = "/root"
+	}
+
+	// 获取当前 Shell
+	shell := os.Getenv("SHELL")
+	if shell == "" {
+		shell = "/bin/bash"
+	}
+
 	serviceTemplate := `[Unit]
 Description={{.Description}}
 After=network.target
@@ -85,6 +104,8 @@ Type=simple
 ExecStart={{.ExecPath}}
 WorkingDirectory={{.WorkingDir}}
 Environment="PATH={{.PathEnv}}"
+Environment="HOME={{.HomeDir}}"
+Environment="SHELL={{.Shell}}"
 Restart=always
 RestartSec=5
 
@@ -98,6 +119,8 @@ WantedBy=multi-user.target
 		ExecPath    string
 		WorkingDir  string
 		PathEnv     string
+		HomeDir     string
+		Shell       string
 	}
 	configData := LinuxServiceConfig{
 		ServiceName: config.ServiceName,
@@ -105,6 +128,8 @@ WantedBy=multi-user.target
 		ExecPath:    config.ExecPath,
 		WorkingDir:  config.WorkingDir,
 		PathEnv:     pathEnv,
+		HomeDir:     homeDir,
+		Shell:       shell,
 	}
 
 	serviceFilePath := fmt.Sprintf("/etc/systemd/system/%s.service", config.ServiceName)
@@ -124,20 +149,7 @@ WantedBy=multi-user.target
 		log.Printf("写入服务文件失败: %v", err)
 		return fmt.Errorf("写入服务文件失败: %w", err)
 	}
-
 	log.Printf("服务文件已创建: %s\n", serviceFilePath)
-	return nil
-}
-
-// enableAndStartServiceLinux 启用并启动服务
-func enableAndStartServiceLinux(serviceName string) error {
-	if err := exec.Command("systemctl", "enable", serviceName).Run(); err != nil {
-		return fmt.Errorf("启用服务失败: %w", err)
-	}
-	if err := exec.Command("systemctl", "start", serviceName).Run(); err != nil {
-		return fmt.Errorf("启动服务失败: %w", err)
-	}
-	log.Printf("服务 %s 已成功在 Linux 上启用并启动。\n", serviceName)
 	return nil
 }
 
@@ -160,7 +172,6 @@ func registerMacOS(serviceName, description, execPath string) error {
 </dict>
 </plist>
 `
-
 	plistPath := fmt.Sprintf("%s/Library/LaunchAgents/%s.plist", os.Getenv("HOME"), serviceName)
 	file, err := os.OpenFile(plistPath, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
 	if err != nil {
@@ -180,27 +191,21 @@ func registerMacOS(serviceName, description, execPath string) error {
 	if err := tmpl.Execute(file, config); err != nil {
 		return fmt.Errorf("写入 plist 文件失败: %w", err)
 	}
-
-	if err := exec.Command("launchctl", "load", plistPath).Run(); err != nil {
-		return fmt.Errorf("加载 plist 文件失败: %w", err)
-	}
-
-	log.Printf("服务 %s 已成功在 macOS 上注册并加载。\n", serviceName)
+	log.Printf("已创建系统服务,若后台挂载请运行:\nlaunchctl load %s ", plistPath)
+	log.Printf("若卸载服务，请运行:\nlaunchctl unload %s", plistPath)
 	return nil
 }
 
 // Windows 注册逻辑
 func registerWindows(serviceName, execPath string) error {
-	cmd := exec.Command("sc", "create", serviceName, "binPath=", execPath, "start=", "auto")
+	cmd := utils.Command("sc", "create", serviceName, "binPath=", execPath, "start=", "auto")
 	if err := cmd.Run(); err != nil {
 		return fmt.Errorf("在 Windows 上创建服务失败: %w", err)
 	}
-
-	cmd = exec.Command("sc", "start", serviceName)
-	if err := cmd.Run(); err != nil {
-		return fmt.Errorf("在 Windows 上启动服务失败: %w", err)
-	}
-
-	log.Printf("服务 %s 已成功在 Windows 上注册并启动。\n", serviceName)
+	// 提示注册成功。告知启动服务的命令和停止服务的命令
+	log.Printf("服务 %s 已在 Windows 上注册。\n", serviceName)
+	log.Printf("要启动服务，请运行:\n sc start %s", serviceName)
+	log.Printf("要停止服务，请运行:\n sc stop %s", serviceName)
+	log.Printf("要删除服务，请运行:\n sc delete %s", serviceName)
 	return nil
 }

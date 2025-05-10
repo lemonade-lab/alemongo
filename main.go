@@ -24,10 +24,10 @@ func main() {
 	// 打印当前工作目录
 	cwd, err := os.Getwd()
 	if err != nil {
-		log.Fatalf("获取当前工作目录失败: %v", err)
+		log.Fatalf("获取当前工作目录失败:\n%v", err)
 		return
 	}
-	log.Printf("当前工作目录: %s\n", cwd)
+	log.Printf("当前工作目录:\n%s", cwd)
 
 	// 初始化文件资源
 	files.Create(ResourcesFiles)
@@ -49,19 +49,13 @@ func main() {
 	if admin.PassWord == "" {
 		log.Printf("临时超级管理员账户生成失败，请阅读文档以自定义")
 	} else {
-		log.Printf("临时超级管理员账户信息：")
-		log.Printf("username: %s", admin.UserName)
-		log.Printf("password: %s", admin.PassWord)
+		log.Printf("临时超级管理员账户信息：\nusername: %s\npassword: %s\n", admin.UserName, admin.PassWord)
 	}
 
-	// 开发模式下不注册服务 go run main.go dev
-	args := os.Args
-	if len(args) <= 1 || args[1] != "dev" {
-		registerRrr := autoregister.RegisterIfNeeded(config.ServiceName, config.ServiceDescription)
-		if registerRrr != nil {
-			log.Fatalf("注册服务失败: %v", err)
-			return
-		}
+	registerRrr := autoregister.RegisterIfNeeded(config.ServiceName, config.ServiceDescription)
+	if registerRrr != nil {
+		log.Fatalf("注册服务失败: %v", err)
+		return
 	}
 
 	err = app.Run(":" + config.Get().Server.Port)

@@ -2,6 +2,7 @@ package yarn
 
 import (
 	"alemongo/src/core/alemonjs"
+	"alemongo/src/utils"
 	"os"
 	"os/exec"
 	"path"
@@ -29,7 +30,7 @@ func Remove(name string, names []string) (string, error) {
 
 	// 构建命令
 	args := append([]string{"remove", "-W"}, names...)
-	cmd := exec.Command("node", append([]string{cliDir}, args...)...)
+	cmd := utils.Command("node", append([]string{cliDir}, args...)...)
 
 	// 设置工作目录为机器人的路径
 	cmd.Dir = alemonjs.GetBotPath(name)

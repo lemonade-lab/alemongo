@@ -42,22 +42,63 @@ const Home = () => {
     {
       key: "1",
       label: "linux",
-      children: "Content of Tab Pane 1",
+      children: (
+        <div className="flex gap-4">
+          请访问
+          <a
+            href="https://lvyjs.dev/docs/environment"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            https://lvyjs.dev/docs/environment
+          </a>
+        </div>
+      ),
     },
     {
       key: "2",
       label: "macos",
-      children: "Content of Tab Pane 2",
+      children: (
+        <div className="flex gap-4">
+          请访问
+          <a
+            href="https://lvyjs.dev/docs/environment"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            https://lvyjs.dev/docs/environment
+          </a>
+        </div>
+      ),
     },
     {
       key: "3",
       label: "windows",
-      children: "Content of Tab Pane 3",
+      children: (
+        <div className="flex gap-4">
+          请访问
+          <a
+            href="https://lvyjs.dev/docs/environment"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            https://lvyjs.dev/docs/environment
+          </a>
+        </div>
+      ),
     },
   ];
   return (
     <>
-      <Headings onUpdate={() => onForceUpdate()} />
+      <Headings
+        onUpdate={() => onForceUpdate()}
+        onClick={(key) => {
+          // console.log(key);
+          if (key === "node") {
+            setVisible(true);
+          }
+        }}
+      />
       {installed && value ? (
         <Table />
       ) : (

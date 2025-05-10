@@ -449,7 +449,7 @@ const ConfgEdit = ({
       }
       rightHeader={
         <div className="flex items-center justify-between p-1 bg-slate-400 rounded-t-md">
-          <div>alemon.config.yaml</div>
+          <div className="px-2">alemon.config.yaml</div>
           <Button onClick={handleSave}>保存</Button>
         </div>
       }

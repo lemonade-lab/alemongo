@@ -2,6 +2,7 @@ package utils
 
 import (
 	"os"
+	"os/exec"
 	"strconv"
 )
 
@@ -67,4 +68,11 @@ func GetDirNames(dir string) ([]string, error) {
 		}
 	}
 	return names, nil
+}
+
+// Command 创建一个新的命令
+func Command(name string, arg ...string) *exec.Cmd {
+	cmd := exec.Command(name, arg...)
+	cmd.Env = os.Environ()
+	return cmd
 }
