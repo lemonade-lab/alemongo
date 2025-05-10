@@ -2,6 +2,7 @@ package user
 
 import (
 	"alemongo/src/apps/token"
+	"alemongo/src/permission"
 	"alemongo/src/users"
 	"net/http"
 
@@ -27,7 +28,16 @@ func Create(ctx *gin.Context) {
 		})
 		return
 	}
-
+	identity := ctx.PostForm("identity")
+	existIdentity := permission.ExistIdentity(identity)
+	if !existIdentity {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"code": http.StatusBadRequest,
+			"msg":  "参数错误",
+			"data": nil,
+		})
+		return
+	}
 	username := ctx.PostForm("username")
 	password := ctx.PostForm("password")
 	if users.IsSuperAdmin(username) {
@@ -48,7 +58,7 @@ func Create(ctx *gin.Context) {
 		})
 		return
 	}
-	ok := users.CreateUser(username, password)
+	ok := users.CreateUser(username, password, identity)
 	if !ok {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"code": http.StatusBadRequest,

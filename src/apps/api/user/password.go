@@ -2,7 +2,6 @@ package user
 
 import (
 	"alemongo/src/apps/token"
-	"alemongo/src/config"
 	"alemongo/src/users"
 	"net/http"
 
@@ -58,7 +57,6 @@ func PassWord(ctx *gin.Context) {
 		})
 		return
 	}
-	config.Save()
 	ctx.JSON(http.StatusOK, gin.H{
 		"code": http.StatusOK,
 		"msg":  "请求成功",

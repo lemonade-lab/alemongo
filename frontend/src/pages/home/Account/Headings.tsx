@@ -10,7 +10,13 @@ import {message} from "antd";
  * @param param0
  * @returns
  */
-const Headings = ({onUpdate}: {onUpdate: () => void}) => {
+const Headings = ({
+  onUpdate = () => {},
+  selects = [],
+}: {
+  onUpdate: () => void;
+  selects: string[];
+}) => {
   const [visible, setVisible] = useState(false);
   const installed = useSelector(
     (state: RootState) => state.info.node.installed
@@ -18,8 +24,8 @@ const Headings = ({onUpdate}: {onUpdate: () => void}) => {
   const onCreateBot = () => {
     setVisible(true);
   };
+
   /**
-   *
    * @param e
    * @returns
    */
@@ -32,6 +38,7 @@ const Headings = ({onUpdate}: {onUpdate: () => void}) => {
     apiUserCreate({
       username: values.username.value,
       password: values.password.value,
+      identity: values.identity.value,
     }).then(() => {
       onUpdate();
       setVisible(false);
@@ -113,6 +120,29 @@ const Headings = ({onUpdate}: {onUpdate: () => void}) => {
                   required
                   className="block w-full border rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
                 />
+              </div>
+            </div>
+            {
+              // 身份选择
+            }
+            <div>
+              <label className="block text-sm/6 font-medium text-gray-900">
+                身份
+              </label>
+              <div className="mt-2">
+                <select
+                  name="identity"
+                  id="identity"
+                  onClick={(e) => e.stopPropagation()}
+                  required
+                  className="block w-full border rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm "
+                >
+                  {selects.map((item) => (
+                    <option key={item} value={item}>
+                      {item}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
             <div>

@@ -3,6 +3,7 @@ package route
 import (
 	"alemongo/src/apps/api/bot"
 	"alemongo/src/apps/api/common"
+	"alemongo/src/apps/api/settings"
 	"alemongo/src/apps/api/user"
 	"alemongo/src/apps/middleware"
 	"alemongo/src/apps/token"
@@ -36,6 +37,14 @@ func Create() *gin.Engine {
 				// 获取环境信息
 				CommonApi.GET("/info", common.Info)
 			}
+			// settings
+			ApiSettings := v1.Group("/settings")
+			{
+				// 开机自启
+				ApiSettings.GET("/powerboot", settings.PowerBoot)
+				// 注册
+				ApiSettings.GET("/registration", settings.Registration)
+			}
 			// user api
 			ApiUser := v1.Group("/user")
 			{
@@ -55,7 +64,12 @@ func Create() *gin.Engine {
 				ApiUser.POST("/create", user.Create)
 				// 删除
 				ApiUser.DELETE("/delete", user.Delete)
+				// 修改身份
+				ApiUser.PUT("/identity", user.Identity)
+				// 身份列表
+				ApiUser.GET("/identity/list", user.IdentityList)
 			}
+			// bot
 			ApiBot := v1.Group("/bot")
 			{
 				// 开始鉴权

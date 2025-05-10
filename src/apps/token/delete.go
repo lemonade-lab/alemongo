@@ -7,7 +7,11 @@ import (
 	"github.com/dgrijalva/jwt-go"
 )
 
-// tudo 是无法删除的。
+// tudo
+// token 无法删除。
+// 但token可以设置过期时间。
+// 如果给token标注废弃，需要做token的黑名单。
+
 // 删除token
 func Delete(tokenValue string) error {
 	// token

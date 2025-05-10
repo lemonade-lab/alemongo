@@ -2,6 +2,7 @@ package users
 
 import (
 	"alemongo/src/config"
+	"alemongo/src/permission"
 	"crypto/rand"
 	"encoding/base64"
 	"encoding/json"
@@ -33,12 +34,12 @@ func GetAdminAccount() User {
 	if _, err := os.Stat(userListPath); os.IsNotExist(err) {
 		// 生成随机密码
 		password := generateRandomPassword(16)
-		username := config.DefaultUserName
+		username := permission.DefaultUserName
 		admin = User{
-			Identity:   config.IdentityAdmin,
+			Identity:   permission.IdentityAdmin,
 			UserName:   username,
 			PassWord:   password,
-			MasterName: config.DefaultUserName,
+			MasterName: permission.DefaultUserName,
 		}
 		return admin
 	}
@@ -68,10 +69,10 @@ func SetAdminPassword(password string) bool {
 	workPath := config.GetWorkPath()
 	userListPath := path.Join(workPath, "users", "admin.json")
 	fileData, err := json.Marshal(User{
-		Identity:   config.IdentityAdmin,
+		Identity:   permission.IdentityAdmin,
 		UserName:   admin.UserName,
 		PassWord:   password,
-		MasterName: config.DefaultUserName,
+		MasterName: permission.DefaultUserName,
 	})
 	if err != nil {
 		return false

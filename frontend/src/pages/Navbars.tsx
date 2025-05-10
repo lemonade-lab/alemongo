@@ -22,15 +22,15 @@ const Navbars = () => {
   const items: MenuProps["items"] = [
     {
       key: "1",
-      label: <div onClick={() => navigate("/settings")}>设置</div>,
+      label: <div onClick={() => navigate("/settings")}>通用设置</div>,
     },
     {
       key: "2",
-      label: <div onClick={() => navigate("/update-password")}>改密</div>,
+      label: <div onClick={() => navigate("/update-password")}>更改密码</div>,
     },
     {
       key: "3",
-      label: <div onClick={goLogout}>退出</div>,
+      label: <div onClick={goLogout}>退出账户</div>,
     },
   ];
 

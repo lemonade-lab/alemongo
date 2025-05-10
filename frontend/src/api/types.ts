@@ -31,4 +31,6 @@ export type Info = {
 export type User = {
     username: string;
     password: string;
+    identity: string;
+    mastername: string;
 }

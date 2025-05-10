@@ -9,21 +9,24 @@ import (
 
 // token鉴权
 func Verify(tokenValue string) (*Claims, error) {
-	// token   // 结构体 // 回调
+	// token
 	token, err := jwt.ParseWithClaims(tokenValue, &Claims{}, func(token *jwt.Token) (interface{}, error) {
-		return utils.StringToByte(config.Get().Server.Key), nil
+		key := config.Get().Server.Key
+		return utils.StringToByte(key), nil
 	})
 
+	// 发生错误
 	if err != nil {
 		return nil, err
 	}
 
 	if message, ok := token.Claims.(*Claims); ok {
+		// 是否过期
 		if token.Valid {
-			// 上下文设置token
 			return message, err
 		} else {
-			return message, err
+			// token过期
+			return nil, err
 		}
 	}
 

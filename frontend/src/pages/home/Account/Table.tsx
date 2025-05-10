@@ -3,11 +3,12 @@ import {User} from "../../../api";
 import Pagination from "../../../commom/Pagination";
 import {apiUserDelete, apiUserList} from "@/api/users/admin";
 import {Button, Popconfirm, Table, TableProps} from "antd";
+import {apiIdentityUpdate} from "@/api/users/identity";
 
 /**
  * @returns
  */
-const UserTable = () => {
+const UserTable = ({selects = []}: {selects: string[]}) => {
   // 数据
   const [data, setData] = useState<User[]>([]);
   const [curData, setCurData] = useState<User[]>([]);
@@ -38,6 +39,25 @@ const UserTable = () => {
     });
   };
 
+  // 更新身份
+  const updateIdentity = (item: User, value) => {
+    console.log(item, value);
+    apiIdentityUpdate({
+      username: item.username,
+      identity: value,
+    }).then(() => {
+      // initData();
+      // 针对性替换数据。而不是重新请求数据。
+      setData((prev) => {
+        const index = prev.findIndex((i) => i.username === item.username);
+        if (index !== -1) {
+          prev[index].identity = value;
+        }
+        return [...prev];
+      });
+    });
+  };
+
   const columns: TableProps<User>["columns"] = [
     {
       title: "昵称",
@@ -48,6 +68,23 @@ const UserTable = () => {
       title: "identity",
       dataIndex: "identity",
       key: "identity",
+      render: (value, data) => {
+        return (
+          <select
+            className="block w-full border rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm "
+            value={value}
+            onChange={(e) => {
+              updateIdentity(data, e.target.value);
+            }}
+          >
+            {selects.map((item) => (
+              <option key={item} value={item}>
+                {item}
+              </option>
+            ))}
+          </select>
+        );
+      },
     },
     {
       title: "mastername",
