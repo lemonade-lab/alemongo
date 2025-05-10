@@ -49,7 +49,7 @@ const FileEdit = ({
       }
       rightHeader={
         <div className="flex items-center justify-between p-1 bg-slate-400 rounded-t-md">
-          <div>{name}</div>
+          <div className="px-2">{name}</div>
           <Button onClick={handleSave}>保存</Button>
         </div>
       }

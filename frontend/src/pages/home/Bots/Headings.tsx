@@ -5,7 +5,14 @@ import {useSelector} from "react-redux";
 import {RootState} from "../../../redux";
 import Modal from "../../../commom/Modal";
 
-const Headings = ({onUpdate}: {onUpdate: () => void}) => {
+const Headings = ({
+  onUpdate,
+  onClick,
+}: {
+  onUpdate: () => void;
+
+  onClick?: (key: string) => void;
+}) => {
   const [visible, setVisible] = useState(false);
   const installed = useSelector(
     (state: RootState) => state.info.node.installed
@@ -35,6 +42,7 @@ const Headings = ({onUpdate}: {onUpdate: () => void}) => {
       onUpdate();
     });
   };
+  const minVersion = 25;
   return (
     <header className="lg:flex lg:items-center lg:justify-between p-4">
       <div className="min-w-0 flex-1">
@@ -56,6 +64,21 @@ const Headings = ({onUpdate}: {onUpdate: () => void}) => {
               <path d="M3 15.055v-.684c.126.053.255.1.39.142 2.092.642 4.313.987 6.61.987 2.297 0 4.518-.345 6.61-.987.135-.041.264-.089.39-.142v.684c0 1.347-.985 2.53-2.363 2.686a41.454 41.454 0 0 1-9.274 0C3.985 17.585 3 16.402 3 15.055Z" />
             </svg>
             NodeJS {info.node.installed ? info.node.version : "未安装"}
+            {info.node.installed &&
+              parseInt(info.node.version.split("v")[1].split(".")[0]) <
+                minVersion && (
+                <span
+                  className="ml-2 text-red-500 border px-1 rounded-md cursor-pointer"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (onClick) {
+                      onClick("node");
+                    }
+                  }}
+                >
+                  版本过低，可能出现依赖错误
+                </span>
+              )}
           </div>
           <div className="mt-2 flex items-center text-sm text-gray-500">
             <svg

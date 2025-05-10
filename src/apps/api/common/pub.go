@@ -23,7 +23,7 @@ func getPublicIP() (string, error) {
 	return string(ip), nil
 }
 
-// 获取内网 IP
+// 获取 内网 IP
 func getPrivateIP() (string, error) {
 	addrs, err := net.InterfaceAddrs()
 	if err != nil {

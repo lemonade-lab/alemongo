@@ -35,6 +35,8 @@ func Create() *gin.Engine {
 		{
 			CommonApi := v1.Group("/common")
 			{
+				// 开始鉴权
+				// CommonApi.Use(token.AuthMiddleware)
 				// 获取环境信息
 				CommonApi.GET("/info", common.Info)
 			}
@@ -43,8 +45,6 @@ func Create() *gin.Engine {
 			{
 				// 开机自启
 				ApiSettings.GET("/powerboot", settings.PowerBoot)
-				// 注册
-				ApiSettings.GET("/registration", settings.Registration)
 			}
 			// user api
 			ApiUser := v1.Group("/user")

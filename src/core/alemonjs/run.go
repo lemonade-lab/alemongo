@@ -1,6 +1,7 @@
 package alemonjs
 
 import (
+	"alemongo/src/utils"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -44,7 +45,7 @@ func Run(name string) (string, error) {
 		}
 	}
 	// 执行
-	cmd := exec.Command("node", indexPath)
+	cmd := utils.Command("node", indexPath)
 	// 设置工作目录为机器人的路径
 	cmd.Dir = botPath
 	// 设置命令的标准输入输出

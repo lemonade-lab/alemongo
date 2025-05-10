@@ -2,7 +2,6 @@ package gitssh
 
 import (
 	"alemongo/src/utils"
-	"log"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -22,7 +21,6 @@ func List(ctx *gin.Context) {
 		return
 	}
 	sshPath := filepath.Join(homeDir, ".ssh")
-	log.Println("sshPath:", sshPath)
 	names, err := utils.GetFileNames(sshPath)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
