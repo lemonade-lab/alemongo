@@ -15,7 +15,7 @@ func AuthMiddleware(ctx *gin.Context) {
 	if authorization == "" || !strings.HasPrefix(authorization, "Bearer ") {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"code": http.StatusBadRequest,
-			"msg":  "无效token",
+			"msg":  "token不存在",
 			"data": ctx.Request.Header,
 		})
 		ctx.Abort()

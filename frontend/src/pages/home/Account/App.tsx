@@ -6,6 +6,7 @@ import {Button, Modal} from "antd";
 import {useEffect, useState} from "react";
 import {Tabs} from "antd";
 import type {TabsProps} from "antd";
+import {apiIdentityList} from "@/api/users/identity";
 
 /**
  * 强制刷新 hook
@@ -55,11 +56,21 @@ const Account = () => {
       children: "Content of Tab Pane 3",
     },
   ];
+
+  const [selects, setSelects] = useState<string[]>([]);
+  useEffect(() => {
+    const getList = async () => {
+      const data = await apiIdentityList();
+      setSelects(data);
+    };
+    getList();
+  }, []);
+
   return (
     <>
-      <Headings onUpdate={() => onForceUpdate()} />
+      <Headings selects={selects} onUpdate={() => onForceUpdate()} />
       {installed && value ? (
-        <Table />
+        <Table selects={selects} />
       ) : (
         <section className="flex-1 flex flex-col justify-center items-center">
           <div className="flex flex-col gap-6 items-center">

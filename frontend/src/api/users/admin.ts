@@ -10,6 +10,7 @@ export const apiUserList = async () => {
 export const apiUserCreate = async (data: {
     username: string;
     password: string;
+    identity: string;
 }) => {
     return request({
         url: "/user/create",

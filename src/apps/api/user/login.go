@@ -13,6 +13,9 @@ import (
 // 登录失败缓存
 var loginFailures = sync.Map{} // key: username, value: {count, lastFailedTime}
 
+// tudo
+// 登录失败锁定后 / 登录后。之前发放出去的token都要失效
+
 // 登录
 func Login(ctx *gin.Context) {
 	username := ctx.PostForm("username")

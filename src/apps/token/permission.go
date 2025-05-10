@@ -1,51 +1,35 @@
 package token
 
 import (
-	"net/http"
-	"strings"
+	"alemongo/src/permission"
+	"alemongo/src/users"
 
 	"github.com/gin-gonic/gin"
 )
 
-// 输入最低权限。如果没有传入，则默认是预览权限。
-
-// 中间件
-func Permission(ctx *gin.Context) {
-	// 得到 authorization
-	authorization := ctx.GetHeader("authorization")
-	// 判断是否有token
-	if authorization == "" || !strings.HasPrefix(authorization, "Bearer ") {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"code": http.StatusBadRequest,
-			"msg":  "无效token",
-			"data": nil,
-		})
-		ctx.Abort()
-		return
+// 检查权限
+func Permission(ctx *gin.Context, mis int) string {
+	// 读取用户信息
+	username, exists := GetUserName(ctx)
+	if !exists {
+		return "用户不存在"
 	}
-
-	// 得到token
-	tokenValue := strings.Split(authorization, " ")[1]
-
-	// 验证token
-	claims, err := Verify(tokenValue)
-
-	if err != nil {
-		ctx.JSON(http.StatusUnauthorized, gin.H{
-			"code": http.StatusUnauthorized,
-			"msg":  "失效token",
-			"data": nil,
-		})
-		ctx.Abort()
-		return
+	var userInfo users.User
+	if users.IsSuperAdmin(username) {
+		// 超级管理，直接通过
+		return ""
+	} else {
+		user, exist := users.GetUserByUserName(username)
+		if !exist {
+			return "用户不存在"
+		}
+		userInfo = user
 	}
-
-	// 设置token
-	ctx.Set("token", tokenValue)
-
-	// 将username存储到上下文
-	ctx.Set("username", claims.Username)
-
-	//放行
-	ctx.Next()
+	// 读取身份
+	identity := userInfo.Identity
+	ok := permission.CheckIdentityPermission(identity, mis)
+	if !ok {
+		return "权限不足"
+	}
+	return ""
 }

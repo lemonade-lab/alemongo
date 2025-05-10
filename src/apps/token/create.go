@@ -12,10 +12,11 @@ import (
 func Create(username string) (string, error) {
 	// 初始化
 	claims := &Claims{
-		Username: username, // 设置username
+		Username: username, // 设置 username
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(time.Hour * 1).Unix(), // 1小时过期
 		},
+		// 只携带就是用户名
 	}
 
 	// 创建token
