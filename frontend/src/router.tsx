@@ -4,13 +4,11 @@ import NotRoute from "./pages/404";
 import Login from "./pages/login/App";
 import Panel from "./pages/home/panel/App";
 import Main from "./pages/Main";
-import Configs from "./pages/home/configs/App";
 import Bots from "./pages/home/Bots/App";
 import ButtonTemplate from "./pages/home/ButtonTemplate/App";
 import UpdatePassWord from "./pages/home/UpdatePassWord/App";
 import OneBot from "./pages/home/OneBot/App";
 import Settings from "./pages/home/Settings/App";
-import ConfigEdit from "./pages/home/configs/create/App";
 import Package from "./pages/home/panel/package/App";
 import Config from "./pages/home/panel/Conifg/App";
 import XtermDate from "./pages/home/panel/xterm-date/App";
@@ -18,6 +16,12 @@ import Response from "./pages/home/panel/response/App";
 import Packages from "./pages/home/panel/packages/App";
 import Account from "./pages/home/Account/App";
 import GoBots from "./GoBots";
+
+import ConfigEdit from "./pages/home/configs/create/App";
+import Configs from "./pages/home/configs/App";
+
+import SSH from "./pages/home/GitSSH/App";
+import SSHUpdate from "./pages/home/GitSSH/Update";
 
 const router = createBrowserRouter([
   {
@@ -83,6 +87,18 @@ const router = createBrowserRouter([
           {
             path: "/account",
             element: <Account />,
+          },
+          {
+            path: "/ssh",
+            element: <SSH />,
+          },
+          {
+            path: "/ssh/:name",
+            element: <SSHUpdate />,
+          },
+          {
+            path: "/ssh/:name/update",
+            element: <SSHUpdate />,
           },
           {
             path: "/configs",

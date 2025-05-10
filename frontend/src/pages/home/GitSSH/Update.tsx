@@ -1,21 +1,21 @@
 import {useNavigate} from "react-router-dom";
-import CommonConfgEdit from "../../../../commom/ConfgEdit";
 import {Button, message} from "antd";
-import {apiBotConfigs, apiBotConfigsList, apiBotConfigsUpdate} from "@/api";
 import {useEffect, useState} from "react";
-const ConfigEdit = () => {
+import {apiSSHList, apiSSHRead, apiSSHUpdate} from "@/api/ssh";
+import FileEdit from "@/commom/FileEdit";
+const SSHUpdate = () => {
   const navigate = useNavigate();
   const [concifgNames, setConfigNames] = useState<string[]>([]);
   const [data, setData] = useState<string>("");
   // 是否是创建配置
-  const isCreate = window.location.pathname.includes("create");
+  const isCreate = window.location.pathname.includes("update");
   // 获取当前配置名称
   const getName = () => {
     if (isCreate) {
       const names = window.location.pathname.split("/");
       // 获取倒数第二个元素
       const name = names[names.length - 2];
-      return name || "alemon.config";
+      return name || "id_rsa.pub";
     }
     const path = window.location.pathname;
     const name = path.split("/").pop();
@@ -30,31 +30,30 @@ const ConfigEdit = () => {
         message.error("错误访问");
         return;
       }
-      apiBotConfigs({
+      apiSSHRead({
         name: name,
       })
         .then((res) => {
           setData(res);
         })
     } else {
-      apiBotConfigsList().then((res) => {
+      apiSSHList().then((res) => {
         setConfigNames(res);
       });
     }
   }, [isCreate]);
 
   const updateContent = (name: string, value: string) => {
-    apiBotConfigsUpdate({
+    apiSSHUpdate({
       name: name,
       content: value,
     })
-      .then((res) => {
-        console.log("res", res);
+      .then(() => {
         if (!isCreate) {
           message.success("更新成功");
           return;
         }
-        navigate("/configs");
+        navigate("/ssh");
       })
       .catch((err) => {
         console.log("err", err);
@@ -83,11 +82,11 @@ const ConfigEdit = () => {
     <div className="p-4 flex gap-4 flex-col bg-slate-100 flex-1">
       <div className="rounded-md flex justify-between items-start">
         <h2 className="text-2xl/7 font-bold text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
-          配置编辑
+          SSH编辑
         </h2>
         <Button
           type="primary"
-          onClick={() => navigate("/configs")}
+          onClick={() => navigate("/ssh")}
           className="inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
         >
           <svg
@@ -104,9 +103,9 @@ const ConfigEdit = () => {
           列表
         </Button>
       </div>
-      <CommonConfgEdit onSave={onSave} name={getName()} value={data} />
+      <FileEdit onSave={onSave} name={getName()} value={data} />
     </div>
   );
 };
 
-export default ConfigEdit;
+export default SSHUpdate;

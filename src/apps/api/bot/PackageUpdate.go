@@ -1,7 +1,7 @@
 package bot
 
 import (
-	"alemongo/src/alemonjs"
+	"alemongo/src/core/alemonjs"
 	"net/http"
 	"os"
 	"path"

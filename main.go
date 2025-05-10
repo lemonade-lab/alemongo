@@ -3,6 +3,7 @@ package main
 import (
 	"alemongo/src/apps/route"
 	"alemongo/src/config"
+	"alemongo/src/core/autoregister"
 	"alemongo/src/files"
 	"alemongo/src/users"
 	"embed"
@@ -53,8 +54,16 @@ func main() {
 		log.Printf("password: %s", admin.PassWord)
 	}
 
-	// 监听并在 0.0.0.0:8080 上启动服务
-	if err := app.Run(":" + config.Get().Server.Port); err != nil {
-		log.Fatal(err)
+	registerRrr := autoregister.RegisterIfNeeded(config.ServiceName, config.ServiceDescription)
+	if registerRrr != nil {
+		log.Fatalf("注册服务失败: %v", err)
+		return
 	}
+
+	err = app.Run(":" + config.Get().Server.Port)
+	if err != nil {
+		log.Fatalf("Failed to start server: %v", err)
+		return
+	}
+
 }

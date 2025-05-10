@@ -29,6 +29,26 @@ func StringToByte(code string) []byte {
 	return digits
 }
 
+// 得到指定dir下的所有文件
+func GetFileNames(dir string) ([]string, error) {
+	file, err := os.Open(dir)
+	if err != nil {
+		return []string{}, err
+	}
+	defer file.Close()
+	files, err := file.Readdir(-1)
+	if err != nil {
+		return []string{}, err
+	}
+	names := []string{}
+	for _, f := range files {
+		if !f.IsDir() {
+			names = append(names, f.Name())
+		}
+	}
+	return names, nil
+}
+
 // 得到指定dir下的所有目录名
 func GetDirNames(dir string) ([]string, error) {
 	file, err := os.Open(dir)

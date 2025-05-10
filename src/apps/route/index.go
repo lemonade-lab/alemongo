@@ -4,6 +4,7 @@ import (
 	"alemongo/src/apps/api/bot"
 	"alemongo/src/apps/api/common"
 	"alemongo/src/apps/api/settings"
+	gitssh "alemongo/src/apps/api/ssh"
 	"alemongo/src/apps/api/user"
 	"alemongo/src/apps/middleware"
 	"alemongo/src/apps/token"
@@ -68,6 +69,20 @@ func Create() *gin.Engine {
 				ApiUser.PUT("/identity", user.Identity)
 				// 身份列表
 				ApiUser.GET("/identity/list", user.IdentityList)
+			}
+			// ssh
+			ApiSsh := v1.Group("/ssh")
+			{
+				// 开始鉴权
+				ApiSsh.Use(token.AuthMiddleware)
+				// 列表
+				ApiSsh.GET("/list", gitssh.List)
+				// 更新
+				ApiSsh.PUT("/update", gitssh.Update)
+				// 删除
+				ApiSsh.DELETE("/delete", gitssh.Delete)
+				// 读取
+				ApiSsh.GET("/read", gitssh.Read)
 			}
 			// bot
 			ApiBot := v1.Group("/bot")

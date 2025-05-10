@@ -3,6 +3,7 @@ package common
 import (
 	"alemongo/src/config"
 	"net/http"
+	"os"
 	"os/exec"
 	"runtime"
 	"strings"
@@ -14,6 +15,7 @@ func Info(ctx *gin.Context) {
 	// Helper function to execute a command and fetch its output
 	getCommandOutput := func(name string, arg ...string) (string, bool) {
 		cmd := exec.Command(name, arg...)
+		cmd.Env = os.Environ() // 每次都用当前进程的环境变量
 		output, err := cmd.Output()
 		if err != nil {
 			return "", false

@@ -1,7 +1,7 @@
 package bot
 
 import (
-	"alemongo/src/alemonjs"
+	"alemongo/src/core/alemonjs"
 	"alemongo/src/utils"
 	"encoding/json"
 	"io/ioutil"
@@ -37,18 +37,28 @@ func PackagesList(ctx *gin.Context) {
 	botPath := alemonjs.GetBotPath(name)
 	packagesPath := path.Join(botPath, "packages")
 
-	// 读取目录下的所有目录名
-	names, err := utils.GetDirNames(packagesPath)
-	if err != nil {
+	data := []map[string]interface{}{}
+
+	// 检查目录是否存在
+	if _, err := os.Stat(packagesPath); os.IsNotExist(err) {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"code": http.StatusBadRequest,
-			"msg":  "读取目录失败",
-			"data": nil,
+			"code": http.StatusOK,
+			"msg":  "目录不存在",
+			"data": data,
 		})
 		return
 	}
 
-	data := []map[string]interface{}{}
+	// 读取目录下的所有目录名
+	names, err := utils.GetDirNames(packagesPath)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"code": http.StatusOK,
+			"msg":  "目录读取失败",
+			"data": data,
+		})
+		return
+	}
 
 	for _, name := range names {
 		gitPath := path.Join(packagesPath, name, ".git")

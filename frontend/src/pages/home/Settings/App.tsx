@@ -1,4 +1,3 @@
-import {Switch} from "antd";
 
 const Settings = () => {
   return (
@@ -9,14 +8,6 @@ const Settings = () => {
         </h2>
       </div>
       <div className="flex gap-2 flex-col bg-white p-4 rounded-md shadow-md">
-        <div className="flex items-center">
-          <span className="mr-2">注册程序</span>
-          <Switch   />
-        </div>
-        <div className="flex items-center">
-          <span className="mr-2">开机自启</span>
-          <Switch  />
-        </div>
       </div>
     </div>
   );

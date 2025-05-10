@@ -1,61 +1,27 @@
 ## macos
 
-## 直接打开
+请选择以下方式控制 alemongo
 
-`右键` > `打开方式` > `其他` 
+### 选择1 通过设置后台开关
 
-选择 `启动：所有应用程序`
+`设置` > `通用` > `登录项与扩展` > `允许在后台` > `alemongo`
 
-搜索 `终端`。选择后确认打开。
+### 选择2 通过指令控制服务
 
-> 如果出现未知应用，打开`系统设置` > `隐私与安全性` 允许打开
-
-### 移动应用到 `~/alemongo`
+- 加载
 
 ```sh
-mkdir -p ~/alemongo
-mv ./alemongo ~/alemongo/alemongo
+load ~/Library/LaunchAgents/alemongo.plist
 ```
 
-### 创建并注册 `com.alemongo.plist`
-
-1. 编辑文件
+- 查看
 
 ```sh
-vi ~/Library/LaunchAgents/com.alemongo.plist
+launchctl list | grep alemongo
 ```
 
-2. 在文件中添加以下内容：
-
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-   <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-   <plist version="1.0">
-   <dict>
-       <key>Label</key>
-       <string>com.alemongo</string>
-       <key>ProgramArguments</key>
-       <array>
-           <string>~/alemongo/alemongo</string>
-       </array>
-       <key>RunAtLoad</key>
-       <true/>
-       <key>KeepAlive</key>
-       <true/>
-   </dict>
-</plist>
-```
-
-3. 加载并启动服务：
-   
-```sh
-launchctl load ~/Library/LaunchAgents/com.alemongo.plist
-launchctl start com.alemongo
-```
-
-### 停止和卸载服务
+- 卸载
 
 ```sh
-launchctl stop com.alemongo
-launchctl unload ~/Library/LaunchAgents/com.alemongo.plist
+launchctl unload ~/Library/LaunchAgents/alemongo.plist
 ```
