@@ -24,7 +24,7 @@ yarn --cwd frontend build
 - 前后端启动
 
 ```sh
-go run main.go
+go run main.go dev
 yarn --cwd frontend dev
 ```
 
