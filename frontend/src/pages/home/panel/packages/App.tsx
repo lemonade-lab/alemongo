@@ -11,7 +11,9 @@ import {
 import Xterm from "../Xterm";
 import {Button, Collapse, Form, Input, message, Modal, Tag} from "antd";
 import Markdown from "@/commom/Markdown";
-import { getBotName } from "../core";
+import {getBotName} from "../core";
+import Box from "@/commom/Box";
+import dayjs from "dayjs";
 
 const Panel = () => {
   const [pkgs, setPkgs] = useState<BotPackages[]>([]);
@@ -104,90 +106,105 @@ const Panel = () => {
       });
   };
 
+  useEffect(() => {
+    form.setFieldsValue({
+      url: "",
+      branch: "release",
+    });
+  }, [form, visible]);
+
   return (
-    <div className="p-4 flex-1 flex bg-slate-100 gap-2 flex-col xl:flex-row">
-      <div className="flex-1 gap-2 flex flex-col bg-white rounded-md p-2">
-        <div className="text-2xl flex justify-between items-center">
-          <div>GIT扩展列表</div>
-          <Button
-            onClick={() => {
-              setVisible(true);
-            }}
-          >
-            新增
-          </Button>
+    <Box>
+      <div className="p-4 flex-1 flex bg-slate-100 gap-2 flex-col xl:flex-row">
+        <div className="flex-1 gap-2 flex flex-col bg-white rounded-md p-1">
+          <div className="text-2xl flex justify-between items-center">
+            <div>扩展列表</div>
+            <Button
+              onClick={() => {
+                setVisible(true);
+              }}
+            >
+              新增
+            </Button>
+          </div>
+          <div className="flex-1 overflow-auto h-[calc(100vh-22rem)] xl:h-[calc(100vh/2-22rem)]">
+            <Collapse
+              items={pkgs.map((item) => {
+                const pkgJSON = JSON.parse(item.pkg);
+                return {
+                  key: item.name,
+                  label: (
+                    <div className="flex justify-between items-center">
+                      <div className="flex flex-wrap gap-2">
+                        <Tag>{pkgJSON["name"]}</Tag>
+                        <Tag>{pkgJSON["version"]}</Tag>
+                      </div>
+                      <div className="flex gap-2 items-center justify-center">
+                        <Button
+                          type="primary"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onUpdate(item);
+                          }}
+                        >
+                          更新
+                        </Button>
+                        <Button
+                          type="primary"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onInstall(info.name);
+                          }}
+                        >
+                          安装
+                        </Button>
+                      </div>
+                    </div>
+                  ),
+                  children: (
+                    <>
+                      <div className="flex flex-wrap gap-2">
+                        <Tag>{item.name}</Tag>
+                        <Tag>{item.git.branch}</Tag>
+                        <Tag>
+                          {dayjs(item.git.date).format("YYYY-MM-DD HH:mm:ss")}
+                        </Tag>
+                      </div>
+
+                      <Box>
+                        <Markdown source={item.md}></Markdown>
+                      </Box>
+                    </>
+                  ),
+                };
+              })}
+              defaultActiveKey={["1"]}
+            />
+          </div>
         </div>
-        <div className="flex-1 overflow-auto h-[calc(100vh-22rem)] xl:h-[calc(100vh/2-22rem)]">
-          <Collapse
-            items={pkgs.map((item) => {
-              const pkgJSON = JSON.parse(item.pkg);
-              return {
-                key: item.name,
-                label: (
-                  <div className="flex justify-between">
-                    <div className="">
-                      <Tag>{item.name}</Tag>
-                      <Tag>{pkgJSON["version"]}</Tag>
-                      <Tag>{item.git.branch}</Tag>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button
-                        type="text"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onUpdate(item);
-                        }}
-                      >
-                        更新
-                      </Button>
-                      <Button
-                        type="text"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onInstall(info.name);
-                        }}
-                      >
-                        安装
-                      </Button>
-                    </div>
-                  </div>
-                ),
-                children: (
-                  <div className="overflow-auto h-[calc(100vh-22rem)]">
-                    <div className="flex gap-2 flex-wrap">
-                      <Tag>{item.git.date}</Tag>
-                    </div>
-                    <Markdown source={item.md}></Markdown>
-                  </div>
-                ),
-              };
-            })}
-            defaultActiveKey={["1"]}
-          />
-        </div>
+        <Xterm info={info} onUpdate={(name) => initBotInfo(name)} />
+        <Modal
+          title="新增扩展"
+          open={visible}
+          loading={isLoading}
+          onOk={() => {
+            form.submit();
+          }}
+          onCancel={() => {
+            setVisible(false);
+          }}
+        >
+          <Form form={form} onFinish={onFinish}>
+            <Form.Item label="地址" name="url">
+              <Input placeholder="git@github.com:xiuxianjs/xiuxian-bot.git" />
+            </Form.Item>
+            <Form.Item label="分支" name="branch">
+              <Input placeholder="release" />
+            </Form.Item>
+          </Form>
+        </Modal>
       </div>
-      <Xterm info={info} onUpdate={(name) => initBotInfo(name)} />
-      <Modal
-        title="新增扩展"
-        open={visible}
-        loading={isLoading}
-        onOk={() => {
-          form.submit();
-        }}
-        onCancel={() => {
-          setVisible(false);
-        }}
-      >
-        <Form form={form} onFinish={onFinish}>
-          <Form.Item label="地址" name="url">
-            <Input placeholder="请输入地址" />
-          </Form.Item>
-          <Form.Item label="分支" name="branch">
-            <Input placeholder="请输入分支" />
-          </Form.Item>
-        </Form>
-      </Modal>
-    </div>
+    </Box>
   );
 };
 

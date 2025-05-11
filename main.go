@@ -49,7 +49,7 @@ func main() {
 	if admin.PassWord == "" {
 		log.Printf("临时超级管理员账户生成失败，请阅读文档以自定义")
 	} else {
-		log.Printf("临时超级管理员账户信息：\nusername: %s\npassword: %s\n", admin.UserName, admin.PassWord)
+		log.Printf("临时超级管理员账户信息：\n账户: %s\n密码: %s\n", admin.UserName, admin.PassWord)
 	}
 
 	registerRrr := autoregister.RegisterIfNeeded(config.ServiceName, config.ServiceDescription)

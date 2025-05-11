@@ -213,12 +213,6 @@ const OneBot = () => {
 
   return (
     <div className="flex  p-2 md:p-4 flex-col">
-      <h2 className="text-2xl/7 font-bold text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
-        OneBot 消息监听
-        <span className="text-sm text-gray-500 mx-2">
-           减少频繁在不同地点登陆造成的账号安全问题
-        </span>
-      </h2>
       <div className="flex-1 overflow-auto w-full">
         <Tabs
           activeKey={activeKey}

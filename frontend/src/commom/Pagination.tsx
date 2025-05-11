@@ -37,7 +37,7 @@ const Pagination = ({page, total, pageSize, onPageChange}: PaginationProps) => {
     pageSize,
   });
   return (
-    <div className="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-2 sm:px-6">
+    <footer className="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-2 sm:px-6">
       <div className="flex flex-1 justify-between sm:hidden">
         <button
           onClick={() => hasPrevious && onPageChange(page - 1)}
@@ -107,7 +107,7 @@ const Pagination = ({page, total, pageSize, onPageChange}: PaginationProps) => {
           </nav>
         </div>
       </div>
-    </div>
+    </footer>
   );
 };
 

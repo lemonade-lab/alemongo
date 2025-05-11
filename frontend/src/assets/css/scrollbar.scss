@@ -1,20 +1,14 @@
-$scrollbar-thumb-color: #64748b; // 滚动条滑块颜色
-$scrollbar-thumb-radius: 1rem; // 滚动条滑块圆角
-$scrollbar-color: #64748b transparent; // 滚动条颜色 (Firefox)
-$scrollbar-radius: 1rem; // 滚动条圆角
-
 *::-webkit-scrollbar {
-  width: 8px; // 隐藏滚动条
-  height: 8px;
-}
-
-*::-webkit-scrollbar-track {
-  background: transparent; // 滚动条轨道颜色
-  border-radius: $scrollbar-radius; // 滚动条轨道圆角
+  width: 6px;
+  height: 6px;
 }
 
 *::-webkit-scrollbar-thumb {
-  background-color: $scrollbar-thumb-color; // 滚动条滑块颜色
-  border-radius: $scrollbar-thumb-radius; // 滚动条滑块圆角
+  background-color: #1677ff80;
+  border-radius: 1rem;
   cursor: pointer;
+}
+
+*::-webkit-scrollbar-track {
+  background-color: #ffffff00;
 }

@@ -23,9 +23,7 @@ const Response = () => {
   return (
     <div className="p-4 flex gap-4 flex-col bg-slate-100 flex-1">
       <div className="h-11  rounded-md flex justify-between   text-white items-start">
-        <h2 className="text-2xl/7 font-bold text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
-          功能列表
-        </h2>
+      
       </div>
       <div className="flex flex-1 flex-col xl:flex-row gap-2">
         <div className="flex-1 flex flex-col  rounded-md p-2">

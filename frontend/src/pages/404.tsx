@@ -20,7 +20,9 @@ const NotRoute = () => {
             回到首页
           </div>
           <div
-            onClick={() => navigate("/contact")}
+            onClick={() => {
+              window.open("https://alemonjs.com", "_blank");
+            }}
             className="text-sm font-semibold text-gray-900"
           >
             联系我们

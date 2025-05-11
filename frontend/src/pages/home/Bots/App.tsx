@@ -1,30 +1,12 @@
 import {useSelector} from "react-redux";
 import {RootState} from "../../../redux";
-import Headings from "./Headings";
 import Table from "./Table";
 import {Button, Modal} from "antd";
-import {useEffect, useState} from "react";
+import {useState} from "react";
 import {Tabs} from "antd";
 import type {TabsProps} from "antd";
 
 /**
- * 强制刷新 hook
- */
-const useForceUpdate = (): [boolean, () => void] => {
-  const [value, setValue] = useState(true);
-  useEffect(() => {
-    if (!value) {
-      setValue(true);
-    }
-  }, [value]);
-  const onForceUpdate = () => {
-    setValue(false);
-  };
-  return [value, onForceUpdate];
-};
-
-/**
- *
  * @returns
  */
 const Home = () => {
@@ -32,12 +14,9 @@ const Home = () => {
     (state: RootState) => state.info.node.installed
   );
   const [visible, setVisible] = useState(false);
-  const [value, onForceUpdate] = useForceUpdate();
-
   const onChange = (key: string) => {
     console.log(key);
   };
-
   const items: TabsProps["items"] = [
     {
       key: "1",
@@ -90,17 +69,14 @@ const Home = () => {
   ];
   return (
     <>
-      <Headings
-        onUpdate={() => onForceUpdate()}
-        onClick={(key) => {
-          // console.log(key);
-          if (key === "node") {
-            setVisible(true);
-          }
-        }}
-      />
-      {installed && value ? (
-        <Table />
+      {installed ? (
+        <Table
+          onClick={(key) => {
+            if (key === "node") {
+              setVisible(true);
+            }
+          }}
+        />
       ) : (
         <section className="flex-1 flex flex-col justify-center items-center">
           <div className="flex flex-col gap-6 items-center">

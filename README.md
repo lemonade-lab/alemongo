@@ -1,8 +1,6 @@
 # ALemonGO
 
-alemonjs 框架，机器人管理端
-
-你可以使用web轻松部署并控制多个机器人
+阿柠檬WEB面板
 
 ## 安装指南
 
@@ -22,7 +20,7 @@ alemonjs 框架，机器人管理端
 # 服务器
 server: 
   port: 17187 # 端口
-  host: "localhost" # 仅作打印
+  host: "127.0.0.1" # 仅作打印
   key: 'alemongo' # 密钥
 ```
 
