@@ -1,7 +1,6 @@
 import {Outlet, useLocation, useNavigate} from "react-router-dom";
 import SiderMenu from "./SiderMenu";
 import {Breadcrumb} from "antd";
-import Box from "@/commom/Box";
 
 const map = {
   bots: "机器人",
