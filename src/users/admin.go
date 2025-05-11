@@ -6,6 +6,7 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"encoding/json"
+	"log"
 	"os"
 	"path"
 )
@@ -41,18 +42,21 @@ func GetAdminAccount() User {
 			PassWord:   password,
 			MasterName: permission.DefaultUserName,
 		}
+		log.Printf("临时超级管理员账户信息：\n账户: %s\n密码: %s\n", admin.UserName, admin.PassWord)
 		return admin
 	}
 	// 读取文件
 	fileData, err := os.ReadFile(userListPath)
 	if err != nil {
 		// 读取失败。返回空。
+		log.Printf("读取管理员账户文件错误: %v", err)
 		return User{}
 	}
 	// 解析json
 	err = json.Unmarshal(fileData, &admin)
 	if err != nil {
 		// 解析失败。返回空。
+		log.Printf("读取管理员账户文件错误: %v", err)
 		return User{}
 	}
 	// 返回管理员账户

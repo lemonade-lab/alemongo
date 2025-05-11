@@ -8,22 +8,6 @@ import Box from "@/commom/Box";
 import Headings from "./Headings";
 
 /**
- * 强制刷新 hook
- */
-const useForceUpdate = (): [boolean, () => void] => {
-  const [value, setValue] = useState(true);
-  useEffect(() => {
-    if (!value) {
-      setValue(true);
-    }
-  }, [value]);
-  const onForceUpdate = () => {
-    setValue(false);
-  };
-  return [value, onForceUpdate];
-};
-
-/**
  * @returns
  */
 const UserTable = () => {
@@ -127,7 +111,6 @@ const UserTable = () => {
       ),
     },
   ];
-  const [value, onForceUpdate] = useForceUpdate();
   const [selects, setSelects] = useState<string[]>([]);
   useEffect(() => {
     const getList = async () => {
@@ -139,25 +122,26 @@ const UserTable = () => {
 
   return (
     <div className="flex-1 flex flex-col h-[calc(100vh-7.75rem)]">
-      <Headings selects={selects} onUpdate={() => onForceUpdate()} />
-      {value && (
-        <>
-          <Box>
-            <Table pagination={false} columns={columns} dataSource={curData} />
-          </Box>
-          <Pagination
-            total={pageInfo.total}
-            pageSize={pageInfo.pageSize}
-            page={pageInfo.page}
-            onPageChange={(page) => {
-              setPageInfo({
-                ...pageInfo,
-                page,
-              });
-            }}
-          />
-        </>
-      )}
+      <Headings
+        selects={selects}
+        onUpdate={() => {
+          initData();
+        }}
+      />
+      <Box>
+        <Table pagination={false} columns={columns} dataSource={curData} />
+      </Box>
+      <Pagination
+        total={pageInfo.total}
+        pageSize={pageInfo.pageSize}
+        page={pageInfo.page}
+        onPageChange={(page) => {
+          setPageInfo({
+            ...pageInfo,
+            page,
+          });
+        }}
+      />
     </div>
   );
 };

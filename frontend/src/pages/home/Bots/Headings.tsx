@@ -21,7 +21,7 @@ const Headings = ({
    */
   const onSubmit = (values: HTMLFormElement) => {
     // fetch data
-    const name = values.botname.value;
+    const name = values.botname;
     // 英文，数字，下划线
     const reg = /^[a-zA-Z0-9_]+$/;
     if (!reg.test(name)) {

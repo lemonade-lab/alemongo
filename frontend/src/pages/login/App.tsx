@@ -66,7 +66,7 @@ const Login = () => {
           <h2 className="text-center text-3xl font-extrabold tracking-tight text-indigo-700 drop-shadow">
             欢迎登录
           </h2>
-          <p className="text-center text-gray-500 mt-2">智能机器人管理平台</p>
+          <p className="text-center text-gray-500 mt-2">阿柠檬机器人管理平台</p>
         </div>
         <div className="p-2">
           <form className="flex flex-col gap-6" onSubmit={handleSubmit}>
