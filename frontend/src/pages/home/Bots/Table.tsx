@@ -9,7 +9,10 @@ import {
 import {Button, message, Popconfirm, Spin, Table, TableProps, Tag} from "antd";
 import {useNavigate} from "react-router-dom";
 import Pagination from "../../../commom/Pagination";
-const BotTable = () => {
+import Box from "@/commom/Box";
+import Headings from "./Headings";
+
+const BotTable = ({onClick = () => {}}: {onClick: (key: string) => void}) => {
   // 数据
   const [data, setData] = useState<BotInfo[]>([]);
   const [curData, setCurData] = useState<BotInfo[]>([]);
@@ -197,27 +200,46 @@ const BotTable = () => {
       ),
     },
   ];
+
+  /**
+   * 强制刷新 hook
+   */
+  const useForceUpdate = (): [boolean, () => void] => {
+    const [value, setValue] = useState(true);
+    useEffect(() => {
+      if (!value) {
+        setValue(true);
+      }
+    }, [value]);
+    const onForceUpdate = () => {
+      setValue(false);
+    };
+    return [value, onForceUpdate];
+  };
+
+  const [value, onForceUpdate] = useForceUpdate();
+
   return (
-    <div className="flex-1 flex flex-col">
-      <div className="flex-1 border">
-        <Table
-          className="overflow-auto w-screen h-[calc(100vh-22rem)] xl:size-full"
-          pagination={false}
-          columns={columns}
-          dataSource={curData}
-        />
-      </div>
-      <Pagination
-        total={pageInfo.total}
-        pageSize={pageInfo.pageSize}
-        page={pageInfo.page}
-        onPageChange={(page) => {
-          setPageInfo({
-            ...pageInfo,
-            page,
-          });
-        }}
-      />
+    <div className="flex-1 flex flex-col h-[calc(100vh-7.75rem)]">
+      <Headings onUpdate={() => onForceUpdate()} onClick={onClick} />
+      {value && (
+        <>
+          <Box>
+            <Table pagination={false} columns={columns} dataSource={curData} />
+          </Box>
+          <Pagination
+            total={pageInfo.total}
+            pageSize={pageInfo.pageSize}
+            page={pageInfo.page}
+            onPageChange={(page) => {
+              setPageInfo({
+                ...pageInfo,
+                page,
+              });
+            }}
+          />
+        </>
+      )}
     </div>
   );
 };

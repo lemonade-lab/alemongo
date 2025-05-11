@@ -129,6 +129,9 @@ const Xterm = ({
       });
   };
 
+  // 只是渲染最新的100条数据
+  const renderData = data.slice(-100);
+
   return (
     <div className="flex-1 flex flex-col">
       <div className="bg-slate-600 p-1 rounded-t-md flex justify-between items-center">
@@ -196,7 +199,7 @@ const Xterm = ({
          xl:h-[calc(100vh-10rem)]
         "
       >
-        {data.map((item, index) => (
+        {renderData.map((item, index) => (
           <div key={index} className="flex justify-between px-1 ">
             <div className="flex">
               <span>{item}</span>

@@ -10,40 +10,60 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func Info(ctx *gin.Context) {
-	// Helper function to execute a command and fetch its output
-	getCommandOutput := func(name string, arg ...string) (string, bool) {
-		cmd := utils.Command(name, arg...)
-		output, err := cmd.Output()
-		if err != nil {
-			return "", false
+func getCommandOutput(name string, arg ...string) (string, bool) {
+	cmd := utils.Command(name, arg...)
+	output, err := cmd.Output()
+	if err != nil {
+		return "", false
+	}
+	// Trim any trailing newline or whitespace
+	return strings.TrimSpace(string(output)), true
+}
+
+func getNVMJS() (string, bool) {
+	// Check if Node.js is installed
+	return getCommandOutput("nvm", "--version")
+}
+
+func getNodeJS() (string, bool) {
+	// Check if Node.js is installed
+	return getCommandOutput("node", "--version")
+}
+
+func getBrowser() (string, bool) {
+	if runtime.GOOS == "linux" {
+		// 判断 chromium 或 chromium-browser
+		message, installed := getCommandOutput("chromium", "--version")
+		if installed {
+			return message, installed
 		}
-		// Trim any trailing newline or whitespace
-		return strings.TrimSpace(string(output)), true
+		message, installed = getCommandOutput("chromium-browser", "--version")
+		if installed {
+			return message, installed
+		}
+		return "", false
+	} else if runtime.GOOS == "windows" {
+		return "", false
+	} else if runtime.GOOS == "darwin" {
+		return "", false
 	}
+	return "", false
+}
 
-	// Detect the browser command based on the operating system
-	var browserCmd string
-	switch runtime.GOOS {
-	case "darwin": // macOS
-		browserCmd = "google-chrome"
-	case "windows": // Windows
-		browserCmd = "chrome"
-	default: // Linux and other systems
-		browserCmd = "chromium"
-	}
+func getGit() (string, bool) {
+	// Check if Git is installed
+	return getCommandOutput("git", "--version")
+}
 
+func Info(ctx *gin.Context) {
 	// 1) 检查 nvm 是否安装
-	nvmVersion, isNvmInstalled := getCommandOutput("nvm", "--version")
-
+	nvmVersion, isNvmInstalled := getNVMJS()
 	// 2) 检查 node 是否安装
-	nodeVersion, isNodeInstalled := getCommandOutput("node", "--version")
-
+	nodeVersion, isNodeInstalled := getNodeJS()
 	// 3) 检查浏览器是否安装
-	browserVersion, isBrowserInstalled := getCommandOutput(browserCmd, "--version")
-
+	browserVersion, isBrowserInstalled := getBrowser()
 	// 4) 检查 git 是否安装
-	gitVersion, isGitInstalled := getCommandOutput("git", "--version")
+	gitVersion, isGitInstalled := getGit()
 
 	ip, err := getPublicIP()
 	curIP := ""

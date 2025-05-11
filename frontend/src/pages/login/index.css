@@ -1,0 +1,42 @@
+@keyframes floatCard {
+    0% {
+        transform: translateY(0px) scale(1);
+    }
+
+    50% {
+        transform: translateY(-12px) scale(1.04);
+    }
+
+    100% {
+        transform: translateY(0px) scale(1);
+    }
+}
+
+@keyframes bgMove {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    100% {
+        background-position: 100% 50%;
+    }
+}
+
+.login-glow {
+    box-shadow: 0 0 32px 4px #a78bfa55, 0 4px 32px 0 #667eea33;
+}
+
+.login-btn-glow {
+    box-shadow: 0 2px 16px 0 #a78bfa66, 0 0px 8px 0 #667eea44;
+}
+
+.login-btn-glow:hover {
+    box-shadow: 0 4px 32px 0 #a78bfa99, 0 0px 16px 0 #667eea77;
+    transform: scale(1.04);
+}
+
+.login-input:focus {
+    border-color: #7c3aed !important;
+    box-shadow: 0 0 0 2px #a78bfa55;
+    background: #f5f3ff;
+}

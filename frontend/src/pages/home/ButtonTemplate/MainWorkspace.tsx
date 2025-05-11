@@ -23,8 +23,7 @@ const MainWorkspace = ({
 }) => {
   return (
     <div className="flex-1 flex flex-col gap-2">
-      <div className="flex justify-between items-center">
-        <h2 className="text-xl font-bold">工作台</h2>
+      <div className="flex justify-end items-center px-1">
         <div className="flex gap-2">
           <Tooltip title="上传模板">
             <Button onClick={onUpLoad} type="primary">

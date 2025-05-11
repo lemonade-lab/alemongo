@@ -3,8 +3,8 @@ import {useEffect, useState} from "react";
 import lodash from "lodash";
 import {useLocation, useNavigate} from "react-router-dom";
 import {menuItems} from "./menuItems";
-import { useSelector } from "react-redux";
-import { RootState } from "@/redux";
+import {useSelector} from "react-redux";
+import {RootState} from "@/redux";
 /**
  *
  * @returns
@@ -41,22 +41,21 @@ const SiderMenu = () => {
 
   const storeMe = useSelector((state: RootState) => state.me);
   // 过滤得到 item
-  const curMenuItems = menuItems.filter((item)=>{
-    if(item?.identity){
-      if(item?.identity !== storeMe.identity){
-        console.log("没有权限", item?.identity, storeMe)
-        return false
+  const curMenuItems = menuItems.filter((item) => {
+    if (item?.identity) {
+      if (item?.identity !== storeMe.identity) {
+        console.log("没有权限", item?.identity, storeMe);
+        return false;
       }
     }
-    return true
-  })
+    return true;
+  });
 
   return (
     <>
       {!collapsed && (
         <Menu
-          rootClassName="bg-gray-800 border-t"
-          className="flex-1"
+          rootClassName="bg-gray-700 h-full py-2"
           selectedKeys={selectedKeys}
           onSelect={(e) => navigate(e.key)}
           mode="inline"

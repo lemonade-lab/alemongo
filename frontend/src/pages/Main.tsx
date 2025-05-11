@@ -25,9 +25,11 @@ const Main = () => {
     apiInfo().then((res) => dispatch(setUserInfo(res)));
   }, [storeLogin.login, navigate, dispatch]);
   return (
-    <div className="size-full flex flex-col">
+    <div className="w-screen h-screen flex flex-col">
       <Navbars />
-      <Outlet />
+      <main className="flex flex-row h-[calc(100vh-3rem)]">
+        <Outlet />
+      </main>
     </div>
   );
 };

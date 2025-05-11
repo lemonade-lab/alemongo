@@ -8,6 +8,7 @@ import EditForm from "./EditForm";
 import {QQ_TEMPLATE_KEY} from "../../../api/base";
 import {useForm} from "antd/es/form/Form";
 import "./index.css";
+import Box from "@/commom/Box";
 
 /**
  * @returns
@@ -107,8 +108,8 @@ const ButtonTemplate: React.FC = () => {
 
   /**
    * 解析模板。同时确保rows中有id
-   * @param output 
-   * @returns 
+   * @param output
+   * @returns
    */
   const analysisButtonContent = (output: string) => {
     try {
@@ -319,11 +320,8 @@ const ButtonTemplate: React.FC = () => {
   };
 
   return (
-    <div className="flex-1 flex gap-2 flex-col bg-slate-100 p-4  rounded-lg ">
-      <h2 className="text-2xl/7 font-bold text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
-        QQBot 按钮模板编辑器
-      </h2>
-      <div className="flex-1 flex flex-col xl:flex-row gap-2">
+    <Box>
+      <div className="flex-1 flex flex-col xl:flex-row gap-2 p-4 bg-slate-100">
         <MainWorkspace
           rows={rows}
           onUpLoad={() => setVisible(true)}
@@ -345,9 +343,6 @@ const ButtonTemplate: React.FC = () => {
       >
         <LoadForm onFinish={onFinishLoad} onUpload={onUpload} />
       </Modal>
-      {
-        // 编辑按钮内容
-      }
       <Modal
         title="编辑按钮"
         open={editVisible}
@@ -358,7 +353,7 @@ const ButtonTemplate: React.FC = () => {
       >
         <EditForm form={from} onFinish={onFinishEdit} />
       </Modal>
-    </div>
+    </Box>
   );
 };
 

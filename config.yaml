@@ -3,6 +3,5 @@ users:
     username: "lemonade"
     password: "123456"
 server:
-  host: "localhost"
   port: "17187"
   key: "alemongo"

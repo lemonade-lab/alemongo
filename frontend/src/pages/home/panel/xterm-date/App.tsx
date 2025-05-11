@@ -23,10 +23,6 @@ const XtermDate = () => {
     }
     // 获取时间戳
     const timestamp = date.valueOf();
-    console.log("timestamp", timestamp);
-    // 转为日期
-    const dateString = date.format("YYYY-MM-DD HH:mm:ss");
-    console.log("dateString", dateString);
     setTimestamp(timestamp);
   };
   return (

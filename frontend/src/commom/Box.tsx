@@ -1,0 +1,26 @@
+import classNames from "classnames";
+import {PropsWithChildren} from "react";
+
+/**
+ * 自由滚动的盒子
+ * @param param
+ * @returns
+ */
+const Box = ({
+  children,
+  className,
+}: PropsWithChildren<{
+  className?: string;
+}>) => {
+  return (
+    <div className="flex-1 flex overflow-auto">
+      <div className="flex-1 flex w-[100px]">
+        <div className={classNames(className, "flex-1 flex flex-col")}>
+          {children}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Box;

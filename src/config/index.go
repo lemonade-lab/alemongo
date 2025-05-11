@@ -14,7 +14,7 @@ var cfg Config
 // 设置默认值
 func setDefaults() {
 	if cfg.Server.Host == "" {
-		cfg.Server.Host = "localhost"
+		cfg.Server.Host = "127.0.0.1"
 	}
 	if cfg.Server.Port == "" {
 		cfg.Server.Port = "17187"
