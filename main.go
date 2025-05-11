@@ -43,14 +43,8 @@ func main() {
 	// 打印服务器信息
 	config.LogServerInfo()
 
-	admin := users.GetAdminAccount()
-
-	// 判断是否存在
-	if admin.PassWord == "" {
-		log.Printf("临时超级管理员账户生成失败，请阅读文档以自定义")
-	} else {
-		log.Printf("临时超级管理员账户信息：\n账户: %s\n密码: %s\n", admin.UserName, admin.PassWord)
-	}
+	// 初始化密码
+	users.GetAdminAccount()
 
 	registerRrr := autoregister.RegisterIfNeeded(config.ServiceName, config.ServiceDescription)
 	if registerRrr != nil {

@@ -201,45 +201,28 @@ const BotTable = ({onClick = () => {}}: {onClick: (key: string) => void}) => {
     },
   ];
 
-  /**
-   * 强制刷新 hook
-   */
-  const useForceUpdate = (): [boolean, () => void] => {
-    const [value, setValue] = useState(true);
-    useEffect(() => {
-      if (!value) {
-        setValue(true);
-      }
-    }, [value]);
-    const onForceUpdate = () => {
-      setValue(false);
-    };
-    return [value, onForceUpdate];
-  };
-
-  const [value, onForceUpdate] = useForceUpdate();
-
   return (
     <div className="flex-1 flex flex-col h-[calc(100vh-7.75rem)]">
-      <Headings onUpdate={() => onForceUpdate()} onClick={onClick} />
-      {value && (
-        <>
-          <Box>
-            <Table pagination={false} columns={columns} dataSource={curData} />
-          </Box>
-          <Pagination
-            total={pageInfo.total}
-            pageSize={pageInfo.pageSize}
-            page={pageInfo.page}
-            onPageChange={(page) => {
-              setPageInfo({
-                ...pageInfo,
-                page,
-              });
-            }}
-          />
-        </>
-      )}
+      <Headings
+        onUpdate={() => {
+          initData();
+        }}
+        onClick={onClick}
+      />
+      <Box>
+        <Table pagination={false} columns={columns} dataSource={curData} />
+      </Box>
+      <Pagination
+        total={pageInfo.total}
+        pageSize={pageInfo.pageSize}
+        page={pageInfo.page}
+        onPageChange={(page) => {
+          setPageInfo({
+            ...pageInfo,
+            page,
+          });
+        }}
+      />
     </div>
   );
 };
