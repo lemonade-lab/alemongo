@@ -11,7 +11,7 @@ import (
 func Verify(tokenValue string) (*Claims, error) {
 	// token
 	token, err := jwt.ParseWithClaims(tokenValue, &Claims{}, func(token *jwt.Token) (interface{}, error) {
-		key := config.Get().Server.Key
+		key := config.Get().Server.Token.Key
 		return utils.StringToByte(key), nil
 	})
 

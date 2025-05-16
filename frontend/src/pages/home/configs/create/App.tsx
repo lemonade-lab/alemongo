@@ -1,9 +1,9 @@
 import {useNavigate} from "react-router-dom";
-import CommonConfgEdit from "../../../../commom/ConfgEdit";
-import {Button, message} from "antd";
+import {message} from "antd";
 import {apiBotConfigs, apiBotConfigsList, apiBotConfigsUpdate} from "@/api";
 import {useEffect, useState} from "react";
 import Box from "@/commom/Box";
+import JSONEdit from "@/commom/JSONEdit";
 const ConfigEdit = () => {
   const navigate = useNavigate();
   const [concifgNames, setConfigNames] = useState<string[]>([]);
@@ -81,13 +81,15 @@ const ConfigEdit = () => {
   };
   return (
     <Box>
-      <div className="p-4 flex gap-4 flex-col bg-slate-100 flex-1">
-        <div className="flex justify-end">
-          <Button type="primary" onClick={() => navigate("/configs")}>
-            列表
-          </Button>
-        </div>
-        <CommonConfgEdit onSave={onSave} name={getName()} value={data} />
+      <div className="p-2 flex gap-4 flex-col bg-slate-100 flex-1">
+        <JSONEdit
+          disabledName={!isCreate}
+          onSave={onSave}
+          name={getName()}
+          value={data}
+          type="yaml"
+          mode="yaml"
+        />
       </div>
     </Box>
   );

@@ -321,7 +321,7 @@ const ButtonTemplate: React.FC = () => {
 
   return (
     <Box>
-      <div className="flex-1 flex flex-col xl:flex-row gap-2 p-4 bg-slate-100">
+      <div className="flex-1 flex flex-col xl:flex-row gap-2 p-2 bg-slate-100">
         <MainWorkspace
           rows={rows}
           onUpLoad={() => setVisible(true)}

@@ -1,9 +1,9 @@
 import {apiBotPackage, apiBotPackageUpdate, apiBotYarnInstall} from "@/api";
-import PackageEdit from "@/commom/PackageEdit";
 import {Button, message, Spin} from "antd";
 import {useEffect, useState} from "react";
 import {getBotName} from "../core";
 import Box from "@/commom/Box";
+import JSONEdit from "@/commom/JSONEdit";
 
 const Package = () => {
   const [pkgData, setPkgData] = useState<string>("");
@@ -62,8 +62,20 @@ const Package = () => {
   };
   return (
     <Box>
-      <div className="p-4 flex gap-4 flex-col bg-slate-100 flex-1">
-        <div className="flex justify-end">
+      <div className="p-2 flex gap-4 flex-col bg-slate-100 flex-1">
+        <div className="flex justify-between">
+          <div className="flex gap-2">
+            <div>打开</div>
+            <div
+              className="text-blue-500 hover:underline cursor-pointer"
+              onClick={() => {
+                window.open("https://www.npmjs.com");
+              }}
+            >
+              https://www.npmjs.com
+            </div>
+            <div>搜索 dependencies 版本</div>
+          </div>
           <Button
             loading={isInstallLoading}
             type="primary"
@@ -76,7 +88,12 @@ const Package = () => {
           </Button>
         </div>
         <Spin spinning={isLoading}>
-          <PackageEdit onSave={onSave} name={""} value={pkgData} />
+          <JSONEdit
+            onSave={onSave}
+            disabledName
+            name="package.json"
+            value={pkgData}
+          />
         </Spin>
       </div>
     </Box>

@@ -212,7 +212,7 @@ const OneBot = () => {
   };
 
   return (
-    <div className="flex  p-2 md:p-4 flex-col">
+    <div className="flex p-2 md:p-4 flex-col">
       <div className="flex-1 overflow-auto w-full">
         <Tabs
           activeKey={activeKey}

@@ -19,8 +19,11 @@ func setDefaults() {
 	if cfg.Server.Port == "" {
 		cfg.Server.Port = "17187"
 	}
-	if cfg.Server.Key == "" {
-		cfg.Server.Key = "alemongo"
+	if cfg.Server.Token.Key == "" {
+		cfg.Server.Token.Key = "alemongo"
+	}
+	if cfg.Server.Token.ExpiresTime <= 0 {
+		cfg.Server.Token.ExpiresTime = 1
 	}
 }
 

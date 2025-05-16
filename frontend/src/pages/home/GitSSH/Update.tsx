@@ -1,5 +1,5 @@
 import {useNavigate} from "react-router-dom";
-import {Button, message} from "antd";
+import {message} from "antd";
 import {useEffect, useState} from "react";
 import {apiSSHList, apiSSHRead, apiSSHUpdate} from "@/api/ssh";
 import FileEdit from "@/commom/FileEdit";
@@ -80,13 +80,8 @@ const SSHUpdate = () => {
   };
   return (
     <Box>
-      <div className="p-4 flex gap-4 flex-col bg-slate-100 flex-1">
-        <div className="flex  justify-end">
-          <Button type="primary" onClick={() => navigate("/ssh")}>
-            列表
-          </Button>
-        </div>
-        <FileEdit onSave={onSave} name={getName()} value={data} />
+      <div className="p-2 flex gap-4 flex-col bg-slate-100 flex-1">
+        <FileEdit disableName={!isCreate} onSave={onSave} name={getName()} value={data} />
       </div>
     </Box>
   );

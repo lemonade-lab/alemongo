@@ -43,6 +43,7 @@ func GetList() []User {
 	users := []User{}
 	err = json.Unmarshal(fileData, &users)
 	if err != nil {
+		// tudo
 		log.Println("解析json失败")
 		return []User{}
 	}

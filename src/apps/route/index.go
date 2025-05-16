@@ -116,6 +116,7 @@ func Create() *gin.Engine {
 					ApiPackages.POST("/clone", bot.PackagesClone)
 					ApiPackages.POST("/list", bot.PackagesList)
 					ApiPackages.POST("/pull", bot.PackagesPull)
+					ApiPackages.POST("/info", bot.PackagesInfo)
 				}
 
 				ApiConfig := ApiBot.Group("/config")

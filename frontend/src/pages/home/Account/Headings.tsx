@@ -46,7 +46,7 @@ const Headings = ({
     });
   };
   return (
-    <header className="lg:flex lg:items-center lg:justify-between p-4">
+    <header className="lg:flex lg:items-center lg:justify-between p-2">
       <div className="min-w-0 flex-1"></div>
       {installed && (
         <Button type="primary" onClick={onCreateBot}>

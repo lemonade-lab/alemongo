@@ -1,60 +1,57 @@
-import {Button, Form, Input} from "antd";
+import {Button, Input} from "antd";
 import {useEffect, useState} from "react";
-import EditBox from "./EditBox";
 import Code from "@/commom/CodeMirror";
 
 const FileEdit = ({
   name,
   value,
   onSave,
+  disableName = false,
 }: {
   name?: string;
   value: string;
   onSave: (name: string, value: string) => void;
+  disableName?: boolean;
 }) => {
   const [fileData, setFileData] = useState<string>(value || "");
-  const [form] = Form.useForm();
+  const [inputValue, setInputValue] = useState<string>(name || "");
 
   useEffect(() => {
     setFileData(value || "");
     if (name) {
-      form.setFieldsValue({name});
+      setInputValue(name);
     }
-  }, [form, name, value]);
+  }, [name, value]);
 
   const handleCodeChange = (_editor: unknown, _data: unknown, val: string) => {
     setFileData(val);
   };
 
   const handleSave = () => {
-    const name = form.getFieldValue("name");
-    onSave(name, fileData);
+    onSave(inputValue, fileData);
   };
 
   return (
-    <EditBox
-      left={
-        <Form className="flex-1 p-2" form={form} labelCol={{span: 3}}>
-          {name && (
-            <Form.Item
-              label="名称"
-              name="name"
-              className="mb-0"
-              rules={[{required: true, message: "请输入名称"}]}
-            >
-              <Input placeholder="name" />
-            </Form.Item>
-          )}
-        </Form>
-      }
-      rightHeader={
-        <div className="flex items-center justify-between p-1 bg-slate-400 rounded-t-md">
-          <div className="px-2">{name}</div>
-          <Button onClick={handleSave}>保存</Button>
+    <div className="flex flex-1 flex-col  gap-2">
+      <div className="flex-1 flex flex-col rounded-md bg-white">
+        {
+          <div className="flex items-center justify-between p-1 bg-slate-400 rounded-t-md">
+            <div>
+              {disableName && <div className="px-2">{name}</div>}
+              {!disableName && (
+                <Input value={inputValue || ""} placeholder="name" />
+              )}
+            </div>
+            <Button onClick={handleSave}>保存</Button>
+          </div>
+        }
+        <div className="flex overflow-auto flex-1 max-h-[120vh] xl:max-h-none">
+          <div className="flex-1 flex w-[100px]">
+            {<Code mode="text" value={fileData} onChange={handleCodeChange} />}
+          </div>
         </div>
-      }
-      right={<Code mode="text" value={fileData} onChange={handleCodeChange} />}
-    />
+      </div>
+    </div>
   );
 };
 

@@ -5,10 +5,10 @@ import {
   apiBotConfigUpdate,
 } from "@/api";
 import {useEffect, useState} from "react";
-import CommonConfgEdit from "../../../../commom/ConfgEdit";
 import {Button, message, Select} from "antd";
 import {getBotName} from "../core";
 import Box from "@/commom/Box";
+import JSONEdit from "@/commom/JSONEdit";
 
 const Conifg = () => {
   const [yamlData, setYamlData] = useState<string>("");
@@ -49,7 +49,7 @@ const Conifg = () => {
   const [select, setSelect] = useState<string>("");
   return (
     <Box>
-      <div className="p-4 flex gap-4 flex-col bg-slate-100 flex-1">
+      <div className="p-2 flex gap-4 flex-col bg-slate-100 flex-1">
         <div className="flex justify-end">
           <div className="flex gap-2">
             <Select
@@ -94,7 +94,14 @@ const Conifg = () => {
             </Button>
           </div>
         </div>
-        <CommonConfgEdit value={yamlData} onSave={onSave} />
+        <JSONEdit
+          name="alemon.config.yaml"
+          disabledName
+          value={yamlData}
+          onSave={onSave}
+          type="yaml"
+          mode="yaml"
+        />
       </div>
     </Box>
   );

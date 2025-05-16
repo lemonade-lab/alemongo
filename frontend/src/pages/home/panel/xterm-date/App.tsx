@@ -26,7 +26,7 @@ const XtermDate = () => {
     setTimestamp(timestamp);
   };
   return (
-    <div className="flex-1 p-4 bg-slate-100 ">
+    <div className="flex-1 p-2 bg-slate-100 ">
       <div className="bg-slate-600 p-1 rounded-t-md flex justify-between items-center">
         <div className="text-white flex gap-2 items-center">
           <div>日志</div>

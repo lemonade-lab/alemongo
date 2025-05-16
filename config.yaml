@@ -1,7 +1,5 @@
-users:
-  - identity: "admin"
-    username: "lemonade"
-    password: "123456"
 server:
   port: "17187"
-  key: "alemongo"
+  token: 
+    key: "alemongo"
+    expires_time: 24

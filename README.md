@@ -2,9 +2,11 @@
 
 阿柠檬WEB面板
 
-## 安装指南
+## 前提环境
 
-> 阅读对应操作系统的安装说明
+`Git` 、 `NodeJS >= 20`
+
+## 操作指南
 
 [linux](./docs/linux.md)
 
@@ -20,8 +22,9 @@
 # 服务器
 server: 
   port: 17187 # 端口
-  host: "127.0.0.1" # 仅作打印
-  key: 'alemongo' # 密钥
+  token:
+    key: "alemongo"  # 密钥
+    expires_time: 24 # 过期时间 (h)
 ```
 
 > 超级临时账户会在启动时打印，直到密码更改。

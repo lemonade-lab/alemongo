@@ -65,3 +65,19 @@ export const apiBotPackagesPull = async (data: {
             .catch(reject);
     });
 }
+
+export const apiBotPackagesInfo = async (data: {
+    name: string
+    app_name: string
+}): Promise<null> => {
+    return new Promise((resolve, reject) => {
+        request({
+            url: "/bot/packages/info",
+            method: "post",
+            data,
+        })
+            .then((res) => res.data)
+            .then(resolve)
+            .catch(reject);
+    });
+}

@@ -16,7 +16,8 @@ import (
 func Delete(tokenValue string) error {
 	// token
 	token, err := jwt.Parse(tokenValue, func(token *jwt.Token) (interface{}, error) {
-		return utils.StringToByte(config.Get().Server.Key), nil
+		key := config.Get().Server.Token.Key
+		return utils.StringToByte(key), nil
 	})
 
 	if err != nil {
