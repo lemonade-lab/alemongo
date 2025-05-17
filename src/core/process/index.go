@@ -220,44 +220,6 @@ func (mp *ManagedProcess) monitor() {
 	SaveProcess(mp.Config.Name, mp.Config, mp.Status)
 }
 
-// 暂停和恢复进程
-func (mp *ManagedProcess) Pause() error {
-	mp.mu.Lock()
-	defer mp.mu.Unlock()
-	if mp.Status != StatusRunning {
-		return fmt.Errorf("%s not running", mp.Config.Name)
-	}
-	if mp.Cmd.Process == nil {
-		return fmt.Errorf("%s no process", mp.Config.Name)
-	}
-	err := mp.Cmd.Process.Signal(syscall.SIGSTOP)
-	if err == nil {
-		mp.Status = StatusPaused
-		// 持久化状态
-		SaveProcess(mp.Config.Name, mp.Config, mp.Status)
-	}
-	return err
-}
-
-// 恢复进程
-func (mp *ManagedProcess) Resume() error {
-	mp.mu.Lock()
-	defer mp.mu.Unlock()
-	if mp.Status != StatusPaused {
-		return fmt.Errorf("%s not paused", mp.Config.Name)
-	}
-	if mp.Cmd.Process == nil {
-		return fmt.Errorf("%s no process", mp.Config.Name)
-	}
-	err := mp.Cmd.Process.Signal(syscall.SIGCONT)
-	if err == nil {
-		mp.Status = StatusRunning
-		// 持久化状态
-		SaveProcess(mp.Config.Name, mp.Config, mp.Status)
-	}
-	return err
-}
-
 // 停止进程
 func (mp *ManagedProcess) Stop() error {
 	mp.mu.Lock()
