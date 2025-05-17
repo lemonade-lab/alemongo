@@ -3,6 +3,7 @@ package yarn
 import (
 	"alemongo/src/core/alemonjs"
 	"alemongo/src/utils"
+	"fmt"
 	"os"
 	"os/exec"
 	"path"
@@ -31,12 +32,16 @@ func Install(name string) (string, error) {
 	if err != nil {
 		return "打开日志文件失败", err
 	}
-	// 设置输出到日志文件
+	defer logFile.Close()
 	cmd.Stdout = logFile
 	cmd.Stderr = logFile
 	// 执行命令
 	if err := cmd.Run(); err != nil {
-		return "依赖安装异常", err
+		// 分析错误。如果只是依赖的一些警告不应当做为错误
+		if exitError, ok := err.(*exec.ExitError); ok && exitError.ExitCode() == 0 {
+			return "依赖安装成功 (Dependencies installed successfully)", nil
+		}
+		return fmt.Sprintf("依赖安装异常: %v (Dependency installation failed: %v)", err, err), err
 	}
-	return "依赖安装成功", nil
+	return "依赖安装成功 (Dependencies installed successfully)", nil
 }

@@ -1,14 +1,20 @@
 package alemonjs
 
+import (
+	"alemongo/src/core/process"
+	"os"
+)
+
 // 重启机器人
 func Restart(name string) (string, error) {
-	stopMessage, err := Stop(name)
-	if err != nil && stopMessage != "" {
-		return stopMessage, err
+	pm := process.GetProcessManager()
+	proc := pm.GetProcess(name)
+	if proc == nil {
+		return "进程未注册", os.ErrNotExist
 	}
-	runMessage, err := Run(name)
-	if err != nil && runMessage != "" {
-		return runMessage, err
+	err := proc.Restart()
+	if err != nil {
+		return "重启失败", err
 	}
 	return "", nil
 }

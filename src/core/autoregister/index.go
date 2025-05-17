@@ -3,7 +3,9 @@ package autoregister
 import (
 	"alemongo/src/config"
 	"alemongo/src/utils"
+	"bytes"
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"path/filepath"
@@ -47,7 +49,6 @@ func logCmd() {
 
 // Linux 注册逻辑
 func registerLinux(serviceName, description, execPath string) error {
-
 	if checkIfRegisteredLinux(serviceName) {
 		logCmd()
 		return nil
@@ -61,12 +62,22 @@ func registerLinux(serviceName, description, execPath string) error {
 		WorkingDir:  workingDir,
 	}
 
-	if err := createServiceFileLinux(config); err != nil {
-		return fmt.Errorf("创建 Linux 服务文件失败: %w", err)
+	changed, err := createOrUpdateServiceFileLinux(config)
+	if err != nil {
+		return fmt.Errorf("创建或更新 Linux 服务文件失败: %w", err)
+	}
+
+	if changed {
+		// 自动刷新 systemd 配置
+		if err := utils.Command("systemctl", "daemon-reload").Run(); err != nil {
+			log.Printf("自动执行 systemctl daemon-reload 失败: %v", err)
+		}
+		log.Printf("服务文件已创建/更新并 reload: /etc/systemd/system/%s.service", config.ServiceName)
+	} else {
+		log.Printf("服务文件未变更，无需更新: /etc/systemd/system/%s.service", config.ServiceName)
 	}
 
 	logCmd()
-
 	return nil
 }
 
@@ -77,18 +88,15 @@ func checkIfRegisteredLinux(serviceName string) bool {
 	return err == nil
 }
 
-// createServiceFileLinux 创建 systemd 服务文件
-func createServiceFileLinux(config ServiceConfig) error {
+// createOrUpdateServiceFileLinux 创建或更新 systemd 服务文件，仅在内容变化时写入并 reload
+func createOrUpdateServiceFileLinux(config ServiceConfig) (changed bool, err error) {
 	// 获取当前环境变量中的 PATH
 	pathEnv := os.Getenv("PATH")
 	// 获取当前用户的 HOME 目录
 	homeDir, err := os.UserHomeDir()
-
-	// 如果出现错误。默认使用 /root 目录
 	if err != nil {
 		homeDir = "/root"
 	}
-
 	// 获取当前 Shell
 	shell := os.Getenv("SHELL")
 	if shell == "" {
@@ -133,24 +141,38 @@ WantedBy=multi-user.target
 	}
 
 	serviceFilePath := fmt.Sprintf("/etc/systemd/system/%s.service", config.ServiceName)
+
+	// 渲染新内容到 buffer
+	var buf bytes.Buffer
+	tmpl, err := template.New("systemdService").Parse(serviceTemplate)
+	if err != nil {
+		return false, fmt.Errorf("解析服务模板失败: %w", err)
+	}
+	if err := tmpl.Execute(&buf, configData); err != nil {
+		return false, fmt.Errorf("渲染服务模板失败: %w", err)
+	}
+	newContent := buf.Bytes()
+
+	// 如果文件已存在，读取并对比内容
+	existing, err := os.ReadFile(serviceFilePath)
+	if err == nil {
+		if bytes.Equal(existing, newContent) {
+			// 内容未变
+			return false, nil
+		}
+	}
+
+	// 内容不同或文件不存在，写入新内容
 	file, err := os.OpenFile(serviceFilePath, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
 	if err != nil {
-		log.Printf("创建服务文件失败: %v", err)
-		return fmt.Errorf("创建服务文件失败: %w", err)
+		return false, fmt.Errorf("创建服务文件失败: %w", err)
 	}
 	defer file.Close()
 
-	tmpl, err := template.New("systemdService").Parse(serviceTemplate)
-	if err != nil {
-		log.Printf("解析服务模板失败: %v", err)
-		return fmt.Errorf("解析服务模板失败: %w", err)
+	if _, err := io.Copy(file, bytes.NewReader(newContent)); err != nil {
+		return false, fmt.Errorf("写入服务文件失败: %w", err)
 	}
-	if err := tmpl.Execute(file, configData); err != nil {
-		log.Printf("写入服务文件失败: %v", err)
-		return fmt.Errorf("写入服务文件失败: %w", err)
-	}
-	log.Printf("服务文件已创建: %s\n", serviceFilePath)
-	return nil
+	return true, nil
 }
 
 // macOS 注册逻辑
@@ -173,12 +195,9 @@ func registerMacOS(serviceName, description, execPath string) error {
 </plist>
 `
 	plistPath := fmt.Sprintf("%s/Library/LaunchAgents/%s.plist", os.Getenv("HOME"), serviceName)
-	file, err := os.OpenFile(plistPath, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
-	if err != nil {
-		return fmt.Errorf("创建 plist 文件失败: %w", err)
-	}
-	defer file.Close()
 
+	// 渲染新内容到 buffer
+	var buf bytes.Buffer
 	tmpl, err := template.New("launchdPlist").Parse(plistTemplate)
 	if err != nil {
 		return fmt.Errorf("解析 plist 模板失败: %w", err)
@@ -188,16 +207,47 @@ func registerMacOS(serviceName, description, execPath string) error {
 		Description: description,
 		ExecPath:    execPath,
 	}
-	if err := tmpl.Execute(file, config); err != nil {
+	if err := tmpl.Execute(&buf, config); err != nil {
+		return fmt.Errorf("渲染 plist 模板失败: %w", err)
+	}
+	newContent := buf.Bytes()
+
+	// 如果文件已存在，对比内容
+	existing, err := os.ReadFile(plistPath)
+	if err == nil {
+		if bytes.Equal(existing, newContent) {
+			// 内容未变
+			log.Printf("plist 文件未变更，无需更新: %s", plistPath)
+			return nil
+		}
+	}
+
+	// 内容不同或文件不存在，写入新内容
+	file, err := os.OpenFile(plistPath, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
+	if err != nil {
+		return fmt.Errorf("创建 plist 文件失败: %w", err)
+	}
+	defer file.Close()
+	if _, err := io.Copy(file, bytes.NewReader(newContent)); err != nil {
 		return fmt.Errorf("写入 plist 文件失败: %w", err)
 	}
-	log.Printf("已创建系统服务,若后台挂载请运行:\nlaunchctl load %s ", plistPath)
+
+	log.Printf("已创建/更新系统服务, 若后台挂载请运行:\nlaunchctl load %s ", plistPath)
 	log.Printf("若卸载服务，请运行:\nlaunchctl unload %s", plistPath)
 	return nil
 }
 
 // Windows 注册逻辑
 func registerWindows(serviceName, execPath string) error {
+	// 只在内容不同或不存在时才注册
+	// 判断服务是否存在
+	cmdQuery := utils.Command("sc", "query", serviceName)
+	err := cmdQuery.Run()
+	if err == nil {
+		log.Printf("Windows 服务 %s 已存在，无需重新注册。", serviceName)
+		return nil
+	}
+
 	cmd := utils.Command("sc", "create", serviceName, "binPath=", execPath, "start=", "auto")
 	if err := cmd.Run(); err != nil {
 		return fmt.Errorf("在 Windows 上创建服务失败: %w", err)

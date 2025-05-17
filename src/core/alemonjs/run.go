@@ -1,76 +1,66 @@
 package alemonjs
 
 import (
-	"alemongo/src/utils"
-	"io/ioutil"
+	"alemongo/src/core/process"
 	"os"
 	"os/exec"
 	"path"
-	"strconv"
 )
 
 // 运行机器人
 func Run(name string) (string, error) {
 	// 检查系统是否安装了 Node.js
-	if _, err := exec.LookPath("node"); err != nil {
+	nodePath, err := exec.LookPath("node")
+	if err != nil {
 		return "未找到NodeJS", err
 	}
-	if IsRunning(name) {
+	pm := process.GetProcessManager()
+	if pm.IsRunning(name) {
 		return "机器人已经在运行", nil
 	}
 	if !ExistsNodeModules(name) {
 		return "请先安装依赖", os.ErrNotExist
 	}
-	// pid 文件路径
-	pidFilePath := GetPidFilePath(name)
-	// 启动脚本
-	indexPath := GetBotIndexRelativePath()
 	// 机器人目录
 	botPath := GetBotPath(name)
-	// alemonjs/index.js, index.js, src/index.js, lib/index.js
-	// 如果启动脚本不存在
-	if _, err := os.Stat(path.Join(botPath, indexPath)); os.IsNotExist(err) {
-		indexPath = path.Join("index.js")
-		// 如果还是不存在
-		if _, err := os.Stat(path.Join(botPath, indexPath)); os.IsNotExist(err) {
-			indexPath = path.Join("src", "index.js")
-			// 如果还是不存在
-			if _, err := os.Stat(path.Join(botPath, indexPath)); os.IsNotExist(err) {
-				indexPath = path.Join("lib", "index.js")
-				// 如果还是不存在
-				if _, err := os.Stat(path.Join(botPath, indexPath)); os.IsNotExist(err) {
-					return "启动脚本不存在,请新建index.js", os.ErrNotExist
-				}
-			}
+	var indexPath string
+	tryFiles := []string{
+		path.Join("alemonjs", "index.js"),
+		"index.js",
+		path.Join("src", "index.js"),
+		path.Join("lib", "index.js"),
+	}
+	found := false
+	for _, fp := range tryFiles {
+		if _, err := os.Stat(path.Join(botPath, fp)); err == nil {
+			indexPath = fp
+			found = true
+			break
 		}
 	}
-	// 执行
-	cmd := utils.Command("node", indexPath)
-	// 设置工作目录为机器人的路径
-	cmd.Dir = botPath
-	// 设置命令的标准输入输出
-	// cmd.Stdout = os.Stdout
-	// cmd.Stderr = os.Stderr
+	if !found {
+		return "启动脚本不存在,请新建index.js", os.ErrNotExist
+	}
+	// 日志和 PID 文件路径
 	logPath := GetBotLogPath(name)
-	// 把输出内容丢到指定log文件中
-	logFile, err := os.OpenFile(logPath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	pidFile := GetPidFilePath(name)
+	// 交给进程管理器托管
+	pm.AddProcess(process.NodeProcessConfig{
+		Name:     name,
+		Dir:      botPath,
+		Node:     nodePath,
+		ScriptJS: indexPath,
+		LogPath:  logPath,
+		PidFile:  pidFile,
+	})
+	// 启动
+	proc := pm.GetProcess(name)
+	if proc == nil {
+		return "进程未注册", os.ErrNotExist
+	}
+	err = proc.Start()
 	if err != nil {
-		return "打开日志文件失败", err
-	}
-	// 设置输出到日志文件
-	cmd.Stdout = logFile
-	cmd.Stderr = logFile
-	if err := cmd.Start(); err != nil {
-		// 启动失败。需要删除 pid 文件
-		if err := os.Remove(pidFilePath); err != nil {
-			return "删除pid文件失败", err
-		}
 		return "启动失败", err
-	}
-	// 保存 PID 到文件
-	pid := cmd.Process.Pid
-	if err := ioutil.WriteFile(pidFilePath, []byte(strconv.Itoa(pid)), 0644); err != nil {
-		return "写入pid失败", err
 	}
 	return "", nil
 }

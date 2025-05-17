@@ -4,6 +4,7 @@ import (
 	"alemongo/src/apps/route"
 	"alemongo/src/config"
 	"alemongo/src/core/autoregister"
+	"alemongo/src/core/process"
 	"alemongo/src/files"
 	"alemongo/src/users"
 	"embed"
@@ -31,6 +32,10 @@ func main() {
 
 	// 初始化文件资源
 	files.Create(ResourcesFiles)
+
+	// 获得全局进程管理
+	pm := process.GetProcessManager()
+	_ = pm.ReviveAll() // 复活所有进程
 
 	// 创建路由
 	app := route.Create()
