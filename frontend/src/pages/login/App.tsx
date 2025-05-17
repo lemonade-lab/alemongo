@@ -1,8 +1,8 @@
-import {useDispatch} from "react-redux";
-import {message} from "antd";
-import {useNavigate} from "react-router-dom";
-import {apiLogin} from "@/api";
-import {setToken} from "@/redux/login";
+import { useDispatch } from "react-redux";
+import { message } from "antd";
+import { useNavigate } from "react-router-dom";
+import { apiLogin } from "@/api";
+import { setToken } from "@/redux/login";
 import "./index.css";
 
 const Login = () => {
@@ -42,9 +42,10 @@ const Login = () => {
   };
   return (
     <div
-      className="min-h-screen flex items-center justify-center relative overflow-hidden "
+      className="min-h-screen flex items-center justify-center relative overflow-hidden transition-colors bg-white dark:bg-gradient-to-br dark:from-zinc-900 dark:to-indigo-950"
       style={{
-        background: "linear-gradient(120deg, #667eea 0%, #764ba2 100%)",
+        background:
+          "linear-gradient(120deg, #667eea 0%, #764ba2 100%)",
         animation: "bgMove 10s ease-in-out infinite alternate",
       }}
     >
@@ -57,23 +58,23 @@ const Login = () => {
         }}
       />
       <div
-        className="animate__animated animate__fadeIn flex gap-4 flex-col shadow-2xl bg-white/90 rounded-2xl p-8 login-glow relative z-10"
+        className="animate__animated animate__fadeIn flex gap-4 flex-col shadow-2xl bg-white/90 dark:bg-zinc-800/90 rounded-2xl p-8 login-glow relative z-10 transition-colors"
         style={{
           animation: "floatCard 3s ease-in-out infinite",
         }}
       >
         <div>
-          <h2 className="text-center text-3xl font-extrabold tracking-tight text-indigo-700 drop-shadow">
+          <h2 className="text-center text-3xl font-extrabold tracking-tight text-indigo-700 dark:text-indigo-300 drop-shadow">
             欢迎登录
           </h2>
-          <p className="text-center text-gray-500 mt-2">阿柠檬机器人管理平台</p>
+          <p className="text-center text-gray-500 dark:text-gray-400 mt-2">阿柠檬机器人管理平台</p>
         </div>
         <div className="p-2">
           <form className="flex flex-col gap-6" onSubmit={handleSubmit}>
             <div>
               <label
                 htmlFor="username"
-                className="block text-base font-medium text-gray-900"
+                className="block text-base font-medium text-gray-900 dark:text-gray-100"
               >
                 用户名
               </label>
@@ -82,7 +83,7 @@ const Login = () => {
                 name="username"
                 autoComplete="username"
                 required
-                className="login-input mt-2 border w-full rounded-md bg-white px-3 py-2 text-base text-gray-900 outline-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:outline-indigo-600 transition"
+                className="login-input mt-2 border w-full rounded-md bg-slate-100 dark:bg-zinc-900  px-3 py-2 text-base text-gray-900 dark:text-gray-100 outline-1 outline-gray-300 dark:outline-gray-700 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-2 focus:outline-indigo-600 transition"
                 placeholder="请输入用户名"
               />
             </div>
@@ -90,13 +91,13 @@ const Login = () => {
               <div className="flex items-center justify-between">
                 <label
                   htmlFor="password"
-                  className="block text-base font-medium text-gray-900"
+                  className="block text-base font-medium text-gray-900 dark:text-gray-100"
                 >
                   密码
                 </label>
                 <span
                   onClick={handleForgetPassword}
-                  className="text-sm font-semibold cursor-pointer text-indigo-600 hover:text-indigo-500 transition"
+                  className="text-sm font-semibold cursor-pointer text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 transition"
                 >
                   忘记密码？
                 </span>
@@ -106,19 +107,19 @@ const Login = () => {
                 name="password"
                 autoComplete="current-password"
                 required
-                className="login-input mt-2 border w-full rounded-md bg-white px-3 py-2 text-base text-gray-900 outline-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:outline-indigo-600 transition"
+                className="login-input mt-2 border w-full rounded-md bg-slate-100 dark:bg-zinc-900  px-3 py-2 text-base text-gray-900 dark:text-gray-100 outline-1 outline-gray-300 dark:outline-gray-700 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-2 focus:outline-indigo-600 transition"
                 placeholder="请输入密码"
               />
             </div>
             <button
               type="submit"
-              className="login-btn-glow w-full rounded-md bg-gradient-to-r from-indigo-500 to-purple-500 px-3 py-2 text-lg font-semibold text-white shadow-lg hover:from-indigo-600 hover:to-purple-600 transition-all duration-200"
+              className="login-btn-glow w-full rounded-md bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 px-3 py-2 text-lg font-semibold text-white shadow-lg transition-all duration-200"
             >
               登录
             </button>
           </form>
         </div>
-        <div className="text-xs text-center text-gray-400 mt-2 select-none">
+        <div className="text-xs text-center text-gray-400 dark:text-gray-500 mt-2 select-none">
           &copy; {new Date().getFullYear()} Lemonade Robot Platform
         </div>
       </div>

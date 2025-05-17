@@ -1,4 +1,4 @@
-import {useEffect, useState} from "react";
+import { useEffect, useState } from "react";
 import {
   apiBotInfo,
   apiBotPackageClone,
@@ -6,11 +6,11 @@ import {
   BotInfo,
   BotPackages,
 } from "@/api";
-import {Button, Form, Input, Modal, Tag} from "antd";
-import {getBotName} from "../core";
+import { Button, Form, Input, Modal, Tag } from "antd";
+import { getBotName } from "../core";
 import Box from "@/commom/Box";
 import dayjs from "dayjs";
-import {useNavigate} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const Panel = () => {
   const [pkgs, setPkgs] = useState<BotPackages[]>([]);
@@ -21,12 +21,13 @@ const Panel = () => {
     node_modules: false,
     create_at: "",
   });
-  const navicate = useNavigate();
+  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [visible, setVisible] = useState(false);
   const [form] = Form.useForm();
+
   useEffect(() => {
-    if(!visible){
+    if (!visible) {
       return;
     }
     form.setFieldsValue({
@@ -36,14 +37,12 @@ const Panel = () => {
   }, [form, visible]);
 
   const initBotInfo = (name: string) => {
-    apiBotInfo({
-      name,
-    }).then((res) => {
+    apiBotInfo({ name }).then((res) => {
       setInfo(res);
     });
   };
   const initPKGNames = (name: string) => {
-    apiBotPackagesList({name}).then((res) => {
+    apiBotPackagesList({ name }).then((res) => {
       setPkgs(res);
     });
   };
@@ -53,7 +52,8 @@ const Panel = () => {
     initBotInfo(name);
     initPKGNames(name);
   }, []);
-  const onFinish = (values: {url: string; branch: string}) => {
+
+  const onFinish = (values: { url: string; branch: string }) => {
     if (isLoading) return;
     setIsLoading(true);
     apiBotPackageClone({
@@ -61,8 +61,7 @@ const Panel = () => {
       repo_url: values.url,
       branch_name: values.branch,
     })
-      .then((res) => {
-        console.log(res);
+      .then(() => {
         initPKGNames(info.name);
       })
       .finally(() => {
@@ -70,18 +69,21 @@ const Panel = () => {
         setVisible(false);
       });
   };
+
   return (
     <Box>
-      <div className="p-2 flex-1 flex bg-slate-100 gap-2 flex-col xl:flex-row">
-        <div className="flex-1 gap-2 flex flex-col bg-white rounded-md p-1">
-          <div className="text-2xl flex justify-end items-center">
+      <div className="p-2 flex-1 flex bg-slate-100 dark:bg-zinc-900 gap-2 flex-col xl:flex-row transition-colors">
+        <div className="flex-1 gap-2 flex flex-col bg-white dark:bg-zinc-800 rounded-md p-4 shadow-md transition-colors">
+          <div className="text-2xl flex justify-end items-center mb-2">
             <Button type="primary" onClick={() => setVisible(true)}>
               新增
             </Button>
           </div>
           <div className="flex-1 overflow-auto h-[calc(100vh-22rem)] xl:h-[calc(100vh/2-22rem)]">
             {pkgs.length === 0 ? (
-              <div className="text-center text-gray-500">暂无扩展，请添加</div>
+              <div className="text-center text-gray-500 dark:text-gray-400">
+                暂无扩展，请添加
+              </div>
             ) : (
               <div className="flex flex-col gap-2">
                 {pkgs.map((item) => {
@@ -89,40 +91,18 @@ const Panel = () => {
                   return (
                     <div
                       key={item.name}
-                      className="flex justify-between items-center border p-1 rounded-md cursor-pointer hover:border-slate-300 hover:bg-slate-50"
+                      className="flex justify-between items-center border border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 p-3 rounded-md cursor-pointer hover:border-slate-300 hover:bg-slate-50 dark:hover:bg-zinc-800 transition-colors"
                       onClick={() => {
-                        navicate(`/bots/${getBotName()}/packages/${item.name}`);
+                        navigate(`/bots/${getBotName()}/packages/${item.name}`);
                       }}
                     >
                       <div className="flex flex-wrap gap-2">
-                        <Tag>{pkgJSON["name"]}</Tag>
-                        {/* <Tag>{pkgJSON["version"]}</Tag> */}
-                        <Tag>{pkgJSON["description"]}</Tag>
-                        {/* <Tag>{item.git.branch}</Tag>   */}
-                        <Tag>
+                        <Tag color="blue">{pkgJSON["name"]}</Tag>
+                        <Tag color="geekblue">{pkgJSON["description"]}</Tag>
+                        <Tag color="default">
                           {dayjs(item.git.date).format("YYYY-MM-DD HH:mm:ss")}
                         </Tag>
                       </div>
-                      {/* <div className="flex gap-2 items-center justify-center">
-                        <Button
-                          type="primary"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onUpdate(item);
-                          }}
-                        >
-                          更新
-                        </Button>
-                        <Button
-                          type="primary"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onInstall(info.name);
-                          }}
-                        >
-                          安装
-                        </Button>
-                      </div> */}
                     </div>
                   );
                 })}
@@ -133,19 +113,28 @@ const Panel = () => {
         <Modal
           title="新增扩展"
           open={visible}
-          loading={isLoading}
+          confirmLoading={isLoading}
           onOk={() => {
             form.submit();
           }}
           onCancel={() => {
             setVisible(false);
           }}
+          className="dark:bg-zinc-900"
         >
-          <Form form={form} onFinish={onFinish}>
-            <Form.Item label="地址" name="url">
+          <Form form={form} onFinish={onFinish} layout="vertical">
+            <Form.Item
+              label="地址"
+              name="url"
+              rules={[{ required: true, message: "请输入Git仓库地址" }]}
+            >
               <Input placeholder="git@github.com:xiuxianjs/xiuxian-bot.git" />
             </Form.Item>
-            <Form.Item label="分支" name="branch">
+            <Form.Item
+              label="分支"
+              name="branch"
+              rules={[{ required: true, message: "请输入分支名" }]}
+            >
               <Input placeholder="release" />
             </Form.Item>
           </Form>

@@ -202,7 +202,7 @@ const BotTable = ({onClick = () => {}}: {onClick: (key: string) => void}) => {
   ];
 
   return (
-    <div className="flex-1 flex flex-col h-[calc(100vh-7.75rem)]">
+    <div className="p-2 flex-1 flex flex-col h-[calc(100vh-7.75rem)] bg-slate-100 dark:bg-zinc-900 transition-colors">
       <Headings
         onUpdate={() => {
           initData();

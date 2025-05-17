@@ -1,10 +1,11 @@
-import {Menu} from "antd";
-import {useEffect, useState} from "react";
+import { Menu } from "antd";
+import { useEffect, useState } from "react";
 import lodash from "lodash";
-import {useLocation, useNavigate} from "react-router-dom";
-import {menuItems} from "./menuItems";
-import {useSelector} from "react-redux";
-import {RootState} from "@/redux";
+import { useLocation, useNavigate } from "react-router-dom";
+import { menuItems } from "./menuItems";
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux";
+
 /**
  *
  * @returns
@@ -16,7 +17,7 @@ const SiderMenu = () => {
   useEffect(() => {
     const path = location.pathname;
     const menuItem = menuItems.find((item) => item?.key === path);
-    if (menuItem?.key && typeof menuItem?.key == "string") {
+    if (menuItem?.key && typeof menuItem?.key === "string") {
       setSelectedKeys([menuItem.key]);
     } else {
       setSelectedKeys([]);
@@ -44,7 +45,7 @@ const SiderMenu = () => {
   const curMenuItems = menuItems.filter((item) => {
     if (item?.identity) {
       if (item?.identity !== storeMe.identity) {
-        console.log("没有权限", item?.identity, storeMe);
+        // console.log("没有权限", item?.identity, storeMe);
         return false;
       }
     }
@@ -53,9 +54,10 @@ const SiderMenu = () => {
 
   return (
     <>
+      {/* 增加 dark 适配与过渡 */}
       {!collapsed && (
         <Menu
-          rootClassName="bg-gray-700 h-full py-2"
+          rootClassName="bg-gray-700 dark:bg-zinc-800 h-full py-2 transition-colors"
           selectedKeys={selectedKeys}
           onSelect={(e) => navigate(e.key)}
           mode="inline"

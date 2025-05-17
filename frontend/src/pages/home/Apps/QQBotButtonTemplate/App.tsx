@@ -1,12 +1,12 @@
-import {message, Modal} from "antd";
-import React, {useCallback, useEffect, useState} from "react";
-import {DataRow, EditFormValues} from "./types";
+import { message, Modal } from "antd";
+import React, { useCallback, useEffect, useState } from "react";
+import { DataRow, EditFormValues } from "./types";
 import OutputSection from "./OutputSection";
 import MainWorkspace from "./MainWorkspace";
 import LoadForm from "./LoadFrom";
 import EditForm from "./EditForm";
-import {QQ_TEMPLATE_KEY} from "../../../api/base";
-import {useForm} from "antd/es/form/Form";
+import { QQ_TEMPLATE_KEY } from "@/api/base";
+import { useForm } from "antd/es/form/Form";
 import "./index.css";
 import Box from "@/commom/Box";
 
@@ -23,7 +23,7 @@ const ButtonTemplate: React.FC = () => {
       message.info("最多支持5行按钮");
       return;
     }
-    const newRow: DataRow = {id: Date.now(), buttons: []};
+    const newRow: DataRow = { id: Date.now(), buttons: [] };
     setRows([...rows, newRow]);
   };
 
@@ -83,7 +83,7 @@ const ButtonTemplate: React.FC = () => {
         row.id === rowId
           ? {
               ...row,
-              buttons: row.buttons.filter((button) => button.id !== buttonId), // 修复：按 `id` 删除按钮
+              buttons: row.buttons.filter((button) => button.id !== buttonId),
             }
           : row
       )
@@ -102,7 +102,7 @@ const ButtonTemplate: React.FC = () => {
       message.error("未找到对应的按钮");
       return;
     }
-    setCurrentEdit({rowId, buttonId});
+    setCurrentEdit({ rowId, buttonId });
     setEditVisible(true);
   };
 
@@ -192,7 +192,7 @@ const ButtonTemplate: React.FC = () => {
   // 加载模板
   const [visible, setVisible] = useState(false);
 
-  const onFinishLoad = (values: {template: string}) => {
+  const onFinishLoad = (values: { template: string }) => {
     // 检测是否是json格式的数据
     try {
       const json = JSON.parse(values.template);
@@ -246,7 +246,7 @@ const ButtonTemplate: React.FC = () => {
   useEffect(() => {
     if (editVisible && currentEdit) {
       // 找到数据
-      const {rowId, buttonId} = currentEdit;
+      const { rowId, buttonId } = currentEdit;
       const row = rows.find((row) => row.id === rowId);
       if (!row) {
         message.error("未找到对应的行");
@@ -278,7 +278,7 @@ const ButtonTemplate: React.FC = () => {
       message.error("编辑失败");
       return;
     }
-    const {rowId, buttonId} = currentEdit;
+    const { rowId, buttonId } = currentEdit;
     setRows(
       rows.map((row) => {
         if (row.id === rowId) {
@@ -321,7 +321,7 @@ const ButtonTemplate: React.FC = () => {
 
   return (
     <Box>
-      <div className="flex-1 flex flex-col xl:flex-row gap-2 p-2 bg-slate-100">
+      <div className="flex-1 flex flex-col xl:flex-row gap-2 p-2 bg-slate-100 dark:bg-zinc-900 transition-colors">
         <MainWorkspace
           rows={rows}
           onUpLoad={() => setVisible(true)}
@@ -340,6 +340,7 @@ const ButtonTemplate: React.FC = () => {
         open={visible}
         footer={null}
         onCancel={() => setVisible(false)}
+        className="dark:bg-zinc-900"
       >
         <LoadForm onFinish={onFinishLoad} onUpload={onUpload} />
       </Modal>
@@ -350,6 +351,7 @@ const ButtonTemplate: React.FC = () => {
         onOk={() => from.submit()}
         okText="保存"
         cancelText="取消"
+        className="dark:bg-zinc-900"
       >
         <EditForm form={from} onFinish={onFinishEdit} />
       </Modal>

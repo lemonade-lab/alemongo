@@ -1,10 +1,10 @@
-import {useEffect, useState} from "react";
-import {useNavigate} from "react-router-dom";
-import {apiBotInfo, BotInfo} from "@/api";
-import {Button, message} from "antd";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { apiBotInfo, BotInfo } from "@/api";
+import { Button, message } from "antd";
 import Tags from "@/commom/Tags";
 import Xterm from "./Xterm";
-import {getBotName} from "./core";
+import { getBotName } from "./core";
 import Box from "@/commom/Box";
 
 const Panel = () => {
@@ -29,15 +29,17 @@ const Panel = () => {
   }, []);
   return (
     <Box>
-      <div className="p-4 flex-1 flex bg-slate-100 gap-2 flex-col xl:flex-row">
-        <div className="flex-1 gap-2 flex flex-col bg-white rounded-md p-2">
-          <div className="text-2xl">机器人信息</div>
-          <div className="flex gap-2">
-            <div className="min-w-20">名称:</div>
+      <div className="p-4 flex-1 flex bg-slate-100 dark:bg-zinc-900 gap-2 flex-col xl:flex-row transition-colors">
+        <div className="flex-1 gap-2 flex flex-col bg-white dark:bg-zinc-800 rounded-md p-4 shadow-md transition-colors">
+          <div className="text-2xl text-gray-900 dark:text-gray-100 font-semibold mb-2">
+            机器人信息
+          </div>
+          <div className="flex gap-2 items-center">
+            <div className="min-w-20 text-gray-700 dark:text-gray-300">名称:</div>
             <Tags type="purple">{info.name}</Tags>
           </div>
-          <div className="flex gap-2">
-            <div className="min-w-20">状态:</div>
+          <div className="flex gap-2 items-center">
+            <div className="min-w-20 text-gray-700 dark:text-gray-300">状态:</div>
             <div>
               {info.status ? (
                 <Tags type="green">running</Tags>
@@ -46,8 +48,8 @@ const Panel = () => {
               )}
             </div>
           </div>
-          <div className="flex gap-2">
-            <div className="min-w-20">依赖:</div>
+          <div className="flex gap-2 items-center">
+            <div className="min-w-20 text-gray-700 dark:text-gray-300">依赖:</div>
             <div>
               {info.node_modules ? (
                 <Tags type="green">true</Tags>
@@ -56,10 +58,11 @@ const Panel = () => {
               )}
             </div>
           </div>
-          <div className="flex gap-2">
-            <div className="min-w-20">包:</div>
+          <div className="flex gap-2 items-center">
+            <div className="min-w-20 text-gray-700 dark:text-gray-300">包:</div>
             <Button
               type="text"
+              className="text-indigo-600 dark:text-indigo-400 hover:underline"
               onClick={() => {
                 if (!info.node_modules) {
                   message.warning("请先安装依赖");
@@ -71,10 +74,11 @@ const Panel = () => {
               package.json
             </Button>
           </div>
-          <div className="flex gap-2">
-            <div className="min-w-20">配置:</div>
+          <div className="flex gap-2 items-center">
+            <div className="min-w-20 text-gray-700 dark:text-gray-300">配置:</div>
             <Button
               type="text"
+              className="text-indigo-600 dark:text-indigo-400 hover:underline"
               onClick={() => {
                 if (!info.node_modules) {
                   message.warning("请先安装依赖");
@@ -86,10 +90,11 @@ const Panel = () => {
               alemon.config.yaml
             </Button>
           </div>
-          <div className="flex gap-2">
-            <div className="min-w-20">GIT扩展:</div>
+          <div className="flex gap-2 items-center">
+            <div className="min-w-20 text-gray-700 dark:text-gray-300">GIT扩展:</div>
             <Button
               type="text"
+              className="text-indigo-600 dark:text-indigo-400 hover:underline"
               onClick={() => {
                 navigate(`/bots/${info.name}/packages`);
               }}
@@ -97,8 +102,8 @@ const Panel = () => {
               packages
             </Button>
           </div>
-          <div className="flex gap-2">
-            <div className="min-w-20">创建时间:</div>
+          <div className="flex gap-2 items-center">
+            <div className="min-w-20 text-gray-700 dark:text-gray-300">创建时间:</div>
             <Tags type="indigo">{info.create_at}</Tags>
           </div>
         </div>

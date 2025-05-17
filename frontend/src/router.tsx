@@ -5,9 +5,9 @@ import Login from "./pages/login/App";
 import Panel from "./pages/home/panel/App";
 import Main from "./pages/Main";
 import Bots from "./pages/home/Bots/App";
-import ButtonTemplate from "./pages/home/ButtonTemplate/App";
+import ButtonTemplate from "./pages/home/Apps/QQBotButtonTemplate/App";
 import UpdatePassWord from "./pages/home/UpdatePassWord/App";
-import OneBot from "./pages/home/OneBot/App";
+import OneBot from "./pages/home/Apps/OneBot/App";
 import Settings from "./pages/home/Settings/App";
 import Package from "./pages/home/panel/package/App";
 import Config from "./pages/home/panel/Conifg/App";
@@ -23,6 +23,7 @@ import Configs from "./pages/home/configs/App";
 import SSH from "./pages/home/GitSSH/App";
 import SSHUpdate from "./pages/home/GitSSH/Update";
 import PackagesMessage from "./pages/home/panel/packages/message/App";
+import Apps from "./pages/home/Apps/App";
 
 const router = createBrowserRouter([
   {
@@ -74,16 +75,20 @@ const router = createBrowserRouter([
             element: <PackagesMessage />,
           },
           {
-            path: "/settings",
-            element: <Settings />,
+            path: "/apps",
+            element: <Apps />,
           },
           {
-            path: "/button-template",
+            path: "/apps/qqbot-button-template",
             element: <ButtonTemplate />,
           },
           {
-            path: "/onebot",
+            path: "/apps/onebot",
             element: <OneBot />,
+          },
+          {
+            path: "/settings",
+            element: <Settings />,
           },
           {
             path: "/update-password",

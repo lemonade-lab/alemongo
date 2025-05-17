@@ -21,7 +21,7 @@ const Response = () => {
     ]);
   }, []);
   return (
-    <div className="p-2 flex gap-4 flex-col bg-slate-100 flex-1">
+    <div className="p-2 flex gap-4 flex-col bg-slate-100 dark:bg-zinc-900 flex-1">
       <div className="h-11  rounded-md flex justify-between   text-white items-start">
       
       </div>

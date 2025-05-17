@@ -1,12 +1,12 @@
-import {Button, Input, message} from "antd";
-import {useEffect, useState, useCallback} from "react";
-import {Form} from "antd";
+import { Button, Input, message } from "antd";
+import { useEffect, useState, useCallback } from "react";
+import { Form } from "antd";
 import Code from "@/commom/CodeMirror";
-import {debounce} from "lodash";
+import { debounce } from "lodash";
 import YAML from "js-yaml";
 import EditBox from "./EditBox";
 import JSONForm from "./JSONForm";
-import {nameMap} from "./NameMap";
+import { nameMap } from "./NameMap";
 
 type BaseType = string | number | string[] | number[];
 type ObjectType = {
@@ -70,50 +70,50 @@ const JSONEdit = ({
     }
     try {
       const values = decode(value);
-      const mergedData = {...jsonData, ...values};
-      setJsonData(mergedData);
-      setStrData(encode(mergedData));
-      form.setFieldsValue({...mergedData});
+      setJsonData(values);
+      setStrData(encode(values));
+      form.setFieldsValue({ ...values });
       setDisabled(false);
     } catch {
       setDisabled(true);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value]);
 
   const updateStrData = useCallback(() => {
     debounceFn(() => {
       const formData = form.getFieldsValue();
-      setStrData(encode({...jsonData, ...formData}));
+      setStrData(encode({ ...jsonData, ...formData }));
     });
-  }, [jsonData, form]);
+  }, [jsonData, form, encode, debounceFn]);
 
   const updateForm = useCallback(
     (values: ObjectType) => {
       debounceFn(() => {
         const formData = form.getFieldsValue();
-        form.setFieldsValue({...formData, ...values});
+        form.setFieldsValue({ ...formData, ...values });
       });
     },
-    [form]
+    [form, debounceFn]
   );
 
   const onChange = useCallback(
     (_editor: unknown, _data: unknown, value: string) => {
       try {
         const values = decode(value);
-        setJsonData({...values});
+        setJsonData({ ...values });
         updateForm(values);
         setDisabled(false);
       } catch {
         setDisabled(true);
       }
     },
-    [jsonData, updateForm]
+    [updateForm, decode]
   );
 
   const handleAddChild = useCallback(
     (keyPath: string[], dataType: InputDataType) => {
-      const newData = {...jsonData};
+      const newData = { ...jsonData };
       let status = true;
       // 递归函数，用于根据 keyPath 更新嵌套对象
       const updateNestedObject = (obj, keys: string[], value: ObjectType) => {
@@ -156,12 +156,12 @@ const JSONEdit = ({
       setStrData(encode(newData));
       form.setFieldsValue(newData);
     },
-    [jsonData, form]
+    [jsonData, encode, form]
   );
 
   const handleDelChild = useCallback(
     (keyPath: string[]) => {
-      const newData = {...jsonData};
+      const newData = { ...jsonData };
       const deleteNestedObject = (obj, keys: string[]) => {
         const [currentKey, ...restKeys] = keys;
         if (restKeys.length === 0) {
@@ -177,7 +177,7 @@ const JSONEdit = ({
       setStrData(encode(newData));
       form.setFieldsValue(newData);
     },
-    [jsonData, form]
+    [jsonData, encode, form]
   );
 
   const handleSave = useCallback(() => {
@@ -186,7 +186,7 @@ const JSONEdit = ({
     } catch {
       message.error("保存失败，请重试");
     }
-  }, [jsonData, nameValue, onSave]);
+  }, [jsonData, nameValue, onSave, encode]);
 
   return (
     <EditBox
@@ -194,7 +194,7 @@ const JSONEdit = ({
         <Form
           className="flex-1 p-2"
           form={form}
-          labelCol={{span: 6}}
+          labelCol={{ span: 6 }}
           onValuesChange={updateStrData}
         >
           <div className="flex flex-col gap-2">
@@ -208,10 +208,10 @@ const JSONEdit = ({
         </Form>
       }
       rightHeader={
-        <div className="flex items-center justify-between p-1 bg-slate-400 rounded-t-md">
+        <div className="flex items-center justify-between p-1 bg-slate-400 dark:bg-zinc-800 dark:text-white rounded-t-md">
           <div>
-            {!disabledName && <Input value={name} placeholder="name" />}
-            {disabledName && <span className="px-2">{name}</span>}
+            {!disabledName && <Input value={nameValue} placeholder="name" onChange={e => setNameValue(e.target.value)} />}
+            {disabledName && <span className="px-2">{nameValue}</span>}
           </div>
           {disabled && (
             <div>

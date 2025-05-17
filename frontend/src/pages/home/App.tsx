@@ -54,7 +54,7 @@ const Home = () => {
         <SiderMenu />
       </aside>
       <div className="w-full flex flex-col">
-        <div className="px-4 py-2 bg-slate-200">
+        <div className="px-4 py-2 bg-slate-200 dark:bg-zinc-800 transition-colors">
           <Breadcrumbs />
         </div>
         <Outlet />

@@ -80,7 +80,7 @@ const SSHUpdate = () => {
   };
   return (
     <Box>
-      <div className="p-2 flex gap-4 flex-col bg-slate-100 flex-1">
+      <div className="p-2 flex gap-4 flex-col bg-slate-100 dark:bg-zinc-900 transition-colors flex-1">
         <FileEdit disableName={!isCreate} onSave={onSave} name={getName()} value={data} />
       </div>
     </Box>

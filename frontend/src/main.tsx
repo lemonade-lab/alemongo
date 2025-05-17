@@ -6,10 +6,13 @@ import {Provider} from "react-redux";
 import store from "./redux/index";
 import "@ant-design/v5-patch-for-react-19";
 import {RouterProvider} from "react-router-dom";
+import ThemeProvider from "./provider/ThemeProvider";
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <Provider store={store}>
-      <RouterProvider router={router} />
+      <ThemeProvider>
+        <RouterProvider router={router} />
+      </ThemeProvider>
     </Provider>
   </StrictMode>
 );

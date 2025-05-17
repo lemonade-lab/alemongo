@@ -1,7 +1,7 @@
 import {
+  AppstoreOutlined,
   DesktopOutlined,
   FileTextOutlined,
-  QqOutlined,
   RobotOutlined,
   UserOutlined,
 } from "@ant-design/icons";
@@ -14,7 +14,6 @@ export const menuItems = [
     label: "账户管理",
     identity: "admin",
   },
-  {key: "/button-template", icon: <QqOutlined />, label: "QQ按钮"},
+  {key: "/apps", icon: <AppstoreOutlined />, label: "应用管理"},
   {key: "/ssh", icon: <RobotOutlined />, label: "SSH"},
-  {key: "/onebot", icon: <RobotOutlined />, label: "OneBot"},
 ];

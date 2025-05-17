@@ -62,7 +62,7 @@ const Package = () => {
   };
   return (
     <Box>
-      <div className="p-2 flex gap-4 flex-col bg-slate-100 flex-1">
+      <div className="p-2 flex gap-4 flex-col bg-slate-100 dark:bg-zinc-900 flex-1">
         <div className="flex justify-between">
           <div className="flex gap-2">
             <div>打开</div>

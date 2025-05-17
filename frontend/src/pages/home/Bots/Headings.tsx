@@ -38,7 +38,7 @@ const Headings = ({
   const minVersion = 20;
   const [form] = Form.useForm();
   return (
-    <header className="flex justify-between items-center gap-2 p-2">
+    <header className="flex justify-between items-center gap-2 py-2">
       <div className="flex-1 flex gap-2 flex-col lg:flex-row">
         <div className="flex items-center text-sm text-gray-500">
           <svg

@@ -71,18 +71,15 @@ const Xterm = ({
   const onRun = (name: string) => {
     apiBotRun({
       name,
-    }).then((res) => {
-      console.log("res", res);
+    }).then(() => {
       onUpdate(name);
     });
   };
 
   const onStop = (name: string) => {
-    console.log(name);
     apiBotStop({
       name,
-    }).then((res) => {
-      console.log("res", res);
+    }).then(() => {
       onUpdate(name);
     });
   };
@@ -119,13 +116,11 @@ const Xterm = ({
     apiBotYarnInstall({
       name,
     })
-      .then((res) => {
-        console.log("res", res);
+      .then(() => {
         startPollingInstall(name);
       })
-      .catch((err) => {
-        console.log("err", err);
-        message.error("安装失败");
+      .finally(() => {
+        setLoading(false);
       });
   };
 
@@ -134,8 +129,8 @@ const Xterm = ({
 
   return (
     <div className="flex-1 flex flex-col">
-      <div className="bg-slate-600 p-1 rounded-t-md flex justify-between items-center">
-        <div className="text-white flex gap-2   items-center">
+      <div className="bg-slate-600 dark:bg-zinc-900 p-1 rounded-t-md flex justify-between items-center transition-colors">
+        <div className="text-white flex gap-2 items-center">
           <div>控制台</div>
           {info.status ? (
             <Tags type="green">running</Tags>
@@ -143,13 +138,16 @@ const Xterm = ({
             <Tags type="yellow">stop</Tags>
           )}
         </div>
-        {info.pid ? <div className="text-white">PID: {info.pid}</div> : null}
+        {info.pid ? (
+          <div className="text-white dark:text-gray-200">PID: {info.pid}</div>
+        ) : null}
         <div className="flex gap-2">
           <div
-            className=" right-2 bottom-2 cursor-pointer  bg-slate-700 text-white py-1 px-2 rounded-md"
+            className="right-2 bottom-2 cursor-pointer bg-slate-700 dark:bg-zinc-800 text-white dark:text-gray-200 py-1 px-2 rounded-md transition-colors"
             onClick={() => {
               navigate(`/bots/${info.name}/xterm-date`);
             }}
+            title="全屏模式"
           >
             <FullscreenOutlined />
           </div>
@@ -157,7 +155,7 @@ const Xterm = ({
             {info.node_modules && info.status ? (
               <Button
                 type="primary"
-                className="bg-red-500 "
+                className="bg-red-500 dark:bg-red-700 border-none"
                 onClick={() => onStop(info.name)}
               >
                 停止
@@ -166,7 +164,7 @@ const Xterm = ({
             {info.node_modules && !info.status ? (
               <Button
                 type="primary"
-                className=""
+                className="bg-green-600 dark:bg-green-700 border-none"
                 onClick={() => onRun(info.name)}
               >
                 运行
@@ -175,7 +173,7 @@ const Xterm = ({
             {!info.node_modules ? (
               <Button
                 type="primary"
-                className="text-black bg-yellow-500"
+                className="text-black dark:text-yellow-100 bg-yellow-500 dark:bg-yellow-700 border-none"
                 onClick={() => onInstall(info.name)}
               >
                 加载依赖
@@ -187,20 +185,21 @@ const Xterm = ({
       <div
         ref={logRef}
         className="
-        overflow-auto 
-        bg-slate-500 
+        overflow-auto
+        bg-slate-500 dark:bg-zinc-800
         rounded-b-md
-        text-white
-         p-1
-         w-[calc(100vw-2rem)] 
-         sm:w-[calc(100vw-10rem)]
-         xl:w-full
-         h-[calc(100vh/2-6rem)]
-         xl:h-[calc(100vh-10rem)]
+        text-white dark:text-gray-100
+        p-1
+        w-[calc(100vw-2rem)]
+        sm:w-[calc(100vw-10rem)]
+        xl:w-full
+        h-[calc(100vh/2-6rem)]
+        xl:h-[calc(100vh-10rem)]
+        transition-colors
         "
       >
         {renderData.map((item, index) => (
-          <div key={index} className="flex justify-between px-1 ">
+          <div key={index} className="flex justify-between px-1">
             <div className="flex">
               <span>{item}</span>
             </div>

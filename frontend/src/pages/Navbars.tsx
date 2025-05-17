@@ -1,10 +1,11 @@
-import {useState} from "react";
-import {apiLogout} from "../api";
-import {useNavigate} from "react-router-dom";
-import {Button, Drawer, Dropdown, MenuProps, message} from "antd";
-import {menuItems} from "./home/menuItems";
-import {useSelector} from "react-redux";
-import {RootState} from "@/redux";
+import { useState } from "react";
+import { apiLogout } from "../api";
+import { useNavigate } from "react-router-dom";
+import { Button, Drawer, Dropdown, MenuProps, message } from "antd";
+import { menuItems } from "./home/menuItems";
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux";
+import ThemeToggle from "@/commom/ThemeToggle";
 
 const Navbars = () => {
   const [showMenu, setShowMenu] = useState(false);
@@ -54,18 +55,18 @@ const Navbars = () => {
 
   const [open, setOpen] = useState(false);
   return (
-    <nav className="bg-gray-800">
+    <nav className="bg-gray-800 dark:bg-zinc-900 transition-colors">
       <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
         <div className="relative flex h-12 items-center justify-between">
           <div className="absolute inset-y-0 left-0 flex items-center sm:hidden">
             <Dropdown
-              menu={{items: MenuItems}}
+              menu={{ items: MenuItems }}
               placement="bottomLeft"
-              arrow={{pointAtCenter: true}}
+              arrow={{ pointAtCenter: true }}
             >
               <Button
                 type="text"
-                className="relative inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-700 hover:text-white focus:ring-2 focus:ring-white focus:outline-hidden focus:ring-inset"
+                className="relative inline-flex items-center justify-center rounded-md p-2 text-gray-400 dark:text-gray-300 hover:bg-gray-700 dark:hover:bg-zinc-800 hover:text-white focus:ring-2 focus:ring-white focus:outline-hidden focus:ring-inset"
                 onClick={() => setShowMenu(!showMenu)}
               >
                 <svg
@@ -100,10 +101,13 @@ const Navbars = () => {
             </Button>
           </div>
           <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
+            <div className="">
+              <ThemeToggle />
+            </div>
             <Button
               type="text"
               onClick={() => setOpen(true)}
-              className="relative rounded-full bg-gray-800 p-1 text-gray-400 hover:text-white focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800 focus:outline-hidden"
+              className="relative ml-3 rounded-full bg-gray-800 dark:bg-zinc-900 p-1 text-gray-400 dark:text-gray-300 hover:text-white focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800 dark:focus:ring-offset-zinc-900 focus:outline-hidden"
             >
               <svg
                 className="size-6"
@@ -123,17 +127,17 @@ const Navbars = () => {
             </Button>
             <div className="relative ml-3">
               <Dropdown
-                menu={{items}}
+                menu={{ items }}
                 placement="bottomRight"
-                arrow={{pointAtCenter: true}}
+                arrow={{ pointAtCenter: true }}
               >
-                <Button className="flex items-center" type="text">
+                <button className="flex items-center">
                   <img
                     className="size-8 rounded-full"
                     src="https://q1.qlogo.cn/g?b=qq&s=0&nk=1715713638"
                     alt=""
                   />
-                </Button>
+                </button>
               </Dropdown>
             </div>
           </div>
@@ -141,11 +145,33 @@ const Navbars = () => {
       </div>
       <Drawer
         title="重要通知"
-        closable={{"aria-label": "Close Button"}}
+        closable={{ "aria-label": "Close Button" }}
         onClose={() => setOpen(false)}
         open={open}
+        className="dark:[&>.ant-drawer-content]:bg-zinc-900 dark:[&>.ant-drawer-header]:bg-zinc-900"
       >
-        <div className="flex flex-col gap-2">待更新。。。</div>
+        <div className="mb-4">
+          <div
+            className="flex items-center bg-yellow-100 dark:bg-yellow-900 border-l-4 border-yellow-500 text-yellow-700 dark:text-yellow-200 px-4 py-3 rounded"
+            role="alert"
+          >
+            <svg
+              className="w-5 h-5 mr-2 text-yellow-700 dark:text-yellow-200"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M13 16h-1v-4h-1m1-4h.01"
+              ></path>
+            </svg>
+            <span className="font-medium">系统通知：</span>
+            <span className="ml-2">这里是系统通知的内容。</span>
+          </div>
+        </div>
       </Drawer>
     </nav>
   );

@@ -23,6 +23,9 @@ const PackagesMessage = () => {
     create_at: "",
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [item, setItem] = useState<BotPackages | null>(null);
+  const [isInstallLoading, setIsInstallLoading] = useState(false);
+
   const initBotInfo = (name: string) => {
     apiBotInfo({
       name,
@@ -31,21 +34,16 @@ const PackagesMessage = () => {
     });
   };
 
-  const [item, setItem] = useState<BotPackages | null>(null);
-
-  const [isInstallLoading, setIsInstallLoading] = useState(false);
   const onInstall = (name: string) => {
     if (isInstallLoading) {
       message.warning("正在加载中，请稍后");
       return;
     }
     setIsInstallLoading(true);
-    // 安装依赖
     apiBotYarnInstall({
       name,
     })
-      .then((res) => {
-        console.log("res", res);
+      .then(() => {
         message.success("加载成功");
       })
       .finally(() => {
@@ -67,18 +65,18 @@ const PackagesMessage = () => {
     const name = getBotName();
     initBotInfo(name);
     initPKGNames(name);
+    // eslint-disable-next-line
   }, []);
 
-  const onUpdate = (item: BotPackages) => {
-    if (isLoading) return;
+  const onUpdate = (item: BotPackages | null) => {
+    if (!item || isLoading) return;
     setIsLoading(true);
     apiBotPackagesPull({
       name: info.name,
       repo_name: item.name,
       branch_name: item.git.branch,
     })
-      .then((res) => {
-        console.log(res);
+      .then(() => {
         message.success("更新成功");
         initPKGNames(info.name);
       })
@@ -91,16 +89,17 @@ const PackagesMessage = () => {
 
   return (
     <Box>
-      <div className="p-2 flex-1 flex flex-col bg-slate-100 gap-2  xl:flex-row">
-        <div className="flex-1 gap-2 flex flex-col bg-white rounded-md p-1">
+      <div className="p-2 flex-1 flex flex-col bg-slate-100 dark:bg-zinc-900 gap-2 xl:flex-row transition-colors">
+        <div className="flex-1 gap-2 flex flex-col bg-white dark:bg-zinc-800 rounded-md p-4 shadow-md transition-colors">
           <div className="text-2xl flex justify-between items-center">
             <div className="flex flex-wrap gap-2">
-              <Tag>{pkgJSON["name"]}</Tag>
-              <Tag>{pkgJSON["description"]}</Tag>
+              <Tag color="blue">{pkgJSON["name"]}</Tag>
+              <Tag color="geekblue">{pkgJSON["description"]}</Tag>
             </div>
             <div className="flex gap-2 items-center justify-center">
               <Button
                 type="primary"
+                loading={isLoading}
                 onClick={(e) => {
                   e.stopPropagation();
                   onUpdate(item);
@@ -110,6 +109,7 @@ const PackagesMessage = () => {
               </Button>
               <Button
                 type="primary"
+                loading={isInstallLoading}
                 onClick={(e) => {
                   e.stopPropagation();
                   onInstall(info.name);
@@ -120,11 +120,17 @@ const PackagesMessage = () => {
             </div>
           </div>
           <div className="flex flex-wrap gap-2">
-            <Tag>{pkgJSON["version"]}</Tag>
-            <Tag>{item?.git.branch}</Tag>
-            <Tag>{dayjs(item?.git.date).format("YYYY-MM-DD HH:mm:ss")}</Tag>
+            <Tag color="purple">{pkgJSON["version"]}</Tag>
+            <Tag color="cyan">{item?.git.branch}</Tag>
+            <Tag color="default">
+              {item?.git.date
+                ? dayjs(item.git.date).format("YYYY-MM-DD HH:mm:ss")
+                : ""}
+            </Tag>
           </div>
-          <Markdown source={item?.md || ""}></Markdown>
+          <Box>
+            <Markdown source={item?.md || ""} />
+          </Box>
         </div>
         <Xterm info={info} onUpdate={(name) => initBotInfo(name)} />
       </div>

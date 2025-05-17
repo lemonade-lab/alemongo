@@ -1,11 +1,9 @@
 import {useState} from "react";
 import {useSelector} from "react-redux";
 import {RootState} from "../../../redux";
-import Modal from "../../../commom/Modal";
 import {apiUserCreate} from "@/api/users/admin";
-import {Button, message} from "antd";
-import Form from "./Form";
-
+import {Button, message, Modal} from "antd";
+import {Form, Input, Select} from "antd";
 /**
  *
  * @param param0
@@ -45,38 +43,77 @@ const Headings = ({
       setVisible(false);
     });
   };
+  const [form] = Form.useForm();
   return (
-    <header className="lg:flex lg:items-center lg:justify-between p-2">
+    <header className="lg:flex lg:items-center lg:justify-between py-2">
       <div className="min-w-0 flex-1"></div>
       {installed && (
         <Button type="primary" onClick={onCreateBot}>
           新建
         </Button>
       )}
-      <Modal open={visible}>
-        <div
-          className={
-            "fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 p-6 bg-white rounded-md shadow-lg"
-          }
+      <Modal
+        open={visible}
+        title="新建账户"
+        onCancel={() => setVisible(false)}
+        onOk={() => {
+          form.submit();
+        }}
+        okText="确定"
+        cancelText="取消"
+      >
+        <Form
+          form={form}
+          layout="vertical"
+          className="space-y-6 dark:[&>.ant-drawer-content]:bg-zinc-900 dark:[&>.ant-drawer-header]:bg-zinc-900 p-4"
+          onFinish={onSubmit}
         >
-          <div className="flex justify-between">
-            <div className="text-lg font-bold text-gray-900">创建账户</div>
-            <button
-              type="button"
-              onClick={() => setVisible(false)}
-              className="text-gray-400"
-            >
-              <svg className="size-5" viewBox="0 0 20 20" fill="currentColor">
-                <path
-                  fillRule="evenodd"
-                  d="M14.95 5.05a.75.75 0 0 1 1.06 1.06L11.06 10l4.95 4.95a.75.75 0 1 1-1.06 1.06L10 11.06l-4.95 4.95a.75.75 0 0 1-1.06-1.06L8.94 10 4.05 5.05a.75.75 0 0 1 1.06-1.06L10 8.94l4.95-4.95Z"
-                  clipRule="evenodd"
-                />
-              </svg>
-            </button>
-          </div>
-          <Form onSubmit={onSubmit} selects={selects} />
-        </div>
+          <Form.Item
+            label="账户"
+            name="username"
+            rules={[{required: true, message: "请输入账户"}]}
+          >
+            <Input autoComplete="username" />
+          </Form.Item>
+          <Form.Item
+            label="身份"
+            name="identity"
+            rules={[{required: true, message: "请选择身份"}]}
+          >
+            <Select>
+              {selects.map((item) => (
+                <Select.Option key={item} value={item}>
+                  {item}
+                </Select.Option>
+              ))}
+            </Select>
+          </Form.Item>
+          <Form.Item
+            label="密码"
+            name="password"
+            rules={[{required: true, message: "请输入密码"}]}
+          >
+            <Input.Password autoComplete="new-password" />
+          </Form.Item>
+          <Form.Item
+            label="确认密码"
+            name="confirm_password"
+            dependencies={["password"]}
+            rules={[
+              {required: true, message: "请确认密码"},
+              ({getFieldValue}) => ({
+                validator(_, value) {
+                  if (!value || getFieldValue("password") === value) {
+                    return Promise.resolve();
+                  }
+                  return Promise.reject(new Error("两次密码输入不一致"));
+                },
+              }),
+            ]}
+          >
+            <Input.Password autoComplete="new-password" />
+          </Form.Item>
+        </Form>
       </Modal>
     </header>
   );

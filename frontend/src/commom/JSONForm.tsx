@@ -1,6 +1,6 @@
-import {Button, Input, message, Dropdown, Space, MenuProps, Switch} from "antd";
-import {useState} from "react";
-import {Form} from "antd";
+import { Button, Input, message, Dropdown, Space, MenuProps, Switch } from "antd";
+import { useState } from "react";
+import { Form } from "antd";
 import classNames from "classnames";
 
 type BaseType = string | number | string[] | number[];
@@ -16,7 +16,7 @@ const JSONForm = ({
   handleDelChild,
 }: {
   data: ObjectType;
-  map: {[key: string]: string};
+  map: { [key: string]: string };
   handleAddChild: (keyPath: string[], type: InputDataType) => void;
   handleDelChild: (keyPath: string[]) => void;
 }) => {
@@ -24,28 +24,17 @@ const JSONForm = ({
     [key: string]: string;
   }>({});
   const [mainInputValue, setMainInputValue] = useState<string>("");
+
   const items: MenuProps["items"] = [
     {
       key: "add",
       type: "group",
       label: "添加",
       children: [
-        {
-          key: "string",
-          label: "字符串",
-        },
-        {
-          key: "object",
-          label: "对象",
-        },
-        {
-          key: "array",
-          label: "数组",
-        },
-        {
-          key: "boolean",
-          label: "布尔值",
-        },
+        { key: "string", label: "字符串" },
+        { key: "object", label: "对象" },
+        { key: "array", label: "数组" },
+        { key: "boolean", label: "布尔值" },
       ],
     },
     {
@@ -55,41 +44,29 @@ const JSONForm = ({
     },
   ];
   const baseItems: MenuProps["items"] = [
-    {
-      key: "string",
-      label: "字符串",
-    },
-    {
-      key: "object",
-      label: "对象",
-    },
-    {
-      key: "array",
-      label: "数组",
-    },
-    {
-      key: "boolean",
-      label: "布尔值",
-    },
+    { key: "string", label: "字符串" },
+    { key: "object", label: "对象" },
+    { key: "array", label: "数组" },
+    { key: "boolean", label: "布尔值" },
   ];
+
   const createConfigForm = (data: ObjectType, parentKey: string[] = []) => {
     return Object.keys(data).map((key) => {
       const currentKey = [...parentKey, key];
       const domKey = currentKey.join(".");
       const isChild = parentKey.length > 0;
-      // 如果是数组。
+
+      // 数组类型
       if (Array.isArray(data[key])) {
         return (
           <div
             key={domKey}
-            // 如果当前属于子项，则不添加边框
             className={classNames({
-              "flex flex-col gap-2 rounded-md shadow-inner border p-2 mb-6":
-                !isChild,
+              "flex flex-col gap-2 rounded-md shadow-inner border p-2 mb-6": !isChild,
             })}
           >
             <Form.List name={currentKey}>
-              {(fields, {add, remove}) => (
+              {(fields, { add, remove }) => (
                 <div key={domKey} className="flex flex-col gap-1">
                   <div className="flex items-center justify-between">
                     <div
@@ -107,13 +84,13 @@ const JSONForm = ({
                       删除
                     </Button>
                   </div>
-                  {fields.map(({key: fieldKey, name, ...restField}) => (
+                  {fields.map(({ key: fieldKey, name, ...restField }) => (
                     <Form.Item
                       key={fieldKey}
                       {...restField}
                       name={name}
                       className="mb-0"
-                      rules={[{required: true, message: "请输入值"}]}
+                      rules={[{ required: true, message: "请输入值" }]}
                     >
                       <Input placeholder={`请输入 ${map[key] || key}`} />
                     </Form.Item>
@@ -124,9 +101,7 @@ const JSONForm = ({
                         <Button
                           type="dashed"
                           danger
-                          onClick={() =>
-                            handleAddChild([...currentKey], "array")
-                          }
+                          onClick={() => handleAddChild([...currentKey], "array")}
                         >
                           清空
                         </Button>
@@ -139,11 +114,7 @@ const JSONForm = ({
                         </Button>
                       </>
                     )}
-                    <Button
-                      type="dashed"
-                      className="w-full"
-                      onClick={() => add()}
-                    >
+                    <Button type="dashed" className="w-full" onClick={() => add()}>
                       添加 {map[key] || key}
                     </Button>
                   </div>
@@ -153,15 +124,12 @@ const JSONForm = ({
           </div>
         );
       } else if (typeof data[key] === "object" && data[key] !== null) {
-        // console.log("data[key]", data[key]);
-        // 是对象
+        // 对象类型
         return (
           <div
             key={domKey}
-            // 如果当前属于子项，则不添加边框
             className={classNames({
-              "flex flex-col gap-2 rounded-md shadow-inner border p-1 mb-6":
-                !isChild,
+              "flex flex-col gap-2 rounded-md shadow-inner border p-1 mb-6": !isChild,
             })}
           >
             <div className="flex items-center justify-between">
@@ -178,27 +146,22 @@ const JSONForm = ({
                   placeholder="key"
                   value={inputValue[domKey]}
                   onChange={(e) =>
-                    setInputValue({...inputValue, [domKey]: e.target.value})
+                    setInputValue({ ...inputValue, [domKey]: e.target.value })
                   }
                 />
                 <Dropdown
                   menu={{
                     items,
-                    onClick: ({key}) => {
-                      // 如果是删除
+                    onClick: ({ key }) => {
                       if (key === "delete") {
                         handleDelChild([...currentKey]);
                         return;
                       }
-                      // 如果是添加
                       if (!inputValue[domKey]) {
                         message.error("请输入key");
                         return;
                       }
-                      handleAddChild(
-                        [...currentKey, inputValue[domKey]],
-                        key as InputDataType
-                      );
+                      handleAddChild([...currentKey, inputValue[domKey]], key as InputDataType);
                     },
                   }}
                   trigger={["click"]}
@@ -217,6 +180,7 @@ const JSONForm = ({
           </div>
         );
       } else if (typeof data[key] === "boolean") {
+        // 布尔值类型
         return (
           <div
             key={domKey}
@@ -243,6 +207,7 @@ const JSONForm = ({
           </div>
         );
       }
+      // 基本类型
       return (
         <div
           key={domKey}
@@ -266,21 +231,21 @@ const JSONForm = ({
       );
     });
   };
+
   return (
     <>
-      <Space.Compact className="bg-slate-100 p-1 rounded-md">
+      <Space.Compact className="bg-slate-100 dark:bg-zinc-800 p-1 rounded-md transition-colors">
         <Input
           placeholder="main key"
           value={mainInputValue}
           onChange={(e) => {
-            const value = e.target.value;
-            setMainInputValue(value);
+            setMainInputValue(e.target.value);
           }}
         />
         <Dropdown
           menu={{
             items: baseItems,
-            onClick: ({key}) => {
+            onClick: ({ key }) => {
               if (!mainInputValue) {
                 message.error("请输入key");
                 return;
