@@ -41,6 +41,6 @@ systemctl disable alemongo
 ```sh
 systemctl stop alemongo
 systemctl disable alemongo
-rm /etc/systemd/system/alemongo.service
+rm -rf /etc/systemd/system/alemongo.service
 systemctl daemon-reload
 ```

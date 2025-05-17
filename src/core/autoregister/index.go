@@ -22,22 +22,25 @@ type ServiceConfig struct {
 }
 
 // RegisterIfNeeded 检查服务是否已注册，如果未注册则自动注册
-func RegisterIfNeeded(serviceName, description string) error {
+func RegisterIfNeeded(serviceName, description string) {
 	// 获取当前程序的绝对路径
 	execPath, err := os.Executable()
 	if err != nil {
-		return fmt.Errorf("获取可执行文件路径失败: %w", err)
+		log.Printf("获取可执行文件路径失败: %v", err)
 	}
 	// 根据操作系统选择注册逻辑
 	switch runtime.GOOS {
 	case "linux":
-		return registerLinux(serviceName, description, execPath)
+		if err := registerLinux(serviceName, description, execPath); err != nil {
+			log.Printf("Linux 服务注册失败: %v", err)
+		}
+		return
 	case "darwin":
-		return registerMacOS(serviceName, description, execPath)
-	case "windows":
-		return registerWindows(serviceName, execPath)
+		if err := registerMacOS(serviceName, description, execPath); err != nil {
+			log.Printf("macOS 服务注册失败: %v", err)
+		}
 	default:
-		return fmt.Errorf("当前操作系统: %s, 不支持注册系统服务", runtime.GOOS)
+		// 不注册服务。
 	}
 }
 
@@ -234,28 +237,5 @@ func registerMacOS(serviceName, description, execPath string) error {
 
 	log.Printf("已创建/更新系统服务, 若后台挂载请运行:\nlaunchctl load %s ", plistPath)
 	log.Printf("若卸载服务，请运行:\nlaunchctl unload %s", plistPath)
-	return nil
-}
-
-// Windows 注册逻辑
-func registerWindows(serviceName, execPath string) error {
-	// 只在内容不同或不存在时才注册
-	// 判断服务是否存在
-	cmdQuery := utils.Command("sc", "query", serviceName)
-	err := cmdQuery.Run()
-	if err == nil {
-		log.Printf("Windows 服务 %s 已存在，无需重新注册。", serviceName)
-		return nil
-	}
-
-	cmd := utils.Command("sc", "create", serviceName, "binPath=", execPath, "start=", "auto")
-	if err := cmd.Run(); err != nil {
-		return fmt.Errorf("在 Windows 上创建服务失败: %w", err)
-	}
-	// 提示注册成功。告知启动服务的命令和停止服务的命令
-	log.Printf("服务 %s 已在 Windows 上注册。\n", serviceName)
-	log.Printf("要启动服务，请运行:\n sc start %s", serviceName)
-	log.Printf("要停止服务，请运行:\n sc stop %s", serviceName)
-	log.Printf("要删除服务，请运行:\n sc delete %s", serviceName)
 	return nil
 }

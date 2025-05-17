@@ -51,11 +51,8 @@ func main() {
 	// 初始化密码
 	users.GetAdminAccount()
 
-	registerRrr := autoregister.RegisterIfNeeded(config.ServiceName, config.ServiceDescription)
-	if registerRrr != nil {
-		log.Fatalf("注册服务失败: %v", err)
-		return
-	}
+	// 注册服务
+	autoregister.RegisterIfNeeded(config.ServiceName, config.ServiceDescription)
 
 	err = app.Run(":" + config.Get().Server.Port)
 	if err != nil {
