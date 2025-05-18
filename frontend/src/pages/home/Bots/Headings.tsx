@@ -15,7 +15,6 @@ const Headings = ({
   const [visible, setVisible] = useState(false);
   const info = useSelector((state: RootState) => state.info);
   /**
-   *
    * @param e
    * @returns
    */

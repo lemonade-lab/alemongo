@@ -64,7 +64,7 @@ const Package = () => {
     <Box>
       <div className="p-2 flex gap-4 flex-col bg-slate-100 dark:bg-zinc-900 flex-1">
         <div className="flex justify-between">
-          <div className="flex gap-2">
+          <div className="flex gap-2 dark:text-slate-300">
             <div>打开</div>
             <div
               className="text-blue-500 hover:underline cursor-pointer"

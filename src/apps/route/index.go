@@ -3,8 +3,9 @@ package route
 import (
 	"alemongo/src/apps/api/bot"
 	"alemongo/src/apps/api/common"
+	"alemongo/src/apps/api/gitssh"
+	"alemongo/src/apps/api/receive"
 	"alemongo/src/apps/api/settings"
-	gitssh "alemongo/src/apps/api/ssh"
 	"alemongo/src/apps/api/user"
 	"alemongo/src/apps/middleware"
 	"alemongo/src/apps/token"
@@ -33,104 +34,106 @@ func Create() *gin.Engine {
 		// 接口 v
 		v1 := api.Group("/v1")
 		{
-			CommonApi := v1.Group("/common")
+			ReceiveAPI := v1.Group("/receive")
 			{
-				// 开始鉴权
-				// CommonApi.Use(token.AuthMiddleware)
+				ReceiveAPI.POST("/", receive.POST)
+			}
+			CommonAPI := v1.Group("/common")
+			{
 				// 获取环境信息
-				CommonApi.GET("/info", common.Info)
+				CommonAPI.GET("/info", common.Info)
 			}
 			// settings
-			ApiSettings := v1.Group("/settings")
+			SettingsAPI := v1.Group("/settings")
 			{
 				// 开机自启
-				ApiSettings.GET("/powerboot", settings.PowerBoot)
+				SettingsAPI.GET("/powerboot", settings.PowerBoot)
 			}
 			// user api
-			ApiUser := v1.Group("/user")
+			UserAPI := v1.Group("/user")
 			{
 				// 登录
-				ApiUser.POST("/login", user.Login)
+				UserAPI.POST("/login", user.Login)
 				// 开始鉴权
-				ApiUser.Use(token.AuthMiddleware)
+				UserAPI.Use(token.AuthMiddleware)
 				// 退出登录
-				ApiUser.GET("/logout", user.Logout)
+				UserAPI.GET("/logout", user.Logout)
 				// 获取用户信息
-				ApiUser.GET("/info", user.Info)
+				UserAPI.GET("/info", user.Info)
 				// 修改密码
-				ApiUser.PUT("/password", user.PassWord)
+				UserAPI.PUT("/password", user.PassWord)
 				// 列表
-				ApiUser.GET("/list", user.List)
+				UserAPI.GET("/list", user.List)
 				// 添加
-				ApiUser.POST("/create", user.Create)
+				UserAPI.POST("/create", user.Create)
 				// 删除
-				ApiUser.DELETE("/delete", user.Delete)
+				UserAPI.DELETE("/delete", user.Delete)
 				// 修改身份
-				ApiUser.PUT("/identity", user.Identity)
+				UserAPI.PUT("/identity", user.Identity)
 				// 身份列表
-				ApiUser.GET("/identity/list", user.IdentityList)
+				UserAPI.GET("/identity/list", user.IdentityList)
 			}
 			// ssh
-			ApiSsh := v1.Group("/ssh")
+			SSHAPI := v1.Group("/ssh")
 			{
 				// 开始鉴权
-				ApiSsh.Use(token.AuthMiddleware)
+				SSHAPI.Use(token.AuthMiddleware)
 				// 列表
-				ApiSsh.GET("/list", gitssh.List)
+				SSHAPI.GET("/list", gitssh.List)
 				// 更新
-				ApiSsh.PUT("/update", gitssh.Update)
+				SSHAPI.PUT("/update", gitssh.Update)
 				// 删除
-				ApiSsh.DELETE("/delete", gitssh.Delete)
+				SSHAPI.DELETE("/delete", gitssh.Delete)
 				// 读取
-				ApiSsh.GET("/read", gitssh.Read)
+				SSHAPI.GET("/read", gitssh.Read)
 			}
 			// bot
-			ApiBot := v1.Group("/bot")
+			BotAPI := v1.Group("/bot")
 			{
 				// 开始鉴权
-				ApiBot.Use(token.AuthMiddleware)
-				ApiBot.GET("/list", bot.List)
-				ApiBot.POST("/create", bot.Create)
-				ApiBot.POST("/info", bot.Info)
-				ApiBot.DELETE("/info", bot.Delete)
-				ApiBot.POST("/run", bot.Run)
-				ApiBot.POST("/stop", bot.Stop)
-				ApiBot.POST("/restart", bot.Restart)
-				ApiBot.POST("/log", bot.Log)
+				BotAPI.Use(token.AuthMiddleware)
+				BotAPI.GET("/list", bot.List)
+				BotAPI.POST("/create", bot.Create)
+				BotAPI.POST("/info", bot.Info)
+				BotAPI.DELETE("/info", bot.Delete)
+				BotAPI.POST("/run", bot.Run)
+				BotAPI.POST("/stop", bot.Stop)
+				BotAPI.POST("/restart", bot.Restart)
+				BotAPI.POST("/log", bot.Log)
 
-				ApiPackage := ApiBot.Group("/package")
+				PackageAPI := BotAPI.Group("/package")
 				{
-					ApiPackage.POST("/", bot.Package)
-					ApiPackage.POST("/update", bot.PackageUpdate)
+					PackageAPI.POST("/", bot.Package)
+					PackageAPI.POST("/update", bot.PackageUpdate)
 				}
 
-				ApiYarn := ApiBot.Group("/yarn")
+				YarnAPI := BotAPI.Group("/yarn")
 				{
-					ApiYarn.POST("/install", bot.YarnInstall)
-					ApiYarn.POST("/add", bot.YarnAdd)
-					ApiYarn.POST("/remove", bot.YarnRemove)
+					YarnAPI.POST("/install", bot.YarnInstall)
+					YarnAPI.POST("/add", bot.YarnAdd)
+					YarnAPI.POST("/remove", bot.YarnRemove)
 				}
 
-				ApiPackages := ApiBot.Group("/packages")
+				PackagesAPI := BotAPI.Group("/packages")
 				{
-					ApiPackages.POST("/clone", bot.PackagesClone)
-					ApiPackages.POST("/list", bot.PackagesList)
-					ApiPackages.POST("/pull", bot.PackagesPull)
-					ApiPackages.POST("/info", bot.PackagesInfo)
+					PackagesAPI.POST("/clone", bot.PackagesClone)
+					PackagesAPI.POST("/list", bot.PackagesList)
+					PackagesAPI.POST("/pull", bot.PackagesPull)
+					PackagesAPI.POST("/info", bot.PackagesInfo)
 				}
 
-				ApiConfig := ApiBot.Group("/config")
+				ConfigAPI := BotAPI.Group("/config")
 				{
-					ApiConfig.POST("/", bot.ConfigData)
-					ApiConfig.POST("/update", bot.ConfigUpdate)
+					ConfigAPI.POST("/", bot.ConfigData)
+					ConfigAPI.POST("/update", bot.ConfigUpdate)
 				}
 
-				ApiConfigs := ApiBot.Group("/configs")
+				ConfigsAPI := BotAPI.Group("/configs")
 				{
-					ApiConfigs.POST("/", bot.ConfigsData)
-					ApiConfigs.GET("/list", bot.ConfigsList)
-					ApiConfigs.POST("/update", bot.ConfigsUpdate)
-					ApiConfigs.DELETE("/delete", bot.ConfigsDelete)
+					ConfigsAPI.POST("/", bot.ConfigsData)
+					ConfigsAPI.GET("/list", bot.ConfigsList)
+					ConfigsAPI.POST("/update", bot.ConfigsUpdate)
+					ConfigsAPI.DELETE("/delete", bot.ConfigsDelete)
 				}
 
 			}

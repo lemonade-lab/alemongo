@@ -24,6 +24,7 @@ import SSH from "./pages/home/GitSSH/App";
 import SSHUpdate from "./pages/home/GitSSH/Update";
 import PackagesMessage from "./pages/home/panel/packages/message/App";
 import Apps from "./pages/home/Apps/App";
+import AppsNodeJS from "./pages/home/Apps/NodeJS/App";
 
 const router = createBrowserRouter([
   {
@@ -85,6 +86,10 @@ const router = createBrowserRouter([
           {
             path: "/apps/onebot",
             element: <OneBot />,
+          },
+          {
+            path: "/apps/nodejs",
+            element: <AppsNodeJS />,
           },
           {
             path: "/settings",

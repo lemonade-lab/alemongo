@@ -1,8 +1,8 @@
-import { useDispatch } from "react-redux";
-import { message } from "antd";
-import { useNavigate } from "react-router-dom";
-import { apiLogin } from "@/api";
-import { setToken } from "@/redux/login";
+import {useDispatch} from "react-redux";
+import {message} from "antd";
+import {useNavigate} from "react-router-dom";
+import {apiLogin} from "@/api";
+import {setToken} from "@/redux/login";
 import "./index.css";
 
 const Login = () => {
@@ -42,10 +42,9 @@ const Login = () => {
   };
   return (
     <div
-      className="min-h-screen flex items-center justify-center relative overflow-hidden transition-colors bg-white dark:bg-gradient-to-br dark:from-zinc-900 dark:to-indigo-950"
+      className="min-h-screen flex items-center justify-center relative overflow-hidden transition-colors "
       style={{
-        background:
-          "linear-gradient(120deg, #667eea 0%, #764ba2 100%)",
+        background: "linear-gradient(120deg, #667eea 0%, #764ba2 100%)",
         animation: "bgMove 10s ease-in-out infinite alternate",
       }}
     >
@@ -67,9 +66,11 @@ const Login = () => {
           <h2 className="text-center text-3xl font-extrabold tracking-tight text-indigo-700 dark:text-indigo-300 drop-shadow">
             欢迎登录
           </h2>
-          <p className="text-center text-gray-500 dark:text-gray-400 mt-2">阿柠檬机器人管理平台</p>
+          <p className="text-center text-gray-500 dark:text-gray-400 mt-2">
+            阿柠檬机器人管理平台
+          </p>
         </div>
-        <div className="p-2">
+        <div className="p-2 ">
           <form className="flex flex-col gap-6" onSubmit={handleSubmit}>
             <div>
               <label
@@ -83,7 +84,7 @@ const Login = () => {
                 name="username"
                 autoComplete="username"
                 required
-                className="login-input mt-2 border w-full rounded-md bg-slate-100 dark:bg-zinc-900  px-3 py-2 text-base text-gray-900 dark:text-gray-100 outline-1 outline-gray-300 dark:outline-gray-700 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-2 focus:outline-indigo-600 transition"
+                className="login-input mt-2 border w-full rounded-md dark:text-black bg-slate-100 dark:bg-zinc-900  px-3 py-2 text-base text-gray-900  outline-1 outline-gray-300 dark:outline-gray-700 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-2 focus:outline-indigo-600 transition"
                 placeholder="请输入用户名"
               />
             </div>
@@ -107,7 +108,7 @@ const Login = () => {
                 name="password"
                 autoComplete="current-password"
                 required
-                className="login-input mt-2 border w-full rounded-md bg-slate-100 dark:bg-zinc-900  px-3 py-2 text-base text-gray-900 dark:text-gray-100 outline-1 outline-gray-300 dark:outline-gray-700 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-2 focus:outline-indigo-600 transition"
+                className="login-input mt-2 border w-full rounded-md dark:text-black bg-slate-100 dark:bg-zinc-900  px-3 py-2 text-base text-gray-900  outline-1 outline-gray-300 dark:outline-gray-700 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-2 focus:outline-indigo-600 transition"
                 placeholder="请输入密码"
               />
             </div>

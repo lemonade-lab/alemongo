@@ -1,10 +1,10 @@
-import { useState } from "react";
-import { apiLogout } from "../api";
-import { useNavigate } from "react-router-dom";
-import { Button, Drawer, Dropdown, MenuProps, message } from "antd";
-import { menuItems } from "./home/menuItems";
-import { useSelector } from "react-redux";
-import { RootState } from "@/redux";
+import {useState} from "react";
+import {apiLogout} from "../api";
+import {useNavigate} from "react-router-dom";
+import {Button, Drawer, Dropdown, MenuProps, message} from "antd";
+import {menuItems} from "./home/menuItems";
+import {useSelector} from "react-redux";
+import {RootState} from "@/redux";
 import ThemeToggle from "@/commom/ThemeToggle";
 
 const Navbars = () => {
@@ -60,9 +60,9 @@ const Navbars = () => {
         <div className="relative flex h-12 items-center justify-between">
           <div className="absolute inset-y-0 left-0 flex items-center sm:hidden">
             <Dropdown
-              menu={{ items: MenuItems }}
+              menu={{items: MenuItems}}
               placement="bottomLeft"
-              arrow={{ pointAtCenter: true }}
+              arrow={{pointAtCenter: true}}
             >
               <Button
                 type="text"
@@ -127,9 +127,9 @@ const Navbars = () => {
             </Button>
             <div className="relative ml-3">
               <Dropdown
-                menu={{ items }}
+                menu={{items}}
                 placement="bottomRight"
-                arrow={{ pointAtCenter: true }}
+                arrow={{pointAtCenter: true}}
               >
                 <button className="flex items-center">
                   <img
@@ -145,7 +145,7 @@ const Navbars = () => {
       </div>
       <Drawer
         title="重要通知"
-        closable={{ "aria-label": "Close Button" }}
+        closable={{"aria-label": "Close Button"}}
         onClose={() => setOpen(false)}
         open={open}
         className="dark:[&>.ant-drawer-content]:bg-zinc-900 dark:[&>.ant-drawer-header]:bg-zinc-900"
@@ -169,7 +169,7 @@ const Navbars = () => {
               ></path>
             </svg>
             <span className="font-medium">系统通知：</span>
-            <span className="ml-2">这里是系统通知的内容。</span>
+            <span className="ml-2">待更新</span>
           </div>
         </div>
       </Drawer>
