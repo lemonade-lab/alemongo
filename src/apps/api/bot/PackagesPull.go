@@ -5,11 +5,12 @@ import (
 	"alemongo/src/core/alemonjs"
 	"alemongo/src/logger"
 	"alemongo/src/settings"
-	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
 	"net/http"
 	"os"
 	"path"
+
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-git/go-git/v5"
@@ -73,7 +74,6 @@ func PackagesPull(ctx *gin.Context) {
 
 	// 获取 Git 仓库信息
 	repo, err := git.PlainOpen(repoPath)
-
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"code": http.StatusInternalServerError,
@@ -173,7 +173,6 @@ func PackagesPull(ctx *gin.Context) {
 		ReferenceName: plumbing.NewBranchReferenceName(branchName),
 		SingleBranch:  true,
 	})
-
 	if err != nil {
 		if err == git.NoErrAlreadyUpToDate {
 			botLoggerWriter.RobotLogger.Info("仓库已经是最新状态，无需更新")
