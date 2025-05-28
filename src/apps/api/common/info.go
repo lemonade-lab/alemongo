@@ -65,7 +65,7 @@ func Info(ctx *gin.Context) {
 	// 4) 检查 git 是否安装
 	gitVersion, isGitInstalled := getGit()
 
-	ip, err := getPublicIP()
+	ip, err := getPublicIP(ctx)
 	curIP := ""
 	if err != nil {
 		ip, err := getPrivateIP()
