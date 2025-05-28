@@ -1,5 +1,5 @@
 name: "alemongo"
-mode: "dev"
+mode: "release"
 host: "127.0.0.1"
 
 server:
@@ -10,4 +10,4 @@ server:
 
 log:
   level: "info"
-  filename: "alemongo"
+  filename: "alemongo_logs"
