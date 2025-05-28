@@ -1,10 +1,12 @@
 package process
 
 import (
-	"alemongo/src/config"
+	"alemongo/src/logger"
+	"alemongo/src/settings"
 	"context"
 	"encoding/json"
 	"fmt"
+	"go.uber.org/zap/zapcore"
 	"log"
 	"os"
 	"os/exec"
@@ -105,7 +107,7 @@ func (pm *ProcessManager) AddProcess(cfg NodeProcessConfig) {
 
 // 获取进程配置文件路径
 func GetProcessConfigFilePath() string {
-	workPath := config.GetWorkPath()
+	workPath := settings.GetWorkPath()
 	filePath := path.Join(workPath, "go-process.json")
 	// 如果不存在，创建文件，并写入"{}"
 	if _, err := os.Stat(filePath); os.IsNotExist(err) {
@@ -147,20 +149,26 @@ func (mp *ManagedProcess) Start() error {
 		return fmt.Errorf("%s already running", mp.Config.Name)
 	}
 	// 日志文件
-	var logFile *os.File
+	var botLoggerWriter *logger.RobotLoggerWriter
 	var err error
 	// 检查日志文件路径是否存在
 	if mp.Config.LogPath != "" {
-		logFile, err = os.OpenFile(mp.Config.LogPath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
-		if err != nil {
-			return fmt.Errorf("日志文件打开失败: %v", err)
+		var l = new(zapcore.Level)
+		if err := l.UnmarshalText([]byte(settings.Conf.Level)); err != nil {
+			fmt.Printf("unable to unmarshal zapcore.Level: %v\n", err)
 		}
+
+		botLogger, err := logger.GetOrCreateBotLogger(mp.Config.Name, *l)
+		if err != nil {
+			fmt.Printf("unable to create logger: %v\n", err)
+		}
+		botLoggerWriter = logger.NewRobotLoggerWriter(botLogger)
 	}
 	mp.Ctx, mp.Cancel = context.WithCancel(context.Background())
 	mp.Cmd = exec.CommandContext(mp.Ctx, mp.Config.Node, mp.Config.ScriptJS)
 	mp.Cmd.Env = os.Environ()
-	mp.Cmd.Stdout = logFile
-	mp.Cmd.Stderr = logFile
+	mp.Cmd.Stdout = botLoggerWriter.Writer()
+	mp.Cmd.Stderr = botLoggerWriter.Writer()
 	if mp.Config.Dir != "" {
 		mp.Cmd.Dir = mp.Config.Dir
 	}
@@ -176,8 +184,6 @@ func (mp *ManagedProcess) Start() error {
 		go mp.monitor()
 		// 启动健康检查循环
 		go mp.healthCheckLoop()
-	} else if logFile != nil {
-		logFile.Close()
 	}
 	// 状态持久化
 	SaveProcess(mp.Config.Name, mp.Config, mp.Status)

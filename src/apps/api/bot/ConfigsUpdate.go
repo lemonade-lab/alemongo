@@ -1,7 +1,7 @@
 package bot
 
 import (
-	"alemongo/src/config"
+	"alemongo/src/settings"
 	"net/http"
 	"os"
 	"path"
@@ -29,7 +29,7 @@ func ConfigsUpdate(ctx *gin.Context) {
 		return
 	}
 	// 配置路径
-	configsPath := config.GetConfigsPath()
+	configsPath := settings.GetConfigsPath()
 	curPath := path.Join(configsPath, name+".yaml")
 	// 把数据写入该文件
 	err := os.WriteFile(curPath, []byte(content), 0644)

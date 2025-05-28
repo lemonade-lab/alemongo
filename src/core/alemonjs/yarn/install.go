@@ -2,8 +2,11 @@ package yarn
 
 import (
 	"alemongo/src/core/alemonjs"
+	"alemongo/src/logger"
+	"alemongo/src/settings"
 	"alemongo/src/utils"
 	"fmt"
+	"go.uber.org/zap/zapcore"
 	"os"
 	"os/exec"
 	"path"
@@ -26,15 +29,19 @@ func Install(name string) (string, error) {
 	cmd.Dir = alemonjs.GetBotPath(name)
 	// cmd.Stdout = os.Stdout
 	// cmd.Stderr = os.Stderr
-	logPath := alemonjs.GetBotLogPath(name)
-	// 把输出内容丢到指定log文件中
-	logFile, err := os.OpenFile(logPath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
-	if err != nil {
-		return "打开日志文件失败", err
+	var l = new(zapcore.Level)
+	if err := l.UnmarshalText([]byte(settings.Conf.Level)); err != nil {
+		fmt.Printf("unable to unmarshal zapcore.Level: %v\n", err)
 	}
-	defer logFile.Close()
-	cmd.Stdout = logFile
-	cmd.Stderr = logFile
+
+	botLogger, err := logger.GetOrCreateBotLogger(name, *l)
+	if err != nil {
+		fmt.Printf("unable to create logger: %v\n", err)
+	}
+	botLoggerWriter := logger.NewRobotLoggerWriter(botLogger)
+
+	cmd.Stdout = botLoggerWriter.Writer()
+	cmd.Stderr = botLoggerWriter.Writer()
 	// 执行命令
 	if err := cmd.Run(); err != nil {
 		// 分析错误。如果只是依赖的一些警告不应当做为错误

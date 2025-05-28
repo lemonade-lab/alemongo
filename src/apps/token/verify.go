@@ -1,7 +1,7 @@
 package token
 
 import (
-	"alemongo/src/config"
+	"alemongo/src/settings"
 	"alemongo/src/utils"
 
 	"github.com/dgrijalva/jwt-go"
@@ -11,7 +11,7 @@ import (
 func Verify(tokenValue string) (*Claims, error) {
 	// token
 	token, err := jwt.ParseWithClaims(tokenValue, &Claims{}, func(token *jwt.Token) (interface{}, error) {
-		key := config.Get().Server.Token.Key
+		key := settings.Conf.Key
 		return utils.StringToByte(key), nil
 	})
 

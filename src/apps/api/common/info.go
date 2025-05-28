@@ -1,7 +1,7 @@
 package common
 
 import (
-	"alemongo/src/config"
+	"alemongo/src/settings"
 	"alemongo/src/utils"
 	"net/http"
 	"runtime"
@@ -97,7 +97,7 @@ func Info(ctx *gin.Context) {
 				Installed: isGitInstalled,
 				Version:   gitVersion,
 			},
-			StartAt:  config.GetProcessRunAT(),
+			StartAt:  settings.GetProcessRunAT(),
 			Location: curIP,
 		},
 	})
