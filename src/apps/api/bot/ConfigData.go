@@ -1,53 +1,58 @@
 package bot
 
 import (
+	"alemongo/src/apps/api/response"
 	"alemongo/src/core/alemonjs"
+	"github.com/gin-gonic/gin"
 	"net/http"
 	"os"
-
-	"github.com/gin-gonic/gin"
 )
 
 func ConfigData(ctx *gin.Context) {
 	name := ctx.PostForm("name")
 	if name == "" {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"code": http.StatusBadRequest,
-			"msg":  "机器人名不能为空",
-			"data": nil,
-		})
+		response.ResponseError(ctx, http.StatusBadRequest, response.RobotNameIsEmpty)
+		//ctx.JSON(http.StatusBadRequest, gin.H{
+		//	"code": http.StatusBadRequest,
+		//	"msg":  "机器人名不能为空",
+		//	"data": nil,
+		//})
 		return
 	}
 	if !alemonjs.Exists(name) {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"code": http.StatusBadRequest,
-			"msg":  "机器人不存在",
-			"data": nil,
-		})
+		response.ResponseError(ctx, http.StatusBadRequest, response.RobotNotExist)
+		//ctx.JSON(http.StatusBadRequest, gin.H{
+		//	"code": http.StatusBadRequest,
+		//	"msg":  "机器人不存在",
+		//	"data": nil,
+		//})
 		return
 	}
 	configPath := alemonjs.GetBotConfigPath(name)
 	if _, err := os.Stat(configPath); os.IsNotExist(err) {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"code": http.StatusBadRequest,
-			"msg":  "机器人配置不存在",
-			"data": nil,
-		})
+		response.ResponseError(ctx, http.StatusNotFound, response.RobotConfigNotExist)
+		//ctx.JSON(http.StatusBadRequest, gin.H{
+		//	"code": http.StatusBadRequest,
+		//	"msg":  "机器人配置不存在",
+		//	"data": nil,
+		//})
 		return
 	}
 	data, err := os.ReadFile(configPath)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"code": http.StatusInternalServerError,
-			"msg":  "读取配置失败",
-			"data": nil,
-		})
+		response.ResponseError(ctx, http.StatusInternalServerError, response.ReadRobotConfigFailed)
+		//ctx.JSON(http.StatusInternalServerError, gin.H{
+		//	"code": http.StatusInternalServerError,
+		//	"msg":  "读取配置失败",
+		//	"data": nil,
+		//})
 		return
 	}
 	// 返回字符串
-	ctx.JSON(http.StatusOK, gin.H{
-		"code": http.StatusOK,
-		"msg":  "获取成功",
-		"data": string(data),
-	})
+	response.ResponseSuccess(ctx, string(data))
+	//ctx.JSON(http.StatusOK, gin.H{
+	//	"code": http.StatusOK,
+	//	"msg":  "获取成功",
+	//	"data": string(data),
+	//})
 }

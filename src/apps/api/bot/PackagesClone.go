@@ -1,8 +1,12 @@
 package bot
 
 import (
+	"alemongo/src/apps/api/response"
 	"alemongo/src/core/alemonjs"
-	"log"
+	"alemongo/src/logger"
+	"alemongo/src/settings"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 	"net/http"
 	"os"
 	"os/user"
@@ -87,22 +91,6 @@ func PackagesClone(ctx *gin.Context) {
 	// 确定克隆的目标路径
 	clonePath := path.Join(pkgPath, repoName)
 
-	logPath := alemonjs.GetBotLogPath(name)
-	// 打开日志文件
-	logFile, err := os.OpenFile(logPath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"code": http.StatusInternalServerError,
-			"msg":  "打开日志文件失败",
-			"data": nil,
-		})
-		return
-	}
-	defer logFile.Close()
-
-	// 设置日志输出到文件
-	logger := log.New(logFile, "", log.LstdFlags)
-
 	auth, err := getSSHAuth()
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
@@ -113,17 +101,28 @@ func PackagesClone(ctx *gin.Context) {
 		return
 	}
 
+	var l = new(zapcore.Level)
+	if err := l.UnmarshalText([]byte(settings.Conf.Level)); err != nil {
+		response.ResponseError(ctx, http.StatusInternalServerError, response.ErrorLogLevel)
+	}
+
+	botLogger, err := logger.GetOrCreateBotLogger(name, *l)
+	if err != nil {
+		response.ResponseError(ctx, http.StatusInternalServerError, response.ErrorRobotLog)
+	}
+	botLoggerWriter := logger.NewRobotLoggerWriter(botLogger)
+
 	// 克隆仓库并切换到指定分支
 	_, err = git.PlainClone(clonePath, false, &git.CloneOptions{
 		URL:           repoURL,
 		Auth:          auth, // 使用 SSH 认证
-		Progress:      logger.Writer(),
+		Progress:      botLoggerWriter.Writer(),
 		ReferenceName: plumbing.NewBranchReferenceName(branchName),
 		SingleBranch:  true,
 		Depth:         1,
 	})
 	if err != nil {
-		logger.Printf("克隆失败: %v", err)
+		botLoggerWriter.RobotLogger.Error("克隆失败: ", zap.Error(err))
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"code": http.StatusInternalServerError,
 			"msg":  "克隆失败",

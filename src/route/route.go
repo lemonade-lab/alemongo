@@ -9,16 +9,12 @@ import (
 	"alemongo/src/apps/api/user"
 	"alemongo/src/apps/middleware"
 	"alemongo/src/apps/token"
-	"os"
-
 	"github.com/gin-gonic/gin"
 )
 
-func Create() *gin.Engine {
-	args := os.Args
-
-	// 是不 go run main.go dev 就使用开发模式
-	if len(args) <= 1 || args[1] != "dev" {
+func Create(mode string) *gin.Engine {
+	// 根据 mode 设置 发布模式/开发模式
+	if mode == gin.ReleaseMode {
 		gin.SetMode(gin.ReleaseMode)
 	}
 

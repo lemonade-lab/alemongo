@@ -1,20 +1,20 @@
 package alemonjs
 
 import (
-	"alemongo/src/config"
 	"alemongo/src/core/process"
+	"alemongo/src/settings"
 	"os"
 	"path"
 	"time"
 )
 
 func GetBotPath(name string) string {
-	resourcesPath := config.GetResourcesPath()
+	resourcesPath := settings.GetResourcesPath()
 	return path.Join(resourcesPath, name)
 }
 
 func GetPidFilePath(name string) string {
-	resourcesPath := config.GetResourcesPath()
+	resourcesPath := settings.GetResourcesPath()
 	return path.Join(resourcesPath, "process", name+".pid")
 }
 

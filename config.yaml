@@ -1,5 +1,13 @@
+name: "alemongo"
+mode: "dev"
+host: "127.0.0.1"
+
 server:
   port: "17187"
   token: 
     key: "alemongo"
     expires_time: 24
+
+log:
+  level: "info"
+  filename: "alemongo"

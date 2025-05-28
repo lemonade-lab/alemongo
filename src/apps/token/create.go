@@ -1,7 +1,7 @@
 package token
 
 import (
-	"alemongo/src/config"
+	"alemongo/src/settings"
 	"alemongo/src/utils"
 	"time"
 
@@ -10,7 +10,7 @@ import (
 
 // 生成token
 func Create(username string) (string, error) {
-	expiresTime := config.Get().Server.Token.ExpiresTime
+	expiresTime := settings.Conf.ExpiresTime
 
 	// 初始化
 	claims := &Claims{
@@ -25,7 +25,7 @@ func Create(username string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
 	// key
-	key := config.Get().Server.Token.Key
+	key := settings.Conf.Key
 
 	// 加密
 	tokenValue, err := token.SignedString(utils.StringToByte(key))
