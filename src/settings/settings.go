@@ -41,57 +41,52 @@ type LogConfig struct {
 
 // 设置默认值
 func setDefaults() {
-	if Conf.Name == "" {
-		Conf.Name = "alemongo"
-	}
-	if Conf.Mode == "" {
-		Conf.Mode = "dev"
-	}
-	if Conf.ServerConfig.Host == "" {
-		Conf.ServerConfig.Host = "127.0.0.1"
-	}
-	if Conf.ServerConfig.Port == "" {
-		Conf.ServerConfig.Port = "17187"
-	}
-	if Conf.TokenConfig.Key == "" {
-		Conf.TokenConfig.Key = "alemongo"
-	}
-	if Conf.TokenConfig.ExpiresTime <= 0 {
-		Conf.TokenConfig.ExpiresTime = 1
-	}
-	if Conf.LogConfig.Level == "" {
-		Conf.LogConfig.Level = "debug"
-	}
-	if Conf.LogConfig.Filename == "" {
-		Conf.LogConfig.Filename = "alemongo.log"
+	Conf = &AppConfig{
+		Name: ServiceName,
+		Mode: "release",
+		ServerConfig: &ServerConfig{
+			Host: "127.0.0.1",
+			Port: "17187",
+			TokenConfig: &TokenConfig{
+				Key:         "alemongo",
+				ExpiresTime: 1,
+			},
+		},
+		LogConfig: &LogConfig{
+			Level:    "info",
+			Filename: "alemongo_logs",
+		},
 	}
 }
 
 // 初始化配置信息
 func Init(filepath string) (err error) {
-	fmt.Printf("config file path: %s\n", filepath)
-	viper.SetConfigFile(filepath)
-	err = viper.ReadInConfig()
-	if err != nil {
-		fmt.Printf("viper.ReadInConfig failed, err:%v\n", err)
-		return
-	}
+	if filepath == "" {
+		log.Println("未设置运行配置，可创建文件 config.yaml 进行调整")
+		// 默认配置
+		setDefaults()
+		return nil
+	} else {
+		viper.SetConfigFile(filepath)
+		err = viper.ReadInConfig()
+		if err != nil {
+			fmt.Printf("viper.ReadInConfig failed, err:%v\n", err)
+			return
+		}
 
-	if err := viper.Unmarshal(Conf); err != nil {
-		fmt.Printf("viper.Unmarshal failed, err:%v\n", err)
-	}
-
-	// 默认配置
-	setDefaults()
-
-	viper.WatchConfig()
-	viper.OnConfigChange(func(in fsnotify.Event) {
-		fmt.Printf("config file changed: %v\n", in.Name)
 		if err := viper.Unmarshal(Conf); err != nil {
 			fmt.Printf("viper.Unmarshal failed, err:%v\n", err)
 		}
-	})
-	return
+
+		viper.WatchConfig()
+		viper.OnConfigChange(func(in fsnotify.Event) {
+			fmt.Printf("config file changed: %v\n", in.Name)
+			if err := viper.Unmarshal(Conf); err != nil {
+				fmt.Printf("viper.Unmarshal failed, err:%v\n", err)
+			}
+		})
+		return
+	}
 }
 
 // 获取工作目录
