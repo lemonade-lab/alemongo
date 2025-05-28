@@ -84,7 +84,7 @@ const Login = () => {
                 name="username"
                 autoComplete="username"
                 required
-                className="login-input mt-2 border w-full rounded-md dark:text-black bg-slate-100 dark:bg-zinc-900  px-3 py-2 text-base text-gray-900  outline-1 outline-gray-300 dark:outline-gray-700 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-2 focus:outline-indigo-600 transition"
+                className="login-input mt-2 border w-full rounded-md bg-slate-100 dark:bg-zinc-900 px-3 py-2 text-base text-gray-900 dark:text-gray-100 outline-1 outline-gray-300 dark:outline-gray-700 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-2 focus:outline-indigo-600 transition focus:bg-white dark:focus:bg-zinc-800"
                 placeholder="请输入用户名"
               />
             </div>
@@ -108,7 +108,7 @@ const Login = () => {
                 name="password"
                 autoComplete="current-password"
                 required
-                className="login-input mt-2 border w-full rounded-md dark:text-black bg-slate-100 dark:bg-zinc-900  px-3 py-2 text-base text-gray-900  outline-1 outline-gray-300 dark:outline-gray-700 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-2 focus:outline-indigo-600 transition"
+                className="login-input mt-2 border w-full rounded-md bg-slate-100 dark:bg-zinc-900 px-3 py-2 text-base text-gray-900 dark:text-gray-100 outline-1 outline-gray-300 dark:outline-gray-700 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-2 focus:outline-indigo-600 transition focus:bg-white dark:focus:bg-zinc-800"
                 placeholder="请输入密码"
               />
             </div>

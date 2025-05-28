@@ -1,10 +1,10 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { apiBotInfo, BotInfo } from "@/api";
-import { Button, message } from "antd";
+import {useEffect, useState} from "react";
+import {useNavigate} from "react-router-dom";
+import {apiBotInfo, BotInfo} from "@/api";
+import {Button, message} from "antd";
 import Tags from "@/commom/Tags";
 import Xterm from "./Xterm";
-import { getBotName } from "./core";
+import {getBotName} from "./core";
 import Box from "@/commom/Box";
 
 const Panel = () => {
@@ -35,11 +35,15 @@ const Panel = () => {
             机器人信息
           </div>
           <div className="flex gap-2 items-center">
-            <div className="min-w-20 text-gray-700 dark:text-gray-300">名称:</div>
+            <div className="min-w-20 text-gray-700 dark:text-gray-300">
+              名称:
+            </div>
             <Tags type="purple">{info.name}</Tags>
           </div>
           <div className="flex gap-2 items-center">
-            <div className="min-w-20 text-gray-700 dark:text-gray-300">状态:</div>
+            <div className="min-w-20 text-gray-700 dark:text-gray-300">
+              状态:
+            </div>
             <div>
               {info.status ? (
                 <Tags type="green">running</Tags>
@@ -49,7 +53,9 @@ const Panel = () => {
             </div>
           </div>
           <div className="flex gap-2 items-center">
-            <div className="min-w-20 text-gray-700 dark:text-gray-300">依赖:</div>
+            <div className="min-w-20 text-gray-700 dark:text-gray-300">
+              依赖:
+            </div>
             <div>
               {info.node_modules ? (
                 <Tags type="green">true</Tags>
@@ -75,7 +81,9 @@ const Panel = () => {
             </Button>
           </div>
           <div className="flex gap-2 items-center">
-            <div className="min-w-20 text-gray-700 dark:text-gray-300">配置:</div>
+            <div className="min-w-20 text-gray-700 dark:text-gray-300">
+              配置:
+            </div>
             <Button
               type="text"
               className="text-indigo-600 dark:text-indigo-400 hover:underline"
@@ -91,7 +99,9 @@ const Panel = () => {
             </Button>
           </div>
           <div className="flex gap-2 items-center">
-            <div className="min-w-20 text-gray-700 dark:text-gray-300">GIT扩展:</div>
+            <div className="min-w-20 text-gray-700 dark:text-gray-300">
+              GIT扩展:
+            </div>
             <Button
               type="text"
               className="text-indigo-600 dark:text-indigo-400 hover:underline"
@@ -103,11 +113,17 @@ const Panel = () => {
             </Button>
           </div>
           <div className="flex gap-2 items-center">
-            <div className="min-w-20 text-gray-700 dark:text-gray-300">创建时间:</div>
+            <div className="min-w-20 text-gray-700 dark:text-gray-300">
+              创建时间:
+            </div>
             <Tags type="indigo">{info.create_at}</Tags>
           </div>
         </div>
-        <Xterm info={info} onUpdate={(name) => initBotInfo(name)} />
+        <div className="flex-1">
+          <div className="xl:max-w-[calc(100vw/2-3rem)]">
+            <Xterm info={info} onUpdate={(name) => initBotInfo(name)} />
+          </div>
+        </div>
       </div>
     </Box>
   );

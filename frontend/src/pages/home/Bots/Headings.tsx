@@ -69,7 +69,7 @@ const Headings = ({
               </span>
             )}
         </div>
-        <div className="flex items-center text-sm text-gray-500">
+        {/* <div className="flex items-center text-sm text-gray-500">
           <svg
             className="mr-1.5 size-5 shrink-0 text-gray-400"
             viewBox="0 0 20 20"
@@ -82,7 +82,7 @@ const Headings = ({
             />
           </svg>
           {info.location}
-        </div>
+        </div> */}
         <div className="flex items-center text-sm text-gray-500">
           <svg
             className="mr-1.5 size-5 shrink-0 text-gray-400"

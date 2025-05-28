@@ -10,6 +10,13 @@ const Settings = () => {
   const info = useSelector((state: RootState) => state.info);
 
   const tools = [
+    {
+      name: "IP",
+      data: {
+        installed: true,
+        version: info.location || "N/A",
+      },
+    },
     {name: "NodeJS", data: info.node},
     {name: "NVM", data: info.nvm},
     {name: "Git", data: info.git},
