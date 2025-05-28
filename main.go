@@ -23,10 +23,10 @@ var staticFiles embed.FS
 
 // 主函数
 func main() {
+	var configFilePath string
 	// 检查是否输入配置文件路径
-	if len(os.Args) < 2 {
-		log.Println("need config file.eg: ./config.yaml")
-		return
+	if len(os.Args) == 2 {
+		configFilePath = os.Args[1]
 	}
 
 	// 打印当前工作目录
@@ -37,7 +37,7 @@ func main() {
 	}
 	log.Printf("当前工作目录:\n%s", cwd)
 
-	if err := settings.Init(os.Args[1]); err != nil {
+	if err := settings.Init(configFilePath); err != nil {
 		log.Printf("load config failed, err:%v\n", err)
 		return
 	}
