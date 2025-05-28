@@ -1,11 +1,16 @@
 package bot
 
 import (
+	"alemongo/src/apps/api/response"
 	"alemongo/src/core/alemonjs"
-	"log"
+	"alemongo/src/logger"
+	"alemongo/src/settings"
 	"net/http"
 	"os"
 	"path"
+
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-git/go-git/v5"
@@ -69,7 +74,6 @@ func PackagesPull(ctx *gin.Context) {
 
 	// 获取 Git 仓库信息
 	repo, err := git.PlainOpen(repoPath)
-
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"code": http.StatusInternalServerError,
@@ -89,22 +93,16 @@ func PackagesPull(ctx *gin.Context) {
 		return
 	}
 
-	logPath := alemonjs.GetBotLogPath(name)
-	// 打开日志文件
-	logFile, err := os.OpenFile(logPath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"code": http.StatusInternalServerError,
-			"msg":  "打开日志文件失败",
-			"data": nil,
-		})
-		return
+	var l = new(zapcore.Level)
+	if err := l.UnmarshalText([]byte(settings.Conf.Level)); err != nil {
+		response.ResponseError(ctx, http.StatusInternalServerError, response.ErrorLogLevel)
 	}
-	defer logFile.Close()
 
-	// 设置日志输出到文件
-	logger := log.New(logFile, "", log.LstdFlags)
-
+	botLogger, err := logger.GetOrCreateBotLogger(name, *l)
+	if err != nil {
+		response.ResponseError(ctx, http.StatusInternalServerError, response.ErrorRobotLog)
+	}
+	botLoggerWriter := logger.NewRobotLoggerWriter(botLogger)
 	// 获取工作区
 	worktree, err := repo.Worktree()
 	if err != nil {
@@ -158,7 +156,7 @@ func PackagesPull(ctx *gin.Context) {
 	}
 
 	if localCommit.Hash == remoteCommit.Hash {
-		logger.Printf("仓库已经是最新状态，无需更新")
+		botLoggerWriter.RobotLogger.Info("仓库已经是最新状态，无需更新")
 		ctx.JSON(http.StatusOK, gin.H{
 			"code": http.StatusOK,
 			"msg":  "仓库已经是最新",
@@ -171,14 +169,13 @@ func PackagesPull(ctx *gin.Context) {
 	err = worktree.Pull(&git.PullOptions{
 		RemoteName:    "origin",
 		Auth:          auth, // 使用 SSH 认证
-		Progress:      logger.Writer(),
+		Progress:      botLoggerWriter.Writer(),
 		ReferenceName: plumbing.NewBranchReferenceName(branchName),
 		SingleBranch:  true,
 	})
-
 	if err != nil {
 		if err == git.NoErrAlreadyUpToDate {
-			logger.Printf("仓库已经是最新状态，无需更新")
+			botLoggerWriter.RobotLogger.Info("仓库已经是最新状态，无需更新")
 			ctx.JSON(http.StatusOK, gin.H{
 				"code": http.StatusOK,
 				"msg":  "仓库已经是最新",
@@ -186,7 +183,7 @@ func PackagesPull(ctx *gin.Context) {
 			})
 			return
 		}
-		logger.Printf("拉取失败: %v", err)
+		botLoggerWriter.RobotLogger.Error("拉取失败: ", zap.Error(err))
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"code": http.StatusInternalServerError,
 			"msg":  "拉取失败",
@@ -195,7 +192,7 @@ func PackagesPull(ctx *gin.Context) {
 		return
 	}
 
-	logger.Printf("成功拉取最新代码")
+	botLoggerWriter.RobotLogger.Info("成功拉取最新代码")
 	ctx.JSON(http.StatusOK, gin.H{
 		"code": http.StatusOK,
 		"msg":  "拉取成功",

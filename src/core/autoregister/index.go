@@ -1,7 +1,7 @@
 package autoregister
 
 import (
-	"alemongo/src/config"
+	"alemongo/src/settings"
 	"alemongo/src/utils"
 	"bytes"
 	"fmt"
@@ -46,8 +46,8 @@ func RegisterIfNeeded(serviceName, description string) {
 
 func logCmd() {
 	// 提示用户启用和启动服务
-	log.Printf("要启动服务，请运行: systemctl start %s", config.ServiceName)
-	log.Printf("要停止服务，请运行: systemctl stop %s", config.ServiceName)
+	log.Printf("要启动服务，请运行: systemctl start %s", settings.ServiceName)
+	log.Printf("要停止服务，请运行: systemctl stop %s", settings.ServiceName)
 }
 
 // Linux 注册逻辑

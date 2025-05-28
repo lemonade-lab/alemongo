@@ -1,8 +1,8 @@
 package bot
 
 import (
-	"alemongo/src/config"
 	"alemongo/src/core/alemonjs"
+	"alemongo/src/settings"
 	"alemongo/src/utils"
 	"net/http"
 
@@ -11,7 +11,7 @@ import (
 
 // 机器人列表
 func List(ctx *gin.Context) {
-	resourcesPath := config.GetResourcesPath()
+	resourcesPath := settings.GetResourcesPath()
 	names, err := utils.GetDirNames(resourcesPath)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{

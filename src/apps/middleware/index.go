@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"alemongo/src/logger"
 	"github.com/gin-gonic/gin"
 )
 
@@ -26,5 +27,7 @@ func corsMiddleware() gin.HandlerFunc {
 func Use(r *gin.Engine) *gin.Engine {
 	// 添加跨域请求中间件
 	r.Use(corsMiddleware())
+	// 添加自定义日志中间件
+	r.Use(logger.GinLogger(), logger.GinRecovery(true))
 	return r
 }

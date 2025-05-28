@@ -1,7 +1,7 @@
 package bot
 
 import (
-	"alemongo/src/config"
+	"alemongo/src/settings"
 	"net/http"
 	"os"
 	"path"
@@ -22,7 +22,7 @@ func Create(ctx *gin.Context) {
 		})
 	}
 	// 资源路径
-	resourcesPath := config.GetResourcesPath()
+	resourcesPath := settings.GetResourcesPath()
 	// 目标路径
 	targetPath := path.Join(resourcesPath, name)
 	// 检查是否存在目录 ./resources/{name}

@@ -1,8 +1,8 @@
 package users
 
 import (
-	"alemongo/src/config"
 	"alemongo/src/permission"
+	"alemongo/src/settings"
 	"encoding/json"
 	"log"
 	"os"
@@ -10,8 +10,8 @@ import (
 )
 
 func getListPath() string {
-	workPath := config.GetWorkPath()
-	userPath := path.Join(config.GetWorkPath(), "users")
+	workPath := settings.GetWorkPath()
+	userPath := path.Join(settings.GetWorkPath(), "users")
 	userListPath := path.Join(workPath, "users", "list.json")
 	if _, err := os.Stat(userListPath); os.IsNotExist(err) {
 		// 创建目录

@@ -2,7 +2,11 @@ package yarn
 
 import (
 	"alemongo/src/core/alemonjs"
+	"alemongo/src/logger"
+	"alemongo/src/settings"
 	"alemongo/src/utils"
+	"fmt"
+	"go.uber.org/zap/zapcore"
 	"os"
 	"os/exec"
 	"path"
@@ -35,19 +39,20 @@ func Remove(name string, names []string) (string, error) {
 	// 设置工作目录为机器人的路径
 	cmd.Dir = alemonjs.GetBotPath(name)
 
-	// 获取日志文件路径
-	logPath := alemonjs.GetBotLogPath(name)
-
-	// 打开日志文件
-	logFile, err := os.OpenFile(logPath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
-	if err != nil {
-		return "打开日志文件失败", err
+	var l = new(zapcore.Level)
+	if err := l.UnmarshalText([]byte(settings.Conf.Level)); err != nil {
+		fmt.Printf("unable to unmarshal zapcore.Level: %v\n", err)
 	}
-	defer logFile.Close() // 确保文件在函数结束时关闭
+
+	botLogger, err := logger.GetOrCreateBotLogger(name, *l)
+	if err != nil {
+		fmt.Printf("unable to create logger: %v\n", err)
+	}
+	botLoggerWriter := logger.NewRobotLoggerWriter(botLogger)
 
 	// 设置命令的输出到日志文件
-	cmd.Stdout = logFile
-	cmd.Stderr = logFile
+	cmd.Stdout = botLoggerWriter.Writer()
+	cmd.Stderr = botLoggerWriter.Writer()
 
 	// 执行命令
 	if err := cmd.Run(); err != nil {

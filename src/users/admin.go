@@ -1,8 +1,8 @@
 package users
 
 import (
-	"alemongo/src/config"
 	"alemongo/src/permission"
+	"alemongo/src/settings"
 	"crypto/rand"
 	"encoding/base64"
 	"encoding/json"
@@ -30,7 +30,7 @@ func GetAdminAccount() User {
 	if admin.UserName != "" {
 		return admin
 	}
-	workPath := config.GetWorkPath()
+	workPath := settings.GetWorkPath()
 	userListPath := path.Join(workPath, "users", "admin.json")
 	if _, err := os.Stat(userListPath); os.IsNotExist(err) {
 		// 生成随机密码
@@ -70,7 +70,7 @@ func SetAdminPassword(password string) bool {
 		return false
 	}
 	// 保存到文件
-	workPath := config.GetWorkPath()
+	workPath := settings.GetWorkPath()
 	userListPath := path.Join(workPath, "users", "admin.json")
 	fileData, err := json.Marshal(User{
 		Identity:   permission.IdentityAdmin,

@@ -1,11 +1,12 @@
 package main
 
 import (
-	"alemongo/src/apps/route"
-	"alemongo/src/config"
 	"alemongo/src/core/autoregister"
 	"alemongo/src/core/process"
 	"alemongo/src/files"
+	"alemongo/src/logger"
+	"alemongo/src/route"
+	"alemongo/src/settings"
 	"alemongo/src/users"
 	"embed"
 	"log"
@@ -22,6 +23,12 @@ var staticFiles embed.FS
 
 // 主函数
 func main() {
+	var configFilePath string
+	// 检查是否输入配置文件路径
+	if len(os.Args) == 2 {
+		configFilePath = os.Args[1]
+	}
+
 	// 打印当前工作目录
 	cwd, err := os.Getwd()
 	if err != nil {
@@ -29,6 +36,16 @@ func main() {
 		return
 	}
 	log.Printf("当前工作目录:\n%s", cwd)
+
+	if err := settings.Init(configFilePath); err != nil {
+		log.Printf("load config failed, err:%v\n", err)
+		return
+	}
+
+	if err := logger.Init(settings.Conf.LogConfig, settings.Conf.Mode); err != nil {
+		log.Printf("init logger failed, err:%v\n", err)
+		return
+	}
 
 	// 初始化文件资源
 	files.Create(ResourcesFiles)
@@ -38,7 +55,7 @@ func main() {
 	_ = pm.ReviveAll() // 复活所有进程
 
 	// 创建路由
-	app := route.Create()
+	app := route.Create(settings.Conf.Mode)
 
 	// 处理静态文件服务
 	app.NoRoute(func(ctx *gin.Context) {
@@ -46,18 +63,17 @@ func main() {
 	})
 
 	// 打印服务器信息
-	config.LogServerInfo()
+	settings.LogServerInfo()
 
 	// 初始化密码
 	users.GetAdminAccount()
 
 	// 注册服务
-	autoregister.RegisterIfNeeded(config.ServiceName, config.ServiceDescription)
+	autoregister.RegisterIfNeeded(settings.ServiceName, settings.ServiceDescription)
 
-	err = app.Run(":" + config.Get().Server.Port)
+	err = app.Run(":" + settings.Conf.Port)
 	if err != nil {
 		log.Fatalf("Failed to start server: %v", err)
 		return
 	}
-
 }
