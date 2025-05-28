@@ -150,6 +150,10 @@ func getLogWriter(filename string) zapcore.WriteSyncer {
 	//	MaxAge:     maxAge,
 	//}
 	// 按照时间分割
+	if _, err := os.Stat(filename); os.IsNotExist(err) {
+		_ = os.Mkdir(filename, os.ModePerm)
+	}
+
 	rotateLogger, _ := rotatelogs.New(
 		filename+"/%Y-%m-%d"+".log",
 		rotatelogs.WithMaxAge(30*24*time.Hour),
