@@ -2,7 +2,6 @@ package logger
 
 import (
 	"alemongo/src/settings"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
 	"go.uber.org/zap"
@@ -99,7 +98,6 @@ func getBotPath(botName string) string {
 func NewRobotLogger(botName string, level zapcore.Level) (*zap.Logger, error) {
 	botPath := getBotPath(botName)
 	robotLogPath := path.Join(botPath, "alemonjs", "log")
-	fmt.Printf("robotLogPath: %s\n", robotLogPath)
 	if _, err := os.Stat(robotLogPath); os.IsNotExist(err) {
 		if err := os.Mkdir(robotLogPath, os.ModePerm); err != nil {
 			// 创建目录失败
