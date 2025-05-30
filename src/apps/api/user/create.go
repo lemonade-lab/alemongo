@@ -1,6 +1,7 @@
 package user
 
 import (
+	"alemongo/src/apps/api/response"
 	"alemongo/src/apps/token"
 	"alemongo/src/permission"
 	"alemongo/src/users"
@@ -67,9 +68,10 @@ func Create(ctx *gin.Context) {
 		})
 		return
 	}
-	ctx.JSON(http.StatusOK, gin.H{
-		"code": http.StatusOK,
-		"msg":  "请求成功",
-		"data": nil,
-	})
+	response.ResponseSuccess(ctx, nil)
+	//ctx.JSON(http.StatusOK, gin.H{
+	//	"code": http.StatusOK,
+	//	"msg":  "请求成功",
+	//	"data": nil,
+	//})
 }
