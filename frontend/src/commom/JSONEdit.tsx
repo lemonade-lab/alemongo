@@ -1,12 +1,12 @@
-import { Button, Input, message } from "antd";
-import { useEffect, useState, useCallback } from "react";
-import { Form } from "antd";
+import {Button, Input, message} from "antd";
+import {useEffect, useState, useCallback} from "react";
+import {Form} from "antd";
 import Code from "@/commom/CodeMirror";
-import { debounce } from "lodash-es";
+import {debounce} from "lodash-es";
 import YAML from "js-yaml";
 import EditBox from "./EditBox";
 import JSONForm from "./JSONForm";
-import { nameMap } from "./NameMap";
+import {nameMap} from "./NameMap";
 
 type BaseType = string | number | string[] | number[];
 type ObjectType = {
@@ -43,26 +43,29 @@ const JSONEdit = ({
   }, [name]);
 
   // 通用的防抖函数
-  const debounceFn = useCallback(
-    debounce((fn: () => void) => fn(), 500),
-    []
-  );
+  const debounceFn = debounce((fn: () => void) => fn(), 500);
 
   // 2个函数。解码和编码
-  const decode = (value: string) => {
-    if (type === "yaml") {
-      return YAML.load(value) as ObjectType;
-    } else {
-      return JSON.parse(value) as ObjectType;
-    }
-  };
-  const encode = (value: ObjectType) => {
-    if (type === "yaml") {
-      return YAML.dump(value);
-    } else {
-      return JSON.stringify(value, null, 2);
-    }
-  };
+  const decode = useCallback(
+    (value: string) => {
+      if (type === "yaml") {
+        return YAML.load(value) as ObjectType;
+      } else {
+        return JSON.parse(value) as ObjectType;
+      }
+    },
+    [type]
+  );
+  const encode = useCallback(
+    (value: ObjectType) => {
+      if (type === "yaml") {
+        return YAML.dump(value);
+      } else {
+        return JSON.stringify(value, null, 2);
+      }
+    },
+    [type]
+  );
 
   useEffect(() => {
     if (!value) {
@@ -72,7 +75,7 @@ const JSONEdit = ({
       const values = decode(value);
       setJsonData(values);
       setStrData(encode(values));
-      form.setFieldsValue({ ...values });
+      form.setFieldsValue({...values});
       setDisabled(false);
     } catch {
       setDisabled(true);
@@ -83,7 +86,7 @@ const JSONEdit = ({
   const updateStrData = useCallback(() => {
     debounceFn(() => {
       const formData = form.getFieldsValue();
-      setStrData(encode({ ...jsonData, ...formData }));
+      setStrData(encode({...jsonData, ...formData}));
     });
   }, [jsonData, form, encode, debounceFn]);
 
@@ -91,7 +94,7 @@ const JSONEdit = ({
     (values: ObjectType) => {
       debounceFn(() => {
         const formData = form.getFieldsValue();
-        form.setFieldsValue({ ...formData, ...values });
+        form.setFieldsValue({...formData, ...values});
       });
     },
     [form, debounceFn]
@@ -101,7 +104,7 @@ const JSONEdit = ({
     (_editor: unknown, _data: unknown, value: string) => {
       try {
         const values = decode(value);
-        setJsonData({ ...values });
+        setJsonData({...values});
         updateForm(values);
         setDisabled(false);
       } catch {
@@ -113,7 +116,7 @@ const JSONEdit = ({
 
   const handleAddChild = useCallback(
     (keyPath: string[], dataType: InputDataType) => {
-      const newData = { ...jsonData };
+      const newData = {...jsonData};
       let status = true;
       // 递归函数，用于根据 keyPath 更新嵌套对象
       const updateNestedObject = (obj, keys: string[], value: ObjectType) => {
@@ -161,7 +164,7 @@ const JSONEdit = ({
 
   const handleDelChild = useCallback(
     (keyPath: string[]) => {
-      const newData = { ...jsonData };
+      const newData = {...jsonData};
       const deleteNestedObject = (obj, keys: string[]) => {
         const [currentKey, ...restKeys] = keys;
         if (restKeys.length === 0) {
@@ -194,7 +197,7 @@ const JSONEdit = ({
         <Form
           className="flex-1 p-2"
           form={form}
-          labelCol={{ span: 6 }}
+          labelCol={{span: 6}}
           onValuesChange={updateStrData}
         >
           <div className="flex flex-col gap-2">
@@ -210,7 +213,13 @@ const JSONEdit = ({
       rightHeader={
         <div className="flex items-center justify-between p-1 bg-slate-400 dark:bg-zinc-800 dark:text-white rounded-t-md">
           <div>
-            {!disabledName && <Input value={nameValue} placeholder="name" onChange={e => setNameValue(e.target.value)} />}
+            {!disabledName && (
+              <Input
+                value={nameValue}
+                placeholder="name"
+                onChange={(e) => setNameValue(e.target.value)}
+              />
+            )}
             {disabledName && <span className="px-2">{nameValue}</span>}
           </div>
           {disabled && (
