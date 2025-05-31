@@ -1,10 +1,10 @@
-import { Menu } from "antd";
-import { useEffect, useState } from "react";
-import lodash from "lodash";
-import { useLocation, useNavigate } from "react-router-dom";
-import { menuItems } from "./menuItems";
-import { useSelector } from "react-redux";
-import { RootState } from "@/redux";
+import {Menu} from "antd";
+import {useEffect, useState} from "react";
+import {throttle} from "lodash-es";
+import {useLocation, useNavigate} from "react-router-dom";
+import {menuItems} from "./menuItems";
+import {useSelector} from "react-redux";
+import {RootState} from "@/redux";
 
 /**
  *
@@ -26,7 +26,7 @@ const SiderMenu = () => {
   const [collapsed, setCollapsed] = useState(false);
   useEffect(() => {
     // 使用节流
-    const reSize = lodash.throttle(() => {
+    const reSize = throttle(() => {
       if (window.innerWidth <= 639) {
         setCollapsed(true);
       } else {

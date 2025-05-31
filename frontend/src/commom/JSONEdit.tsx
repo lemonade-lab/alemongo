@@ -2,7 +2,7 @@ import { Button, Input, message } from "antd";
 import { useEffect, useState, useCallback } from "react";
 import { Form } from "antd";
 import Code from "@/commom/CodeMirror";
-import { debounce } from "lodash";
+import { debounce } from "lodash-es";
 import YAML from "js-yaml";
 import EditBox from "./EditBox";
 import JSONForm from "./JSONForm";

@@ -45,7 +45,18 @@ export default defineConfig({
         // 拆分，根据文件分类
         entryFileNames: 'js/[name]-[hash].js',
         chunkFileNames: 'js/[name]-[hash].js',
-        assetFileNames: 'css/[name]-[hash][extname]'
+        assetFileNames: 'css/[name]-[hash][extname]',
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (id.includes('react')) return 'vendor-react'
+            if (id.includes('lodash-es')) return 'vendor-lodash-es'
+            if (id.includes('dayjs')) return 'vendor-dayjs'
+            if (id.includes('xterm')) return 'vendor-xterm'
+            if (id.includes('react-router-dom')) return 'vendor-react-router-dom'
+            if (id.includes('react-redux')) return 'vendor-react-redux'
+            if (id.includes('redux')) return 'vendor-redux'
+          }
+        }
       }
     }
   }
