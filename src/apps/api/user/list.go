@@ -1,7 +1,7 @@
 package user
 
 import (
-	"alemongo/src/apps/token"
+	"alemongo/src/apps/api/requests"
 	"alemongo/src/users"
 	"net/http"
 
@@ -10,7 +10,7 @@ import (
 
 // 获取用户信息
 func List(ctx *gin.Context) {
-	adminname, exists := token.GetUserName(ctx)
+	adminname, exists := requests.GetUserName(ctx)
 	if !exists {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"code": http.StatusBadRequest,

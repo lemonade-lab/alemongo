@@ -1,7 +1,7 @@
 package user
 
 import (
-	"alemongo/src/apps/token"
+	"alemongo/src/apps/api/requests"
 	"alemongo/src/users"
 	"net/http"
 
@@ -21,7 +21,7 @@ func PassWord(ctx *gin.Context) {
 		})
 		return
 	}
-	username, exists := token.GetUserName(ctx)
+	username, exists := requests.GetUserName(ctx)
 	if !exists {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"code": http.StatusBadRequest,

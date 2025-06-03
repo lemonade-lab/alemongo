@@ -1,7 +1,7 @@
 package user
 
 import (
-	"alemongo/src/apps/token"
+	"alemongo/src/pkgs/jwt"
 	"alemongo/src/users"
 	"net/http"
 	"sync"
@@ -63,7 +63,7 @@ func Login(ctx *gin.Context) {
 	clearLoginFailures(username)
 
 	// 生成 token
-	tokenValue, err := token.Create(username)
+	tokenValue, err := jwt.CreateToken(username)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"code": http.StatusBadRequest,

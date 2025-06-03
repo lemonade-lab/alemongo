@@ -7,7 +7,7 @@ import (
 	"alemongo/src/logger"
 	"alemongo/src/route"
 	"alemongo/src/settings"
-	"alemongo/src/users"
+	"alemongo/src/dao"
 	"embed"
 	"log"
 	"os"
@@ -66,7 +66,7 @@ func main() {
 	settings.LogServerInfo()
 
 	// 初始化密码
-	users.GetAdminAccount()
+	dao.GetAdminAccount()
 
 	// 注册服务
 	autoregister.RegisterIfNeeded(settings.ServiceName, settings.ServiceDescription)

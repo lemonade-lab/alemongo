@@ -70,9 +70,9 @@ func Create(mode string) *gin.Engine {
 				// 列表
 				UserAPI.GET("/list", user.List)
 				// 添加
-				UserAPI.POST("/create", user.Create)
+				UserAPI.POST("/create", user.CreateUserHandler)
 				// 删除
-				UserAPI.DELETE("/delete", user.Delete)
+				UserAPI.DELETE("/delete", user.DeleteUserHandler)
 				// 修改身份
 				UserAPI.PUT("/identity", user.Identity)
 				// 身份列表
