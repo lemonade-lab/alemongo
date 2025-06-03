@@ -1,7 +1,7 @@
 package user
 
 import (
-	"alemongo/src/apps/token"
+	"alemongo/src/apps/api/requests"
 	"alemongo/src/permission"
 	"alemongo/src/users"
 
@@ -10,7 +10,7 @@ import (
 
 // method: PUT
 func Permission(ctx *gin.Context) {
-	username, exists := token.GetUserName(ctx)
+	username, exists := requests.GetUserName(ctx)
 	if !exists {
 		ctx.JSON(200, gin.H{
 			"code": 200,

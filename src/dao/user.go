@@ -1,6 +1,7 @@
-package users
+package dao
 
 import (
+	"alemongo/src/models"
 	"alemongo/src/permission"
 	"alemongo/src/settings"
 	"crypto/rand"
@@ -12,7 +13,7 @@ import (
 )
 
 // 管理员账户
-var admin User
+var admin models.User
 
 // 生成随机密码
 func generateRandomPassword(length int) string {
@@ -26,7 +27,7 @@ func generateRandomPassword(length int) string {
 	return base64.URLEncoding.EncodeToString(bytes)[:length]
 }
 
-func GetAdminAccount() User {
+func GetAdminAccount() models.User {
 	if admin.UserName != "" {
 		return admin
 	}
@@ -36,7 +37,7 @@ func GetAdminAccount() User {
 		// 生成随机密码
 		password := generateRandomPassword(16)
 		username := permission.DefaultUserName
-		admin = User{
+		admin = models.User{
 			Identity:   permission.IdentityAdmin,
 			UserName:   username,
 			PassWord:   password,
@@ -50,14 +51,14 @@ func GetAdminAccount() User {
 	if err != nil {
 		// 读取失败。返回空。
 		log.Printf("读取管理员账户文件错误: %v", err)
-		return User{}
+		return models.User{}
 	}
 	// 解析json
 	err = json.Unmarshal(fileData, &admin)
 	if err != nil {
 		// 解析失败。返回空。
 		log.Printf("读取管理员账户文件错误: %v", err)
-		return User{}
+		return models.User{}
 	}
 	// 返回管理员账户
 	return admin
@@ -72,7 +73,7 @@ func SetAdminPassword(password string) bool {
 	// 保存到文件
 	workPath := settings.GetWorkPath()
 	userListPath := path.Join(workPath, "users", "admin.json")
-	fileData, err := json.Marshal(User{
+	fileData, err := json.Marshal(models.User{
 		Identity:   permission.IdentityAdmin,
 		UserName:   admin.UserName,
 		PassWord:   password,

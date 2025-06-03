@@ -1,7 +1,7 @@
 package user
 
 import (
-	"alemongo/src/apps/token"
+	"alemongo/src/pkgs/jwt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -18,7 +18,7 @@ func Logout(ctx *gin.Context) {
 		})
 		return
 	}
-	err := token.Delete(tokenValue.(string))
+	err := jwt.DeleteToken(tokenValue.(string))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"code": http.StatusBadRequest,
