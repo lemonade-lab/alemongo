@@ -1,9 +1,13 @@
 package jwt
 
 import (
+	"alemongo/src/apps/api/requests"
+	"alemongo/src/permission"
 	"alemongo/src/settings"
+	"alemongo/src/users"
 	"errors"
 	"github.com/dgrijalva/jwt-go"
+	"github.com/gin-gonic/gin"
 	"time"
 )
 
@@ -31,6 +35,26 @@ func CreateToken(username string) (string, error) {
 	return token.SignedString([]byte(secret))
 }
 
+// todo token黑名单
+// DeleteToken 删除token
+func DeleteToken(tokenValue string) error {
+	token, err := jwt.Parse(tokenValue, func(token *jwt.Token) (interface{}, error) {
+		key := settings.Conf.Key
+		return []byte(key), nil
+	})
+
+	if err != nil {
+		return err
+	}
+
+	// token
+	if token.Valid {
+		return nil
+	}
+
+	return err
+}
+
 // ParseToken 解析JWT
 func ParseToken(tokenValue string) (*Claims, error) {
 	var mc = new(Claims)
@@ -46,4 +70,31 @@ func ParseToken(tokenValue string) (*Claims, error) {
 		return mc, nil
 	}
 	return nil, errors.New("invalid token")
+}
+
+// 鉴权
+func Permission(c *gin.Context, mis int) string {
+	// 读取用户信息
+	username, exists := requests.GetUserName(c)
+	if !exists {
+		return "用户不存在"
+	}
+	var userInfo users.User
+	if users.IsSuperAdmin(username) {
+		// 超级管理员 直接通过
+		return ""
+	} else {
+		user, exist := users.GetUserByUserName(username)
+		if !exist {
+			return "用户不存在"
+		}
+		userInfo = user
+	}
+	// 读取身份
+	identity := userInfo.Identity
+	ok := permission.CheckIdentityPermission(identity, mis)
+	if !ok {
+		return "权限不足"
+	}
+	return ""
 }

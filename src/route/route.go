@@ -7,10 +7,19 @@ import (
 	"alemongo/src/apps/api/receive"
 	"alemongo/src/apps/api/settings"
 	"alemongo/src/apps/api/user"
-	"alemongo/src/apps/middleware"
-	"alemongo/src/apps/token"
+	"alemongo/src/logger"
+	middlewares2 "alemongo/src/middlewares"
 	"github.com/gin-gonic/gin"
 )
+
+// 路由初始化
+func Use(r *gin.Engine) *gin.Engine {
+	// 添加跨域请求中间件
+	r.Use(middlewares2.CorsMiddleware())
+	// 添加自定义日志中间件
+	r.Use(logger.GinLogger(), logger.GinRecovery(true))
+	return r
+}
 
 func Create(mode string) *gin.Engine {
 	// 根据 mode 设置 发布模式/开发模式
@@ -22,7 +31,7 @@ func Create(mode string) *gin.Engine {
 	r := gin.New()
 
 	// 实例化app
-	app := middleware.Use(r)
+	app := Use(r)
 
 	// 接口api
 	api := app.Group("/api")
@@ -51,7 +60,7 @@ func Create(mode string) *gin.Engine {
 				// 登录
 				UserAPI.POST("/login", user.Login)
 				// 开始鉴权
-				UserAPI.Use(token.AuthMiddleware)
+				UserAPI.Use(middlewares2.AuthMiddleware())
 				// 退出登录
 				UserAPI.GET("/logout", user.Logout)
 				// 获取用户信息
@@ -73,7 +82,7 @@ func Create(mode string) *gin.Engine {
 			SSHAPI := v1.Group("/ssh")
 			{
 				// 开始鉴权
-				SSHAPI.Use(token.AuthMiddleware)
+				SSHAPI.Use(middlewares2.AuthMiddleware())
 				// 列表
 				SSHAPI.GET("/list", gitssh.List)
 				// 更新
@@ -87,7 +96,7 @@ func Create(mode string) *gin.Engine {
 			BotAPI := v1.Group("/bot")
 			{
 				// 开始鉴权
-				BotAPI.Use(token.AuthMiddleware)
+				BotAPI.Use(middlewares2.AuthMiddleware())
 				BotAPI.GET("/list", bot.List)
 				BotAPI.POST("/create", bot.Create)
 				BotAPI.POST("/info", bot.Info)

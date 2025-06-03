@@ -1,8 +1,8 @@
 package user
 
 import (
+	"alemongo/middlewares"
 	"alemongo/src/apps/api/response"
-	"alemongo/src/apps/token"
 	"alemongo/src/permission"
 	"alemongo/src/users"
 	"net/http"
@@ -12,7 +12,7 @@ import (
 
 // 创建用户
 func Create(ctx *gin.Context) {
-	adminname, exists := token.GetUserName(ctx)
+	adminname, exists := middlewares.GetUserName(ctx)
 	if !exists {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"code": http.StatusBadRequest,

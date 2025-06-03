@@ -1,8 +1,8 @@
 package middlewares
 
 import (
-	"alemongo/pkgs/jwt"
 	"alemongo/src/apps/api/response"
+	"alemongo/src/pkgs/jwt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strings"

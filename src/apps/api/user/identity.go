@@ -1,8 +1,8 @@
 package user
 
 import (
-	"alemongo/src/apps/token"
 	"alemongo/src/permission"
+	"alemongo/src/pkgs/jwt"
 	"alemongo/src/users"
 	"net/http"
 
@@ -30,7 +30,7 @@ func Identity(ctx *gin.Context) {
 		return
 	}
 	// 用户更新权限
-	message := token.Permission(ctx, permission.UserUpdate)
+	message := jwt.Permission(ctx, permission.UserUpdate)
 	if message != "" {
 		ctx.JSON(200, gin.H{
 			"code": 200,

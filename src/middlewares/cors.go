@@ -1,12 +1,9 @@
-package middleware
+package middlewares
 
-import (
-	"alemongo/src/logger"
-	"github.com/gin-gonic/gin"
-)
+import "github.com/gin-gonic/gin"
 
 // 跨域请求中间件
-func corsMiddleware() gin.HandlerFunc {
+func CorsMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// 设置允许的来源，* 表示允许所有来源
 		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
@@ -21,13 +18,4 @@ func corsMiddleware() gin.HandlerFunc {
 		}
 		c.Next()
 	}
-}
-
-// 路由初始化
-func Use(r *gin.Engine) *gin.Engine {
-	// 添加跨域请求中间件
-	r.Use(corsMiddleware())
-	// 添加自定义日志中间件
-	r.Use(logger.GinLogger(), logger.GinRecovery(true))
-	return r
 }
