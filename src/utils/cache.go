@@ -5,6 +5,10 @@ import (
 	"time"
 )
 
+const (
+	EmailExpirationTime = 3 * time.Minute
+)
+
 var EmailCodeCache *cache.Cache
 
 // InitCache 初始化缓存, 设置默认过期时间为3min, 清除时间为10min

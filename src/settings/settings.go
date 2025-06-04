@@ -71,7 +71,7 @@ func setDefaults() {
 			Provider:  "qq",
 			Host:      "smtp.qq.com",
 			Port:      587,
-			Username:  "lemonade",
+			Username:  "1715713638@qq.com",
 			Password:  "syaborriilwdbfdg",
 			FromEmail: "1715713638@qq.com",
 		},

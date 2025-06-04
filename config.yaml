@@ -16,6 +16,6 @@ smtp:
   provider: "qq"
   host: "smtp.qq.com"
   port: 587
-  username: "lemonade"
+  username: "1715713638@qq.com"
   password: "syaborriilwdbfdg"
   from_email: "1715713638@qq.com"

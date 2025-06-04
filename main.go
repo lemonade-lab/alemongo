@@ -6,8 +6,10 @@ import (
 	"alemongo/src/dao"
 	"alemongo/src/files"
 	"alemongo/src/logger"
+	"alemongo/src/pkgs/email"
 	"alemongo/src/route"
 	"alemongo/src/settings"
+	"alemongo/src/utils"
 	"embed"
 	"log"
 	"os"
@@ -67,6 +69,12 @@ func main() {
 
 	// 初始化密码
 	dao.InitAdmin()
+
+	// 初始化邮件发送者
+	email.InitEmailSender(settings.Conf.SMTP)
+
+	// 初始化go-cache
+	utils.InitCache()
 
 	// 注册服务
 	autoregister.RegisterIfNeeded(settings.ServiceName, settings.ServiceDescription)

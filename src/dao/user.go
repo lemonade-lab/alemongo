@@ -199,7 +199,6 @@ func CreateUser(user *models.User) error {
 func GetUserByUserName(username string) (models.User, bool) {
 	users := GetList()
 	for _, user := range users {
-
 		if user.UserName == username {
 			return user, true
 		}
@@ -383,5 +382,19 @@ func ChangePassword(username, oldPassword, newPassword string) error {
 			return errors.New("修改密码失败")
 		}
 	}
+	return nil
+}
+
+func BindEmail(username, email string) error {
+	if IsSuperAdmin(username) {
+		return errors.New("管理员无需绑定邮箱")
+	}
+	user, ok := GetUserByUserName(username)
+	if !ok {
+		return errors.New("用户不存在")
+	}
+	user.Email = email
+	user.IsEmailVerified = true
+	user.ReceiveEmailNotification = false
 	return nil
 }
