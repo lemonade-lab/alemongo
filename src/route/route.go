@@ -78,7 +78,7 @@ func Create(mode string) *gin.Engine {
 				// 身份列表
 				UserAPI.GET("/identity/list", user.IdentityList)
 				// 绑定邮箱
-
+				UserAPI.POST("/bind_email", user.BindEmailHandler)
 			}
 			// ssh
 			SSHAPI := v1.Group("/ssh")

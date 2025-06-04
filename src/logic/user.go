@@ -86,3 +86,7 @@ func Logout(tokenValue string) error {
 func ChangePassword(username, oldPassword, newPassword string) error {
 	return dao.ChangePassword(username, oldPassword, newPassword)
 }
+
+func BindEmail(username, email string) error {
+
+}
