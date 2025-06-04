@@ -6,12 +6,12 @@ import (
 )
 
 type QQMailer struct {
-	QQEmailConfig settings.SMTPConfig
+	QQEmailConfig *settings.SMTPConfig
 }
 
 func (q *QQMailer) Send(to, subject, body string) error {
 	message := gomail.NewMessage()
-	message.SetHeader("From", q.QQEmailConfig.FromEmail)
+	message.SetAddressHeader("From", q.QQEmailConfig.FromEmail, "系统通知")
 	message.SetHeader("To", to)
 	message.SetHeader("Subject", subject)
 	message.SetBody("text/html", body)

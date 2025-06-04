@@ -3,9 +3,12 @@ package logic
 import (
 	"alemongo/src/dao"
 	"alemongo/src/models"
+	"alemongo/src/pkgs/email"
 	"alemongo/src/pkgs/jwt"
+	"alemongo/src/utils"
 	"errors"
-	"log"
+	"fmt"
+	"math/rand"
 )
 
 func CreateUser(user *models.User) error {
@@ -63,7 +66,7 @@ func Login(username, password string) (string, error) {
 
 	// 密码不对
 	if password != userInfo.PassWord {
-		log.Printf("password: %s\n userinfo password: %s\n", password, userInfo.PassWord)
+		//log.Printf("password: %s\n userinfo password: %s\n", password, userInfo.PassWord)
 		dao.RecordLoginFailure(username)
 		return "", errors.New("密码错误")
 	}
@@ -87,6 +90,29 @@ func ChangePassword(username, oldPassword, newPassword string) error {
 	return dao.ChangePassword(username, oldPassword, newPassword)
 }
 
-func BindEmail(username, email string) error {
+func BindEmail(bind_email string) error {
+	code := fmt.Sprintf("%06d", rand.Intn(1000000))
+	utils.SetEmailCode(bind_email, code, utils.EmailExpirationTime)
+	subject := "邮箱绑定验证码"
+	body := "您的验证码是：" + code + "，3分钟内有效，请勿泄露。"
+	return email.Sender.Send(bind_email, subject, body)
+}
 
+func VerifyEmail(username, email, code string) error {
+	// 判断验证码是否正确
+	cachedCode, ok := utils.GetEmailCode(email)
+	if !ok {
+		return errors.New("验证码已过期或无效")
+	}
+	if code != cachedCode {
+		return errors.New("验证码错误")
+	}
+
+	// 更新用户邮箱和验证状态
+	err := dao.BindEmail(username, email)
+	if err != nil {
+		return err
+	}
+	utils.DeleteEmailCode(email)
+	return nil
 }
