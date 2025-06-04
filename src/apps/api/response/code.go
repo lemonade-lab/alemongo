@@ -5,6 +5,7 @@ type ResCode int64
 const (
 	CodeSuccess ResCode = 1000 + iota
 	CodeServerBusy
+	CodeInvalidParam
 	RobotCreateFailed
 	RobotNameIsEmpty
 	RobotNotExist
@@ -28,6 +29,7 @@ const (
 var codeMsgMap = map[ResCode]string{
 	CodeSuccess:              "success",
 	CodeServerBusy:           "服务繁忙",
+	CodeInvalidParam:         "请求参数错误",
 	RobotCreateFailed:        "创建机器人失败",
 	RobotNameIsEmpty:         "机器人名不能为空",
 	RobotNotExist:            "机器人不存在",

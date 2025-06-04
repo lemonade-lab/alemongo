@@ -50,7 +50,7 @@ func Add(name string, args []string) (string, error) {
 	cmd.Dir = alemonjs.GetBotPath(name)
 
 	var l = new(zapcore.Level)
-	if err := l.UnmarshalText([]byte(settings.Conf.Level)); err != nil {
+	if err := l.UnmarshalText([]byte(settings.Conf.Log.Level)); err != nil {
 		fmt.Printf("unable to unmarshal zapcore.Level: %v\n", err)
 	}
 

@@ -11,3 +11,11 @@ server:
 log:
   level: "info"
   filename: "alemongo_logs"
+
+smtp:
+  provider: "qq"
+  host: "smtp.qq.com"
+  port: 587
+  username: "lemonade"
+  password: "syaborriilwdbfdg"
+  from_email: "1715713638@qq.com"

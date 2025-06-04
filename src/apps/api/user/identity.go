@@ -1,9 +1,10 @@
 package user
 
 import (
+	"alemongo/src/apps/api/response"
+	"alemongo/src/dao"
 	"alemongo/src/permission"
 	"alemongo/src/pkgs/jwt"
-	"alemongo/src/users"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -13,20 +14,12 @@ import (
 func Identity(ctx *gin.Context) {
 	identity := ctx.Query("identity")
 	if identity == "" {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"code": http.StatusBadRequest,
-			"msg":  "身份不能为空",
-			"data": nil,
-		})
+		response.ResponseErrorWithMsg(ctx, http.StatusBadRequest, http.StatusBadRequest, "身份不能为空")
 		return
 	}
 	exist := permission.ExistIdentity(identity)
 	if !exist {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"code": http.StatusBadRequest,
-			"msg":  "参数错误",
-			"data": nil,
-		})
+		response.ResponseErrorWithMsg(ctx, http.StatusBadRequest, http.StatusBadRequest, "参数错误")
 		return
 	}
 	// 用户更新权限
@@ -41,7 +34,7 @@ func Identity(ctx *gin.Context) {
 		return
 	}
 	username := ctx.Query("username")
-	if users.IsSuperAdmin(username) {
+	if dao.IsSuperAdmin(username) {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"code": http.StatusBadRequest,
 			"msg":  "禁止修改超级账户",
@@ -49,7 +42,7 @@ func Identity(ctx *gin.Context) {
 		})
 		return
 	}
-	user, exist := users.GetUserByUserName(username)
+	user, exist := dao.GetUserByUserName(username)
 	if !exist {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"code": http.StatusBadRequest,
@@ -58,7 +51,7 @@ func Identity(ctx *gin.Context) {
 		})
 		return
 	}
-	ok := users.SetUserIdentityByUserName(user.UserName, identity)
+	ok := dao.SetUserIdentityByUserName(user.UserName, identity)
 	if !ok {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"code": http.StatusBadRequest,

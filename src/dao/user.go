@@ -7,13 +7,31 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"log"
 	"os"
 	"path"
+	"sync"
+	"time"
 )
 
 // 管理员账户
-var admin models.User
+var admin *models.User
+
+// 登录失败缓存
+var loginFailures = sync.Map{} // key: username, value: {count, lastFailedTime}
+
+// todo
+// 登录失败锁定后 / 登录后。之前发放出去的token都要失效
+
+func InitAdmin() {
+	admin = GenerateAdminAccount()
+}
+
+func GetAdmin() *models.User {
+	adminCpy := *admin
+	return &adminCpy
+}
 
 // 生成随机密码
 func generateRandomPassword(length int) string {
@@ -27,41 +45,40 @@ func generateRandomPassword(length int) string {
 	return base64.URLEncoding.EncodeToString(bytes)[:length]
 }
 
-func GetAdminAccount() models.User {
-	if admin.UserName != "" {
-		return admin
-	}
+func GenerateAdminAccount() *models.User {
 	workPath := settings.GetWorkPath()
 	userListPath := path.Join(workPath, "users", "admin.json")
 	if _, err := os.Stat(userListPath); os.IsNotExist(err) {
 		// 生成随机密码
 		password := generateRandomPassword(16)
 		username := permission.DefaultUserName
-		admin = models.User{
-			Identity:   permission.IdentityAdmin,
-			UserName:   username,
-			PassWord:   password,
-			MasterName: permission.DefaultUserName,
+		adminUser := &models.User{
+			Identity:                 permission.IdentityAdmin,
+			UserName:                 username,
+			PassWord:                 password,
+			MasterName:               permission.DefaultUserName,
+			Email:                    settings.Conf.SMTP.FromEmail,
+			IsEmailVerified:          true,
+			ReceiveEmailNotification: false,
 		}
-		log.Printf("临时超级管理员账户信息：\n账户: %s\n密码: %s\n", admin.UserName, admin.PassWord)
-		return admin
+		log.Printf("临时超级管理员账户信息：\n账户: %s\n密码: %s\n", adminUser.UserName, adminUser.PassWord)
+		return adminUser
 	}
-	// 读取文件
+	// 读取文件中存储的admin信息
 	fileData, err := os.ReadFile(userListPath)
 	if err != nil {
-		// 读取失败。返回空。
 		log.Printf("读取管理员账户文件错误: %v", err)
-		return models.User{}
+		return &models.User{}
 	}
 	// 解析json
-	err = json.Unmarshal(fileData, &admin)
+	adminUser := &models.User{}
+	err = json.Unmarshal(fileData, adminUser)
 	if err != nil {
-		// 解析失败。返回空。
+		// 解析失败
 		log.Printf("读取管理员账户文件错误: %v", err)
-		return models.User{}
+		return &models.User{}
 	}
-	// 返回管理员账户
-	return admin
+	return adminUser
 }
 
 // 更改密码
@@ -135,7 +152,7 @@ func GetList() []models.User {
 	users := []models.User{}
 	err = json.Unmarshal(fileData, &users)
 	if err != nil {
-		// tudo
+		// todo
 		log.Println("解析json失败")
 		return []models.User{}
 	}
@@ -155,27 +172,16 @@ func ExistUserByUserName(username string) bool {
 }
 
 // 创建用户
-func CreateUser(username string, password string, identity string) bool {
-	// 判断是否存在
-	if ExistUserByUserName(username) {
-		log.Println("用户已存在")
-		return false
-	}
+func CreateUser(user *models.User) error {
 	users := GetList()
 	// 创建用户
-	user := models.User{
-		UserName:   username,
-		PassWord:   password,
-		Identity:   identity,
-		MasterName: permission.DefaultUserName,
-	}
-	users = append(users, user)
+	users = append(users, *user)
 	userListPath := getListPath()
 	fileData, err := json.Marshal(users)
 	if err == nil {
 		err = os.WriteFile(userListPath, fileData, 0644)
 		if err == nil {
-			return true
+			return nil
 		}
 	}
 	// 失败了，删除用户
@@ -184,16 +190,16 @@ func CreateUser(username string, password string, identity string) bool {
 	if err == nil {
 		err = os.WriteFile(userListPath, fileData, 0644)
 		if err == nil {
-			return false
+			return nil
 		}
 	}
-	return false
+	return err
 }
 
 func GetUserByUserName(username string) (models.User, bool) {
 	users := GetList()
 	for _, user := range users {
-		log.Println("user.UserName:", user.UserName)
+
 		if user.UserName == username {
 			return user, true
 		}
@@ -271,7 +277,7 @@ func SetUserIdentityByUserName(username string, identity string) bool {
 }
 
 // 删除用户
-func DeleteUserByUserName(username string) bool {
+func DeleteUserByUserName(username string) error {
 	users := GetList()
 	// 得到 i
 	curI := -1
@@ -283,7 +289,7 @@ func DeleteUserByUserName(username string) bool {
 	}
 	if curI == -1 {
 		// 删除失败
-		return false
+		return errors.New("删除失败")
 	}
 	// 删除用户
 	users = append(users[:curI], users[curI+1:]...)
@@ -291,12 +297,91 @@ func DeleteUserByUserName(username string) bool {
 	fileData, err := json.Marshal(users)
 	if err != nil {
 		// 删除失败
-		return false
+		return errors.New("删除失败")
 	}
 	err = os.WriteFile(userListPath, fileData, 0644)
 	if err != nil {
 		// 删除失败
-		return false
+		return errors.New("删除失败")
 	}
-	return true
+	return nil
+}
+
+// 检查账户是否被锁定
+func IsAccountLocked(username string) (bool, int) {
+	value, ok := loginFailures.Load(username)
+	if !ok {
+		return false, 0
+	}
+
+	data := value.(struct {
+		count          int
+		lastFailedTime time.Time
+	})
+
+	// 如果失败次数小于 5 次，不锁定
+	if data.count < 5 {
+		return false, 0
+	}
+
+	// 检查是否超过 5 分钟
+	elapsed := time.Since(data.lastFailedTime)
+	if elapsed < 5*time.Minute {
+		remainingTime := int((5*time.Minute - elapsed).Seconds())
+		return true, remainingTime
+	}
+
+	// 超过 5 分钟，清除记录
+	loginFailures.Delete(username)
+	return false, 0
+}
+
+// 清除登录失败记录
+func ClearLoginFailures(username string) {
+	loginFailures.Delete(username)
+}
+
+// 记录登录失败
+func RecordLoginFailure(username string) {
+	value, _ := loginFailures.LoadOrStore(username, struct {
+		count          int
+		lastFailedTime time.Time
+	}{0, time.Now()})
+
+	data := value.(struct {
+		count          int
+		lastFailedTime time.Time
+	})
+	data.count++
+	data.lastFailedTime = time.Now()
+	loginFailures.Store(username, data)
+}
+
+func ChangePassword(username, oldPassword, newPassword string) error {
+	// 是否是超级管理员
+	if IsSuperAdmin(username) {
+		admin := GetAdmin()
+		if oldPassword != admin.PassWord {
+			return errors.New("密码错误")
+		}
+		// 修改密码
+		ok := SetAdminPassword(newPassword)
+		if !ok {
+			return errors.New("修改密码失败")
+		}
+	} else {
+		user, exist := GetUserByUserName(username)
+		if !exist {
+			return errors.New("用户不存在")
+		}
+		if oldPassword != user.PassWord {
+			return errors.New("密码错误")
+		}
+		// 修改密码
+		ok := SetUserByUserName(username, newPassword)
+		if !ok {
+			return errors.New("修改密码失败")
+		}
+	}
+	return nil
 }

@@ -2,9 +2,10 @@ package jwt
 
 import (
 	"alemongo/src/apps/api/requests"
+	"alemongo/src/dao"
+	"alemongo/src/models"
 	"alemongo/src/permission"
 	"alemongo/src/settings"
-	"alemongo/src/users"
 	"errors"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
@@ -19,7 +20,7 @@ type Claims struct {
 
 // CreateToken 生成JWT
 func CreateToken(username string) (string, error) {
-	expiresTime := settings.Conf.ExpiresTime
+	expiresTime := settings.Conf.Server.ExpiresTime
 	claims := &Claims{
 		Username: username,
 		// 除标准字段外，只携带username
@@ -30,7 +31,7 @@ func CreateToken(username string) (string, error) {
 	// 创建token
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	secret := settings.Conf.Key
+	secret := settings.Conf.Server.Key
 
 	return token.SignedString([]byte(secret))
 }
@@ -39,7 +40,7 @@ func CreateToken(username string) (string, error) {
 // DeleteToken 删除token
 func DeleteToken(tokenValue string) error {
 	token, err := jwt.Parse(tokenValue, func(token *jwt.Token) (interface{}, error) {
-		key := settings.Conf.Key
+		key := settings.Conf.Server.Key
 		return []byte(key), nil
 	})
 
@@ -59,7 +60,7 @@ func DeleteToken(tokenValue string) error {
 func ParseToken(tokenValue string) (*Claims, error) {
 	var mc = new(Claims)
 	token, err := jwt.ParseWithClaims(tokenValue, mc, func(token *jwt.Token) (interface{}, error) {
-		key := settings.Conf.Key
+		key := settings.Conf.Server.Key
 		return []byte(key), nil
 	})
 	if err != nil {
@@ -79,12 +80,12 @@ func Permission(c *gin.Context, mis int) string {
 	if !exists {
 		return "用户不存在"
 	}
-	var userInfo users.User
-	if users.IsSuperAdmin(username) {
+	var userInfo models.User
+	if dao.IsSuperAdmin(username) {
 		// 超级管理员 直接通过
 		return ""
 	} else {
-		user, exist := users.GetUserByUserName(username)
+		user, exist := dao.GetUserByUserName(username)
 		if !exist {
 			return "用户不存在"
 		}

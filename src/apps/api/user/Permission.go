@@ -2,8 +2,9 @@ package user
 
 import (
 	"alemongo/src/apps/api/requests"
+	"alemongo/src/apps/api/response"
+	"alemongo/src/dao"
 	"alemongo/src/permission"
-	"alemongo/src/users"
 
 	"github.com/gin-gonic/gin"
 )
@@ -12,15 +13,11 @@ import (
 func Permission(ctx *gin.Context) {
 	username, exists := requests.GetUserName(ctx)
 	if !exists {
-		ctx.JSON(200, gin.H{
-			"code": 200,
-			"msg":  "用户不存在",
-			"data": nil,
-		})
+		response.ResponseErrorWithMsg(ctx, 200, 200, "用户不存在")
 		ctx.Abort()
 		return
 	}
-	if users.IsSuperAdmin(username) {
+	if dao.IsSuperAdmin(username) {
 		// 超级用户。返回 1
 		ctx.JSON(200, gin.H{
 			"code": 200,
@@ -30,7 +27,7 @@ func Permission(ctx *gin.Context) {
 		})
 		return
 	} else {
-		user, exist := users.GetUserByUserName(username)
+		user, exist := dao.GetUserByUserName(username)
 		if !exist {
 			ctx.JSON(200, gin.H{
 				"code": 200,

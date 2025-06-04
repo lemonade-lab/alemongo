@@ -102,7 +102,7 @@ func PackagesClone(ctx *gin.Context) {
 	}
 
 	var l = new(zapcore.Level)
-	if err := l.UnmarshalText([]byte(settings.Conf.Level)); err != nil {
+	if err := l.UnmarshalText([]byte(settings.Conf.Log.Level)); err != nil {
 		response.ResponseError(ctx, http.StatusInternalServerError, response.ErrorLogLevel)
 	}
 
