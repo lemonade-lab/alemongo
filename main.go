@@ -3,11 +3,11 @@ package main
 import (
 	"alemongo/src/core/autoregister"
 	"alemongo/src/core/process"
+	"alemongo/src/dao"
 	"alemongo/src/files"
 	"alemongo/src/logger"
 	"alemongo/src/route"
 	"alemongo/src/settings"
-	"alemongo/src/dao"
 	"embed"
 	"log"
 	"os"
@@ -42,7 +42,7 @@ func main() {
 		return
 	}
 
-	if err := logger.Init(settings.Conf.LogConfig, settings.Conf.Mode); err != nil {
+	if err := logger.Init(settings.Conf.Log, settings.Conf.Mode); err != nil {
 		log.Printf("init logger failed, err:%v\n", err)
 		return
 	}
@@ -66,12 +66,12 @@ func main() {
 	settings.LogServerInfo()
 
 	// 初始化密码
-	dao.GetAdminAccount()
+	dao.InitAdmin()
 
 	// 注册服务
 	autoregister.RegisterIfNeeded(settings.ServiceName, settings.ServiceDescription)
 
-	err = app.Run(":" + settings.Conf.Port)
+	err = app.Run(":" + settings.Conf.Server.Port)
 	if err != nil {
 		log.Fatalf("Failed to start server: %v", err)
 		return

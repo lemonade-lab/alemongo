@@ -1,5 +1,7 @@
 package permission
 
+import "strings"
+
 // 定义权限类型和权限值
 const (
 	// 使用 16位 以上作为权限类型的标志位
@@ -71,7 +73,7 @@ var Identities = func() []string {
 func ExistIdentity(identity string) bool {
 	exist := false
 	for _, id := range Identities {
-		if id == identity {
+		if strings.ToLower(id) == strings.ToLower(identity) {
 			exist = true
 			break
 		}

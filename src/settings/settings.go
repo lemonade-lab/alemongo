@@ -17,10 +17,11 @@ const (
 var Conf = new(AppConfig)
 
 type AppConfig struct {
-	Name          string `mapstructure:"name"`
-	Mode          string `mapstructure:"mode"`
-	*ServerConfig `mapstructure:"server"`
-	*LogConfig    `mapstructure:"log"`
+	Name   string        `mapstructure:"name"`
+	Mode   string        `mapstructure:"mode"`
+	Server *ServerConfig `mapstructure:"server"`
+	Log    *LogConfig    `mapstructure:"log"`
+	SMTP   *SMTPConfig   `mapstructure:"smtp"`
 }
 
 type ServerConfig struct {
@@ -39,12 +40,22 @@ type LogConfig struct {
 	Filename string `mapstructure:"filename"`
 }
 
+// 邮件服务的config
+type SMTPConfig struct {
+	Provider  string `mapstructure:"provider"`
+	Host      string `mapstructure:"host"`
+	Port      int    `mapstructure:"port"`
+	Username  string `mapstructure:"username"`
+	Password  string `mapstructure:"password"`
+	FromEmail string `mapstructure:"from_email"`
+}
+
 // 设置默认值
 func setDefaults() {
 	Conf = &AppConfig{
 		Name: ServiceName,
 		Mode: "release",
-		ServerConfig: &ServerConfig{
+		Server: &ServerConfig{
 			Host: "127.0.0.1",
 			Port: "17187",
 			TokenConfig: &TokenConfig{
@@ -52,9 +63,17 @@ func setDefaults() {
 				ExpiresTime: 1,
 			},
 		},
-		LogConfig: &LogConfig{
+		Log: &LogConfig{
 			Level:    "info",
 			Filename: "alemongo_logs",
+		},
+		SMTP: &SMTPConfig{
+			Provider:  "qq",
+			Host:      "smtp.qq.com",
+			Port:      587,
+			Username:  "lemonade",
+			Password:  "syaborriilwdbfdg",
+			FromEmail: "1715713638@qq.com",
 		},
 	}
 }
@@ -117,7 +136,7 @@ func GetProcessRunAT() string {
 
 // 打印服务信息
 func LogServerInfo() {
-	server := Conf.ServerConfig
+	server := Conf.Server
 	// 打印信息
 	log.Println("http://" + server.Host + ":" + server.Port)
 }

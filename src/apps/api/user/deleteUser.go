@@ -3,7 +3,9 @@ package user
 import (
 	"alemongo/src/apps/api/requests"
 	"alemongo/src/apps/api/response"
-	"alemongo/src/users"
+	"alemongo/src/dao"
+	"alemongo/src/logic"
+
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -15,19 +17,12 @@ func DeleteUserHandler(ctx *gin.Context) {
 		response.ResponseErrorWithMsg(ctx, http.StatusBadRequest, http.StatusBadRequest, "错误请求")
 		return
 	}
-	if !users.IsSuperAdmin(adminname) {
+	if !dao.IsSuperAdmin(adminname) {
 		response.ResponseErrorWithMsg(ctx, http.StatusBadRequest, http.StatusBadRequest, "权限不足")
 		return
 	}
-
 	username := ctx.Query("username")
-	exist := users.ExistUserByUserName(username)
-	if !exist {
-		response.ResponseErrorWithMsg(ctx, http.StatusBadRequest, http.StatusBadRequest, "该用户不存在")
-		return
-	}
-	ok := users.DeleteUserByUserName(username)
-	if !ok {
+	if err := logic.DeleteUser(username); err != nil {
 		response.ResponseErrorWithMsg(ctx, http.StatusBadRequest, http.StatusBadRequest, "删除失败")
 		return
 	}

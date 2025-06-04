@@ -154,7 +154,7 @@ func (mp *ManagedProcess) Start() error {
 	// 检查日志文件路径是否存在
 	if mp.Config.LogPath != "" {
 		var l = new(zapcore.Level)
-		if err := l.UnmarshalText([]byte(settings.Conf.Level)); err != nil {
+		if err := l.UnmarshalText([]byte(settings.Conf.Log.Level)); err != nil {
 			fmt.Printf("unable to unmarshal zapcore.Level: %v\n", err)
 		}
 

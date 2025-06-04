@@ -2,7 +2,9 @@ package user
 
 import (
 	"alemongo/src/apps/api/requests"
-	"alemongo/src/users"
+	"alemongo/src/apps/api/response"
+	"alemongo/src/dao"
+	"alemongo/src/logic"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -12,30 +14,18 @@ import (
 func List(ctx *gin.Context) {
 	adminname, exists := requests.GetUserName(ctx)
 	if !exists {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"code": http.StatusBadRequest,
-			"msg":  "错误请求",
-			"data": nil,
-		})
+		response.ResponseErrorWithMsg(ctx, http.StatusBadRequest, http.StatusBadRequest, "错误请求")
 		return
 	}
-	if !users.IsSuperAdmin(adminname) {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"code": http.StatusBadRequest,
-			"msg":  "权限不足",
-			"data": nil,
-		})
+	if !dao.IsSuperAdmin(adminname) {
+		response.ResponseErrorWithMsg(ctx, http.StatusBadRequest, http.StatusBadRequest, "权限不足")
 		return
 	}
+	users := logic.GetUserList()
 
-	user := users.GetList()
 	// 把密码隐藏掉
-	for i := 0; i < len(user); i++ {
-		user[i].PassWord = "******"
+	for i := 0; i < len(users); i++ {
+		users[i].PassWord = "******"
 	}
-	ctx.JSON(http.StatusOK, gin.H{
-		"code": http.StatusOK,
-		"msg":  "请求成功",
-		"data": user,
-	})
+	response.ResponseSuccess(ctx, users)
 }

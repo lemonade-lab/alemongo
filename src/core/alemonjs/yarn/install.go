@@ -30,7 +30,7 @@ func Install(name string) (string, error) {
 	// cmd.Stdout = os.Stdout
 	// cmd.Stderr = os.Stderr
 	var l = new(zapcore.Level)
-	if err := l.UnmarshalText([]byte(settings.Conf.Level)); err != nil {
+	if err := l.UnmarshalText([]byte(settings.Conf.Log.Level)); err != nil {
 		fmt.Printf("unable to unmarshal zapcore.Level: %v\n", err)
 	}
 
