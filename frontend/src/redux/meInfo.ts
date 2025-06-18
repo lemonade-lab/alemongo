@@ -1,6 +1,8 @@
 import { createSlice } from '@reduxjs/toolkit'
 
 type State = {
+    email: string,
+    is_email_verified: boolean,
     username: string,
     password: string,
     identity: string,
@@ -8,6 +10,8 @@ type State = {
 }
 
 const initialState: State = {
+    email: "",
+    is_email_verified: false,
     username: "",
     password: "",
     identity: "",

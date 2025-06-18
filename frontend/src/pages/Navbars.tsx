@@ -31,6 +31,10 @@ const Navbars = () => {
     },
     {
       key: "3",
+      label: <div onClick={() => navigate("/update-email")}>更改邮箱</div>,
+    },
+    {
+      key: "3",
       label: <div onClick={goLogout}>退出账户</div>,
     },
   ];

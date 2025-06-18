@@ -17,17 +17,9 @@ const UpdatePassWord = () => {
     apiPassword({
       old_assword: values.oldPassword,
       password: values.newPassword,
-    })
-      .then(() => {
-        navigate("/bots");
-      })
-      .catch((err) => {
-        if (err?.response?.data?.msg) {
-          message.error(err.response.data.msg);
-        } else {
-          message.error("修改密码失败");
-        }
-      });
+    }).then(() => {
+      navigate("/bots");
+    });
   };
 
   return (

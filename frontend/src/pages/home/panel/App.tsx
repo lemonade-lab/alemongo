@@ -70,7 +70,7 @@ const Panel = () => {
               type="text"
               className="text-indigo-600 dark:text-indigo-400 hover:underline"
               onClick={() => {
-                message.warning("待更新");
+                navigate(`/bots/${info.name}/env`);
               }}
             >
               .env

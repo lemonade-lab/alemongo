@@ -3,6 +3,7 @@ import { Info } from "./types";
 export * from './users';
 export * from './bot';
 export * from './types'
+export * from './email';
 
 export const apiCommonInfo = async (): Promise<{
     data: Info

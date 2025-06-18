@@ -26,6 +26,8 @@ import PackagesMessage from "./pages/home/panel/packages/message/App";
 import Apps from "./pages/home/Apps/App";
 import AppsNodeJS from "./pages/home/Apps/NodeJS/App";
 import GitPackage from "./pages/home/panel/packages/package/App";
+import UpdateEmail from "./pages/home/UpdateEmail/App";
+import Env from "./pages/home/panel/env/App";
 
 const router = createBrowserRouter([
   {
@@ -73,6 +75,10 @@ const router = createBrowserRouter([
             element: <Packages />,
           },
           {
+            path: "/bots/:name/env",
+            element: <Env />,
+          },
+          {
             path: "/bots/:name/packages/:name",
             element: <PackagesMessage />,
           },
@@ -103,6 +109,10 @@ const router = createBrowserRouter([
           {
             path: "/update-password",
             element: <UpdatePassWord />,
+          },
+          {
+            path: "/update-email",
+            element: <UpdateEmail />,
           },
           {
             path: "/account",
