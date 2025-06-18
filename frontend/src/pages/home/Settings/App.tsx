@@ -1,6 +1,7 @@
 import Box from "@/commom/Box";
 import {RootState} from "@/redux";
 import {SettingOutlined} from "@ant-design/icons";
+import {message} from "antd";
 import {useSelector} from "react-redux";
 
 /**
@@ -50,6 +51,25 @@ const Settings = () => {
                   </div>
                 )
             )}
+          </div>
+          <div className="flex items-center justify-between w-full bg-red-50 dark:bg-zinc-800 rounded-lg px-4 py-3 shadow border border-red-100 dark:border-zinc-600">
+            <div className="text-lg md:text-xl font-medium text-red-600 dark:text-red-400">
+              重置模板
+              {
+                // 这里可以添加更多的描述信息
+              }
+              <span className="text-sm text-gray-500 dark:text-gray-400">
+                （用于替换旧版本的基础机器人模板）
+              </span>
+            </div>
+            <button
+              onClick={() => {
+                message.warning("待更新");
+              }}
+              className="text-lg md:text-xl font-semibold text-red-600 dark:text-red-400 hover:underline focus:outline-none"
+            >
+              重置
+            </button>
           </div>
         </div>
       </div>

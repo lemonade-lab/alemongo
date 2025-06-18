@@ -65,6 +65,18 @@ const Panel = () => {
             </div>
           </div>
           <div className="flex gap-2 items-center">
+            <div className="min-w-20 text-gray-700 dark:text-gray-300">环境:</div>
+            <Button
+              type="text"
+              className="text-indigo-600 dark:text-indigo-400 hover:underline"
+              onClick={() => {
+                message.warning("待更新");
+              }}
+            >
+              .env
+            </Button>
+          </div>
+          <div className="flex gap-2 items-center">
             <div className="min-w-20 text-gray-700 dark:text-gray-300">包:</div>
             <Button
               type="text"

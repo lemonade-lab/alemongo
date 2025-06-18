@@ -66,6 +66,24 @@ export const apiBotPackagesPull = async (data: {
     });
 }
 
+
+export const apiBotPackagesDelete = async (data: {
+    name: string
+    app_name: string
+}): Promise<null> => {
+    return new Promise((resolve, reject) => {
+        request({
+            url: "/bot/packages",
+            method: "delete",
+            data,
+        })
+            .then((res) => res.data)
+            .then(resolve)
+            .catch(reject);
+    });
+}
+
+
 export const apiBotPackagesInfo = async (data: {
     name: string
     app_name: string
@@ -74,6 +92,23 @@ export const apiBotPackagesInfo = async (data: {
         request({
             url: "/bot/packages/info",
             method: "post",
+            data,
+        })
+            .then((res) => res.data)
+            .then(resolve)
+            .catch(reject);
+    });
+}
+
+export const apiBotPackagesGitPackageUpdate = async (data: {
+    name: string
+    app_name: string
+    content: string
+}): Promise<null> => {
+    return new Promise((resolve, reject) => {
+        request({
+            url: "/bot/packages/pkg",
+            method: "put",
             data,
         })
             .then((res) => res.data)

@@ -1,16 +1,18 @@
-import { useEffect, useState } from "react";
+import {useEffect, useState} from "react";
 import {
   apiBotInfo,
   apiBotPackageClone,
+  apiBotPackagesDelete,
   apiBotPackagesList,
+  apiBotPackagesPull,
   BotInfo,
   BotPackages,
 } from "@/api";
-import { Button, Form, Input, Modal, Tag } from "antd";
-import { getBotName } from "../core";
+import {Button, Form, Input, message, Modal, Popconfirm, Tag} from "antd";
+import {getBotName} from "../core";
 import Box from "@/commom/Box";
-import dayjs from "dayjs";
-import { useNavigate } from "react-router-dom";
+import {useNavigate} from "react-router-dom";
+import Xterm from "../Xterm";
 
 const Panel = () => {
   const [pkgs, setPkgs] = useState<BotPackages[]>([]);
@@ -25,6 +27,7 @@ const Panel = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [visible, setVisible] = useState(false);
   const [form] = Form.useForm();
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     if (!visible) {
@@ -37,12 +40,12 @@ const Panel = () => {
   }, [form, visible]);
 
   const initBotInfo = (name: string) => {
-    apiBotInfo({ name }).then((res) => {
+    apiBotInfo({name}).then((res) => {
       setInfo(res);
     });
   };
   const initPKGNames = (name: string) => {
-    apiBotPackagesList({ name }).then((res) => {
+    apiBotPackagesList({name}).then((res) => {
       setPkgs(res);
     });
   };
@@ -53,7 +56,7 @@ const Panel = () => {
     initPKGNames(name);
   }, []);
 
-  const onFinish = (values: { url: string; branch: string }) => {
+  const onFinish = (values: {url: string; branch: string}) => {
     if (isLoading) return;
     setIsLoading(true);
     apiBotPackageClone({
@@ -67,6 +70,35 @@ const Panel = () => {
       .finally(() => {
         setIsLoading(false);
         setVisible(false);
+      });
+  };
+
+  const onDelete = (name: string) => {
+    // 删除扩展
+    if (isLoading) return;
+    setIsLoading(true);
+    apiBotPackagesDelete({
+      name: info.name,
+      app_name: name,
+    }).finally(() => {
+      setIsLoading(false);
+    });
+  };
+
+  const onUpdate = (item: BotPackages | null) => {
+    if (!item || isLoading) return;
+    setIsLoading(true);
+    apiBotPackagesPull({
+      name: info.name,
+      repo_name: item.name,
+      branch_name: item.git.branch,
+    })
+      .then(() => {
+        message.success("更新成功");
+        setOpen(true);
+      })
+      .finally(() => {
+        setIsLoading(false);
       });
   };
 
@@ -92,16 +124,50 @@ const Panel = () => {
                     <div
                       key={item.name}
                       className="flex justify-between items-center border border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 p-3 rounded-md cursor-pointer hover:border-slate-300 hover:bg-slate-50 dark:hover:bg-zinc-800 transition-colors"
-                      onClick={() => {
+                      onClick={(e) => {
+                        e.stopPropagation();
                         navigate(`/bots/${getBotName()}/packages/${item.name}`);
                       }}
                     >
-                      <div className="flex flex-wrap gap-2">
+                      <div className="flex flex-col  md:flex-row flex-wrap gap-2">
+                        <Tag color="blue">{item.name}</Tag>
                         <Tag color="blue">{pkgJSON["name"]}</Tag>
                         <Tag color="geekblue">{pkgJSON["description"]}</Tag>
-                        <Tag color="default">
-                          {dayjs(item.git.date).format("YYYY-MM-DD HH:mm:ss")}
-                        </Tag>
+                      </div>
+                      <div className="flex flex-col  md:flex-row gap-2 items-center">
+                        <Button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(
+                              `/bots/${getBotName()}/packages/${item.name}/package`
+                            );
+                          }}
+                        >
+                          配置
+                        </Button>
+                        <Button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onUpdate(item);
+                          }}
+                        >
+                          更新
+                        </Button>
+                        <div onClick={(e) => e.stopPropagation()}>
+                          <Popconfirm
+                            title="彻底删除"
+                            description="你确定删除这个机器人吗?"
+                            onConfirm={() => {
+                              onDelete(item.name);
+                            }}
+                            okText="确定"
+                            cancelText="取消"
+                          >
+                            <Button type="primary" className="bg-red-500">
+                              删除
+                            </Button>
+                          </Popconfirm>
+                        </div>
                       </div>
                     </div>
                   );
@@ -126,19 +192,31 @@ const Panel = () => {
             <Form.Item
               label="地址"
               name="url"
-              rules={[{ required: true, message: "请输入Git仓库地址" }]}
+              rules={[{required: true, message: "请输入Git仓库地址"}]}
             >
               <Input placeholder="git@github.com:xiuxianjs/xiuxian-bot.git" />
             </Form.Item>
             <Form.Item
               label="分支"
               name="branch"
-              rules={[{ required: true, message: "请输入分支名" }]}
+              rules={[{required: true, message: "请输入分支名"}]}
             >
               <Input placeholder="release" />
             </Form.Item>
           </Form>
         </Modal>
+        {open && (
+          <Modal
+            open
+            title="日志"
+            onCancel={() => setOpen(false)}
+            footer={null}
+          >
+            <div className="flex h-[calc(100vh/1.5)]">
+              <Xterm info={info} onUpdate={(name) => initBotInfo(name)} />
+            </div>
+          </Modal>
+        )}
       </div>
     </Box>
   );

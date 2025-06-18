@@ -1,18 +1,19 @@
 import {
   apiBotInfo,
-  apiBotPackage,
-  apiBotPackageUpdate,
+  apiBotPackagesGitPackageUpdate,
+  apiBotPackagesInfo,
   apiBotYarnInstall,
   BotInfo,
+  BotPackages,
 } from "@/api";
 import {Button, message, Modal, Spin} from "antd";
 import {useEffect, useState} from "react";
-import {getBotName} from "../core";
+import {getBotName, getGitPackageName} from "../../core";
 import Box from "@/commom/Box";
 import JSONEdit from "@/commom/JSONEdit";
-import Xterm from "../Xterm";
+import Xterm from "../../Xterm";
 
-const Package = () => {
+const GitPackage = () => {
   const [pkgData, setPkgData] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
   const [info, setInfo] = useState<BotInfo>({
@@ -25,6 +26,23 @@ const Package = () => {
   const [open, setOpen] = useState(false);
   const [isInstallLoading, setIsInstallLoadin] = useState(false);
 
+  const initBotInfo = (name: string) => {
+    apiBotInfo({name}).then((res) => {
+      setInfo(res);
+    });
+  };
+
+  const initBotPackage = (name: string) => {
+    const pkgName = getGitPackageName();
+    apiBotPackagesInfo({
+      name,
+      app_name: pkgName,
+    }).then((res: BotPackages) => {
+      if (res.pkg) {
+        setPkgData(res.pkg);
+      }
+    });
+  };
   /**
    * @param _name
    * @param value
@@ -32,17 +50,18 @@ const Package = () => {
    */
   const onSave = (_name: string, value: string) => {
     if (isLoading) {
+      message.warning("正在加载中，请稍后");
       return;
     }
     const name = getBotName();
-    setIsLoading(true);
-    apiBotPackageUpdate({
+    const pkgName = getGitPackageName();
+    apiBotPackagesGitPackageUpdate({
       name: name,
+      app_name: pkgName,
       content: value,
-    })
-      .finally(() => {
-        setIsLoading(false);
-      });
+    }).finally(() => {
+      setIsLoading(false);
+    });
   };
 
   /**
@@ -52,7 +71,7 @@ const Package = () => {
    */
   const onInstall = (name: string) => {
     if (isLoading) {
-      message.warning("正在安装中，请稍后");
+      message.warning("进行中，请稍后");
       return;
     }
     setIsInstallLoadin(true);
@@ -65,25 +84,11 @@ const Package = () => {
       })
       .catch((err) => {
         console.log("err", err);
-        message.error("安装失败");
+        message.error("失败");
       })
       .finally(() => {
         setIsInstallLoadin(false);
       });
-  };
-
-  const initBotInfo = (name: string) => {
-    apiBotInfo({name}).then((res) => {
-      setInfo(res);
-    });
-  };
-
-  const initBotPackage = (name: string) => {
-    apiBotPackage({
-      name: name,
-    }).then((res) => {
-      setPkgData(res);
-    });
   };
 
   useEffect(() => {
@@ -137,7 +142,12 @@ const Package = () => {
         </Spin>
       </div>
       {open && (
-        <Modal open title="日志" onCancel={() => setOpen(false)} footer={null}>
+        <Modal
+          open
+          title="控制台"
+          onCancel={() => setOpen(false)}
+          footer={null}
+        >
           <div className="flex h-[calc(100vh/1.5)]">
             <Xterm info={info} onUpdate={(name) => initBotInfo(name)} />
           </div>
@@ -147,4 +157,4 @@ const Package = () => {
   );
 };
 
-export default Package;
+export default GitPackage;

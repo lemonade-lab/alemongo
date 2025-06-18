@@ -1,58 +1,21 @@
 import {useEffect, useState} from "react";
-import {
-  apiBotInfo,
-  apiBotPackagesInfo,
-  apiBotPackagesPull,
-  apiBotYarnInstall,
-  BotInfo,
-  BotPackages,
-} from "@/api";
-import {Button, message, Tag} from "antd";
+import {apiBotPackagesInfo, BotPackages} from "@/api";
+import {Button, Tag} from "antd";
 import Box from "@/commom/Box";
-import {getBotName} from "../../core";
+import {getBotName, getGitPackageName} from "../../core";
 import Markdown from "@/commom/Markdown";
-import Xterm from "../../Xterm";
 import dayjs from "dayjs";
 
 const PackagesMessage = () => {
-  const [info, setInfo] = useState<BotInfo>({
-    name: "",
-    status: 0,
-    pid: 0,
-    node_modules: false,
-    create_at: "",
-  });
-  const [isLoading, setIsLoading] = useState(false);
   const [item, setItem] = useState<BotPackages | null>(null);
-  const [isInstallLoading, setIsInstallLoading] = useState(false);
+  const pkgJSON = JSON.parse(item?.pkg || "{}");
 
-  const initBotInfo = (name: string) => {
-    apiBotInfo({
-      name,
-    }).then((res) => {
-      setInfo(res);
-    });
-  };
-
-  const onInstall = (name: string) => {
-    if (isInstallLoading) {
-      message.warning("正在加载中，请稍后");
-      return;
-    }
-    setIsInstallLoading(true);
-    apiBotYarnInstall({
-      name,
-    })
-      .then(() => {
-        message.success("加载成功");
-      })
-      .finally(() => {
-        setIsInstallLoading(false);
-      });
-  };
-
+  /**
+   * 初始化
+   * @param name
+   */
   const initPKGNames = (name: string) => {
-    const pkaName = window.location.pathname.split("/").pop();
+    const pkaName = getGitPackageName();
     apiBotPackagesInfo({
       name,
       app_name: pkaName,
@@ -63,29 +26,8 @@ const PackagesMessage = () => {
 
   useEffect(() => {
     const name = getBotName();
-    initBotInfo(name);
     initPKGNames(name);
-    // eslint-disable-next-line
   }, []);
-
-  const onUpdate = (item: BotPackages | null) => {
-    if (!item || isLoading) return;
-    setIsLoading(true);
-    apiBotPackagesPull({
-      name: info.name,
-      repo_name: item.name,
-      branch_name: item.git.branch,
-    })
-      .then(() => {
-        message.success("更新成功");
-        initPKGNames(info.name);
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
-  };
-
-  const pkgJSON = JSON.parse(item?.pkg || "{}");
 
   return (
     <Box>
@@ -96,43 +38,25 @@ const PackagesMessage = () => {
               <Tag color="blue">{pkgJSON["name"]}</Tag>
               <Tag color="geekblue">{pkgJSON["description"]}</Tag>
             </div>
-            <div className="flex gap-2 items-center justify-center">
-              <Button
-                type="primary"
-                loading={isLoading}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onUpdate(item);
-                }}
-              >
-                尝试更新
-              </Button>
-              <Button
-                type="primary"
-                loading={isInstallLoading}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onInstall(info.name);
-                }}
-              >
-                加载依赖
-              </Button>
-            </div>
           </div>
-          <div className="flex flex-wrap gap-2">
-            <Tag color="purple">{pkgJSON["version"]}</Tag>
-            <Tag color="cyan">{item?.git.branch}</Tag>
-            <Tag color="default">
-              {item?.git.date
-                ? dayjs(item.git.date).format("YYYY-MM-DD HH:mm:ss")
-                : ""}
-            </Tag>
+          <div className="flex justify-between items-center">
+            <div className="flex flex-wrap gap-2">
+              <Tag color="purple">{pkgJSON["version"]}</Tag>
+              <Tag color="cyan">{item?.git.branch}</Tag>
+              <Tag color="default">
+                {item?.git.date
+                  ? dayjs(item.git.date).format("YYYY-MM-DD HH:mm:ss")
+                  : ""}
+              </Tag>
+            </div>
+            <div>
+              <Button type="primary">强制更新</Button>
+            </div>
           </div>
           <Box>
             <Markdown source={item?.md || ""} />
           </Box>
         </div>
-        <Xterm info={info} onUpdate={(name) => initBotInfo(name)} />
       </div>
     </Box>
   );

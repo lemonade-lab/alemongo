@@ -8,7 +8,7 @@ export const nameMap: { [key: string]: string } = {
     redis: "Redis",
     mysql: "MySQL",
     config: "配置",
-    packages: "包",
+    packages: "包集",
     plugins: "插件",
     plugins_dir: "插件目录",
     node_modules: "node_modules",

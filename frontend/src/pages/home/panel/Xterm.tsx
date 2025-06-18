@@ -190,10 +190,7 @@ const Xterm = ({
         rounded-b-md
         text-white dark:text-gray-100
         p-1
-        w-[calc(100vw-2rem)]
-        sm:w-[calc(100vw-10rem)]
         xl:w-full
-        h-[calc(100vh/2-6rem)]
         xl:h-[calc(100vh-10rem)]
         transition-colors
         "

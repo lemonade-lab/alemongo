@@ -25,6 +25,7 @@ import SSHUpdate from "./pages/home/GitSSH/Update";
 import PackagesMessage from "./pages/home/panel/packages/message/App";
 import Apps from "./pages/home/Apps/App";
 import AppsNodeJS from "./pages/home/Apps/NodeJS/App";
+import GitPackage from "./pages/home/panel/packages/package/App";
 
 const router = createBrowserRouter([
   {
@@ -74,6 +75,10 @@ const router = createBrowserRouter([
           {
             path: "/bots/:name/packages/:name",
             element: <PackagesMessage />,
+          },
+          {
+            path: "/bots/:name/packages/:name/package",
+            element: <GitPackage />,
           },
           {
             path: "/apps",

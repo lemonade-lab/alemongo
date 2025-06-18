@@ -3,11 +3,11 @@ import SiderMenu from "./SiderMenu";
 import {Breadcrumb} from "antd";
 
 const map = {
-  bots: "机器人",
-  configs: "配置",
+  bots: "机器人集",
+  configs: "配置集",
   config: "配置",
-  packages: "配置",
-  package: "配置",
+  packages: "包集",
+  package: "包",
   create: "创建",
   update: "更新",
   accounts: "账户",
