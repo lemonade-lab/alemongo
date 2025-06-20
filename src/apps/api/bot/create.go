@@ -2,13 +2,10 @@ package bot
 
 import (
 	"alemongo/src/apps/api/response"
-	"alemongo/src/settings"
+	"alemongo/src/logic"
 	"net/http"
-	"os"
-	"path"
 
 	"github.com/gin-gonic/gin"
-	"github.com/otiai10/copy"
 )
 
 // 创建机器人
@@ -16,54 +13,14 @@ func Create(ctx *gin.Context) {
 	// 获得表单数据
 	name := ctx.PostForm("name")
 	if name == "" {
-		response.ResponseError(ctx, http.StatusBadRequest, response.RobotNameIsEmpty)
-		//ctx.JSON(http.StatusBadRequest, gin.H{
-		//	"code": http.StatusBadRequest,
-		//	"msg":  "机器人名不能为空",
-		//	"data": nil,
-		//})
+		response.ResponseErrorWithMsg(ctx, http.StatusBadRequest, response.RobotNameIsEmpty, "机器人名不能为空")
 	}
-	// 资源路径
-	resourcesPath := settings.GetResourcesPath()
-	// 目标路径
-	targetPath := path.Join(resourcesPath, name)
-	// 检查是否存在目录 ./resources/{name}
-	if _, err := os.Stat(targetPath); err == nil {
-		response.ResponseError(ctx, http.StatusBadRequest, response.RobotAlreadyExist)
-		//ctx.JSON(http.StatusBadRequest, gin.H{
-		//	"code": http.StatusBadRequest,
-		//	"msg":  "机器人已存在",
-		//	"data": targetPath,
-		//})
-		return
-	}
-	// 创建目录 ./resources/{name}
-	if err := os.MkdirAll(targetPath, 0755); err != nil {
-		response.ResponseError(ctx, http.StatusBadRequest, response.RobotCreateFailed)
-		//ctx.JSON(http.StatusBadRequest, gin.H{
-		//	"code": http.StatusBadRequest,
-		//	"msg":  "创建机器人失败",
-		//	"data": targetPath,
-		//})
-		return
-	}
-	// 模板路径
-	templatePath := path.Join(resourcesPath, "template")
-	// 复制文件 /resources/template 复制到 /resources/{name}
-	if err := copy.Copy(templatePath, targetPath); err != nil {
-		response.ResponseError(ctx, http.StatusBadRequest, response.RobotCreateFailed)
-		//ctx.JSON(http.StatusBadRequest, gin.H{
-		//	"code": http.StatusBadRequest,
-		//	"msg":  "创建机器人失败",
-		//	"data": targetPath,
-		//})
+
+	targetPath, err := logic.CreateBot(name)
+	if err != response.CodeSuccess {
+		response.ResponseError(ctx, http.StatusInternalServerError, err)
 		return
 	}
 
 	response.ResponseSuccess(ctx, targetPath)
-	//ctx.JSON(http.StatusOK, gin.H{
-	//	"code": http.StatusOK,
-	//	"msg":  "机器人创建成功",
-	//	"data": targetPath,
-	//})
 }

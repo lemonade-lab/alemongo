@@ -1,9 +1,11 @@
 package bot
 
 import (
+	"alemongo/src/apps/api/response"
 	"alemongo/src/core/alemonjs"
 	"alemongo/src/settings"
 	"alemongo/src/utils"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -13,11 +15,9 @@ import (
 func List(ctx *gin.Context) {
 	resourcesPath := settings.GetResourcesPath()
 	names, err := utils.GetDirNames(resourcesPath)
+	fmt.Println("bots names: ", names)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"code": http.StatusBadRequest,
-			"msg":  "获取列表失败",
-		})
+		response.ResponseErrorWithMsg(ctx, http.StatusBadRequest, http.StatusBadRequest, "获取列表失败")
 		return
 	}
 	bots := []alemonjs.BotInfo{}
