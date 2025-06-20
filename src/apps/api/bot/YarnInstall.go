@@ -1,8 +1,8 @@
 package bot
 
 import (
-	"alemongo/src/core/alemonjs"
-	"alemongo/src/core/alemonjs/yarn"
+	"alemongo/src/apps/api/response"
+	"alemongo/src/logic"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -10,34 +10,10 @@ import (
 
 func YarnInstall(ctx *gin.Context) {
 	name := ctx.PostForm("name")
-	if name == "" {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"code": http.StatusBadRequest,
-			"msg":  "机器人名不能为空",
-			"data": nil,
-		})
-		return
-	}
-	if !alemonjs.Exists(name) {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"code": http.StatusBadRequest,
-			"msg":  "机器人不存在",
-			"data": nil,
-		})
-		return
-	}
-	msg, err := yarn.Install(name)
+	msg, err := logic.BotYarnInstall(name)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"code": http.StatusBadRequest,
-			"msg":  msg,
-			"data": err,
-		})
+		response.ResponseErrorWithMsg(ctx, http.StatusBadRequest, http.StatusBadRequest, err.Error())
 		return
 	}
-	ctx.JSON(http.StatusOK, gin.H{
-		"code": http.StatusOK,
-		"msg":  msg,
-		"data": nil,
-	})
+	response.ResponseSuccessWithMsg(ctx, err, msg)
 }
