@@ -53,6 +53,8 @@ func Create(mode string) *gin.Engine {
 			{
 				// 开机自启
 				SettingsAPI.GET("/powerboot", settings.PowerBoot)
+				// 重置基础机器人模板
+				SettingsAPI.POST("/template/reset", settings.ResetTemplate)
 			}
 			// user api
 			UserAPI := v1.Group("/user")

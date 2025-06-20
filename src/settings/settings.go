@@ -108,6 +108,11 @@ func Init(filepath string) (err error) {
 	}
 }
 
+// 获取机器人模板目录
+func GetBotTemplate() string {
+	return path.Join("resources")
+}
+
 // 获取工作目录
 func GetWorkPath() string {
 	return path.Join("work")

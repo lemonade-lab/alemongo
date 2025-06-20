@@ -1,7 +1,7 @@
 package bot
 
 import (
-	"alemongo/src/core/alemonjs"
+	"alemongo/src/logic"
 	"alemongo/src/utils"
 	"encoding/json"
 	"net/http"
@@ -42,7 +42,7 @@ func GetPackageInfo(packagesPath, botName, appName string) (map[string]interface
 	}
 
 	// 检查 node_modules 下是否存在
-	nodeModulesPath := path.Join(alemonjs.GetBotPath(botName), "node_modules", pkgName)
+	nodeModulesPath := path.Join(logic.GetBotPath(botName), "node_modules", pkgName)
 	isExist := 1
 	if _, err := os.Stat(nodeModulesPath); os.IsNotExist(err) {
 		if fileInfo, err := os.Lstat(nodeModulesPath); err != nil || (fileInfo.Mode()&os.ModeSymlink == 0) {
@@ -101,7 +101,7 @@ func PackagesList(ctx *gin.Context) {
 		})
 		return
 	}
-	if !alemonjs.Exists(botName) {
+	if !logic.Exists(botName) {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"code": http.StatusBadRequest,
 			"msg":  "机器人不存在",
@@ -110,7 +110,7 @@ func PackagesList(ctx *gin.Context) {
 		return
 	}
 
-	botPath := alemonjs.GetBotPath(botName)
+	botPath := logic.GetBotPath(botName)
 	packagesPath := path.Join(botPath, "packages")
 	data := []map[string]interface{}{}
 

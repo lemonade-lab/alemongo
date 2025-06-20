@@ -1,7 +1,7 @@
 package bot
 
 import (
-	"alemongo/src/core/alemonjs"
+	"alemongo/src/logic"
 	"net/http"
 	"os"
 	"path"
@@ -28,7 +28,7 @@ func PackageUpdate(ctx *gin.Context) {
 		})
 		return
 	}
-	botPath := alemonjs.GetBotPath(name)
+	botPath := logic.GetBotPath(name)
 	pkgPath := path.Join(botPath, "package.json")
 	// 把数据写入该文件
 	err := os.WriteFile(pkgPath, []byte(content), 0644)

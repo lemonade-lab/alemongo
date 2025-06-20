@@ -2,8 +2,8 @@ package bot
 
 import (
 	"alemongo/src/apps/api/response"
-	"alemongo/src/core/alemonjs"
 	"alemongo/src/logger"
+	"alemongo/src/logic"
 	"alemongo/src/settings"
 	"net/http"
 	"os"
@@ -40,7 +40,7 @@ func PackagesPull(ctx *gin.Context) {
 		})
 		return
 	}
-	if !alemonjs.Exists(name) {
+	if !logic.Exists(name) {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"code": http.StatusBadRequest,
 			"msg":  "机器人不存在",
@@ -50,7 +50,7 @@ func PackagesPull(ctx *gin.Context) {
 	}
 
 	// 获取路径
-	botPath := alemonjs.GetBotPath(name)
+	botPath := logic.GetBotPath(name)
 	repoPath := path.Join(botPath, "packages", repo_name)
 
 	if _, err := os.Stat(repoPath); os.IsNotExist(err) {
