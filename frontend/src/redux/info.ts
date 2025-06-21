@@ -35,7 +35,7 @@ const notificationSlice = createSlice({
       state.git = action.payload.git
       state.start_at = action.payload.start_at
       state.location = action.payload.location
-    }
+    },
   }
 })
 

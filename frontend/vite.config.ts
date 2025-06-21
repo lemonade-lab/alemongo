@@ -1,10 +1,17 @@
 import { defineConfig } from 'vite'
 import { fileURLToPath, URL } from 'url'
 import react from '@vitejs/plugin-react-swc'
+import viteCompression from 'vite-plugin-compression'
+import { VitePWA } from 'vite-plugin-pwa'
+
 // https://vite.dev/config/
 const NODE_ENV = process.env.NODE_ENV === 'development'
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(),
+  viteCompression({ algorithm: 'gzip', ext: '.gz' }),
+  viteCompression({ algorithm: 'brotliCompress', ext: '.br' }),
+  VitePWA({ registerType: 'autoUpdate' })
+  ],
   resolve: {
     alias: [
       {
@@ -27,6 +34,9 @@ export default defineConfig({
     drop: NODE_ENV ? [] : ['console', 'debugger']
   },
   build: {
+    sourcemap: NODE_ENV, // 仅开发环境生成 sourcemap
+    cssCodeSplit: true, // 开启 CSS 代码分割
+    emptyOutDir: true, // 自动清理 dist
     commonjsOptions: {
       transformMixedEsModules: true
     },
@@ -42,10 +52,12 @@ export default defineConfig({
     rollupOptions: {
       output: {
         dir: '../dist',
-        // 拆分，根据文件分类
         entryFileNames: 'js/[name]-[hash].js',
         chunkFileNames: 'js/[name]-[hash].js',
-        assetFileNames: 'css/[name]-[hash][extname]',
+        assetFileNames: ({ name }) => {
+          if (/\.(css)$/.test(name ?? '')) return 'css/[name]-[hash][extname]'
+          return 'assets/[name]-[hash][extname]'
+        },
         manualChunks(id) {
           if (id.includes('node_modules')) {
             if (id.includes('react')) return 'vendor-react'

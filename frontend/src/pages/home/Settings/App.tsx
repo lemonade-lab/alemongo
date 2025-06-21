@@ -1,27 +1,26 @@
 import Box from "@/commom/Box";
-import {RootState} from "@/redux";
+import {useCommon} from "@/hook/useCommon";
 import {SettingOutlined} from "@ant-design/icons";
 import {message} from "antd";
-import {useSelector} from "react-redux";
 
 /**
  * @returns
  */
 const Settings = () => {
-  const info = useSelector((state: RootState) => state.info);
+  const [common] = useCommon();
 
   const tools = [
     {
       name: "IP",
       data: {
         installed: true,
-        version: info.location || "N/A",
+        version: common.info.location || "N/A",
       },
     },
-    {name: "NodeJS", data: info.node},
-    {name: "NVM", data: info.nvm},
-    {name: "Git", data: info.git},
-    {name: "Browser", data: info.browser},
+    {name: "NodeJS", data: common.info.node},
+    {name: "NVM", data: common.info.nvm},
+    {name: "Git", data: common.info.git},
+    {name: "Browser", data: common.info.browser},
   ];
 
   return (

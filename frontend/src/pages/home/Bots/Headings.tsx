@@ -1,9 +1,10 @@
 import {useState} from "react";
 import {apiBotCreate} from "../../../api";
 import {Button, Form, Input, message} from "antd";
-import {useSelector} from "react-redux";
-import {RootState} from "../../../redux";
+// import {useSelector} from "react-redux";
+// import {RootState} from "../../../redux";
 import {Modal} from "antd";
+import { useCommon } from "@/hook/useCommon";
 
 const Headings = ({
   onUpdate,
@@ -13,7 +14,9 @@ const Headings = ({
   onClick?: (key: string) => void;
 }) => {
   const [visible, setVisible] = useState(false);
-  const info = useSelector((state: RootState) => state.info);
+  // const info = useSelector((state: RootState) => state.info);
+  const [common] = useCommon();
+  const info = common.info;
   /**
    * @param e
    * @returns

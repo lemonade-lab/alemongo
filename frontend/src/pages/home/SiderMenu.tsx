@@ -44,7 +44,7 @@ const SiderMenu = () => {
   // 过滤得到 item
   const curMenuItems = menuItems.filter((item) => {
     if (item?.identity) {
-      if (item?.identity !== storeMe.identity) {
+      if (item?.identity !== storeMe.info.identity) {
         // console.log("没有权限", item?.identity, storeMe);
         return false;
       }

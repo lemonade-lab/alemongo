@@ -68,10 +68,10 @@ const UpdateEmail = () => {
           <div className="text-xl md:text-2xl font-bold text-gray-800 dark:text-gray-100 mb-2">
             绑定邮箱
           </div>
-          {storeMe.email && (
+          {storeMe.info.email && (
             <span className="text-sm text-gray-500 dark:text-gray-400">
-              {`邮箱：${storeMe.email}`}
-              {storeMe.is_email_verified ? "（已验证）" : "（未验证）"}
+              {`邮箱：${storeMe.info.email}`}
+              {storeMe.info.is_email_verified ? "（已验证）" : "（未验证）"}
             </span>
           )}
           <form

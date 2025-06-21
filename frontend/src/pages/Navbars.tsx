@@ -39,7 +39,7 @@ const Navbars = () => {
     },
   ];
 
-  const storeMe = useSelector((state: RootState) => state.me);
+  const storeMe = useSelector((state: RootState) => state.me.info);
   // 过滤得到 item
   const curMenuItems = menuItems.filter((item) => {
     if (item?.identity) {

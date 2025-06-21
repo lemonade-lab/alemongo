@@ -4,26 +4,21 @@ import {RootState} from "../redux";
 import {useEffect} from "react";
 import {useNavigate} from "react-router-dom";
 import Navbars from "./Navbars";
-import {apiCommonInfo, apiInfo} from "../api";
-import {setInfo} from "../redux/info";
-import {setUserInfo} from "@/redux/meInfo";
+import {apiInfo} from "@/api";
+import {setUserInfo} from "@/redux/me";
 const Main = () => {
-  const storeLogin = useSelector((state: RootState) => state.login);
-  const dispatch = useDispatch();
+  const me = useSelector((state: RootState) => state.me);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   useEffect(() => {
-    if (!storeLogin.login) {
+    if (!me.login) {
       navigate("/login");
       return;
     }
-    apiCommonInfo()
-      .then((res) => res.data)
-      .then((res) => {
-        dispatch(setInfo(res));
-      });
-    // 获得 info
-    apiInfo().then((res) => dispatch(setUserInfo(res)));
-  }, [storeLogin.login, navigate, dispatch]);
+    if (!me.info.username) {
+      apiInfo().then((res) => dispatch(setUserInfo(res)));
+    }
+  }, [me, navigate, dispatch]);
   return (
     <div className="w-screen h-screen flex flex-col">
       <Navbars />

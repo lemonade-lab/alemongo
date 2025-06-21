@@ -2,7 +2,7 @@ import {useDispatch} from "react-redux";
 import {message} from "antd";
 import {useNavigate} from "react-router-dom";
 import {apiLogin} from "@/api";
-import {setToken} from "@/redux/login";
+import {setToken} from "@/redux/me";
 import "./index.css";
 
 const Login = () => {

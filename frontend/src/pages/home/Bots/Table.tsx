@@ -11,6 +11,7 @@ import {useNavigate} from "react-router-dom";
 import Pagination from "../../../commom/Pagination";
 import Box from "@/commom/Box";
 import Headings from "./Headings";
+import { useCommon } from "@/hook/useCommon";
 
 const BotTable = ({onClick = () => {}}: {onClick: (key: string) => void}) => {
   // 数据
@@ -47,9 +48,14 @@ const BotTable = ({onClick = () => {}}: {onClick: (key: string) => void}) => {
     });
   };
 
+  const [common] = useCommon();
+
   useEffect(() => {
+    if(!common.info.start_at){
+      return;
+    }
     initData();
-  }, []);
+  }, [common.info]);
 
   const [names, setNames] = useState<string[]>([]);
 
@@ -210,7 +216,12 @@ const BotTable = ({onClick = () => {}}: {onClick: (key: string) => void}) => {
         onClick={onClick}
       />
       <Box>
-        <Table pagination={false} columns={columns} dataSource={curData} />
+        <Table
+          rowKey="name"
+          pagination={false}
+          columns={columns}
+          dataSource={curData}
+        />
       </Box>
       <Pagination
         total={pageInfo.total}

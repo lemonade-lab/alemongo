@@ -1,10 +1,8 @@
 import { configureStore } from '@reduxjs/toolkit'
-import loginReducer from './login'
 import infoReducer from './info'
-import meInfoReducer from './meInfo'
+import meInfoReducer from './me'
 const store = configureStore({
   reducer: {
-    login: loginReducer,
     info: infoReducer,
     me: meInfoReducer,
   }
