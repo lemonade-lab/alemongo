@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"errors"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -89,7 +90,7 @@ func UpdateTemplateDir(originFS string, targetFS string) error {
 		// relPath: /index.html
 		relPath, err := filepath.Rel(originFS, path)
 		if err != nil {
-			return err
+			return errors.New("无法获取文件相对路径")
 		}
 		// 拼接成目标地址
 		dstPath := filepath.Join(targetFS, relPath)
@@ -104,7 +105,7 @@ func UpdateTemplateDir(originFS string, targetFS string) error {
 		}
 
 		if err := os.MkdirAll(filepath.Dir(dstPath), os.ModePerm); err != nil {
-			return err
+			return errors.New("更新模板文件失败")
 		}
 
 		return os.WriteFile(dstPath, data, info.Mode())

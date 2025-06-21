@@ -5,5 +5,5 @@ import (
 )
 
 func ResetTemplate(originPath, targetPath string) error {
-	return utils.UpdateTemplateDir("resources/template", "work/resources/template")
+	return utils.UpdateTemplateDir(originPath, targetPath)
 }
