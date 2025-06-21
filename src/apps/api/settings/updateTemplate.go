@@ -14,7 +14,7 @@ func ResetTemplate(ctx *gin.Context) {
 	targetPath := settings.GetResourcesPath()
 
 	if err := logic.ResetTemplate(originPath, targetPath); err != nil {
-		response.ResponseError(ctx, http.StatusBadRequest, http.StatusBadRequest)
+		response.ResponseErrorWithMsg(ctx, http.StatusBadRequest, http.StatusBadRequest, err.Error())
 	}
 	response.ResponseSuccess(ctx, nil)
 }
