@@ -20,7 +20,6 @@ const XtermDate = lazy(() => import("./pages/home/panel/xterm-date/App"));
 const Response = lazy(() => import("./pages/home/panel/response/App"));
 const Packages = lazy(() => import("./pages/home/panel/packages/App"));
 const Account = lazy(() => import("./pages/home/Account/App"));
-const GoBots = lazy(() => import("./GoBots"));
 const ConfigEdit = lazy(() => import("./pages/home/configs/create/App"));
 const Configs = lazy(() => import("./pages/home/configs/App"));
 const SSH = lazy(() => import("./pages/home/GitSSH/App"));
@@ -65,7 +64,31 @@ const router = createBrowserRouter([
             path: "/",
             element: (
               <WithSuspense>
-                <GoBots />
+                <Apps />
+              </WithSuspense>
+            ),
+          },
+          {
+            path: "/apps/qqbot-button-template",
+            element: (
+              <WithSuspense>
+                <ButtonTemplate />
+              </WithSuspense>
+            ),
+          },
+          {
+            path: "/apps/onebot",
+            element: (
+              <WithSuspense>
+                <OneBot />
+              </WithSuspense>
+            ),
+          },
+          {
+            path: "/apps/nodejs",
+            element: (
+              <WithSuspense>
+                <AppsNodeJS />
               </WithSuspense>
             ),
           },
@@ -146,38 +169,6 @@ const router = createBrowserRouter([
             element: (
               <WithSuspense>
                 <GitPackage />
-              </WithSuspense>
-            ),
-          },
-          {
-            path: "/apps",
-            element: (
-              <WithSuspense>
-                <Apps />
-              </WithSuspense>
-            ),
-          },
-          {
-            path: "/apps/qqbot-button-template",
-            element: (
-              <WithSuspense>
-                <ButtonTemplate />
-              </WithSuspense>
-            ),
-          },
-          {
-            path: "/apps/onebot",
-            element: (
-              <WithSuspense>
-                <OneBot />
-              </WithSuspense>
-            ),
-          },
-          {
-            path: "/apps/nodejs",
-            element: (
-              <WithSuspense>
-                <AppsNodeJS />
               </WithSuspense>
             ),
           },

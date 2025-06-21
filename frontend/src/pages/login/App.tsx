@@ -67,7 +67,7 @@ const Login = () => {
             欢迎登录
           </h2>
           <p className="text-center text-gray-500 dark:text-gray-400 mt-2">
-            阿柠檬机器人管理平台
+            阿柠檬服务端平台
           </p>
         </div>
         <div className="p-2 ">
