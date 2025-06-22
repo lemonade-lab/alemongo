@@ -116,6 +116,8 @@ func Create(mode string) *gin.Engine {
 				{
 					PackageAPI.POST("/", bot.Package)
 					PackageAPI.POST("/update", bot.PackageUpdate)
+					PackageAPI.DELETE("/delete", bot.PackageDelete)
+					PackageAPI.POST("/pull/force", bot.PackegForcedUpdate)
 				}
 
 				YarnAPI := BotAPI.Group("/yarn")
