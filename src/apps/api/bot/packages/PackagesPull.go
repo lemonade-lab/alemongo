@@ -115,57 +115,6 @@ func PackagesPull(ctx *gin.Context) {
 		return
 	}
 
-	// 获取远程分支和本地分支的提交哈希
-	ref, err := repo.Head()
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"code": http.StatusInternalServerError,
-			"msg":  "获取本地分支失败",
-			"data": err.Error(),
-		})
-		return
-	}
-
-	localCommit, err := repo.CommitObject(ref.Hash())
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"code": http.StatusInternalServerError,
-			"msg":  "获取本地提交信息失败",
-			"data": err.Error(),
-		})
-		return
-	}
-
-	remoteRef, err := repo.Reference(plumbing.NewBranchReferenceName(branchName), true)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"code": http.StatusInternalServerError,
-			"msg":  "获取远程分支引用失败",
-			"data": err.Error(),
-		})
-		return
-	}
-
-	remoteCommit, err := repo.CommitObject(remoteRef.Hash())
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"code": http.StatusInternalServerError,
-			"msg":  "获取远程提交信息失败",
-			"data": err.Error(),
-		})
-		return
-	}
-
-	if localCommit.Hash == remoteCommit.Hash {
-		botLoggerWriter.RobotLogger.Info("仓库已经是最新状态，无需更新")
-		ctx.JSON(http.StatusOK, gin.H{
-			"code": http.StatusOK,
-			"msg":  "仓库已经是最新",
-			"data": nil,
-		})
-		return
-	}
-
 	// 拉取最新代码
 	err = worktree.Pull(&git.PullOptions{
 		RemoteName:    "origin",
