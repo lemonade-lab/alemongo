@@ -74,7 +74,7 @@ const Navbars = () => {
                 onClick={() => setShowMenu(!showMenu)}
               >
                 <svg
-                  className="block size-6"
+                  className="size-6"
                   fill="none"
                   viewBox="0 0 24 24"
                   strokeWidth="1.5"

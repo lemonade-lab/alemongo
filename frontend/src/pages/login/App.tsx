@@ -75,7 +75,7 @@ const Login = () => {
             <div>
               <label
                 htmlFor="username"
-                className="block text-base font-medium text-gray-900 dark:text-gray-100"
+                className="text-base font-medium text-gray-900 dark:text-gray-100"
               >
                 用户名
               </label>
@@ -92,7 +92,7 @@ const Login = () => {
               <div className="flex items-center justify-between">
                 <label
                   htmlFor="password"
-                  className="block text-base font-medium text-gray-900 dark:text-gray-100"
+                  className="text-base font-medium text-gray-900 dark:text-gray-100"
                 >
                   密码
                 </label>

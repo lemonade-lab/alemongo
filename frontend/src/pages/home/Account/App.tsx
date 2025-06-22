@@ -93,7 +93,7 @@ const UserTable = () => {
       render: (value, data) => {
         return (
           <select
-            className="block w-full border rounded-md bg-slate-100 dark:bg-zinc-900 px-3 py-1.5 text-base text-gray-900 dark:text-gray-100 outline-1 -outline-offset-1 outline-gray-300 dark:outline-zinc-700 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm transition"
+            className="w-full border rounded-md bg-slate-100 dark:bg-zinc-900 px-3 py-1.5 text-base text-gray-900 dark:text-gray-100 outline-1 -outline-offset-1 outline-gray-300 dark:outline-zinc-700 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm transition"
             value={value}
             onChange={(e) => {
               updateIdentity(data, e.target.value);
