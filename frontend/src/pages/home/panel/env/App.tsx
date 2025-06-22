@@ -1,28 +1,46 @@
+import {message} from "antd";
 import {useEffect, useState} from "react";
 import FileEdit from "@/commom/FileEdit";
 import Box from "@/commom/Box";
-const Env = () => {
+import {apiBotEnv, apiBotEnvUpdate} from "@/api/bot/env";
+import {getBotName} from "../core";
+const SSHUpdate = () => {
   const [data, setData] = useState<string>("");
-  // 是否是创建配置
-  const isCreate = window.location.pathname.includes("update");
+
   useEffect(() => {
-    console.log("isCreate", setData);
+    // 获取当前配置数据
+    const name = getBotName();
+    if (!name) {
+      message.error("错误访问");
+      return;
+    }
+    apiBotEnv({
+      name: name,
+    }).then((res) => {
+      setData(res);
+    });
   }, []);
-  const onSave = (name: string, value: string) => {
-    console.log("onSave", name, value);
+
+  const updateContent = (value: string) => {
+    const botName = getBotName();
+    apiBotEnvUpdate({
+      name: botName,
+      content: value,
+    }).then(() => {
+      message.success("更新成功");
+    });
+  };
+
+  const onSave = (_name: string, value: string) => {
+    updateContent(value);
   };
   return (
     <Box>
       <div className="p-2 flex gap-4 flex-col bg-slate-100 dark:bg-zinc-900 transition-colors flex-1">
-        <FileEdit
-          disableName={!isCreate}
-          onSave={onSave}
-          name=".env"
-          value={data}
-        />
+        <FileEdit disableName={true} onSave={onSave} name=".env" value={data} />
       </div>
     </Box>
   );
 };
 
-export default Env;
+export default SSHUpdate;

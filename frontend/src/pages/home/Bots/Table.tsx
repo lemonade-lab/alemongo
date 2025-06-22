@@ -141,6 +141,18 @@ const BotTable = ({onClick = () => {}}: {onClick: (key: string) => void}) => {
       title: "昵称",
       dataIndex: "name",
       key: "name",
+      // 支持点击名称查看
+      render: (name) => (
+        <Button
+          type="link"
+          className="text-blue-500 hover:text-blue-700"
+          onClick={() => {
+            navigate(`/bots/${name}`);
+          }}
+        >
+          {name}
+        </Button>
+      ),
     },
     {
       title: "状态",

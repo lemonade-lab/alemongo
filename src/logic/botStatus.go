@@ -25,6 +25,11 @@ func GetBotPKGPath(name string) string {
 	return path.Join(botPath, "package.json")
 }
 
+func GetBotEnvPath(name string) string {
+	botPath := GetBotPath(name)
+	return path.Join(botPath, ".env")
+}
+
 func GetBotConfigPath(name string) string {
 	botPath := GetBotPath(name)
 	return path.Join(botPath, "alemon.config.yaml")
@@ -122,12 +127,13 @@ func Run(name string) (string, error) {
 	pidFile := GetPidFilePath(name)
 	// 交给进程管理器托管
 	pm.AddProcess(process.NodeProcessConfig{
-		Name:     name,
-		Dir:      botPath,
-		Node:     nodePath,
-		ScriptJS: indexPath,
-		LogPath:  logPath,
-		PidFile:  pidFile,
+		Name:        name,
+		Dir:         botPath,
+		Node:        nodePath,
+		ScriptJS:    indexPath,
+		LogPath:     logPath,
+		PidFile:     pidFile,
+		EnvFilePath: GetBotEnvPath(name),
 	})
 	// 启动
 	proc := pm.GetProcess(name)

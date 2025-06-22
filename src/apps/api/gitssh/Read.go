@@ -9,7 +9,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// shh 列表
 func Read(ctx *gin.Context) {
 	homeDir, err := os.UserHomeDir()
 	if err != nil {

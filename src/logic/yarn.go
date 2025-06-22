@@ -5,10 +5,11 @@ import (
 	"alemongo/src/settings"
 	"alemongo/src/utils"
 	"fmt"
-	"go.uber.org/zap/zapcore"
 	"os"
 	"os/exec"
 	"path"
+
+	"go.uber.org/zap/zapcore"
 )
 
 // 加载依赖

@@ -1,4 +1,4 @@
-package bot
+package botwarehouse
 
 import (
 	"alemongo/src/apps/api/response"
@@ -8,12 +8,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func YarnInstall(ctx *gin.Context) {
+func YarnRemove(ctx *gin.Context) {
 	name := ctx.PostForm("name")
-	msg, err := logic.BotYarnInstall(name)
+	args := ctx.PostFormArray("args")
+	msg, err := logic.BotYarnRemove(name, args)
 	if err != nil {
 		response.ResponseErrorWithMsg(ctx, http.StatusBadRequest, http.StatusBadRequest, err.Error())
 		return
 	}
-	response.ResponseSuccessWithMsg(ctx, err, msg)
+	response.ResponseSuccessWithMsg(ctx, nil, msg)
 }

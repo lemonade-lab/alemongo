@@ -3,8 +3,9 @@ package bot
 import (
 	"alemongo/src/apps/api/response"
 	"alemongo/src/logic"
-	"github.com/gin-gonic/gin"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 // method: DELETE

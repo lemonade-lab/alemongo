@@ -20,12 +20,13 @@ import (
 
 // node 进程信息
 type NodeProcessConfig struct {
-	Name     string
-	Dir      string
-	Node     string
-	ScriptJS string
-	LogPath  string
-	PidFile  string
+	Name        string
+	Dir         string
+	Node        string
+	ScriptJS    string
+	LogPath     string
+	PidFile     string
+	EnvFilePath string
 }
 
 // 持久化结构体（包含状态）
@@ -167,9 +168,7 @@ func (mp *ManagedProcess) Start() error {
 	}
 	mp.Ctx, mp.Cancel = context.WithCancel(context.Background())
 	mp.Cmd = exec.CommandContext(mp.Ctx, mp.Config.Node, mp.Config.ScriptJS)
-	// 加判断。如果有 .env 文件，则读取环境变量
-	// 并载入。
-	mp.Cmd.Env = os.Environ()
+	mp.Cmd.Env = LoadEnvironment(mp.Config.EnvFilePath)
 	mp.Cmd.Stdout = botLoggerWriter.Writer()
 	mp.Cmd.Stderr = botLoggerWriter.Writer()
 	if mp.Config.Dir != "" {

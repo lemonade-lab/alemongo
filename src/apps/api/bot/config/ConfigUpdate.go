@@ -1,4 +1,4 @@
-package bot
+package botconfig
 
 import (
 	"alemongo/src/apps/api/response"

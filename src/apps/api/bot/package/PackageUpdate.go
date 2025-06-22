@@ -1,4 +1,4 @@
-package bot
+package botpackage
 
 import (
 	"alemongo/src/logic"

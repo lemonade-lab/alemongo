@@ -1,11 +1,12 @@
-package bot
+package botconfig
 
 import (
 	"alemongo/src/apps/api/response"
 	"alemongo/src/logic"
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"os"
+
+	"github.com/gin-gonic/gin"
 )
 
 func ConfigData(ctx *gin.Context) {

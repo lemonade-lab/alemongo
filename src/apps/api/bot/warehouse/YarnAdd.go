@@ -1,4 +1,4 @@
-package bot
+package botwarehouse
 
 import (
 	"alemongo/src/apps/api/response"

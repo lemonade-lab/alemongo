@@ -1,4 +1,4 @@
-package bot
+package botpackages
 
 import (
 	"alemongo/src/apps/api/response"
@@ -6,14 +6,15 @@ import (
 	"alemongo/src/logic"
 	"alemongo/src/settings"
 	"alemongo/src/utils"
+	"net/http"
+	"os"
+	"path"
+
 	"github.com/gin-gonic/gin"
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
-	"net/http"
-	"os"
-	"path"
 )
 
 // 创建机器人

@@ -2,6 +2,14 @@ package route
 
 import (
 	"alemongo/src/apps/api/bot"
+	botconfig "alemongo/src/apps/api/bot/config"
+	botconfigs "alemongo/src/apps/api/bot/configs"
+
+	botenv "alemongo/src/apps/api/bot/env"
+	botpackage "alemongo/src/apps/api/bot/package"
+	botpackages "alemongo/src/apps/api/bot/packages"
+	botwarehouse "alemongo/src/apps/api/bot/warehouse"
+
 	"alemongo/src/apps/api/common"
 	"alemongo/src/apps/api/gitssh"
 	"alemongo/src/apps/api/receive"
@@ -113,44 +121,50 @@ func Create(mode string) *gin.Engine {
 				BotAPI.POST("/restart", bot.Restart)
 				BotAPI.POST("/log", bot.Log)
 
+				EnvAPI := BotAPI.Group("/env")
+				{
+					EnvAPI.POST("/", botenv.Read)
+					EnvAPI.POST("/update", botenv.Update)
+				}
+
 				PackageAPI := BotAPI.Group("/package")
 				{
-					PackageAPI.POST("/", bot.Package)
-					PackageAPI.POST("/update", bot.PackageUpdate)
+					PackageAPI.POST("/", botpackage.Package)
+					PackageAPI.POST("/update", botpackage.PackageUpdate)
 				}
 
 				YarnAPI := BotAPI.Group("/yarn")
 				{
-					YarnAPI.POST("/install", bot.YarnInstall)
-					YarnAPI.POST("/add", bot.YarnAdd)
-					YarnAPI.POST("/remove", bot.YarnRemove)
+					YarnAPI.POST("/install", botwarehouse.YarnInstall)
+					YarnAPI.POST("/add", botwarehouse.YarnAdd)
+					YarnAPI.POST("/remove", botwarehouse.YarnRemove)
 				}
 
 				PackagesAPI := BotAPI.Group("/packages")
 				{
-					PackagesAPI.POST("/info", bot.PackagesInfo)
-					PackagesAPI.DELETE("/info", bot.PackageDelete)
-					PackagesAPI.POST("/clone", bot.PackagesClone)
-					PackagesAPI.POST("/list", bot.PackagesList)
-					PackagesAPI.POST("/pull", bot.PackagesPull)
+					PackagesAPI.POST("/info", botpackages.PackagesInfo)
+					PackagesAPI.DELETE("/info", botpackages.PackageDelete)
+					PackagesAPI.POST("/clone", botpackages.PackagesClone)
+					PackagesAPI.POST("/list", botpackages.PackagesList)
+					PackagesAPI.POST("/pull", botpackages.PackagesPull)
 					PackagesPullAPI := PackagesAPI.Group("/pull")
 					{
-						PackagesPullAPI.POST("/force", bot.PackegForcedUpdate)
+						PackagesPullAPI.POST("/force", botpackages.PackegForcedUpdate)
 					}
 				}
 
 				ConfigAPI := BotAPI.Group("/config")
 				{
-					ConfigAPI.POST("/", bot.ConfigData)
-					ConfigAPI.POST("/update", bot.ConfigUpdate)
+					ConfigAPI.POST("/", botconfig.ConfigData)
+					ConfigAPI.POST("/update", botconfig.ConfigUpdate)
 				}
 
 				ConfigsAPI := BotAPI.Group("/configs")
 				{
-					ConfigsAPI.POST("/", bot.ConfigsData)
-					ConfigsAPI.GET("/list", bot.ConfigsList)
-					ConfigsAPI.POST("/update", bot.ConfigsUpdate)
-					ConfigsAPI.DELETE("/delete", bot.ConfigsDelete)
+					ConfigsAPI.POST("/", botconfigs.ConfigsData)
+					ConfigsAPI.GET("/list", botconfigs.ConfigsList)
+					ConfigsAPI.POST("/update", botconfigs.ConfigsUpdate)
+					ConfigsAPI.DELETE("/delete", botconfigs.ConfigsDelete)
 				}
 
 			}
