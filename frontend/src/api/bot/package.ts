@@ -1,5 +1,6 @@
 import { request } from "../base";
 
+// 
 export const apiBotPackage = async (data: {
     name: string
 }): Promise<string> => {

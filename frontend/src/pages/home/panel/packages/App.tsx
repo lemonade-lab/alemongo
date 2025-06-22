@@ -5,6 +5,7 @@ import {
   apiBotPackagesDelete,
   apiBotPackagesList,
   apiBotPackagesPull,
+  apiBotPackagesPullForce,
   BotInfo,
   BotPackages,
 } from "@/api";
@@ -102,6 +103,23 @@ const Panel = () => {
       });
   };
 
+  const onForceUpdate = (item: BotPackages | null) => {
+    if (!item || isLoading) return;
+    setIsLoading(true);
+    apiBotPackagesPullForce({
+      name: info.name,
+      repo_name: item.name,
+      branch_name: item.git.branch,
+    })
+      .then(() => {
+        message.success("更新成功");
+        setOpen(true);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  };
+
   return (
     <Box>
       <div className="p-2 flex-1 flex bg-slate-100 dark:bg-zinc-900 gap-2 flex-col xl:flex-row transition-colors">
@@ -153,6 +171,21 @@ const Panel = () => {
                         >
                           更新
                         </Button>
+                        <div onClick={(e) => e.stopPropagation()}>
+                          <Popconfirm
+                            title="强制更新"
+                            description="确定进行强制更新吗，将会放弃本地所有修改?"
+                            onConfirm={() => {
+                              onForceUpdate(item);
+                            }}
+                            okText="确定"
+                            cancelText="取消"
+                          >
+                            <Button type="primary" className="bg-red-500">
+                              强制更新
+                            </Button>
+                          </Popconfirm>
+                        </div>
                         <div onClick={(e) => e.stopPropagation()}>
                           <Popconfirm
                             title="彻底删除"

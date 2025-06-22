@@ -1,7 +1,9 @@
+import {apiResetTemplate} from "@/api/tp";
 import Box from "@/commom/Box";
 import {useCommon} from "@/hook/useCommon";
 import {SettingOutlined} from "@ant-design/icons";
 import {message} from "antd";
+import {useState} from "react";
 
 /**
  * @returns
@@ -23,10 +25,26 @@ const Settings = () => {
     {name: "Browser", data: common.info.browser},
   ];
 
+  const [loading, setLoading] = useState(false);
+
+  const onResetTemplate = () => {
+    if (loading) {
+      return;
+    }
+    setLoading(true);
+    apiResetTemplate()
+      .then(() => {
+        message.success("模板重置成功");
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  };
+
   return (
     <Box>
       <div className="p-2 flex gap-4 flex-col bg-slate-100 dark:bg-zinc-900 transition-colors flex-1">
-        <div className="flex flex-col gap-6 items-center bg-white dark:bg-zinc-800 p-6 rounded-xl border border-gray-200 dark:border-zinc-700 shadow-lg transition-colors max-w-xl mx-auto w-full">
+        <div className="flex flex-1 flex-col gap-6 items-center bg-white dark:bg-zinc-800 p-6 rounded-xl border border-gray-200 dark:border-zinc-700 shadow-lg transition-colors max-w-xl mx-auto w-full">
           <div className="flex flex-col gap-2 items-center">
             <SettingOutlined className="text-5xl md:text-6xl lg:text-7xl xl:text-8xl 2xl:text-9xl text-indigo-500 dark:text-indigo-400 drop-shadow" />
             <div className="text-xl md:text-2xl lg:text-3xl xl:text-4xl font-bold text-gray-800 dark:text-gray-100">
@@ -62,9 +80,7 @@ const Settings = () => {
               </span>
             </div>
             <button
-              onClick={() => {
-                message.warning("待更新");
-              }}
+              onClick={onResetTemplate}
               className="text-lg md:text-xl font-semibold text-red-600 dark:text-red-400 hover:underline focus:outline-none"
             >
               重置

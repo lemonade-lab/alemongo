@@ -16,7 +16,7 @@ const NotRoute = () => {
         </p>
         <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
           <button
-            onClick={() => navigate("/bots")}
+            onClick={() => navigate("/")}
             className="rounded-md bg-indigo-600 hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 px-6 py-2.5 text-sm font-semibold text-white shadow transition"
           >
             回到首页

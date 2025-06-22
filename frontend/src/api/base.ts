@@ -23,12 +23,21 @@ export const request = async (config: AxiosRequestConfig) => {
         },
         ...cfg,
     }).then(res => res.data).catch((err) => {
+        // 携带错误信息
         if (err?.response?.data?.msg) {
             message.error(err.response.data.msg);
         }
-        // 如果错误码为 401。要前往登录
         if (err?.response?.status === 401) {
             window.location.href = "/login";
+        }
+        else if (err?.response?.status === 404) {
+            message.error("API未找到，请检查网络连接或联系管理员");
+        }
+        else if (err?.response?.status === 500) {
+            message.error("服务器错误，请稍后再试");
+        }
+        else if (err?.response?.status === 403) {
+            message.error("没有权限访问该资源");
         }
         // 继续抛出错误
         throw err;

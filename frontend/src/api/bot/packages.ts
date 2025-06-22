@@ -49,6 +49,7 @@ export const apiBotPackagesList = async (data: {
 }
 
 
+// 更新
 export const apiBotPackagesPull = async (data: {
     name: string
     repo_name: string
@@ -67,6 +68,25 @@ export const apiBotPackagesPull = async (data: {
 }
 
 
+// 强制更新
+export const apiBotPackagesPullForce = async (data: {
+    name: string
+    repo_name: string
+    branch_name: string
+}): Promise<null> => {
+    return new Promise((resolve, reject) => {
+        request({
+            url: "/bot/packages/pull/force",
+            method: "post",
+            data,
+        })
+            .then((res) => res.data)
+            .then(resolve)
+            .catch(reject);
+    });
+}
+
+// 删除
 export const apiBotPackagesDelete = async (data: {
     name: string
     app_name: string
@@ -84,6 +104,7 @@ export const apiBotPackagesDelete = async (data: {
 }
 
 
+// 获取包信息
 export const apiBotPackagesInfo = async (data: {
     name: string
     app_name: string
@@ -100,6 +121,7 @@ export const apiBotPackagesInfo = async (data: {
     });
 }
 
+// 更新包信息
 export const apiBotPackagesGitPackageUpdate = async (data: {
     name: string
     app_name: string
