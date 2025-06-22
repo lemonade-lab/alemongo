@@ -58,6 +58,8 @@ func main() {
 
 	// 初始化文件资源
 	files.Create(ResourcesFiles)
+	// 依赖注入，生成环境下用于重置bot template
+	utils.SetFS(ResourcesFiles)
 
 	// 获得全局进程管理
 	pm := process.GetProcessManager()
