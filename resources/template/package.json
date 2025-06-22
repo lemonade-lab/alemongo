@@ -4,8 +4,9 @@
   "dependencies": {
     "@alemonjs/db": "^0.0.9",
     "@alemonjs/discord": "^2.1.0-alpha.6",
-    "@alemonjs/gui": "^2.1.0-alpha.3",
-    "@alemonjs/qq-bot": "^2.1.0-alpha.8",
+    "@alemonjs/gui": "^2.1.0-alpha.4",
+    "@alemonjs/qq-bot": "^2.1.0-alpha.10",
+    "@alemonjs/onebot": "^2.1.0-alpha.1",
     "alemonjs": "^2.1.0-alpha.11",
     "jsxp": "^1.2.2"
   },
