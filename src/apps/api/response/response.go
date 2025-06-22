@@ -47,3 +47,12 @@ func ResponseSuccess(c *gin.Context, data interface{}) {
 		Data:        data,
 	})
 }
+
+func ResponseSuccessWithMsg(c *gin.Context, data interface{}, msg interface{}) {
+	c.JSON(http.StatusOK, &ResponseData{
+		RequestCode: http.StatusOK,
+		Code:        CodeSuccess,
+		Msg:         msg,
+		Data:        data,
+	})
+}

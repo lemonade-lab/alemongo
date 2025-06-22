@@ -1,7 +1,9 @@
 package bot
 
 import (
-	"alemongo/src/core/alemonjs"
+	"alemongo/src/apps/api/response"
+	"alemongo/src/logic"
+	"alemongo/src/models"
 	"alemongo/src/settings"
 	"alemongo/src/utils"
 	"net/http"
@@ -13,18 +15,16 @@ import (
 func List(ctx *gin.Context) {
 	resourcesPath := settings.GetResourcesPath()
 	names, err := utils.GetDirNames(resourcesPath)
+	//fmt.Println("bots names: ", names)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"code": http.StatusBadRequest,
-			"msg":  "获取列表失败",
-		})
+		response.ResponseErrorWithMsg(ctx, http.StatusBadRequest, http.StatusBadRequest, "获取列表失败")
 		return
 	}
-	bots := []alemonjs.BotInfo{}
+	bots := []models.BotInfo{}
 	for _, name := range names {
 		if name != "template" && name != "bin" {
 			// 获取机器人的信息
-			res, err := alemonjs.Info(name)
+			res, err := logic.Info(name)
 			if err != nil {
 				bots = append(bots, res.Data)
 			} else {

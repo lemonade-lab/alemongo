@@ -2,7 +2,7 @@ package bot
 
 import (
 	"alemongo/src/apps/api/response"
-	"alemongo/src/core/alemonjs"
+	"alemongo/src/logic"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"os"
@@ -19,7 +19,7 @@ func ConfigData(ctx *gin.Context) {
 		//})
 		return
 	}
-	if !alemonjs.Exists(name) {
+	if !logic.Exists(name) {
 		response.ResponseError(ctx, http.StatusBadRequest, response.RobotNotExist)
 		//ctx.JSON(http.StatusBadRequest, gin.H{
 		//	"code": http.StatusBadRequest,
@@ -28,7 +28,7 @@ func ConfigData(ctx *gin.Context) {
 		//})
 		return
 	}
-	configPath := alemonjs.GetBotConfigPath(name)
+	configPath := logic.GetBotConfigPath(name)
 	if _, err := os.Stat(configPath); os.IsNotExist(err) {
 		response.ResponseError(ctx, http.StatusNotFound, response.RobotConfigNotExist)
 		//ctx.JSON(http.StatusBadRequest, gin.H{

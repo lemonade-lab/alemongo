@@ -11,6 +11,7 @@ import (
 	"alemongo/src/settings"
 	"alemongo/src/utils"
 	"embed"
+	"fmt"
 	"log"
 	"os"
 
@@ -23,8 +24,14 @@ var ResourcesFiles embed.FS
 //go:embed dist/**/* dist/*
 var staticFiles embed.FS
 
+// 构建时指定version，方便迭代更新
+var Version = "dev"
+
 // 主函数
 func main() {
+	// 输出当前版本号
+	fmt.Println("Version: ", Version)
+
 	var configFilePath string
 	// 检查是否输入配置文件路径
 	if len(os.Args) == 2 {

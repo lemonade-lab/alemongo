@@ -1,7 +1,7 @@
 package bot
 
 import (
-	"alemongo/src/core/alemonjs"
+	"alemongo/src/logic"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -18,7 +18,7 @@ func Info(ctx *gin.Context) {
 		})
 		return
 	}
-	if !alemonjs.Exists(name) {
+	if !logic.Exists(name) {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"code": http.StatusBadRequest,
 			"msg":  "机器人不存在",
@@ -26,7 +26,7 @@ func Info(ctx *gin.Context) {
 		})
 		return
 	}
-	res, err := alemonjs.Info(name)
+	res, err := logic.Info(name)
 	if err != nil {
 		ctx.JSON(http.StatusOK, gin.H{
 			"code": http.StatusOK,

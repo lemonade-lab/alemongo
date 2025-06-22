@@ -1,8 +1,10 @@
 package utils
 
 import (
+	"errors"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strconv"
 )
 
@@ -75,4 +77,37 @@ func Command(name string, arg ...string) *exec.Cmd {
 	cmd := exec.Command(name, arg...)
 	cmd.Env = os.Environ()
 	return cmd
+}
+
+// 通用资源复制函数，此处用于更新机器人template
+func UpdateTemplateDir(originFS string, targetFS string) error {
+	return filepath.Walk(originFS, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		// 获取相对于originFS的相对路径
+		// 例如originFS: /resources/bin  path: /resources/bin/index.html
+		// relPath: /index.html
+		relPath, err := filepath.Rel(originFS, path)
+		if err != nil {
+			return errors.New("无法获取文件相对路径")
+		}
+		// 拼接成目标地址
+		dstPath := filepath.Join(targetFS, relPath)
+
+		if info.IsDir() {
+			return os.MkdirAll(dstPath, os.ModePerm)
+		}
+
+		data, err := os.ReadFile(path)
+		if err != nil {
+			return err
+		}
+
+		if err := os.MkdirAll(filepath.Dir(dstPath), os.ModePerm); err != nil {
+			return errors.New("更新模板文件失败")
+		}
+
+		return os.WriteFile(dstPath, data, info.Mode())
+	})
 }

@@ -1,7 +1,7 @@
 package bot
 
 import (
-	"alemongo/src/core/alemonjs"
+	"alemongo/src/logic"
 	"net/http"
 	"os"
 	"strconv"
@@ -21,7 +21,7 @@ func Log(ctx *gin.Context) {
 		})
 		return
 	}
-	if !alemonjs.Exists(name) {
+	if !logic.Exists(name) {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"code": http.StatusBadRequest,
 			"msg":  "机器人不存在",
@@ -50,7 +50,7 @@ func Log(ctx *gin.Context) {
 		date = time.Now()
 	}
 	// 获取日志路径
-	logPath := alemonjs.GetBotLogByDate(name, date)
+	logPath := logic.GetBotLogByDate(name, date)
 	if logPath == "" {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"code": http.StatusInternalServerError,

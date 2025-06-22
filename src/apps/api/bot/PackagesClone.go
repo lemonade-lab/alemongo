@@ -2,8 +2,8 @@ package bot
 
 import (
 	"alemongo/src/apps/api/response"
-	"alemongo/src/core/alemonjs"
 	"alemongo/src/logger"
+	"alemongo/src/logic"
 	"alemongo/src/settings"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -48,7 +48,7 @@ func PackagesClone(ctx *gin.Context) {
 		})
 		return
 	}
-	if !alemonjs.Exists(name) {
+	if !logic.Exists(name) {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"code": http.StatusBadRequest,
 			"msg":  "机器人不存在",
@@ -58,7 +58,7 @@ func PackagesClone(ctx *gin.Context) {
 	}
 
 	// 获取路径
-	botPath := alemonjs.GetBotPath(name)
+	botPath := logic.GetBotPath(name)
 	pkgPath := path.Join(botPath, "packages")
 
 	// 确保 packages 文件夹存在

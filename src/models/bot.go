@@ -1,4 +1,4 @@
-package alemonjs
+package models
 
 type BotInfo struct {
 	Name        string `json:"name"`         // 机器人名
