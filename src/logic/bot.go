@@ -3,6 +3,7 @@ package logic
 import (
 	"alemongo/src/apps/api/response"
 	"alemongo/src/dao"
+	"alemongo/src/logger"
 	"alemongo/src/settings"
 	"errors"
 	"os"
@@ -81,4 +82,55 @@ func BotYarnRemove(name string, args []string) (string, error) {
 		return msg, err
 	}
 	return "", nil
+}
+
+func PackageDelete(name, app_name string) error {
+	if name == "" {
+		return errors.New("机器人名不能为空")
+	}
+	if app_name == "" {
+		return errors.New("git扩展包名不能为空")
+	}
+	if !Exists(name) {
+		return errors.New("机器人不存在")
+	}
+
+	// 获取git扩展包所在路径
+	botPath := GetBotPath(name)
+	packagePath := path.Join(botPath, "packages", app_name)
+	// 判断git扩展包是否存在
+	if _, err := os.Stat(packagePath); os.IsNotExist(err) {
+		return errors.New("git扩展包不存在")
+	}
+
+	return dao.PackageDelete(packagePath)
+}
+
+func PackegForcedUpdate(name, repo_name, branch_name string, botLogger *logger.RobotLoggerWriter) error {
+	if name == "" {
+		return errors.New("机器人名不能为空")
+	}
+	if repo_name == "" {
+		return errors.New("扩展包名不能为空")
+	}
+	if branch_name == "" {
+		return errors.New("分支名不能为空")
+	}
+	if !Exists(name) {
+		return errors.New("机器人不存在")
+	}
+
+	botPath := GetBotPath(name)
+	repoPath := path.Join(botPath, "packages", repo_name)
+
+	if _, err := os.Stat(repoPath); os.IsNotExist(err) {
+		return errors.New("仓库不存在")
+	}
+	gitPath := path.Join(repoPath, ".git")
+
+	if _, err := os.Stat(gitPath); os.IsNotExist(err) {
+		return errors.New("仓库不存在")
+	}
+
+	return dao.PackageForcedUpdate(repoPath, branch_name, botLogger)
 }

@@ -5,6 +5,7 @@ import (
 	"alemongo/src/logger"
 	"alemongo/src/logic"
 	"alemongo/src/settings"
+	"alemongo/src/utils"
 	"net/http"
 	"os"
 	"path"
@@ -83,7 +84,7 @@ func PackagesPull(ctx *gin.Context) {
 		return
 	}
 
-	auth, err := getSSHAuth()
+	auth, err := utils.GetSSHAuth()
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"code": http.StatusInternalServerError,

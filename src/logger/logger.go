@@ -122,10 +122,10 @@ func getEncoder() zapcore.Encoder {
 		enc.AppendString("[" + level.CapitalString() + "]")
 	}
 	encoderConfig := zapcore.EncoderConfig{
-		TimeKey:        "ts",
-		LevelKey:       "level_name",
-		NameKey:        "logger",
-		CallerKey:      "caller_line",
+		TimeKey:  "ts",
+		LevelKey: "level_name",
+		NameKey:  "logger",
+		//CallerKey:      "caller_line",
 		FunctionKey:    zapcore.OmitKey,
 		MessageKey:     "msg",
 		StacktraceKey:  "stacktrace",
