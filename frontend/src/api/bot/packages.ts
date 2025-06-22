@@ -1,5 +1,9 @@
 import { request } from "../base"
 
+/**
+ * packages 是 机器人的 插件包
+ */
+
 export type BotPackages = {
     "name": string,
     "git": {
@@ -93,9 +97,9 @@ export const apiBotPackagesDelete = async (data: {
 }): Promise<null> => {
     return new Promise((resolve, reject) => {
         request({
-            url: "/bot/packages",
+            url: "/bot/packages/info",
             method: "delete",
-            data,
+            params: data,
         })
             .then((res) => res.data)
             .then(resolve)

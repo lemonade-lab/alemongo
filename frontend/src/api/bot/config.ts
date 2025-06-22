@@ -1,5 +1,14 @@
 import { request } from "../base";
 
+/**
+ * config 是机器人的运行配置
+ */
+
+/**
+ * 
+ * @param data 
+ * @returns 
+ */
 export const apiBotConfig = async (data: {
     name: string
 }): Promise<string> => {

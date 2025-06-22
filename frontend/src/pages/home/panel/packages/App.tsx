@@ -81,9 +81,14 @@ const Panel = () => {
     apiBotPackagesDelete({
       name: info.name,
       app_name: name,
-    }).finally(() => {
-      setIsLoading(false);
-    });
+    })
+      .then(() => {
+        message.success("删除成功");
+        initPKGNames(info.name);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
   };
 
   const onUpdate = (item: BotPackages | null) => {
@@ -96,7 +101,6 @@ const Panel = () => {
     })
       .then(() => {
         message.success("更新成功");
-        setOpen(true);
       })
       .finally(() => {
         setIsLoading(false);

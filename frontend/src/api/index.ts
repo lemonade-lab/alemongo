@@ -1,16 +1,8 @@
-import server from "./base";
-import { Info } from "./types";
-export * from './users';
+export * from './base'
 export * from './bot';
-export * from './types'
+export * from './common';
 export * from './email';
-
-export const apiCommonInfo = async (): Promise<{
-    data: Info
-}> => {
-    return server({
-        url: "/common/info",
-        method: "get",
-    }).then((res) => res.data);
-}
-
+export * from './settings';
+export * from './ssh'
+export * from './users';
+export * from './types'

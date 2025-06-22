@@ -1,6 +1,6 @@
 
-import { request } from "./base";
-import { BotInfo } from "./types";
+import { request } from "../base";
+import { BotInfo } from "../types";
 
 export const apiBotList = async (): Promise<BotInfo[]> => {
     return request({
@@ -102,8 +102,8 @@ export const apiBotLog = async (data: {
     });
 }
 
-export * from './bot/configs'
-export * from './bot/config'
-export * from './bot/package'
-export * from './bot/packages'
-export * from './bot/yarn'
+export * from './configs'
+export * from './config'
+export * from './package'
+export * from './packages'
+export * from './yarn'

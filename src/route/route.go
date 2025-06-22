@@ -9,6 +9,7 @@ import (
 	"alemongo/src/apps/api/user"
 	"alemongo/src/logger"
 	"alemongo/src/middlewares"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -116,8 +117,6 @@ func Create(mode string) *gin.Engine {
 				{
 					PackageAPI.POST("/", bot.Package)
 					PackageAPI.POST("/update", bot.PackageUpdate)
-					PackageAPI.DELETE("/delete", bot.PackageDelete)
-					PackageAPI.POST("/pull/force", bot.PackegForcedUpdate)
 				}
 
 				YarnAPI := BotAPI.Group("/yarn")
@@ -129,10 +128,15 @@ func Create(mode string) *gin.Engine {
 
 				PackagesAPI := BotAPI.Group("/packages")
 				{
+					PackagesAPI.POST("/info", bot.PackagesInfo)
+					PackagesAPI.DELETE("/info", bot.PackageDelete)
 					PackagesAPI.POST("/clone", bot.PackagesClone)
 					PackagesAPI.POST("/list", bot.PackagesList)
 					PackagesAPI.POST("/pull", bot.PackagesPull)
-					PackagesAPI.POST("/info", bot.PackagesInfo)
+					PackagesPullAPI := PackagesAPI.Group("/pull")
+					{
+						PackagesPullAPI.POST("/force", bot.PackegForcedUpdate)
+					}
 				}
 
 				ConfigAPI := BotAPI.Group("/config")

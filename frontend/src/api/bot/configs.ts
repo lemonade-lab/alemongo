@@ -1,5 +1,13 @@
 import { request } from "../base";
 
+/**
+ * configs 是机器人的配置列表
+ */
+
+/**
+ * 
+ * @returns 
+ */
 export const apiBotConfigsList = async (): Promise<string[]> => {
     return new Promise((resolve, reject) => {
         request({
@@ -12,8 +20,6 @@ export const apiBotConfigsList = async (): Promise<string[]> => {
     });
 }
 
-
-// /configs/create
 export const apiBotConfigsUpdate = async (data: {
     name: string
     content: string
@@ -29,7 +35,6 @@ export const apiBotConfigsUpdate = async (data: {
             .catch(reject);
     });
 }
-
 
 export const apiBotConfigs = async (data: {
     name: string

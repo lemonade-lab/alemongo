@@ -1,5 +1,14 @@
 import { request } from "../base";
 
+/**
+ * yarn 包管理器
+ */
+
+/**
+ * 
+ * @param data 
+ * @returns 
+ */
 export const apiBotYarnInstall = async (data: {
     name: string
 }) => {

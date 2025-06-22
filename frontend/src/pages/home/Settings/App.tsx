@@ -1,4 +1,4 @@
-import {apiResetTemplate} from "@/api/tp";
+import {apiResetTemplate} from "@/api/settings/template";
 import Box from "@/commom/Box";
 import {useCommon} from "@/hook/useCommon";
 import {SettingOutlined} from "@ant-design/icons";

@@ -1,7 +1,7 @@
 import { request } from "../base";
 
 /**
- * 绑定
+ * 重置机器人模板
  * @param data 
  * @returns 
  */

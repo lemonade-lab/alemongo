@@ -6,7 +6,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"go.uber.org/zap/zapcore"
 	"log"
 	"os"
 	"os/exec"
@@ -15,6 +14,8 @@ import (
 	"sync"
 	"syscall"
 	"time"
+
+	"go.uber.org/zap/zapcore"
 )
 
 // node 进程信息
@@ -166,6 +167,8 @@ func (mp *ManagedProcess) Start() error {
 	}
 	mp.Ctx, mp.Cancel = context.WithCancel(context.Background())
 	mp.Cmd = exec.CommandContext(mp.Ctx, mp.Config.Node, mp.Config.ScriptJS)
+	// 加判断。如果有 .env 文件，则读取环境变量
+	// 并载入。
 	mp.Cmd.Env = os.Environ()
 	mp.Cmd.Stdout = botLoggerWriter.Writer()
 	mp.Cmd.Stderr = botLoggerWriter.Writer()
