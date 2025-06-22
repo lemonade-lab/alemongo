@@ -5,33 +5,16 @@ import (
 	"alemongo/src/logger"
 	"alemongo/src/logic"
 	"alemongo/src/settings"
+	"alemongo/src/utils"
+	"github.com/gin-gonic/gin"
+	"github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git/v5/plumbing"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"net/http"
 	"os"
-	"os/user"
 	"path"
-	"path/filepath"
-
-	"github.com/gin-gonic/gin"
-	"github.com/go-git/go-git/v5"
-	"github.com/go-git/go-git/v5/plumbing"
-	gitssh "github.com/go-git/go-git/v5/plumbing/transport/ssh"
 )
-
-// 获取 SSH 公钥认证
-func getSSHAuth() (*gitssh.PublicKeys, error) {
-	usr, err := user.Current()
-	if err != nil {
-		return nil, err
-	}
-	privateKeyPath := filepath.Join(usr.HomeDir, ".ssh", "id_rsa")
-	auth, err := gitssh.NewPublicKeysFromFile("git", privateKeyPath, "")
-	if err != nil {
-		return nil, err
-	}
-	return auth, nil
-}
 
 // 创建机器人
 func PackagesClone(ctx *gin.Context) {
@@ -91,7 +74,7 @@ func PackagesClone(ctx *gin.Context) {
 	// 确定克隆的目标路径
 	clonePath := path.Join(pkgPath, repoName)
 
-	auth, err := getSSHAuth()
+	auth, err := utils.GetSSHAuth()
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"code": http.StatusInternalServerError,
