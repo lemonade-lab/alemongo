@@ -21,6 +21,15 @@ func List(ctx *gin.Context) {
 		return
 	}
 	sshPath := filepath.Join(homeDir, ".ssh")
+	// 检查目录
+	if _, err := os.Stat(sshPath); os.IsNotExist(err) {
+		ctx.JSON(http.StatusOK, gin.H{
+			"code": http.StatusOK,
+			"msg":  "目录不存在",
+			"data": []string{},
+		})
+		return
+	}
 	names, err := utils.GetFileNames(sshPath)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{

@@ -35,6 +35,15 @@ server:
 
 > 只需启动 alemongo 后，将机器人拖进`./work/resources`文件夹内
 
+## Docker 
+
+```sh
+docker pull ningmengchongshui/alemongo
+```
+
+```sh
+docker run -d -p 17187:17187 ningmengchongshui/alemongo
+```
 
 ## 开发指南
 
