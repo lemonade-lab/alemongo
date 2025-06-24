@@ -17,14 +17,33 @@
 ## 配置文件
 
 > 根目录下，创建`config.yaml`文件
+> 也可以通过参数指定`config.yaml`所在路径
 
 ```yaml
+name: "alemongo"  # 项目名称
+mode: "release"   # 模式(release / debug)
+host: "127.0.0.1" # 
+
 # 服务器
 server: 
   port: 17187 # 端口
   token:
     key: "alemongo"  # 密钥
     expires_time: 24 # 过期时间 (h)
+
+# 日志
+log:
+  level: "info" # 日志级别 ["info", "debug", ...]
+  filename: "alemongo_logs"  # 整体项目日志所在文件夹
+
+# 邮件推送服务
+smtp: 
+  provider: "qq" # 使用邮箱类别
+  host: "smtp.qq.com" # 服务器
+  post: 587 # 端口
+  username: "" # 发送方邮箱
+  password: "" # 授权码
+  from_email: "" # 发送方邮箱
 ```
 
 > 超级临时账户会在启动时打印，直到密码更改。

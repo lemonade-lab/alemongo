@@ -2,8 +2,9 @@ package logic
 
 import (
 	"alemongo/src/utils"
+	"embed"
 )
 
-func ResetTemplate(originPath, targetPath string) error {
+func ResetTemplate(originPath embed.FS, targetPath string) error {
 	return utils.UpdateTemplateDir(originPath, targetPath)
 }

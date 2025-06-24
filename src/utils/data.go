@@ -1,12 +1,20 @@
 package utils
 
 import (
+	"embed"
 	"errors"
+	"io/fs"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strconv"
 )
+
+var ResourcesFS embed.FS
+
+func SetFS(f embed.FS) {
+	ResourcesFS = f
+}
 
 // byte 转 string
 func ByteToString(digits []byte) string {
@@ -80,26 +88,18 @@ func Command(name string, arg ...string) *exec.Cmd {
 }
 
 // 通用资源复制函数，此处用于更新机器人template
-func UpdateTemplateDir(originFS string, targetFS string) error {
-	return filepath.Walk(originFS, func(path string, info os.FileInfo, err error) error {
+func UpdateTemplateDir(originFS embed.FS, targetFS string) error {
+	return fs.WalkDir(originFS, ".", func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
-		// 获取相对于originFS的相对路径
-		// 例如originFS: /resources/bin  path: /resources/bin/index.html
-		// relPath: /index.html
-		relPath, err := filepath.Rel(originFS, path)
-		if err != nil {
-			return errors.New("无法获取文件相对路径")
-		}
-		// 拼接成目标地址
-		dstPath := filepath.Join(targetFS, relPath)
+		dstPath := filepath.Join(targetFS, path)
 
-		if info.IsDir() {
+		if d.IsDir() {
 			return os.MkdirAll(dstPath, os.ModePerm)
 		}
 
-		data, err := os.ReadFile(path)
+		data, err := fs.ReadFile(originFS, path)
 		if err != nil {
 			return err
 		}
@@ -108,6 +108,6 @@ func UpdateTemplateDir(originFS string, targetFS string) error {
 			return errors.New("更新模板文件失败")
 		}
 
-		return os.WriteFile(dstPath, data, info.Mode())
+		return os.WriteFile(dstPath, data, os.ModePerm)
 	})
 }
