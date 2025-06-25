@@ -56,12 +56,16 @@ smtp:
 
 ## Docker 
 
+[docker-compose](./docker-compose.yml)
+
+[alemongo.conf](./alemongo.conf)
+
 ```sh
-docker pull ningmengchongshui/alemongo
+docker compose up -d
 ```
 
 ```sh
-docker run -d -p 17187:17187 ningmengchongshui/alemongo
+docker info alemongo
 ```
 
 ## 开发指南

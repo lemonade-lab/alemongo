@@ -1,0 +1,22 @@
+services:
+  alemongo:
+    # URL  hub.docker.com
+    # image: alemongo/alemongo
+    # URL  ccr.ccs.tencentyun.com
+    image: ccr.ccs.tencentyun.com/ningmengchongshui/alemongo
+    container_name: alemongo
+    ports:
+      - "17187:17187"
+    restart: unless-stopped
+    
+  nginx:
+    image: nginx
+    container_name: nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./alemongo.conf:/etc/nginx/conf.d/alemongo.conf
+    restart: unless-stopped
+    depends_on:
+      - alemongo
