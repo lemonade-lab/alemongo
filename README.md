@@ -60,12 +60,18 @@ smtp:
 
 [alemongo.conf](./alemongo.conf)
 
+> 默认使用`tencentyun`镜像地址
+
+-  运行
+
 ```sh
 docker compose up -d
 ```
 
+- 打印
+
 ```sh
-docker info alemongo
+docker logs alemongo
 ```
 
 ## 开发指南

@@ -1,12 +1,12 @@
 # 前端构建阶段
-FROM --platform=$BUILDPLATFORM node:22 AS bundle
+FROM  node:22 AS bundle
 WORKDIR /app
 COPY frontend ./frontend
 RUN yarn --cwd frontend install
 RUN yarn --cwd frontend build
 
 # 后端构建阶段  
-FROM --platform=$BUILDPLATFORM golang:1.23 AS builder
+FROM  golang:1.23 AS builder
 WORKDIR /app
 
 # 配置 Go 模块代理为国内镜像源
@@ -21,7 +21,7 @@ ARG TARGETARCH
 RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -o alemongo .
 
 # 最终运行阶段
-FROM --platform=$BUILDPLATFORM node:22
+FROM  node:22
 WORKDIR /app
 COPY --from=builder /app/alemongo .
 # 设置yarn缓存目录
