@@ -27,9 +27,11 @@ func PackageDelete(ctx *gin.Context) {
 	}
 	botLoggerWriter := logger.NewRobotLoggerWriter(botLogger)
 
+	//defer botLoggerWriter.RobotLogger.Close()
+
 	err = logic.PackageDelete(name, app_name)
 	if err != nil {
-		botLoggerWriter.RobotLogger.Error(err.Error())
+		botLoggerWriter.RobotLogger.Logger.Error(err.Error())
 		response.ResponseErrorWithMsg(ctx, http.StatusBadRequest, http.StatusBadRequest, err.Error())
 		return
 	}

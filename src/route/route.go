@@ -106,6 +106,8 @@ func Create(mode string) *gin.Engine {
 				SSHAPI.DELETE("/delete", gitssh.Delete)
 				// 读取
 				SSHAPI.GET("/read", gitssh.Read)
+
+				SSHAPI.POST("/generate", gitssh.GenerateSSH)
 			}
 			// bot
 			BotAPI := v1.Group("/bot")

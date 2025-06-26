@@ -2,6 +2,7 @@ package logger
 
 import (
 	"alemongo/src/settings"
+	"errors"
 	"github.com/gin-gonic/gin"
 	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
 	"go.uber.org/zap"
@@ -23,9 +24,34 @@ const (
 )
 
 var (
-	lg        *zap.Logger
-	botLogger sync.Map // map[string]*zap.Logger
+	lg             *zap.Logger
+	mainRotateLogs *rotatelogs.RotateLogs
+	botLogger      sync.Map // map[string]*RobotLogger
 )
+
+func CloseLogFiles() error {
+	if mainRotateLogs != nil {
+		if err := mainRotateLogs.Close(); err != nil {
+			return err
+		}
+	} else {
+		return errors.New("main rotate logs is nil")
+	}
+	return nil
+}
+
+type RobotLoggerWithRotate struct {
+	Logger     *zap.Logger
+	RotateLogs *rotatelogs.RotateLogs
+}
+
+func (r *RobotLoggerWithRotate) Close() error {
+	err := r.RotateLogs.Close()
+	if err != nil {
+		return errors.New("关闭日志文件失败!")
+	}
+	return nil
+}
 
 type zapProgressWriter struct {
 	lg *zap.Logger
@@ -38,35 +64,49 @@ func (w *zapProgressWriter) Write(p []byte) (int, error) {
 }
 
 type RobotLoggerWriter struct {
-	RobotLogger *zap.Logger
+	RobotLogger *RobotLoggerWithRotate
 	outMu       sync.Mutex
 }
 
 func (w *RobotLoggerWriter) Writer() io.Writer {
 	w.outMu.Lock()
 	defer w.outMu.Unlock()
-	return &zapProgressWriter{lg: w.RobotLogger}
+	return &zapProgressWriter{lg: w.RobotLogger.Logger}
 }
 
-func NewRobotLoggerWriter(z *zap.Logger) *RobotLoggerWriter {
-	return &RobotLoggerWriter{RobotLogger: z}
+func NewRobotLoggerWriter(z *RobotLoggerWithRotate) *RobotLoggerWriter {
+	return &RobotLoggerWriter{
+		RobotLogger: &RobotLoggerWithRotate{
+			Logger:     z.Logger,
+			RotateLogs: z.RotateLogs,
+		},
+	}
 }
 
 // GetOrCreateBotLogger 拿到缓存中的botLogger， 如果没有则说明是新的机器人，则维护一个新的存入到缓存中
-func GetOrCreateBotLogger(botName string, level zapcore.Level) (*zap.Logger, error) {
+func GetOrCreateBotLogger(botName string, level zapcore.Level) (*RobotLoggerWithRotate, error) {
 	if blg, ok := botLogger.Load(botName); ok {
-		return blg.(*zap.Logger), nil
+		return &RobotLoggerWithRotate{
+			Logger:     blg.(*RobotLoggerWithRotate).Logger,
+			RotateLogs: blg.(*RobotLoggerWithRotate).RotateLogs}, nil
 	}
-	blg, err := NewRobotLogger(botName, level)
+	rlr, err := NewRobotLogger(botName, level)
 	if err != nil {
 		return nil, err
 	}
-	botLogger.Store(botName, blg)
-	return blg, nil
+	botLogger.Store(botName, rlr)
+	return rlr, nil
+}
+
+func DeleteBotLogger(botName string, level zapcore.Level) {
+	if _, ok := botLogger.Load(botName); ok {
+		botLogger.Delete(botName)
+	}
 }
 
 func Init(cfg *settings.LogConfig, mode string) (err error) {
-	writeSyncer := getLogWriter(cfg.Filename)
+	writeSyncer, rotate := getLogWriter(cfg.Filename)
+	mainRotateLogs = rotate
 	encoder := getEncoder()
 	var l = new(zapcore.Level)
 	err = l.UnmarshalText([]byte(cfg.Level))
@@ -95,7 +135,7 @@ func getBotPath(botName string) string {
 }
 
 // NewRobotLogger 为每个机器人单独建立一个日志管理
-func NewRobotLogger(botName string, level zapcore.Level) (*zap.Logger, error) {
+func NewRobotLogger(botName string, level zapcore.Level) (*RobotLoggerWithRotate, error) {
 	botPath := getBotPath(botName)
 	robotLogPath := path.Join(botPath, "alemonjs", "log")
 	if _, err := os.Stat(robotLogPath); os.IsNotExist(err) {
@@ -103,7 +143,7 @@ func NewRobotLogger(botName string, level zapcore.Level) (*zap.Logger, error) {
 			// 创建目录失败
 		}
 	}
-	robotWS := getLogWriter(robotLogPath)
+	robotWS, rotate := getLogWriter(robotLogPath)
 	robotEncoder := getEncoder()
 	robotCore := zapcore.NewCore(robotEncoder, robotWS, level)
 
@@ -111,7 +151,10 @@ func NewRobotLogger(botName string, level zapcore.Level) (*zap.Logger, error) {
 		return zapcore.NewTee(existing, robotCore)
 	}))
 
-	return botLogger, nil
+	return &RobotLoggerWithRotate{
+		Logger:     botLogger,
+		RotateLogs: rotate,
+	}, nil
 }
 
 func getEncoder() zapcore.Encoder {
@@ -139,7 +182,7 @@ func getEncoder() zapcore.Encoder {
 	return zapcore.NewConsoleEncoder(encoderConfig)
 }
 
-func getLogWriter(filename string) zapcore.WriteSyncer {
+func getLogWriter(filename string) (zapcore.WriteSyncer, *rotatelogs.RotateLogs) {
 	// 容量大小分割
 	//lumberJackLogger := &lumberjack.Logger{
 	//	Filename:   filename,
@@ -157,7 +200,7 @@ func getLogWriter(filename string) zapcore.WriteSyncer {
 		rotatelogs.WithMaxAge(30*24*time.Hour),
 		rotatelogs.WithRotationTime(time.Hour*24),
 	)
-	return zapcore.AddSync(rotateLogger)
+	return zapcore.AddSync(rotateLogger), rotateLogger
 }
 
 // GinLogger 接收gin框架默认的日志
