@@ -1,5 +1,7 @@
 import {useEffect, useState} from "react";
 import {
+  apiBotConfig,
+  apiBotConfigUpdate,
   apiBotInfo,
   apiBotPackageClone,
   apiBotPackagesDelete,
@@ -14,6 +16,7 @@ import {getBotName} from "../core";
 import Box from "@/commom/Box";
 import {useNavigate} from "react-router-dom";
 import Xterm from "../Xterm";
+import YAML from "js-yaml";
 
 const Panel = () => {
   const [pkgs, setPkgs] = useState<BotPackages[]>([]);
@@ -23,6 +26,9 @@ const Panel = () => {
     pid: 0,
     node_modules: false,
     create_at: "",
+  });
+  const [config, setConfig] = useState({
+    apps: [],
   });
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
@@ -40,6 +46,17 @@ const Panel = () => {
     });
   }, [form, visible]);
 
+  const initBotConfig = (name: string) => {
+    apiBotConfig({
+      name: name,
+    }).then((res) => {
+      const data = YAML.load(res) as {apps: string[]};
+      if (!Array.isArray(data.apps)) {
+        data.apps = [];
+      }
+      setConfig(data);
+    });
+  };
   const initBotInfo = (name: string) => {
     apiBotInfo({name}).then((res) => {
       setInfo(res);
@@ -55,6 +72,7 @@ const Panel = () => {
     const name = getBotName();
     initBotInfo(name);
     initPKGNames(name);
+    initBotConfig(name);
   }, []);
 
   const onFinish = (values: {url: string; branch: string}) => {
@@ -124,6 +142,70 @@ const Panel = () => {
       });
   };
 
+  const [isLoadingStatus, setIsLoadingStatus] = useState(false);
+
+  /**
+   *
+   * @param name
+   */
+  const onStart = (name: string) => {
+    if (isLoadingStatus) return;
+    setIsLoadingStatus(true);
+    let value = "";
+    if (!config.apps.includes(name)) {
+      const cfg = {
+        ...config,
+        apps: [...config.apps, name],
+      };
+      value = YAML.dump(cfg);
+      apiBotConfigUpdate({
+        name: info.name,
+        content: value,
+      })
+        .then(() => {
+          setConfig(cfg);
+        })
+        .finally(() => {
+          setIsLoadingStatus(false);
+        });
+    } else {
+      message.warning("该扩展已启用");
+      setIsLoadingStatus(false);
+      return;
+    }
+  };
+
+  /**
+   *
+   * @param name
+   */
+  const onStop = (name: string) => {
+    if (isLoadingStatus) return;
+    setIsLoadingStatus(true);
+    let value = "";
+    if (config.apps.includes(name)) {
+      const cfg = {
+        ...config,
+        apps: config.apps.filter((item) => item !== name),
+      };
+      value = YAML.dump(cfg);
+      apiBotConfigUpdate({
+        name: info.name,
+        content: value,
+      })
+        .then(() => {
+          setConfig(cfg);
+        })
+        .finally(() => {
+          setIsLoadingStatus(false);
+        });
+    } else {
+      message.warning("该扩展未启用");
+      setIsLoadingStatus(false);
+      return;
+    }
+  };
+
   return (
     <Box>
       <div className="p-2 flex-1 flex bg-slate-100 dark:bg-zinc-900 gap-2 flex-col xl:flex-row transition-colors">
@@ -142,6 +224,8 @@ const Panel = () => {
               <div className="flex flex-col gap-2">
                 {pkgs.map((item) => {
                   const pkgJSON = JSON.parse(item.pkg);
+                  const pkgName = pkgJSON["name"];
+                  const isStart = config.apps.includes(pkgName);
                   return (
                     <div
                       key={item.name}
@@ -153,10 +237,31 @@ const Panel = () => {
                     >
                       <div className="flex flex-col  md:flex-row flex-wrap gap-2">
                         <Tag color="blue">{item.name}</Tag>
-                        <Tag color="blue">{pkgJSON["name"]}</Tag>
+                        <Tag color="blue">{pkgName}</Tag>
                         <Tag color="geekblue">{pkgJSON["description"]}</Tag>
+                        {
+                          // 是否配置
+                        }
+                        {isStart ? (
+                          <Tag color="green">已启用</Tag>
+                        ) : (
+                          <Tag color="red">未启用</Tag>
+                        )}
                       </div>
                       <div className="flex flex-col  md:flex-row gap-2 items-center">
+                        <Button
+                          loading={isLoadingStatus}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (isStart) {
+                              onStop(pkgName);
+                              return;
+                            }
+                            onStart(pkgName);
+                          }}
+                        >
+                          {!isStart ? "启用" : "停用"}
+                        </Button>
                         <Button
                           onClick={(e) => {
                             e.stopPropagation();
@@ -165,7 +270,7 @@ const Panel = () => {
                             );
                           }}
                         >
-                          配置
+                          包配置
                         </Button>
                         <Button
                           onClick={(e) => {
@@ -185,7 +290,7 @@ const Panel = () => {
                             okText="确定"
                             cancelText="取消"
                           >
-                            <Button type="primary" className="bg-red-500">
+                            <Button type="primary" className="bg-yellow-500">
                               强制更新
                             </Button>
                           </Popconfirm>
@@ -225,7 +330,7 @@ const Panel = () => {
           }}
           className="dark:bg-zinc-900"
         >
-          <Form form={form} onFinish={onFinish} layout="vertical">
+          <Form form={form} onFinish={onFinish}>
             <Form.Item
               label="地址"
               name="url"

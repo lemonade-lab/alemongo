@@ -57,7 +57,6 @@ const Headings = ({
       >
         <Form
           form={form}
-          layout="vertical"
           className="space-y-6 dark:[&>.ant-drawer-content]:bg-zinc-900 dark:[&>.ant-drawer-header]:bg-zinc-900 p-4"
           onFinish={onSubmit}
         >
