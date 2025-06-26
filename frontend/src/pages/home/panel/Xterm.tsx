@@ -37,9 +37,6 @@ const Xterm = ({
           const filteredLines = lines.filter((line) => line.trim() !== "");
           setData(filteredLines);
         })
-        .catch((err) => {
-          console.log("err", err);
-        })
         .finally(() => {
           startPolling(name);
         });
@@ -99,10 +96,6 @@ const Xterm = ({
           // 更新数据
           onUpdate(info.name);
         })
-        .catch((err) => {
-          console.log("err", err);
-          message.error("安装失败");
-        });
     }, 1000);
   };
 

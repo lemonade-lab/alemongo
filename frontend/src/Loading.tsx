@@ -1,7 +1,7 @@
 import React from "react";
 
 const Loading: React.FC = () => (
-  <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-blue-100 via-white to-purple-100">
+  <div className="flex flex-col items-center justify-center size-full bg-gradient-to-br from-blue-100 via-white to-purple-100">
     <div className="flex items-center justify-center mb-6">
       <div className="w-12 h-12 border-4 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
     </div>

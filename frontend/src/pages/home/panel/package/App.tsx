@@ -63,10 +63,6 @@ const Package = () => {
       .then(() => {
         setOpen(true);
       })
-      .catch((err) => {
-        console.log("err", err);
-        message.error("安装失败");
-      })
       .finally(() => {
         setIsInstallLoadin(false);
       });

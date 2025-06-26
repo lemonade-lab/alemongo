@@ -24,17 +24,10 @@ const Login = () => {
       password,
       username,
     })
-      .then((res) => {
-        dispatch(setToken(res.data));
+      .then((data) => {
+        dispatch(setToken(data));
         navigate("/");
       })
-      .catch((err) => {
-        if (err?.response?.data?.msg) {
-          message.error(err.response.data.msg);
-        } else {
-          message.error("登录失败");
-        }
-      });
   };
   // 忘记密码
   const handleForgetPassword = () => {

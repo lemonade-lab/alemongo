@@ -82,10 +82,6 @@ const GitPackage = () => {
       .then(() => {
         setOpen(true);
       })
-      .catch((err) => {
-        console.log("err", err);
-        message.error("失败");
-      })
       .finally(() => {
         setIsInstallLoadin(false);
       });

@@ -1,7 +1,7 @@
 import {useState} from "react";
 import {apiLogout} from "../api";
 import {useNavigate} from "react-router-dom";
-import {Button, Drawer, Dropdown, MenuProps, message} from "antd";
+import {Button, Drawer, Dropdown, MenuProps} from "antd";
 import {menuItems} from "./home/menuItems";
 import {useSelector} from "react-redux";
 import {RootState} from "@/redux";
@@ -15,9 +15,6 @@ const Navbars = () => {
       .then(() => {
         navigate("/login");
       })
-      .catch(() => {
-        message.error("退出失败");
-      });
   };
 
   const items: MenuProps["items"] = [

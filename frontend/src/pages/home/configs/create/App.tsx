@@ -56,10 +56,6 @@ const ConfigEdit = () => {
         }
         navigate("/configs");
       })
-      .catch((err) => {
-        console.log("err", err);
-        message.error("保存失败");
-      });
   };
 
   const onSave = (name: string, value: string) => {

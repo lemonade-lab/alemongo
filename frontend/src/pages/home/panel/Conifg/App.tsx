@@ -40,10 +40,6 @@ const Conifg = () => {
         message.success("保存成功");
         setYamlData(value);
       })
-      .catch((err) => {
-        message.error("保存失败");
-        console.log("err", err);
-      });
   };
   const [isLoading, setIsLoading] = useState(false);
   const [select, setSelect] = useState<string>("");
@@ -80,10 +76,6 @@ const Conifg = () => {
                   .then((res) => {
                     setYamlData(res);
                     message.success("载入成功");
-                  })
-                  .catch((err) => {
-                    console.log("err", err);
-                    message.error("载入失败");
                   })
                   .finally(() => {
                     setIsLoading(false);

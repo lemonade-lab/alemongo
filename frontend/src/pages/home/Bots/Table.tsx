@@ -84,10 +84,6 @@ const BotTable = ({onClick = () => {}}: {onClick: (key: string) => void}) => {
           // 更新数据
           setDateByAPI(res);
         })
-        .catch((err) => {
-          console.log("err", err);
-          message.error("安装失败");
-        });
     }, 1000);
   };
 
@@ -105,10 +101,6 @@ const BotTable = ({onClick = () => {}}: {onClick: (key: string) => void}) => {
         console.log("res", res);
         startPolling(name);
       })
-      .catch((err) => {
-        console.log("err", err);
-        message.error("安装失败");
-      });
   };
 
   const onDelete = (name: string) => {
@@ -120,10 +112,6 @@ const BotTable = ({onClick = () => {}}: {onClick: (key: string) => void}) => {
         console.log("res", res);
         setData((prev) => prev.filter((item) => item.name !== name));
       })
-      .catch((err) => {
-        console.log("err", err);
-        message.error("删除失败");
-      });
   };
 
   const navigate = useNavigate();

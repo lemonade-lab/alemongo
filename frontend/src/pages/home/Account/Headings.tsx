@@ -1,6 +1,4 @@
 import {useState} from "react";
-import {useSelector} from "react-redux";
-import {RootState} from "../../../redux";
 import {apiUserCreate} from "@/api/users/admin";
 import {Button, message, Modal} from "antd";
 import {Form, Input, Select} from "antd";
@@ -17,10 +15,7 @@ const Headings = ({
   selects: string[];
 }) => {
   const [visible, setVisible] = useState(false);
-  const installed = useSelector(
-    (state: RootState) => state.info.node.installed
-  );
-  const onCreateBot = () => {
+  const onCreateAccount = () => {
     setVisible(true);
   };
 
@@ -47,11 +42,9 @@ const Headings = ({
   return (
     <header className="lg:flex lg:items-center lg:justify-between py-2">
       <div className="min-w-0 flex-1"></div>
-      {installed && (
-        <Button type="primary" onClick={onCreateBot}>
-          新建
-        </Button>
-      )}
+      <Button type="primary" onClick={onCreateAccount}>
+        新建
+      </Button>
       <Modal
         open={visible}
         title="新建账户"
