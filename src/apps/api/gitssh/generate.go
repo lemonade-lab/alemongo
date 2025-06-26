@@ -5,6 +5,7 @@ import (
 	"alemongo/src/logic"
 	"alemongo/src/models"
 	"github.com/gin-gonic/gin"
+	"log"
 	"net/http"
 )
 
@@ -33,9 +34,12 @@ func GenerateSSH(c *gin.Context) {
 		return
 	}
 
+	log.Println(req)
+
 	// 生成ssh-keygen指令指令获取到公钥
 	pubKey, err := logic.GenerateSSH(&req)
 	if err != nil {
+		log.Println("controller: ", err)
 		response.ResponseErrorWithMsg(c, http.StatusBadRequest, http.StatusBadRequest, "生成公钥失败")
 		return
 	}

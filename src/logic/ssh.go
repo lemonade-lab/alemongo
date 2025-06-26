@@ -4,6 +4,7 @@ import (
 	"alemongo/src/dao"
 	"alemongo/src/models"
 	"alemongo/src/utils"
+	"log"
 )
 
 func GenerateSSH(req *models.SSHReq) (string, error) {
@@ -11,5 +12,6 @@ func GenerateSSH(req *models.SSHReq) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	log.Println("执行指令: ", skgCmd)
 	return dao.GenerateSSH(skgCmd, req.FilePath)
 }

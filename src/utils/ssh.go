@@ -23,8 +23,9 @@ func BuildSSHKeygenArgs(req models.SSHReq) ([]string, error) {
 	}
 	if req.FilePath != "" {
 		filePath := filepath.Clean(req.FilePath)
-		if _, err := os.Stat(filePath); err == os.ErrNotExist {
-			if os.MkdirAll(filepath.Dir(filePath), os.ModePerm); err != nil {
+		dirPath := filepath.Dir(filePath)
+		if _, err := os.Stat(dirPath); os.IsNotExist(err) {
+			if os.MkdirAll(dirPath, os.ModePerm); err != nil {
 				return []string{}, err
 			}
 		}

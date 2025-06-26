@@ -8,5 +8,4 @@ type SSHReq struct {
 	Passphrase string `form:"passphrase"` // -N
 	HashAlgo   string `form:"hash_algo"`  // -E
 	KeyFormat  string `form:"key_format"` // -m
-	Quiet      bool   `form:"quiet"`      // -q
 }
