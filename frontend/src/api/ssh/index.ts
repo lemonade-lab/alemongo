@@ -39,3 +39,19 @@ export const apiSSHDelete = async (data: {
         params: data,
     }).then((res) => res.data);
 }
+
+export const apiSSHGenerate = async (data: {
+    key_type: string,
+    bit_size: number,
+    comment: string,
+    name: string,
+    passphrase?: string,
+    hash_algo?: string,
+    key_format?: string,
+}) => {
+    return request({
+        url: "/ssh/generate",
+        method: "post",
+        data,
+    }).then((res) => res.data);
+};

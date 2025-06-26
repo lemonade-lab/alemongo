@@ -2,11 +2,13 @@ package settings
 
 import (
 	"fmt"
-	"github.com/fsnotify/fsnotify"
-	"github.com/spf13/viper"
 	"log"
+	"os"
 	"path"
 	"time"
+
+	"github.com/fsnotify/fsnotify"
+	"github.com/spf13/viper"
 )
 
 const (
@@ -116,6 +118,17 @@ func GetBotTemplate() string {
 // 获取工作目录
 func GetWorkPath() string {
 	return path.Join("work")
+}
+
+// 用户数据目录
+func GetUserDataPath() (string, error) {
+	userDataPath := path.Join(GetWorkPath(), "users")
+	// 如果目录不存在，则创建
+	if err := os.MkdirAll(userDataPath, 0755); err != nil {
+		log.Printf("创建用户数据目录失败: %v", err)
+		return "", err
+	}
+	return userDataPath, nil
 }
 
 // 获取资源目录

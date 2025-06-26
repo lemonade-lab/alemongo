@@ -13,5 +13,5 @@ func GenerateSSH(req *models.SSHReq) (string, error) {
 		return "", err
 	}
 	log.Println("执行指令: ", skgCmd)
-	return dao.GenerateSSH(skgCmd, req.FilePath)
+	return dao.GenerateSSH(skgCmd, req.Name)
 }

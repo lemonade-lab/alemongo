@@ -24,7 +24,6 @@ export const useCommon = () => {
         status = true;
         // 基本环境信息
         apiCommonInfo()
-          .then((res) => res.data)
           .then((res) => {
             dispatch(setInfo(res));
           });

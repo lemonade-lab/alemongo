@@ -46,8 +46,12 @@ func generateRandomPassword(length int) string {
 }
 
 func GenerateAdminAccount() *models.User {
-	workPath := settings.GetWorkPath()
-	userListPath := path.Join(workPath, "users", "admin.json")
+	userPath, err := settings.GetUserDataPath()
+	if err != nil {
+		return &models.User{}
+	}
+	// 检查用户数据目录是否存在
+	userListPath := path.Join(userPath, "admin.json")
 	if _, err := os.Stat(userListPath); os.IsNotExist(err) {
 		// 生成随机密码
 		password := generateRandomPassword(16)
@@ -88,8 +92,12 @@ func SetAdminPassword(password string) bool {
 		return false
 	}
 	// 保存到文件
-	workPath := settings.GetWorkPath()
-	userListPath := path.Join(workPath, "users", "admin.json")
+	userPath, err := settings.GetUserDataPath()
+	if err != nil {
+		log.Printf("获取用户数据目录失败: %v", err)
+		return false
+	}
+	userListPath := path.Join(userPath, "admin.json")
 	fileData, err := json.Marshal(models.User{
 		Identity:   permission.IdentityAdmin,
 		UserName:   admin.UserName,
@@ -97,10 +105,12 @@ func SetAdminPassword(password string) bool {
 		MasterName: permission.DefaultUserName,
 	})
 	if err != nil {
+		log.Printf("序列化管理员账户信息失败: %v", err)
 		return false
 	}
 	err = os.WriteFile(userListPath, fileData, 0644)
 	if err != nil {
+		log.Printf("写入管理员账户信息失败: %v", err)
 		return false
 	}
 	// 设置密码
@@ -119,9 +129,12 @@ func IsSuperAdmin(username string) bool {
 }
 
 func getListPath() string {
-	workPath := settings.GetWorkPath()
-	userPath := path.Join(settings.GetWorkPath(), "users")
-	userListPath := path.Join(workPath, "users", "list.json")
+	userPath, err := settings.GetUserDataPath()
+	if err != nil {
+		log.Printf("获取用户数据目录失败: %v", err)
+		return ""
+	}
+	userListPath := path.Join(userPath, "list.json")
 	if _, err := os.Stat(userListPath); os.IsNotExist(err) {
 		// 创建目录
 		err := os.MkdirAll(userPath, os.ModePerm)

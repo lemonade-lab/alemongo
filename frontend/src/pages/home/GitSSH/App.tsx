@@ -3,10 +3,20 @@ import {
   ExclamationCircleOutlined,
   SettingOutlined,
 } from "@ant-design/icons";
-import {Button, Card, Dropdown, MenuProps, Modal} from "antd";
+import {
+  Button,
+  Card,
+  Dropdown,
+  Form,
+  Input,
+  MenuProps,
+  message,
+  Modal,
+  Select,
+} from "antd";
 import {useEffect, useState} from "react";
 import {useNavigate} from "react-router-dom";
-import {apiSSHDelete, apiSSHList} from "@/api/ssh";
+import {apiSSHDelete, apiSSHGenerate, apiSSHList} from "@/api/ssh";
 import Box from "@/commom/Box";
 const Configs = () => {
   const navigate = useNavigate();
@@ -40,15 +50,66 @@ const Configs = () => {
     });
   };
 
+  const [open, setOpen] = useState(false);
+  const [form] = Form.useForm();
+  const [loading, setLoading] = useState(false);
+
+  const onSubmit = (values) => {
+    if (loading) return;
+    setLoading(true);
+    apiSSHGenerate(values)
+      .then(() => {
+        message.success("密钥生成成功");
+        setOpen(false);
+        form.resetFields();
+        // 刷新
+        apiSSHList().then((res) => {
+          setSSHName(res);
+        });
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  };
+
+  const onFinish = (values) => {
+    Modal.confirm({
+      title: "确认生成密钥",
+      content: <div>确定生成吗？若存在<span className="text-red-600">{values.name}</span>将直接覆盖！！！</div>,
+      icon: <ExclamationCircleOutlined />,
+      okType: "primary",
+      onOk: () => onSubmit(values),
+      okText: "确认",
+      cancelText: "取消",
+    });
+  };
+
   return (
     <Box>
       <div className="p-2 flex gap-4 flex-col bg-slate-100 flex-1 00 dark:bg-zinc-900 transition-colors">
-        <div className="flex justify-end">
+        <div className="flex justify-end gap-2">
+          <Button
+            type="primary"
+            onClick={() => {
+              setOpen(true);
+              form.resetFields();
+              form.setFieldsValue({
+                key_type: "rsa",
+                bit_size: 2048,
+                name: "id_rsa",
+                comment: "your@gmail.com",
+                hash_algo: "",
+                key_format: "",
+              });
+            }}
+          >
+            生产密钥
+          </Button>
           <Button
             type="primary"
             onClick={() => navigate("/ssh/id_rsa.pub/update")}
           >
-            新增
+            新增配置
           </Button>
         </div>
         <div className="flex gap-2 flex-wrap">
@@ -83,6 +144,111 @@ const Configs = () => {
           ))}
         </div>
       </div>
+      <Modal
+        open={open}
+        title="生产密钥"
+        onCancel={() => setOpen(false)}
+        onOk={() => {
+          form.submit();
+        }}
+        okText="确认"
+        cancelText="取消"
+      >
+        <Form form={form} onFinish={onFinish}>
+          <Form.Item
+            label="配置名"
+            name="name"
+            rules={[
+              {
+                required: true,
+                message: "请输入配置名",
+              },
+              {
+                message: "配置名只能包含字母、数字、下划线",
+                pattern: /^[a-zA-Z0-9_]+$/,
+              },
+            ]}
+          >
+            <Input placeholder="-f ~/.ssh/${name}" />
+          </Form.Item>
+          <Form.Item
+            label="密钥类型"
+            name="key_type"
+            rules={[{required: true, message: "请选择密钥类型"}]}
+          >
+            <Select
+              placeholder="请选择密钥类型"
+              options={[
+                {label: "RSA", value: "rsa"},
+                {label: "ED25519", value: "ed25519"},
+                {label: "ECDSA", value: "ecdsa"},
+                {label: "DSA", value: "dsa"},
+                {label: "X25519", value: "x25519"},
+                {label: "X448", value: "x448"},
+                {label: "Curve25519", value: "curve25519"},
+                {label: "Curve448", value: "curve448"},
+              ]}
+            />
+          </Form.Item>
+          <Form.Item
+            label="密钥长度"
+            name="bit_size"
+            rules={[{required: true, message: "请选择密钥长度"}]}
+          >
+            <Select
+              placeholder="指定密钥长度(仅对rsa/dsa有效)"
+              options={[
+                {label: "1024", value: 1024},
+                {label: "2048", value: 2048},
+                {label: "4096", value: 4096},
+              ]}
+            />
+          </Form.Item>
+          <Form.Item
+            label="私钥密码"
+            name="passphrase"
+            rules={[{message: "请输入私钥密码"}]}
+          >
+            <Input.Password placeholder="-N 设置私钥密钥" />
+          </Form.Item>
+          <Form.Item
+            label="指纹哈希算法"
+            name="hash_algo"
+            rules={[{message: "请选择指纹哈希算法"}]}
+          >
+            <Select
+              placeholder="-E 使用特定的哈希算法生成指纹"
+              options={[
+                {label: "SHA-256", value: "sha256"},
+                {label: "SHA-1", value: "sha1"},
+                {label: "MD5", value: "md5"},
+              ]}
+            />
+          </Form.Item>
+          <Form.Item
+            label="密钥格式"
+            name="key_format"
+            rules={[{message: "请选择密钥格式"}]}
+          >
+            <Select
+              placeholder="-m 指定密钥格式：如PEM、EFC4716等"
+              options={[
+                {label: "OpenSSH", value: "OpenSSH"},
+                {label: "PEM", value: "PEM"},
+                {label: "PKCS#8", value: "PKCS8"},
+                {label: "RFC4716", value: "RFC4716"},
+              ]}
+            />
+          </Form.Item>
+          <Form.Item
+            label="注释"
+            name="comment"
+            rules={[{required: true, message: "请输入注释"}]}
+          >
+            <Input placeholder="-C 添加注释" />
+          </Form.Item>
+        </Form>
+      </Modal>
     </Box>
   );
 };

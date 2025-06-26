@@ -4,7 +4,7 @@ import {Button, Form, Input, message} from "antd";
 // import {useSelector} from "react-redux";
 // import {RootState} from "../../../redux";
 import {Modal} from "antd";
-import { useCommon } from "@/hook/useCommon";
+import {useCommon} from "@/hook/useCommon";
 
 const Headings = ({
   onUpdate,
@@ -120,7 +120,19 @@ const Headings = ({
         }}
       >
         <Form form={form} onFinish={onSubmit}>
-          <Form.Item name="botname">
+          <Form.Item
+            name="botname"
+            rules={[
+              {
+                required: true,
+                message: "请输入机器人名称",
+              },
+              {
+                message: "配置名只能包含字母、数字、下划线",
+                pattern: /^[a-zA-Z0-9_]+$/,
+              },
+            ]}
+          >
             <Input placeholder="请输入机器人名称"></Input>
           </Form.Item>
         </Form>
