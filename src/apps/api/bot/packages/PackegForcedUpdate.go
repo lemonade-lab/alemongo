@@ -27,8 +27,10 @@ func PackegForcedUpdate(ctx *gin.Context) {
 	}
 	botLoggerWriter := logger.NewRobotLoggerWriter(botLogger)
 
+	//defer botLoggerWriter.RobotLogger.Close()
+
 	if err := logic.PackegForcedUpdate(name, repo_name, branch_name, botLoggerWriter); err != nil {
-		botLoggerWriter.RobotLogger.Error(err.Error())
+		botLoggerWriter.RobotLogger.Logger.Error(err.Error())
 		response.ResponseErrorWithMsg(ctx, http.StatusBadRequest, http.StatusBadRequest, err.Error())
 		return
 	}

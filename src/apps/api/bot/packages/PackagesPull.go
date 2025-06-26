@@ -104,6 +104,7 @@ func PackagesPull(ctx *gin.Context) {
 		response.ResponseError(ctx, http.StatusInternalServerError, response.ErrorRobotLog)
 	}
 	botLoggerWriter := logger.NewRobotLoggerWriter(botLogger)
+	//defer botLoggerWriter.RobotLogger.Close()
 	// 获取工作区
 	worktree, err := repo.Worktree()
 	if err != nil {
@@ -125,7 +126,7 @@ func PackagesPull(ctx *gin.Context) {
 	})
 	if err != nil {
 		if err == git.NoErrAlreadyUpToDate {
-			botLoggerWriter.RobotLogger.Info("仓库已经是最新状态，无需更新")
+			botLoggerWriter.RobotLogger.Logger.Info("仓库已经是最新状态，无需更新")
 			ctx.JSON(http.StatusOK, gin.H{
 				"code": http.StatusOK,
 				"msg":  "仓库已经是最新",
@@ -133,7 +134,7 @@ func PackagesPull(ctx *gin.Context) {
 			})
 			return
 		}
-		botLoggerWriter.RobotLogger.Error("拉取失败: ", zap.Error(err))
+		botLoggerWriter.RobotLogger.Logger.Error("拉取失败: ", zap.Error(err))
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"code": http.StatusInternalServerError,
 			"msg":  "拉取失败",
@@ -142,7 +143,7 @@ func PackagesPull(ctx *gin.Context) {
 		return
 	}
 
-	botLoggerWriter.RobotLogger.Info("成功拉取最新代码")
+	botLoggerWriter.RobotLogger.Logger.Info("成功拉取最新代码")
 	ctx.JSON(http.StatusOK, gin.H{
 		"code": http.StatusOK,
 		"msg":  "拉取成功",

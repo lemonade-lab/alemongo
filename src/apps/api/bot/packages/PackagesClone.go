@@ -95,7 +95,7 @@ func PackagesClone(ctx *gin.Context) {
 		response.ResponseError(ctx, http.StatusInternalServerError, response.ErrorRobotLog)
 	}
 	botLoggerWriter := logger.NewRobotLoggerWriter(botLogger)
-
+	//defer botLoggerWriter.RobotLogger.Close()
 	// 克隆仓库并切换到指定分支
 	_, err = git.PlainClone(clonePath, false, &git.CloneOptions{
 		URL:           repoURL,
@@ -106,7 +106,7 @@ func PackagesClone(ctx *gin.Context) {
 		Depth:         1,
 	})
 	if err != nil {
-		botLoggerWriter.RobotLogger.Error("克隆失败: ", zap.Error(err))
+		botLoggerWriter.RobotLogger.Logger.Error("克隆失败: ", zap.Error(err))
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"code": http.StatusInternalServerError,
 			"msg":  "克隆失败",

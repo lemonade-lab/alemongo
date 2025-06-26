@@ -60,6 +60,8 @@ func Add(name string, args []string) (string, error) {
 	}
 	botLoggerWriter := logger.NewRobotLoggerWriter(botLogger)
 
+	//defer botLoggerWriter.RobotLogger.Close()
+
 	// 设置命令的输出到日志文件
 	cmd.Stdout = botLoggerWriter.Writer()
 	cmd.Stderr = botLoggerWriter.Writer()
@@ -102,6 +104,9 @@ func Install(name string) (string, error) {
 
 	cmd.Stdout = botLoggerWriter.Writer()
 	cmd.Stderr = botLoggerWriter.Writer()
+
+	//defer botLoggerWriter.RobotLogger.Close()
+
 	// 执行命令
 	if err := cmd.Run(); err != nil {
 		// 分析错误。如果只是依赖的一些警告不应当做为错误
@@ -150,6 +155,8 @@ func Remove(name string, names []string) (string, error) {
 		fmt.Printf("unable to create logger: %v\n", err)
 	}
 	botLoggerWriter := logger.NewRobotLoggerWriter(botLogger)
+
+	//defer botLoggerWriter.RobotLogger.Close()
 
 	// 设置命令的输出到日志文件
 	cmd.Stdout = botLoggerWriter.Writer()

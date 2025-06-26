@@ -6,6 +6,8 @@ import (
 	"alemongo/src/logger"
 	"alemongo/src/settings"
 	"errors"
+	"fmt"
+	"go.uber.org/zap/zapcore"
 	"os"
 	"path"
 )
@@ -37,6 +39,17 @@ func DeleteBot(name string) (string, error) {
 			return "", errors.New(msg)
 		}
 	}
+
+	var l = new(zapcore.Level)
+	if err := l.UnmarshalText([]byte(settings.Conf.Log.Level)); err != nil {
+		fmt.Printf("unable to unmarshal zapcore.Level: %v\n", err)
+	}
+	botLogger, _ := logger.GetOrCreateBotLogger(name, *l)
+
+	botLogger.Close()
+
+	logger.DeleteBotLogger(name, *l)
+
 	botPath := GetBotPath(name)
 	return dao.DeleteBot(name, botPath)
 }
@@ -50,6 +63,7 @@ func BotYarnInstall(name string) (string, error) {
 		return "", errors.New("机器人不存在")
 	}
 	msg, err := Install(name)
+
 	if err != nil {
 		return msg, err
 	}
