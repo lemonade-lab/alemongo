@@ -15,7 +15,7 @@ export const apiBotPackage = async (data: {
     return new Promise((resolve, reject) => {
         request({
             url: "/bot/package",
-            method: "post",
+            method: 'POST',
             data,
         })
             .then((res) => res.data)
@@ -35,7 +35,7 @@ export const apiBotPackageUpdate = async (data: {
     return new Promise((resolve, reject) => {
         request({
             url: "/bot/package/update",
-            method: "post",
+            method: 'POST',
             data,
         })
             .then((res) => res.data)

@@ -17,7 +17,7 @@ export const apiBindEmail = async (data: {
     return new Promise((resolve, reject) => {
         request({
             url: "/user/bind_email",
-            method: "post",
+            method: 'POST',
             data
         })
             .then((res) => res.data)
@@ -36,7 +36,7 @@ export const apiVerifyEmail = async (data) => {
     return new Promise((resolve, reject) => {
         request({
             url: "/user/verify_email",
-            method: "post",
+            method: 'POST',
             data
         })
             .then((res) => res.data)

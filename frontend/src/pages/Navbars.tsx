@@ -1,21 +1,96 @@
 import {useState} from "react";
 import {apiLogout} from "../api";
 import {useNavigate} from "react-router-dom";
-import {Button, Drawer, Dropdown, MenuProps} from "antd";
+import {
+  Button,
+  Drawer,
+  Dropdown,
+  Form,
+  Input,
+  InputNumber,
+  MenuProps,
+  message,
+  Modal,
+} from "antd";
 import {menuItems} from "./home/menuItems";
 import {useSelector} from "react-redux";
 import {RootState} from "@/redux";
 import ThemeToggle from "@/commom/ThemeToggle";
+import {apiGetConfigEmail, apiUpdateEmailConfig} from "@/api/config/email";
 
 const Navbars = () => {
   const [showMenu, setShowMenu] = useState(false);
   const navigate = useNavigate();
   const goLogout = () => {
-    apiLogout()
-      .then(() => {
-        navigate("/login");
-      })
+    apiLogout().then(() => {
+      navigate("/login");
+    });
   };
+
+  const [openEmailModal, setOpenEmailModal] = useState(false);
+  const [form] = Form.useForm();
+  const [isLoading, setIsLoading] = useState(false);
+
+  /**
+   * @param e
+   * @returns
+   */
+  const onSubmit = (values: HTMLFormElement) => {
+    if (isLoading) {
+      return;
+    }
+    setIsLoading(true);
+    // 检查端口是否为数字
+    apiUpdateEmailConfig({
+      provider: values.provider,
+      host: values.host,
+      port: values.port,
+      username: values.username,
+      password: values.password,
+      from_email: values.from_email,
+    })
+      .then(() => {
+        message.success("邮箱服务配置成功");
+        setOpenEmailModal(false);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  };
+
+  const onEmailModal = () => {
+    if (isLoading) {
+      message.warning("正在加载，请稍后");
+      return;
+    }
+    setIsLoading(true);
+    apiGetConfigEmail()
+      .then((res) => {
+        form.setFieldsValue({
+          provider: res.provider,
+          host: res.host,
+          port: res.port,
+          username: res.username,
+          password: res.password,
+          from_email: res.from_email,
+        });
+        setOpenEmailModal(true);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  };
+
+  const storeMe = useSelector((state: RootState) => state.me.info);
+  // 过滤得到 item
+  const curMenuItems = menuItems.filter((item) => {
+    if (item?.identity) {
+      if (item?.identity !== storeMe.identity) {
+        return false;
+      }
+    }
+    return true;
+  });
 
   const items: MenuProps["items"] = [
     {
@@ -31,16 +106,30 @@ const Navbars = () => {
       label: <div onClick={() => navigate("/update-email")}>更改邮箱</div>,
     },
     {
-      key: "3",
+      key: "4",
+      label: <div onClick={onEmailModal}>邮箱服务</div>,
+    },
+    {
+      key: "0",
       label: <div onClick={goLogout}>退出账户</div>,
     },
   ];
 
-  const storeMe = useSelector((state: RootState) => state.me.info);
-  // 过滤得到 item
-  const curMenuItems = menuItems.filter((item) => {
-    if (item?.identity) {
-      if (item?.identity !== storeMe.identity) {
+  const itemsMap: {
+    [key: string]: string;
+  } = {
+    1: "",
+    2: "",
+    3: "",
+    4: "admin",
+    0: "",
+  };
+
+  const curItems = items.filter((item) => {
+    const value = itemsMap[String(item.key)]
+    if (value) {
+      if (value !== storeMe.identity) {
+        // console.log("没有权限", item?.identity, storeMe);
         return false;
       }
     }
@@ -55,6 +144,7 @@ const Navbars = () => {
   });
 
   const [open, setOpen] = useState(false);
+
   return (
     <nav className="bg-gray-800 dark:bg-zinc-900 transition-colors">
       <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
@@ -128,7 +218,7 @@ const Navbars = () => {
             </Button>
             <div className="relative ml-3">
               <Dropdown
-                menu={{items}}
+                menu={{items: curItems}}
                 placement="bottomRight"
                 arrow={{pointAtCenter: true}}
               >
@@ -174,6 +264,66 @@ const Navbars = () => {
           </div>
         </div>
       </Drawer>
+      <Modal
+        open={openEmailModal}
+        title="邮箱服务"
+        onCancel={() => setOpenEmailModal(false)}
+        onOk={() => {
+          form.submit();
+        }}
+        okText="确定"
+        cancelText="取消"
+        loading={isLoading}
+      >
+        <Form
+          form={form}
+          className="space-y-6 dark:[&>.ant-drawer-content]:bg-zinc-900 dark:[&>.ant-drawer-header]:bg-zinc-900 p-4"
+          onFinish={onSubmit}
+        >
+          <Form.Item
+            label="类别"
+            name="provider"
+            rules={[{required: true, message: "请选择邮箱类别"}]}
+          >
+            <Input allowClear placeholder="qq" />
+          </Form.Item>
+          <Form.Item
+            label="服务器"
+            name="host"
+            rules={[{required: true, message: "请输入 SMTP 服务器"}]}
+          >
+            <Input allowClear placeholder="smtp.qq.com" />
+          </Form.Item>
+          <Form.Item
+            label="端口"
+            name="port"
+            rules={[{required: true, message: "请输入端口号"}]}
+          >
+            <InputNumber placeholder="587" />
+          </Form.Item>
+          <Form.Item
+            label="账号"
+            name="username"
+            rules={[{required: true, message: "请输入账号"}]}
+          >
+            <Input allowClear placeholder="xxx@qq.com" />
+          </Form.Item>
+          <Form.Item
+            label="授权码"
+            name="password"
+            rules={[{required: true, message: "请输入授权码"}]}
+          >
+            <Input.Password allowClear placeholder="授权码" />
+          </Form.Item>
+          <Form.Item
+            label="来源邮箱"
+            name="from_email"
+            rules={[{required: true, message: "请输入来源邮箱"}]}
+          >
+            <Input allowClear placeholder="xxx@qq.com" />
+          </Form.Item>
+        </Form>
+      </Modal>
     </nav>
   );
 };

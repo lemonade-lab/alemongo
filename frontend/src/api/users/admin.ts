@@ -3,7 +3,7 @@ import { request } from "../base";
 export const apiUserList = async () => {
     return request({
         url: "/user/list",
-        method: "get",
+        method: 'GET',
     }).then((res) => res.data);
 };
 
@@ -12,9 +12,10 @@ export const apiUserCreate = async (data: {
     password: string;
     identity: string;
 }) => {
+    console.log("apiUserCreate", data);
     return request({
         url: "/user/create",
-        method: "post",
+        method: 'POST',
         data,
     }).then((res) => res.data);
 }
@@ -25,7 +26,7 @@ export const apiUserDelete = async (data: {
 }) => {
     return request({
         url: "/user/delete",
-        method: "delete",
+        method: 'DELETE',
         params: data,
     }).then((res) => res.data);
 }

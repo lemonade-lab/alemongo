@@ -4,17 +4,41 @@ import axios, { AxiosRequestConfig } from 'axios';
 const api = axios.create({
     baseURL: '/api/v1',
     timeout: 1000 * 60 * 3, // 3分钟超时
-    headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-    }
 });
 
 export const TOKEN_KEY = 'alemongo:token';
 
 export const QQ_TEMPLATE_KEY = 'alemongo:qq:template';
 
-export const server = async (config: AxiosRequestConfig) => {
-    return api(config).then(res => res.data).catch((err) => {
+const getContentType = (method: string) => {
+    return method === 'POST' ? "application/x-www-form-urlencoded" : "application/json";
+}
+
+const Method = {
+    GET: 'GET',
+    POST: 'POST',
+    PUT: 'PUT',
+    DELETE: 'DELETE',
+}
+
+type MethodType = keyof typeof Method;
+
+export const server = async (config: AxiosRequestConfig & {
+    method: MethodType;
+}) => {
+    const { headers, ...cfg } = config;
+    // 判断请求是否符合规范
+    if (!Method[cfg.method]) {
+        message.error("请求方法不正确，请检查请求配置");
+        return Promise.reject(new Error("请求方法不正确"));
+    }
+    return api({
+        headers: {
+            "Content-Type": getContentType(cfg.method || 'GET'),
+            ...headers
+        },
+        ...cfg,
+    }).then(res => res.data).catch((err) => {
         if (err?.response?.data?.msg) {
             message.error(err.response.data.msg);
         }
@@ -27,12 +51,19 @@ export const server = async (config: AxiosRequestConfig) => {
     })
 }
 
-export const request = async (config: AxiosRequestConfig) => {
+export const request = async (config: AxiosRequestConfig & {
+    method: MethodType;
+}) => {
     const { headers, ...cfg } = config;
+    // 判断请求是否符合规范
+    if (!Method[cfg.method]) {
+        message.error("请求方法不正确，请检查请求配置");
+        return Promise.reject(new Error("请求方法不正确"));
+    }
     return api({
         headers: {
             "Authorization": `Bearer ${localStorage.getItem(TOKEN_KEY)}`,
-            "Content-Type": "application/x-www-form-urlencoded",
+            "Content-Type": getContentType(cfg.method || 'GET'),
             ...headers
         },
         ...cfg,

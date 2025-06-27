@@ -25,14 +25,17 @@ const Headings = ({
    */
   const onSubmit = (values: HTMLFormElement) => {
     // 检查密码是否一致
-    if (values.password.value !== values.confirm_password.value) {
+    const username = values.username.trim();
+    const password = values.password.trim();
+    const confirm_password = values.confirm_password.trim();
+    if (password !== confirm_password) {
       message.error("密码不一致");
       return;
     }
     apiUserCreate({
-      username: values.username.value,
-      password: values.password.value,
-      identity: values.identity.value,
+      username: username,
+      password: password,
+      identity: values.identity,
     }).then(() => {
       onUpdate();
       setVisible(false);

@@ -5,6 +5,7 @@ import { BotInfo } from "../types";
 export const apiBotList = async (): Promise<BotInfo[]> => {
     return request({
         url: "/bot/list",
+        method: 'GET'
     }).then((res) => res.data);
 };
 
@@ -17,7 +18,7 @@ export const apiBotCreate = async (data: { name: string }) => {
     return new Promise((resolve, reject) => {
         request({
             url: "/bot/create",
-            method: "post",
+            method: 'POST',
             data,
         })
             .then((res) => res.data)
@@ -32,7 +33,7 @@ export const apiBotRun = async (data: {
     return new Promise((resolve, reject) => {
         request({
             url: "/bot/run",
-            method: "post",
+            method: 'POST',
             data,
         })
             .then((res) => res.data)
@@ -47,7 +48,7 @@ export const apiBotStop = async (data: {
     return new Promise((resolve, reject) => {
         request({
             url: "/bot/stop",
-            method: "post",
+            method: 'POST',
             data,
         })
             .then((res) => res.data)
@@ -62,7 +63,7 @@ export const apiBotDelete = async (data: {
     return new Promise((resolve, reject) => {
         request({
             url: "/bot/info",
-            method: "delete",
+            method: 'DELETE',
             params: data,
         })
             .then((res) => res.data)
@@ -77,7 +78,7 @@ export const apiBotInfo = async (data: {
     return new Promise((resolve, reject) => {
         request({
             url: "/bot/info",
-            method: "post",
+            method: 'POST',
             data,
         })
             .then((res) => res.data)
@@ -93,7 +94,7 @@ export const apiBotLog = async (data: {
     return new Promise((resolve, reject) => {
         request({
             url: "/bot/log",
-            method: "post",
+            method: 'POST',
             data,
         })
             .then((res) => res.data)

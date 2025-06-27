@@ -6,7 +6,7 @@ export const apiCommonInfo = async (): Promise<{
 }> => {
     return server({
         url: "/common/info",
-        method: "get",
+        method: 'GET',
     }).then((res) => res.data);
 }
 

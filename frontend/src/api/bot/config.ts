@@ -15,7 +15,7 @@ export const apiBotConfig = async (data: {
     return new Promise((resolve, reject) => {
         request({
             url: "/bot/config",
-            method: "post",
+            method: 'POST',
             data,
         })
             .then((res) => res.data)
@@ -31,7 +31,7 @@ export const apiBotConfigUpdate = async (data: {
     return new Promise((resolve, reject) => {
         request({
             url: "/bot/config/update",
-            method: "post",
+            method: 'POST',
             data,
         })
             .then((res) => res.data)

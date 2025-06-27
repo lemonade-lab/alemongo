@@ -9,7 +9,7 @@ export const apiResetTemplate = async () => {
     return new Promise((resolve, reject) => {
         request({
             url: "/settings/template/reset",
-            method: "post",
+            method: 'POST',
         })
             .then((res) => res.data)
             .then(resolve)

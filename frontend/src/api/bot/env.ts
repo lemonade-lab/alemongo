@@ -15,7 +15,7 @@ export const apiBotEnv = async (data: {
     return new Promise((resolve, reject) => {
         request({
             url: "/bot/env",
-            method: "post",
+            method: 'POST',
             data,
         })
             .then((res) => res.data)
@@ -35,7 +35,7 @@ export const apiBotEnvUpdate = async (data: {
     return new Promise((resolve, reject) => {
         request({
             url: "/bot/env/update",
-            method: "post",
+            method: 'POST',
             data,
         })
             .then((res) => res.data)

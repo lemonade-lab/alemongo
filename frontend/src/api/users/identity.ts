@@ -3,7 +3,7 @@ import { request } from "../base";
 export const apiIdentityList = async () => {
     return request({
         url: "/user/identity/list",
-        method: "get",
+        method: 'GET',
     }).then((res) => res.data);
 };
 
@@ -13,7 +13,7 @@ export const apiIdentityUpdate = async (data: {
 }) => {
     return request({
         url: "/user/identity",
-        method: "put",
+        method: 'PUT',
         params: data,
     }).then((res) => res.data);
 }

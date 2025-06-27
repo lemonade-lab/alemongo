@@ -6,7 +6,7 @@ export const apiLogin = async (data: {
 }) => {
     return server({
         url: "/user/login",
-        method: "post",
+        method: 'POST',
         data: data,
     }).then((res) => res.data);
 };
@@ -18,6 +18,7 @@ export const apiLogin = async (data: {
 export const apiLogout = async () => {
     return request({
         url: "/user/logout",
+        method: 'GET',
     }).then((res) => {
         localStorage.removeItem(TOKEN_KEY);
         return res;
@@ -35,7 +36,7 @@ export const apiPassword = async (data: {
 }) => {
     return request({
         url: "/user/password",
-        method: "put",
+        method: 'PUT',
         data: data,
     }).then((res) => res.data);
 };
@@ -43,6 +44,6 @@ export const apiPassword = async (data: {
 export const apiInfo = async () => {
     return request({
         url: "/user/info",
-        method: "get",
+        method: 'GET',
     }).then((res) => res.data);
 }

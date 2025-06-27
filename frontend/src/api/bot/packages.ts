@@ -28,7 +28,7 @@ export const apiBotPackageClone = async (data: {
     return new Promise((resolve, reject) => {
         request({
             url: "/bot/packages/clone",
-            method: "post",
+            method: 'POST',
             data,
         })
             .then((res) => res.data)
@@ -43,7 +43,7 @@ export const apiBotPackagesList = async (data: {
     return new Promise((resolve, reject) => {
         request({
             url: "/bot/packages/list",
-            method: "post",
+            method: 'POST',
             data,
         })
             .then((res) => res.data)
@@ -62,7 +62,7 @@ export const apiBotPackagesPull = async (data: {
     return new Promise((resolve, reject) => {
         request({
             url: "/bot/packages/pull",
-            method: "post",
+            method: 'POST',
             data,
         })
             .then((res) => res.data)
@@ -81,7 +81,7 @@ export const apiBotPackagesPullForce = async (data: {
     return new Promise((resolve, reject) => {
         request({
             url: "/bot/packages/pull/force",
-            method: "post",
+            method: 'POST',
             data,
         })
             .then((res) => res.data)
@@ -98,7 +98,7 @@ export const apiBotPackagesDelete = async (data: {
     return new Promise((resolve, reject) => {
         request({
             url: "/bot/packages/info",
-            method: "delete",
+            method: "DELETE",
             params: data,
         })
             .then((res) => res.data)
@@ -116,7 +116,7 @@ export const apiBotPackagesInfo = async (data: {
     return new Promise((resolve, reject) => {
         request({
             url: "/bot/packages/info",
-            method: "post",
+            method: "POST",
             data,
         })
             .then((res) => res.data)
@@ -134,7 +134,7 @@ export const apiBotPackagesGitPackageUpdate = async (data: {
     return new Promise((resolve, reject) => {
         request({
             url: "/bot/packages/pkg",
-            method: "put",
+            method: "PUT",
             data,
         })
             .then((res) => res.data)

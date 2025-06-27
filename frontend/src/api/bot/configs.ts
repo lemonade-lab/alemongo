@@ -12,7 +12,7 @@ export const apiBotConfigsList = async (): Promise<string[]> => {
     return new Promise((resolve, reject) => {
         request({
             url: "/bot/configs/list",
-            method: "get",
+            method: 'GET',
         })
             .then((res) => res.data)
             .then(resolve)
@@ -27,7 +27,7 @@ export const apiBotConfigsUpdate = async (data: {
     return new Promise((resolve, reject) => {
         request({
             url: "/bot/configs/update",
-            method: "post",
+            method: 'POST',
             data,
         })
             .then((res) => res.data)
@@ -42,7 +42,7 @@ export const apiBotConfigs = async (data: {
     return new Promise((resolve, reject) => {
         request({
             url: "/bot/configs",
-            method: "post",
+            method: 'POST',
             data,
         })
             .then((res) => res.data)
@@ -58,7 +58,7 @@ export const apiBotConfigsDelete = async (data: {
     return new Promise((resolve, reject) => {
         request({
             url: "/bot/configs/delete",
-            method: "delete",
+            method: 'DELETE',
             params: data,
         })
             .then((res) => res.data)

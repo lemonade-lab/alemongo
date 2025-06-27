@@ -15,7 +15,7 @@ export const apiBotYarnInstall = async (data: {
     return new Promise((resolve, reject) => {
         request({
             url: "/bot/yarn/install",
-            method: "post",
+            method: 'POST',
             data,
         })
             .then((res) => res.data)

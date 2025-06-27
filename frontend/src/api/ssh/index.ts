@@ -3,7 +3,7 @@ import { request } from "../base";
 export const apiSSHList = async () => {
     return request({
         url: "/ssh/list",
-        method: "get",
+        method: 'GET',
     }).then((res) => res.data);
 };
 
@@ -12,7 +12,7 @@ export const apiSSHRead = async (data: {
 }) => {
     return request({
         url: "/ssh/read",
-        method: "get",
+        method: 'GET',
         params: data,
     }).then((res) => res.data);
 }
@@ -24,7 +24,7 @@ export const apiSSHUpdate = async (data: {
 }) => {
     return request({
         url: "/ssh/update",
-        method: "put",
+        method: 'PUT',
         data,
     }).then((res) => res.data);
 }
@@ -35,7 +35,7 @@ export const apiSSHDelete = async (data: {
 }) => {
     return request({
         url: "/ssh/delete",
-        method: "delete",
+        method: 'DELETE',
         params: data,
     }).then((res) => res.data);
 }
@@ -51,7 +51,7 @@ export const apiSSHGenerate = async (data: {
 }) => {
     return request({
         url: "/ssh/generate",
-        method: "post",
+        method: 'POST',
         data,
     }).then((res) => res.data);
 };
