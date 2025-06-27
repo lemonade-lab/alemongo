@@ -44,12 +44,12 @@ type LogConfig struct {
 
 // 邮件服务的config
 type SMTPConfig struct {
-	Provider  string `mapstructure:"provider"`
-	Host      string `mapstructure:"host"`
-	Port      int    `mapstructure:"port"`
-	Username  string `mapstructure:"username"`
-	Password  string `mapstructure:"password"`
-	FromEmail string `mapstructure:"from_email"`
+	Provider  string `mapstructure:"provider" yaml:"provider"`
+	Host      string `mapstructure:"host" yaml:"host"`
+	Port      int64  `mapstructure:"port" yaml:"port"`
+	Username  string `mapstructure:"username" yaml:"username"`
+	Password  string `mapstructure:"password" yaml:"password"`
+	FromEmail string `mapstructure:"from_email" yaml:"from_email"`
 }
 
 // 设置默认值

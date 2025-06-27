@@ -3,7 +3,9 @@ package dao
 import (
 	"alemongo/src/models"
 	"alemongo/src/permission"
+	"alemongo/src/pkgs/email"
 	"alemongo/src/settings"
+	"gopkg.in/yaml.v3"
 	"crypto/rand"
 	"encoding/base64"
 	"encoding/json"
@@ -409,5 +411,61 @@ func BindEmail(username, email string) error {
 	user.Email = email
 	user.IsEmailVerified = true
 	user.ReceiveEmailNotification = false
+	return nil
+}
+
+func EditEmailConfig(cfg models.EmailConfig) error {
+	if cfg.Provider == "" {
+		cfg.Provider = settings.Conf.SMTP.Provider
+	} else {
+		settings.Conf.SMTP.Provider = cfg.Provider
+	}
+	if cfg.Host == "" {
+		cfg.Host = settings.Conf.SMTP.Host
+	} else {
+		settings.Conf.SMTP.Host = cfg.Host
+	}
+	if cfg.Port == 0 {
+		cfg.Port = settings.Conf.SMTP.Port
+	} else {
+		settings.Conf.SMTP.Port = cfg.Port
+	}
+	if cfg.Username == "" {
+		cfg.Username = settings.Conf.SMTP.Username
+	} else {
+		settings.Conf.SMTP.Username = cfg.Username
+	}
+	if cfg.Password == "" {
+		cfg.Password = settings.Conf.SMTP.Password
+	} else {
+		settings.Conf.SMTP.Password = cfg.Password
+	}
+	if cfg.From_email == "" {
+		cfg.From_email = settings.Conf.SMTP.FromEmail
+	} else {
+		settings.Conf.SMTP.FromEmail = cfg.From_email
+	}
+	Sender, err := email.NewMailSender(&settings.SMTPConfig{
+		Provider:  cfg.Provider,
+		Host:      cfg.Host,
+		Port:      cfg.Port,
+		Username:  cfg.Username,
+		Password:  cfg.Password,
+		FromEmail: cfg.From_email,
+	})
+	if err != nil {
+		return err
+	}
+	email.Sender = Sender
+	updatedConfig, err := yaml.Marshal(&settings.Conf)
+	if err != nil {
+		return err
+	}
+
+	err = os.WriteFile("../../config.yml", updatedConfig, 0644)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
