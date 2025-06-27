@@ -5,11 +5,11 @@ import (
 	"alemongo/src/permission"
 	"alemongo/src/pkgs/email"
 	"alemongo/src/settings"
-	"gopkg.in/yaml.v3"
 	"crypto/rand"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
+	"gopkg.in/yaml.v3"
 	"log"
 	"os"
 	"path"
@@ -445,6 +445,7 @@ func EditEmailConfig(cfg models.EmailConfig) error {
 	} else {
 		settings.Conf.SMTP.FromEmail = cfg.From_email
 	}
+
 	Sender, err := email.NewMailSender(&settings.SMTPConfig{
 		Provider:  cfg.Provider,
 		Host:      cfg.Host,
@@ -457,15 +458,26 @@ func EditEmailConfig(cfg models.EmailConfig) error {
 		return err
 	}
 	email.Sender = Sender
+	//file, err := os.Create("config.yaml")
+	//defer file.Close()
+	//encoder := yaml.NewEncoder(file)
+	//encoder.SetIndent(2)
+	//
+	//err = encoder.Encode(&settings.Conf)
+	//if err != nil {
+	//	return err
+	//}
 	updatedConfig, err := yaml.Marshal(&settings.Conf)
-	if err != nil {
-		return err
-	}
 
-	err = os.WriteFile("../../config.yml", updatedConfig, 0644)
 	if err != nil {
 		return err
 	}
+	log.Println(settings.Conf.Server.ExpiresTime)
+	err = os.WriteFile("config.yaml", updatedConfig, os.ModePerm)
+	if err != nil {
+		return err
+	}
+	log.Println("写入配置文件成功")
 
 	return nil
 }

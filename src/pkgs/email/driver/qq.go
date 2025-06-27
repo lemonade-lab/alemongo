@@ -16,6 +16,6 @@ func (q *QQMailer) Send(to, subject, body string) error {
 	message.SetHeader("Subject", subject)
 	message.SetBody("text/html", body)
 
-	d := gomail.NewDialer(q.QQEmailConfig.Host, q.QQEmailConfig.Port, q.QQEmailConfig.Username, q.QQEmailConfig.Password)
+	d := gomail.NewDialer(q.QQEmailConfig.Host, int(q.QQEmailConfig.Port), q.QQEmailConfig.Username, q.QQEmailConfig.Password)
 	return d.DialAndSend(message)
 }

@@ -158,3 +158,58 @@ func LogServerInfo() {
 	// 打印信息
 	log.Println("http://" + server.Host + ":" + server.Port)
 }
+
+//func (app *AppConfig) MarshalYAML() (interface{}, error) {
+//	return AppConfig{
+//		Name: fmt.Sprintf("\"%s\"", app.Name),
+//		Mode: fmt.Sprintf("\"%s\"", app.Mode),
+//		Server: &ServerConfig{
+//			Host: fmt.Sprintf("\"%s\"", app.Server.Host),
+//			Port: fmt.Sprintf("\"%s\"", app.Server.Port),
+//			TokenConfig: &TokenConfig{
+//				Key:         fmt.Sprintf("\"%s\"", app.Server.TokenConfig.Key),
+//				ExpiresTime: app.Server.TokenConfig.ExpiresTime,
+//			},
+//		},
+//		Log: &LogConfig{
+//			Level:    fmt.Sprintf("\"%s\"", app.Log.Level),
+//			Filename: fmt.Sprintf("\"%s\"", app.Log.Filename),
+//		},
+//
+//		SMTP: &SMTPConfig{
+//			Provider:  fmt.Sprintf("\"%s\"", app.SMTP.Provider),
+//			Host:      fmt.Sprintf("\"%s\"", app.SMTP.Host),
+//			Port:      app.SMTP.Port,
+//			Username:  fmt.Sprintf("\"%s\"", app.SMTP.Username),
+//			Password:  fmt.Sprintf("\"%s\"", app.SMTP.Password),
+//			FromEmail: fmt.Sprintf("\"%s\"", app.SMTP.FromEmail),
+//		},
+//	}, nil
+//}
+
+func (app *AppConfig) MarshalYAML() (interface{}, error) {
+	return map[string]interface{}{
+		"name": app.Name,
+		"mode": app.Mode,
+		"server": map[string]interface{}{
+			"host": app.Server.Host,
+			"port": app.Server.Port,
+			"tokenconfig": map[string]interface{}{
+				"key":          app.Server.TokenConfig.Key,
+				"expires_time": app.Server.TokenConfig.ExpiresTime,
+			},
+		},
+		"log": map[string]interface{}{
+			"level":    app.Log.Level,
+			"filename": app.Log.Filename,
+		},
+		"smtp": map[string]interface{}{
+			"provider":   app.SMTP.Provider,
+			"host":       app.SMTP.Host,
+			"port":       app.SMTP.Port,
+			"username":   app.SMTP.Username,
+			"password":   app.SMTP.Password,
+			"from_email": app.SMTP.FromEmail,
+		},
+	}, nil
+}
