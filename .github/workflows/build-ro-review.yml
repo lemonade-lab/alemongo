@@ -12,7 +12,7 @@ permissions:
 jobs:
   build:
     name: 在线预览
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
 
     steps:
       - name: 检出代码
@@ -32,57 +32,81 @@ jobs:
           MYIP=${{ secrets.SSH_SERVER_IP }}
           ssh -o BatchMode=yes -o StrictHostKeyChecking=no $USER@$MYIP "echo 'SSH connection successful!' || echo 'Connection failed'"
 
-      - name: 缓存 Node.js 依赖
-        uses: actions/cache@v3
-        with:
-           path: |
-              frontend/node_modules
-           key: ${{ runner.os }}-node-${{ hashFiles('frontend/package-lock.json', 'frontend/yarn.lock') }}
-           restore-keys: |
-              ${{ runner.os }}-node-
+      - name: 设置 Docker Buildx
+        uses: docker/setup-buildx-action@v2
 
-      - name: 设置 Node.js 环境
-        uses: actions/setup-node@v3
-        with:
-          node-version: '22'
-
-      - name: 构建前端
+      - name: 构建 Docker 镜像
         run: |
-            npm install yarn@1.19.1 -g
-            yarn --cwd frontend install --ignore-engines
-            yarn --cwd frontend build
+          docker build -t alemongo:latest .
 
-      - name: 缓存 Go 模块
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.cache/go-build
-            ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-
-
-      - name: 设置 Go 环境
-        uses: actions/setup-go@v4
-        with:
-          go-version: '1.23.0'
-
-      - name: 编译二进制
+      - name: 保存 Docker 镜像
         run: |
-          GOOS=linux GOARCH=amd64 go build -o alemongo
+          docker save alemongo:latest | gzip > alemongo.tar.gz
 
-      - name: 安装 rsync
+      - name: 推送镜像到服务器并部署
         run: |
-          brew install rsync
-          rsync --version
-
-      - name: 推送到服务器
-        run: |
-          # 先确保停止
           USER=${{ secrets.SSH_SERVER_USER }}
           MYIP=${{ secrets.SSH_SERVER_IP }}
-          ssh $USER@$MYIP "lsof -i :17187 | awk 'NR>1 {print $2}' | xargs -r kill -9 || echo '没有找到正在运行的实例' &"  
-          # 上传 alemongo 二进制文件
-          rsync -avz --delete ./alemongo $USER@$MYIP:/home/lighthouse/alemongo
-          # 启动
-          ssh $USER@$MYIP "cd /home/lighthouse && nohup ./alemongo > app.log 2>&1 &"
+          
+          # 上传镜像文件
+          scp alemongo.tar.gz $USER@$MYIP:/home/lighthouse/
+          
+          # 在 CentOS 9 服务器上执行部署
+          ssh $USER@$MYIP "
+            # 检查并安装 Docker (如果未安装)
+            if ! command -v docker &> /dev/null; then
+              echo 'Installing Docker on CentOS 9...'
+              sudo dnf remove -y docker docker-client docker-client-latest docker-common docker-latest docker-latest-logrotate docker-logrotate docker-engine podman runc
+              sudo dnf install -y dnf-utils
+              sudo dnf config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+              sudo dnf install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+              sudo systemctl start docker
+              sudo systemctl enable docker
+              sudo usermod -aG docker \$USER
+              echo 'Docker installation completed'
+            fi
+            
+            # 启动 Docker 服务
+            sudo systemctl start docker
+            
+            # 停止并删除旧容器
+            docker stop alemongo || echo '容器不存在'
+            docker rm alemongo || echo '容器不存在'
+            
+            # 删除旧镜像
+            docker rmi alemongo:latest || echo '镜像不存在'
+            
+            # 加载新镜像
+            docker load < /home/lighthouse/alemongo.tar.gz
+            
+            # 检查防火墙并开放端口
+            if command -v firewall-cmd &> /dev/null; then
+              sudo firewall-cmd --permanent --add-port=17187/tcp || echo '端口已开放'
+              sudo firewall-cmd --reload || echo '防火墙重载失败'
+            fi
+            
+            # 启动新容器
+            docker run -d \
+              --name alemongo \
+              -p 17187:17187 \
+              --restart unless-stopped \
+              alemongo:latest
+            
+            # 清理镜像文件
+            rm /home/lighthouse/alemongo.tar.gz
+            
+            # 显示容器状态
+            docker ps | grep alemongo
+          "
+
+      - name: 验证部署
+        run: |
+          USER=${{ secrets.SSH_SERVER_USER }}
+          MYIP=${{ secrets.SSH_SERVER_IP }}
+          ssh $USER@$MYIP "
+            echo '等待服务启动...'
+            sleep 5
+            docker logs alemongo --tail 20
+            echo '检查端口监听状态:'
+            ss -tlnp | grep 17187 || echo '端口未监听'
+          "
