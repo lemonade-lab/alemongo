@@ -43,19 +43,19 @@ jobs:
         run: |
           docker save alemongo:latest | gzip > alemongo.tar.gz
 
-      - name: 推送镜像到服务器并部署
+      - name: 推送镜像和配置文件到服务器并部署
         run: |
           USER=${{ secrets.SSH_SERVER_USER }}
           MYIP=${{ secrets.SSH_SERVER_IP }}
           
-          # 上传镜像文件
+          # 上传镜像文件和配置文件
           scp alemongo.tar.gz $USER@$MYIP:/home/lighthouse/
           scp .github/docker-compose.yml $USER@$MYIP:/home/lighthouse/
           scp .github/nginx.conf $USER@$MYIP:/home/lighthouse/
-
+          
           # 在 CentOS 9 服务器上执行部署
           ssh $USER@$MYIP "
-            # 检查并安装 Docker (如果未安装)
+            # 检查并安装 Docker 和 Docker Compose (如果未安装)
             if ! command -v docker &> /dev/null; then
               echo 'Installing Docker on CentOS 9...'
               sudo dnf remove -y docker docker-client docker-client-latest docker-common docker-latest docker-latest-logrotate docker-logrotate docker-engine podman runc
@@ -68,15 +68,24 @@ jobs:
               echo 'Docker installation completed'
             fi
             
+            # 检查并安装 Docker Compose
+            if ! command -v docker-compose &> /dev/null; then
+              echo 'Installing Docker Compose...'
+              sudo curl -L \"https://github.com/docker/compose/releases/latest/download/docker-compose-\$(uname -s)-\$(uname -m)\" -o /usr/local/bin/docker-compose
+              sudo chmod +x /usr/local/bin/docker-compose
+            fi
+            
             # 启动 Docker 服务
             sudo systemctl start docker
             
-            # 停止并删除旧容器
-            docker stop alemongo || echo '容器不存在'
-            docker rm alemongo || echo '容器不存在'
+            # 停止并删除旧的容器和服务
+            cd /home/lighthouse
+            docker-compose down || echo '没有运行的服务'
+            docker stop alemongo nginx || echo '容器不存在'
+            docker rm alemongo nginx || echo '容器不存在'
             
             # 删除旧镜像
-            docker rmi alemongo:latest || echo '镜像不存在'
+            docker rmi alemongo:latest || echo 'alemongo镜像不存在'
             
             # 加载新镜像
             docker load < /home/lighthouse/alemongo.tar.gz
