@@ -23,6 +23,8 @@ const Method = {
 
 type MethodType = keyof typeof Method;
 
+let count = 0;
+
 export const server = async (config: AxiosRequestConfig & {
     method: MethodType;
 }) => {
@@ -38,7 +40,10 @@ export const server = async (config: AxiosRequestConfig & {
             ...headers
         },
         ...cfg,
-    }).then(res => res.data).catch((err) => {
+    }).then(res => {
+        count = 0; // 重置错误计数
+        return res.data;
+    }).catch((err) => {
         if (err?.response?.data?.msg) {
             message.error(err.response.data.msg);
         }
@@ -46,6 +51,14 @@ export const server = async (config: AxiosRequestConfig & {
             message.error("API未找到，请检查网络连接或联系管理员");
         }
         else if (err?.response?.status === 500) {
+            count++;
+            if (count > 15) {
+                window.location.href = "/login";
+                return;
+            } else if (count > 5) {
+                message.error(`服务器错误,10s后退出(${15 - count}s)`);
+                return;
+            };
             message.error("服务器错误，请稍后再试");
         }
     })
@@ -67,7 +80,10 @@ export const request = async (config: AxiosRequestConfig & {
             ...headers
         },
         ...cfg,
-    }).then(res => res.data).catch((err) => {
+    }).then(res => {
+        count = 0; // 重置错误计数
+        return res.data;
+    }).catch((err) => {
         if (err?.response?.data?.msg) {
             message.error(err.response.data.msg);
         }
@@ -79,6 +95,14 @@ export const request = async (config: AxiosRequestConfig & {
             message.error("API未找到，请检查网络连接或联系管理员");
         }
         else if (err?.response?.status === 500) {
+            count++;
+            if (count > 15) {
+                window.location.href = "/login";
+                return;
+            } else if (count > 5) {
+                message.error(`服务器错误,10s后退出(${15 - count}s)`);
+                return;
+            };
             message.error("服务器错误，请稍后再试");
         }
     })
