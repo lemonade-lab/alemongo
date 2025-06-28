@@ -6,6 +6,8 @@
 
 `Git` 、 `NodeJS >= 20`
 
+> [Linux 环境安装脚本](https://github.com/lemonade-lab/visible)
+
 ## 操作指南
 
 [linux](./docs/linux.md)
