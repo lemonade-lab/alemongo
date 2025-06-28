@@ -458,21 +458,26 @@ func EditEmailConfig(cfg models.EmailConfig) error {
 		return err
 	}
 	email.Sender = Sender
-	//file, err := os.Create("config.yaml")
-	//defer file.Close()
+
+	file, err := os.OpenFile("config.yaml", os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0644)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
 	//encoder := yaml.NewEncoder(file)
 	//encoder.SetIndent(2)
 	//
-	//err = encoder.Encode(&settings.Conf)
+	//err = encoder.Encode(settings.Conf)
 	//if err != nil {
 	//	return err
 	//}
 	updatedConfig, err := yaml.Marshal(&settings.Conf)
-
+	log.Println(string(updatedConfig))
 	if err != nil {
 		return err
 	}
-	log.Println(settings.Conf.Server.ExpiresTime)
+
 	err = os.WriteFile("config.yaml", updatedConfig, os.ModePerm)
 	if err != nil {
 		return err

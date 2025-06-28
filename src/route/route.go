@@ -92,6 +92,7 @@ func Create(mode string) *gin.Engine {
 				UserAPI.POST("/bind_email", user.BindEmailHandler)
 				// 验证邮箱
 				UserAPI.POST("/verify_email", user.VerifyEmailHandler)
+				// 更改邮箱配置
 				UserAPI.POST("/emailConfig", user.EmailConfig)
 			}
 			// ssh

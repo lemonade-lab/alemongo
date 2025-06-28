@@ -19,27 +19,27 @@ const (
 var Conf = new(AppConfig)
 
 type AppConfig struct {
-	Name   string        `mapstructure:"name"`
-	Mode   string        `mapstructure:"mode"`
-	Server *ServerConfig `mapstructure:"server"`
-	Log    *LogConfig    `mapstructure:"log"`
-	SMTP   *SMTPConfig   `mapstructure:"smtp"`
+	Name   string        `mapstructure:"name" yaml:"name"`
+	Mode   string        `mapstructure:"mode" yaml:"mode"`
+	Server *ServerConfig `mapstructure:"server" yaml:"server"`
+	Log    *LogConfig    `mapstructure:"log" yaml:"log"`
+	SMTP   *SMTPConfig   `mapstructure:"smtp" yaml:"smtp"`
 }
 
 type ServerConfig struct {
-	Host         string `mapstructure:"host"`
-	Port         string `mapstructure:"port"`
-	*TokenConfig `mapstructure:"token"`
+	Host         string `mapstructure:"host" yaml:"host"`
+	Port         string `mapstructure:"port" yaml:"port"`
+	*TokenConfig `mapstructure:"token" yaml:"token"`
 }
 
 type TokenConfig struct {
-	Key         string        `mapstructure:"key"`
-	ExpiresTime time.Duration `mapstructure:"expires_time"`
+	Key         string `mapstructure:"key" yaml:"key"`
+	ExpiresTime int64  `mapstructure:"expires_time" yaml:"expires_time"`
 }
 
 type LogConfig struct {
-	Level    string `mapstructure:"level"`
-	Filename string `mapstructure:"filename"`
+	Level    string `mapstructure:"level" yaml:"level"`
+	Filename string `mapstructure:"filename" yaml:"filename"`
 }
 
 // 邮件服务的config
@@ -160,56 +160,66 @@ func LogServerInfo() {
 }
 
 //func (app *AppConfig) MarshalYAML() (interface{}, error) {
+//	addQuotes := func(value string) string {
+//		log.Println(value)
+//		if value == "" {
+//			return value
+//		}
+//		if value[0] == '"' && value[len(value)-1] == '"' {
+//			return value
+//		}
+//		return fmt.Sprintf(`"%s"`, value)
+//	}
 //	return AppConfig{
-//		Name: fmt.Sprintf("\"%s\"", app.Name),
-//		Mode: fmt.Sprintf("\"%s\"", app.Mode),
+//		Name: addQuotes(app.Name),
+//		Mode: addQuotes(app.Mode),
 //		Server: &ServerConfig{
-//			Host: fmt.Sprintf("\"%s\"", app.Server.Host),
-//			Port: fmt.Sprintf("\"%s\"", app.Server.Port),
+//			Host: addQuotes(app.Server.Host),
+//			Port: addQuotes(app.Server.Port),
 //			TokenConfig: &TokenConfig{
-//				Key:         fmt.Sprintf("\"%s\"", app.Server.TokenConfig.Key),
+//				Key:         addQuotes(app.Server.TokenConfig.Key),
 //				ExpiresTime: app.Server.TokenConfig.ExpiresTime,
 //			},
 //		},
 //		Log: &LogConfig{
-//			Level:    fmt.Sprintf("\"%s\"", app.Log.Level),
-//			Filename: fmt.Sprintf("\"%s\"", app.Log.Filename),
+//			Level:    addQuotes(app.Log.Level),
+//			Filename: addQuotes(app.Log.Filename),
 //		},
 //
 //		SMTP: &SMTPConfig{
-//			Provider:  fmt.Sprintf("\"%s\"", app.SMTP.Provider),
-//			Host:      fmt.Sprintf("\"%s\"", app.SMTP.Host),
+//			Provider:  addQuotes(app.SMTP.Provider),
+//			Host:      addQuotes(app.SMTP.Host),
 //			Port:      app.SMTP.Port,
-//			Username:  fmt.Sprintf("\"%s\"", app.SMTP.Username),
-//			Password:  fmt.Sprintf("\"%s\"", app.SMTP.Password),
-//			FromEmail: fmt.Sprintf("\"%s\"", app.SMTP.FromEmail),
+//			Username:  addQuotes(app.SMTP.Username),
+//			Password:  addQuotes(app.SMTP.Password),
+//			FromEmail: addQuotes(app.SMTP.FromEmail),
 //		},
 //	}, nil
 //}
 
-func (app *AppConfig) MarshalYAML() (interface{}, error) {
-	return map[string]interface{}{
-		"name": app.Name,
-		"mode": app.Mode,
-		"server": map[string]interface{}{
-			"host": app.Server.Host,
-			"port": app.Server.Port,
-			"tokenconfig": map[string]interface{}{
-				"key":          app.Server.TokenConfig.Key,
-				"expires_time": app.Server.TokenConfig.ExpiresTime,
-			},
-		},
-		"log": map[string]interface{}{
-			"level":    app.Log.Level,
-			"filename": app.Log.Filename,
-		},
-		"smtp": map[string]interface{}{
-			"provider":   app.SMTP.Provider,
-			"host":       app.SMTP.Host,
-			"port":       app.SMTP.Port,
-			"username":   app.SMTP.Username,
-			"password":   app.SMTP.Password,
-			"from_email": app.SMTP.FromEmail,
-		},
-	}, nil
-}
+//func (app *AppConfig) MarshalYAML() (interface{}, error) {
+//	return map[string]interface{}{
+//		"name": app.Name,
+//		"mode": app.Mode,
+//		"server": map[string]interface{}{
+//			"host": app.Server.Host,
+//			"port": app.Server.Port,
+//			"tokenconfig": map[string]interface{}{
+//				"key":          app.Server.TokenConfig.Key,
+//				"expires_time": app.Server.TokenConfig.ExpiresTime,
+//			},
+//		},
+//		"log": map[string]interface{}{
+//			"level":    app.Log.Level,
+//			"filename": app.Log.Filename,
+//		},
+//		"smtp": map[string]interface{}{
+//			"provider":   app.SMTP.Provider,
+//			"host":       app.SMTP.Host,
+//			"port":       app.SMTP.Port,
+//			"username":   app.SMTP.Username,
+//			"password":   app.SMTP.Password,
+//			"from_email": app.SMTP.FromEmail,
+//		},
+//	}, nil
+//}
