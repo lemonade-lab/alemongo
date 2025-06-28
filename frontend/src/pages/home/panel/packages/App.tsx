@@ -27,6 +27,8 @@ import Box from "@/commom/Box";
 import {useNavigate} from "react-router-dom";
 import YAML from "js-yaml";
 import {DownOutlined} from "@ant-design/icons";
+import {useDispatch} from "react-redux";
+import {showLog} from "@/redux/logs";
 
 const Panel = () => {
   const [pkgs, setPkgs] = useState<BotPackages[]>([]);
@@ -44,6 +46,7 @@ const Panel = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [visible, setVisible] = useState(false);
   const [form] = Form.useForm();
+  const dispatch = useDispatch();
 
   useEffect(() => {
     if (!visible) {
@@ -289,6 +292,7 @@ const Panel = () => {
                                 key: "update",
                                 label: "更新",
                                 onClick: () => {
+                                  dispatch(showLog());
                                   onUpdate(item);
                                 },
                               },
@@ -296,6 +300,7 @@ const Panel = () => {
                                 key: "forceUpdate",
                                 label: "强制更新",
                                 onClick: () => {
+                                  dispatch(showLog());
                                   onForceUpdate(item);
                                 },
                               },
@@ -304,6 +309,7 @@ const Panel = () => {
                                 label: "删除",
                                 danger: true,
                                 onClick: () => {
+                                  dispatch(showLog());
                                   onDelete(item.name);
                                 },
                               },
@@ -347,6 +353,7 @@ const Panel = () => {
                         </Button>
                         <Button
                           onClick={() => {
+                            dispatch(showLog());
                             onUpdate(item);
                           }}
                         >
@@ -357,6 +364,7 @@ const Panel = () => {
                             title="强制更新"
                             description="确定进行强制更新吗，将会放弃本地所有修改?"
                             onConfirm={() => {
+                              dispatch(showLog());
                               onForceUpdate(item);
                             }}
                             okText="确定"
@@ -372,6 +380,7 @@ const Panel = () => {
                             title="彻底删除"
                             description="你确定删除这个机器人吗?"
                             onConfirm={() => {
+                              dispatch(showLog());
                               onDelete(item.name);
                             }}
                             okText="确定"
