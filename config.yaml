@@ -1,21 +1,18 @@
-name: "alemongo"
-mode: "release"
-host: "127.0.0.1"
-
+name: alemongo
+mode: release
 server:
+  host: 127.0.0.1
   port: "17187"
-  token: 
-    key: "alemongo"
-    expires_time: 24
-
+  token:
+    key: alemongo
+    expires_time: 1
 log:
-  level: "info"
-  filename: "alemongo_logs"
-
+  level: info
+  filename: alemongo_logs
 smtp:
-  provider: "qq"
-  host: "smtp.qq.com"
+  provider: qq
+  host: smtp.qq.com
   port: 587
-  username: "1715713638@qq.com"
+  username: 2648108535@qq.com
   password: ""
-  from_email: "1715713638@qq.com"
+  from_email: 2648108535@qq.com

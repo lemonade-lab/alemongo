@@ -13,7 +13,7 @@ type MailSender interface {
 	Send(to, subject, body string) error
 }
 
-func newMailSender(cfg *settings.SMTPConfig) (MailSender, error) {
+func NewMailSender(cfg *settings.SMTPConfig) (MailSender, error) {
 	switch cfg.Provider {
 	case "qq":
 		return &driver.QQMailer{QQEmailConfig: cfg}, nil
@@ -23,7 +23,7 @@ func newMailSender(cfg *settings.SMTPConfig) (MailSender, error) {
 }
 
 func InitEmailSender(cfg *settings.SMTPConfig) {
-	sender, err := newMailSender(cfg)
+	sender, err := NewMailSender(cfg)
 	if err != nil {
 		zap.L().Error("InitEmailSender failed", zap.Error(err))
 		return

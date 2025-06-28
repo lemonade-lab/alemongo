@@ -116,3 +116,7 @@ func VerifyEmail(username, email, code string) error {
 	utils.DeleteEmailCode(email)
 	return nil
 }
+
+func EditEmailConfig(config models.EmailConfig) error {
+	return dao.EditEmailConfig(config)
+}

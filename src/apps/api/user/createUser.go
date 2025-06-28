@@ -9,6 +9,7 @@ import (
 	"alemongo/src/permission"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
+	"log"
 	"net/http"
 )
 
@@ -29,6 +30,7 @@ func CreateUserHandler(ctx *gin.Context) {
 	if err := ctx.ShouldBind(user); err != nil {
 		zap.L().Debug("ctx.ShouldBind(user) error", zap.Error(err))
 		zap.L().Error("create user with invalid param", zap.Error(err))
+		log.Println("参数绑定错误: ", err)
 		response.ResponseError(ctx, http.StatusBadRequest, response.CodeInvalidParam)
 		return
 	}

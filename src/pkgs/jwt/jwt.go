@@ -25,7 +25,7 @@ func CreateToken(username string) (string, error) {
 		Username: username,
 		// 除标准字段外，只携带username
 		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(time.Hour * expiresTime).Unix(),
+			ExpiresAt: time.Now().Add(time.Hour * time.Duration(expiresTime)).Unix(),
 		},
 	}
 	// 创建token
