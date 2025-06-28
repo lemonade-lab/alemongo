@@ -1,0 +1,21 @@
+services:
+  alemongo:
+    image: alemongo:latest
+    container_name: alemongo
+    ports:
+      - "17187:17187"
+    restart: unless-stopped
+
+  nginx:
+    image: nginx:alpine
+    container_name: nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+    restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - alemongo

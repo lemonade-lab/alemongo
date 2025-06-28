@@ -50,7 +50,9 @@ jobs:
           
           # 上传镜像文件
           scp alemongo.tar.gz $USER@$MYIP:/home/lighthouse/
-          
+          scp .github/docker-compose.yml $USER@$MYIP:/home/lighthouse/
+          scp .github/nginx.conf $USER@$MYIP:/home/lighthouse/
+
           # 在 CentOS 9 服务器上执行部署
           ssh $USER@$MYIP "
             # 检查并安装 Docker (如果未安装)
@@ -81,22 +83,21 @@ jobs:
             
             # 检查防火墙并开放端口
             if command -v firewall-cmd &> /dev/null; then
-              sudo firewall-cmd --permanent --add-port=17187/tcp || echo '端口已开放'
+              sudo firewall-cmd --permanent --add-port=80/tcp || echo '端口80已开放'
+              sudo firewall-cmd --permanent --add-port=443/tcp || echo '端口443已开放'
+              sudo firewall-cmd --permanent --add-port=17187/tcp || echo '端口17187已开放'
               sudo firewall-cmd --reload || echo '防火墙重载失败'
             fi
             
-            # 启动新容器
-            docker run -d \
-              --name alemongo \
-              -p 17187:17187 \
-              --restart unless-stopped \
-              alemongo:latest
+            # 使用 Docker Compose 启动服务
+            docker-compose up -d
             
             # 清理镜像文件
             rm /home/lighthouse/alemongo.tar.gz
             
             # 显示容器状态
-            docker ps | grep alemongo
+            echo '=== 所有容器状态 ==='
+            docker ps -a
           "
 
       - name: 验证部署
@@ -105,8 +106,20 @@ jobs:
           MYIP=${{ secrets.SSH_SERVER_IP }}
           ssh $USER@$MYIP "
             echo '等待服务启动...'
-            sleep 5
+            sleep 10
+
+            echo '=== 检查alemongo容器日志 ==='
             docker logs alemongo --tail 20
-            echo '检查端口监听状态:'
-            ss -tlnp | grep 17187 || echo '端口未监听'
+            
+            echo '=== 检查nginx容器日志 ==='
+            docker logs nginx --tail 20
+            
+            echo '=== 检查端口监听状态 ==='
+            ss -tlnp | grep -E ':(80|443|17187)'
+
+            echo '=== Docker网络信息 ==='
+            docker network ls
+            docker inspect bridge | grep -A 20 'Containers'
+
+            echo '=== 服务健康检查完成 ==='
           "
