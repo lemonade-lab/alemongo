@@ -1,6 +1,7 @@
 import {lazy} from "react";
 import {createBrowserRouter} from "react-router-dom";
 import {WithSuspense} from "./WithSuspense";
+import Logs from "./pages/home/panel/Logs";
 
 const Home = lazy(() => import("./pages/home/App"));
 const NotRoute = lazy(() => import("./pages/404"));
@@ -69,7 +70,7 @@ const router = createBrowserRouter([
             ),
           },
           {
-            path: "/apps/qqbot-button-template",
+            path: "apps/qqbot-button-template",
             element: (
               <WithSuspense>
                 <ButtonTemplate />
@@ -77,7 +78,7 @@ const router = createBrowserRouter([
             ),
           },
           {
-            path: "/apps/onebot",
+            path: "apps/onebot",
             element: (
               <WithSuspense>
                 <OneBot />
@@ -85,7 +86,7 @@ const router = createBrowserRouter([
             ),
           },
           {
-            path: "/apps/nodejs",
+            path: "apps/nodejs",
             element: (
               <WithSuspense>
                 <AppsNodeJS />
@@ -93,87 +94,98 @@ const router = createBrowserRouter([
             ),
           },
           {
-            path: "/bots",
+            path: "bots",
             element: (
               <WithSuspense>
                 <Bots />
               </WithSuspense>
             ),
+            children: [],
           },
           {
-            path: "/bots/:name",
+            path: "bots/:name",
             element: (
               <WithSuspense>
                 <Panel />
               </WithSuspense>
             ),
+            children: [
+              {
+                path: "",
+                element: (
+                  <WithSuspense>
+                    <Logs />
+                  </WithSuspense>
+                ),
+              },
+              {
+                path: "package",
+                element: (
+                  <WithSuspense>
+                    <Package />
+                  </WithSuspense>
+                ),
+              },
+              {
+                path: "config",
+                element: (
+                  <WithSuspense>
+                    <Config />
+                  </WithSuspense>
+                ),
+              },
+              {
+                path: "xterm-date",
+                element: (
+                  <WithSuspense>
+                    <XtermDate />
+                  </WithSuspense>
+                ),
+              },
+              {
+                path: "response",
+                element: (
+                  <WithSuspense>
+                    <Response />
+                  </WithSuspense>
+                ),
+              },
+              {
+                path: "packages",
+                element: (
+                  <WithSuspense>
+                    <Packages />
+                  </WithSuspense>
+                ),
+              },
+              {
+                path: "env",
+                element: (
+                  <WithSuspense>
+                    <Env />
+                  </WithSuspense>
+                ),
+              },
+              {
+                path: "packages/:name",
+                element: (
+                  <WithSuspense>
+                    <PackagesMessage />
+                  </WithSuspense>
+                ),
+              },
+              {
+                path: "packages/:name/package",
+                element: (
+                  <WithSuspense>
+                    <GitPackage />
+                  </WithSuspense>
+                ),
+              },
+            ],
           },
           {
-            path: "/bots/:name/package",
-            element: (
-              <WithSuspense>
-                <Package />
-              </WithSuspense>
-            ),
-          },
-          {
-            path: "/bots/:name/config",
-            element: (
-              <WithSuspense>
-                <Config />
-              </WithSuspense>
-            ),
-          },
-          {
-            path: "/bots/:name/xterm-date",
-            element: (
-              <WithSuspense>
-                <XtermDate />
-              </WithSuspense>
-            ),
-          },
-          {
-            path: "/bots/:name/response",
-            element: (
-              <WithSuspense>
-                <Response />
-              </WithSuspense>
-            ),
-          },
-          {
-            path: "/bots/:name/packages",
-            element: (
-              <WithSuspense>
-                <Packages />
-              </WithSuspense>
-            ),
-          },
-          {
-            path: "/bots/:name/env",
-            element: (
-              <WithSuspense>
-                <Env />
-              </WithSuspense>
-            ),
-          },
-          {
-            path: "/bots/:name/packages/:name",
-            element: (
-              <WithSuspense>
-                <PackagesMessage />
-              </WithSuspense>
-            ),
-          },
-          {
-            path: "/bots/:name/packages/:name/package",
-            element: (
-              <WithSuspense>
-                <GitPackage />
-              </WithSuspense>
-            ),
-          },
-          {
-            path: "/settings",
+            path: "settings",
             element: (
               <WithSuspense>
                 <Settings />
@@ -181,7 +193,7 @@ const router = createBrowserRouter([
             ),
           },
           {
-            path: "/update-password",
+            path: "update-password",
             element: (
               <WithSuspense>
                 <UpdatePassWord />
@@ -189,7 +201,7 @@ const router = createBrowserRouter([
             ),
           },
           {
-            path: "/update-email",
+            path: "update-email",
             element: (
               <WithSuspense>
                 <UpdateEmail />
@@ -197,7 +209,7 @@ const router = createBrowserRouter([
             ),
           },
           {
-            path: "/account",
+            path: "account",
             element: (
               <WithSuspense>
                 <Account />
@@ -205,7 +217,7 @@ const router = createBrowserRouter([
             ),
           },
           {
-            path: "/ssh",
+            path: "ssh",
             element: (
               <WithSuspense>
                 <SSH />
@@ -213,7 +225,7 @@ const router = createBrowserRouter([
             ),
           },
           {
-            path: "/ssh/:name",
+            path: "ssh/:name",
             element: (
               <WithSuspense>
                 <SSHUpdate />
@@ -221,7 +233,7 @@ const router = createBrowserRouter([
             ),
           },
           {
-            path: "/ssh/:name/update",
+            path: "ssh/:name/update",
             element: (
               <WithSuspense>
                 <SSHUpdate />
@@ -229,7 +241,7 @@ const router = createBrowserRouter([
             ),
           },
           {
-            path: "/configs",
+            path: "configs",
             element: (
               <WithSuspense>
                 <Configs />
@@ -237,7 +249,7 @@ const router = createBrowserRouter([
             ),
           },
           {
-            path: "/configs/:name",
+            path: "configs/:name",
             element: (
               <WithSuspense>
                 <ConfigEdit />
@@ -245,7 +257,7 @@ const router = createBrowserRouter([
             ),
           },
           {
-            path: "/configs/:name/create",
+            path: "configs/:name/create",
             element: (
               <WithSuspense>
                 <ConfigEdit />

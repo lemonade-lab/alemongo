@@ -21,6 +21,7 @@ const JSONEdit = ({
   disabledName = false,
   type = "json",
   mode = "json",
+  rightHeader = null,
 }: {
   name?: string;
   value: string;
@@ -28,6 +29,7 @@ const JSONEdit = ({
   disabledName?: boolean;
   type?: "json" | "yaml";
   mode?: "json" | "yaml";
+  rightHeader?: React.ReactNode;
 }) => {
   const [jsonData, setJsonData] = useState<ObjectType>({});
   const [strData, setStrData] = useState<string>("");
@@ -211,8 +213,8 @@ const JSONEdit = ({
         </Form>
       }
       rightHeader={
-        <div className="flex items-center justify-between p-1 bg-slate-400 dark:bg-zinc-800 dark:text-white rounded-t-md">
-          <div>
+        <div className="flex items-center justify-between p-1 bg-slate-300 dark:bg-zinc-800 dark:text-white rounded-t-md">
+          <div className="flex items-center gap-2">
             {!disabledName && (
               <Input
                 value={nameValue}
@@ -221,15 +223,18 @@ const JSONEdit = ({
               />
             )}
             {disabledName && <span className="px-2">{nameValue}</span>}
+            {disabled && (
+              <div>
+                <span className="text-red-500">格式错误</span>
+              </div>
+            )}
           </div>
-          {disabled && (
-            <div>
-              <span className="text-red-500">格式错误</span>
-            </div>
-          )}
-          <Button disabled={disabled} onClick={handleSave}>
-            保存
-          </Button>
+          <div className="flex items-center gap-2 justify-end">
+            {rightHeader}
+            <Button disabled={disabled} onClick={handleSave}>
+              保存
+            </Button>
+          </div>
         </div>
       }
       right={<Code mode={mode} value={strData} onChange={onChange} />}

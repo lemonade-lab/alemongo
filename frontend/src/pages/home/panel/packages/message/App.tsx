@@ -1,6 +1,6 @@
 import {useEffect, useState} from "react";
 import {apiBotPackagesInfo, BotPackages} from "@/api";
-import {Button, Tag} from "antd";
+import {Tag} from "antd";
 import Box from "@/commom/Box";
 import {getBotName, getGitPackageName} from "../../core";
 import Markdown from "@/commom/Markdown";
@@ -48,9 +48,6 @@ const PackagesMessage = () => {
                   ? dayjs(item.git.date).format("YYYY-MM-DD HH:mm:ss")
                   : ""}
               </Tag>
-            </div>
-            <div>
-              <Button type="primary">强制更新</Button>
             </div>
           </div>
           <Box>

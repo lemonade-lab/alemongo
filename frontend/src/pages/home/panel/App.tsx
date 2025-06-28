@@ -1,143 +1,318 @@
-import {useEffect, useState} from "react";
-import {useNavigate} from "react-router-dom";
-import {apiBotInfo, BotInfo} from "@/api";
-import {Button, message} from "antd";
+import {Outlet, useLocation, useNavigate} from "react-router-dom";
+import {Button, Dropdown, MenuProps, Modal, Space, Tooltip} from "antd";
 import Tags from "@/commom/Tags";
-import Xterm from "./Xterm";
-import {getBotName} from "./core";
-import Box from "@/commom/Box";
+import useBot from "@/hook/useBot";
+import {DownOutlined} from "@ant-design/icons";
+import {useCallback, useMemo} from "react";
+import {RootState} from "@/redux";
+import {useDispatch, useSelector} from "react-redux";
+import Logs from "./Logs";
+import {showLog, hideLog} from "@/redux/logs";
 
 const Panel = () => {
-  const [info, setInfo] = useState<BotInfo>({
-    name: "",
-    status: 0,
-    pid: 0,
-    node_modules: false,
-    create_at: "",
-  });
+  const [bot] = useBot();
+  const info = bot.info;
   const navigate = useNavigate();
-  const initBotInfo = (name: string) => {
-    apiBotInfo({
-      name,
-    }).then((res) => {
-      setInfo(res);
-    });
-  };
-  useEffect(() => {
-    const name = getBotName();
-    initBotInfo(name);
-  }, []);
-  return (
-    <Box>
-      <div className="p-4 flex-1 flex bg-slate-100 dark:bg-zinc-900 gap-2 flex-col xl:flex-row transition-colors">
-        <div className="flex-1 gap-2 flex flex-col bg-white dark:bg-zinc-800 rounded-md p-4 shadow-md transition-colors">
-          <div className="text-2xl text-gray-900 dark:text-gray-100 font-semibold mb-2">
-            机器人信息
+  const location = useLocation();
+  const logs = useSelector((state: RootState) => state.logs);
+  const dispatch = useDispatch();
+
+  const onLog = useCallback(() => {
+    if (location.pathname.includes("xterm-date")) {
+      navigate(`/bots/${info.name}/`);
+    } else {
+      navigate(`/bots/${info.name}/xterm-date`);
+    }
+  }, [info.name, location.pathname, navigate]);
+
+  const openLogModal = useCallback(() => {
+    // 判断路径。是否是 机器人名字结尾
+    const isHome = location.pathname.endsWith(`/${info.name}`);
+    if (!logs.open && !isHome) {
+      dispatch(showLog());
+    }
+  }, [dispatch, info.name, logs.open, location.pathname]);
+
+  const items: MenuProps["items"] = useMemo(() => {
+    const i: MenuProps["items"] = [
+      {
+        key: "1",
+        label: (
+          <div onClick={onLog}>
+            {location.pathname.includes("xterm-date") ? "在线日志" : "查询日志"}
           </div>
+        ),
+      },
+      {
+        key: "2",
+        label: (
+          <div
+            onClick={() => {
+              navigate(`/bots/${info.name}/config`);
+            }}
+          >
+            配置
+          </div>
+        ),
+      },
+      {
+        key: "3",
+        label: (
+          <div
+            onClick={() => {
+              navigate(`/bots/${info.name}/packages`);
+            }}
+          >
+            应用
+          </div>
+        ),
+      },
+      {
+        key: "4",
+        label: (
+          <div
+            onClick={() => {
+              navigate(`/bots/${info.name}/env`);
+            }}
+          >
+            环境
+          </div>
+        ),
+      },
+      {
+        type: "divider",
+      },
+      {
+        key: "5",
+        label: (
+          <div
+            onClick={() => {
+              openLogModal();
+              bot.onInstall(info.name);
+            }}
+          >
+            重载
+          </div>
+        ),
+      },
+    ];
+
+    if (info.node_modules && info.status) {
+      i.push({
+        key: "6",
+        label: (
+          <div
+            onClick={() => {
+              bot.onStop(info.name);
+            }}
+          >
+            停止
+          </div>
+        ),
+      });
+    }
+
+    if (info.node_modules && !info.status) {
+      i.push({
+        key: "7",
+        label: (
+          <div
+            onClick={() => {
+              openLogModal();
+              // 运行机器人
+              bot.onRun(info.name);
+            }}
+          >
+            运行
+          </div>
+        ),
+      });
+    }
+
+    if (!info.node_modules) {
+      i.push({
+        key: "8",
+        label: (
+          <div
+            onClick={() => {
+              openLogModal();
+              // 加载依赖
+              bot.onInstall(info.name);
+            }}
+          >
+            加载
+          </div>
+        ),
+      });
+    }
+
+    return i;
+  }, [info, bot, logs.open, navigate, dispatch, onLog]);
+
+  return (
+    <div className="flex flex-col h-[calc(100vh-5.4rem)]">
+      <div className="flex flex-col lg:flex-row gap-2  justify-between p-4 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
+        {/* Bot 信息 */}
+        <div className="flex flex-wrap gap-3 items-center ">
           <div className="flex gap-2 items-center">
-            <div className="min-w-20 text-gray-700 dark:text-gray-300">
-              名称:
-            </div>
+            <span className="text-sm text-gray-600 dark:text-gray-400">
+              Name:
+            </span>
             <Tags type="purple">{info.name}</Tags>
           </div>
           <div className="flex gap-2 items-center">
-            <div className="min-w-20 text-gray-700 dark:text-gray-300">
-              状态:
-            </div>
-            <div>
-              {info.status ? (
-                <Tags type="green">running</Tags>
-              ) : (
-                <Tags type="yellow">stop</Tags>
-              )}
-            </div>
+            <span className="text-sm text-gray-600 dark:text-gray-400">
+              Status:
+            </span>
+            {info.status ? (
+              <Tags type="green">running</Tags>
+            ) : (
+              <Tags type="yellow">stopped</Tags>
+            )}
           </div>
           <div className="flex gap-2 items-center">
-            <div className="min-w-20 text-gray-700 dark:text-gray-300">
-              依赖:
-            </div>
-            <div>
-              {info.node_modules ? (
-                <Tags type="green">true</Tags>
-              ) : (
-                <Tags type="red">false</Tags>
-              )}
-            </div>
+            <span className="text-sm text-gray-600 dark:text-gray-400">
+              Modules:
+            </span>
+            {info.node_modules ? (
+              <Tags type="green">true</Tags>
+            ) : (
+              <Tags type="red">fasle</Tags>
+            )}
           </div>
           <div className="flex gap-2 items-center">
-            <div className="min-w-20 text-gray-700 dark:text-gray-300">环境:</div>
-            <Button
-              type="text"
-              className="text-indigo-600 dark:text-indigo-400 hover:underline"
-              onClick={() => {
-                navigate(`/bots/${info.name}/env`);
-              }}
-            >
-              .env
-            </Button>
-          </div>
-          <div className="flex gap-2 items-center">
-            <div className="min-w-20 text-gray-700 dark:text-gray-300">包:</div>
-            <Button
-              type="text"
-              className="text-indigo-600 dark:text-indigo-400 hover:underline"
-              onClick={() => {
-                if (!info.node_modules) {
-                  message.warning("请先安装依赖");
-                  return;
-                }
-                navigate(`/bots/${info.name}/package`);
-              }}
-            >
-              package.json
-            </Button>
-          </div>
-          <div className="flex gap-2 items-center">
-            <div className="min-w-20 text-gray-700 dark:text-gray-300">
-              配置:
-            </div>
-            <Button
-              type="text"
-              className="text-indigo-600 dark:text-indigo-400 hover:underline"
-              onClick={() => {
-                if (!info.node_modules) {
-                  message.warning("请先安装依赖");
-                  return;
-                }
-                navigate(`/bots/${info.name}/config`);
-              }}
-            >
-              alemon.config.yaml
-            </Button>
-          </div>
-          <div className="flex gap-2 items-center">
-            <div className="min-w-20 text-gray-700 dark:text-gray-300">
-              GIT扩展:
-            </div>
-            <Button
-              type="text"
-              className="text-indigo-600 dark:text-indigo-400 hover:underline"
-              onClick={() => {
-                navigate(`/bots/${info.name}/packages`);
-              }}
-            >
-              packages
-            </Button>
-          </div>
-          <div className="flex gap-2 items-center">
-            <div className="min-w-20 text-gray-700 dark:text-gray-300">
-              创建时间:
-            </div>
+            <span className="text-sm text-gray-600 dark:text-gray-400">
+              Created:
+            </span>
             <Tags type="indigo">{info.create_at}</Tags>
           </div>
         </div>
-        <div className="flex-1">
-          <div className="xl:max-w-[calc(100vw/2-3rem)]">
-            <Xterm info={info} onUpdate={(name) => initBotInfo(name)} />
+
+        {/* sm 以下：仅显示更多按钮 */}
+        <div className="sm:hidden w-full flex justify-end">
+          <Dropdown menu={{items}} trigger={["click"]}>
+            <Button size="small" type="text">
+              <Space>
+                更多
+                <DownOutlined />
+              </Space>
+            </Button>
+          </Dropdown>
+        </div>
+
+        {/* sm 以上：显示所有按钮 */}
+        <div className="hidden sm:flex  ">
+          <div className="flex flex-wrap gap-2 items-center w-full justify-end">
+            {/* 导航按钮 */}
+            <div className="flex gap-1">
+              <Button type="text" size="small" onClick={onLog}>
+                {location.pathname.includes("xterm-date")
+                  ? "在线日志"
+                  : "查询日志"}
+              </Button>
+              <Button
+                type="text"
+                size="small"
+                onClick={() => navigate(`/bots/${info.name}/config`)}
+              >
+                配置
+              </Button>
+              <Button
+                type="text"
+                size="small"
+                onClick={() => navigate(`/bots/${info.name}/package`)}
+              >
+                包管理
+              </Button>
+              <Button
+                type="text"
+                size="small"
+                onClick={() => navigate(`/bots/${info.name}/packages`)}
+              >
+                应用
+              </Button>
+              <Button
+                type="text"
+                size="small"
+                onClick={() => navigate(`/bots/${info.name}/env`)}
+              >
+                环境
+              </Button>
+            </div>
+
+            {/* 操作按钮 */}
+            <div className="flex gap-2 items-center">
+              {info.node_modules && (
+                <Tooltip title="重新加载依赖">
+                  <Button
+                    size="small"
+                    className="text-amber-800 dark:text-amber-200 bg-amber-100 dark:bg-amber-800 border-amber-300 dark:border-amber-600 hover:bg-amber-200 dark:hover:bg-amber-700"
+                    onClick={() => {
+                      openLogModal();
+                      bot.onInstall(info.name);
+                    }}
+                  >
+                    重载
+                  </Button>
+                </Tooltip>
+              )}
+
+              {info.node_modules && info.status ? (
+                <Button
+                  type="primary"
+                  size="small"
+                  danger
+                  onClick={() => bot.onStop(info.name)}
+                >
+                  停止
+                </Button>
+              ) : null}
+
+              {info.node_modules && !info.status ? (
+                <Button
+                  type="primary"
+                  size="small"
+                  className="bg-green-600 hover:bg-green-700 border-green-600 hover:border-green-700"
+                  onClick={() => {
+                    openLogModal();
+                    bot.onRun(info.name);
+                  }}
+                >
+                  运行
+                </Button>
+              ) : null}
+
+              {!info.node_modules && (
+                <Button
+                  type="primary"
+                  size="small"
+                  className="bg-amber-500 hover:bg-amber-600 border-amber-500 hover:border-amber-600"
+                  onClick={() => {
+                    openLogModal();
+                    bot.onInstall(info.name);
+                  }}
+                >
+                  加载依赖
+                </Button>
+              )}
+            </div>
           </div>
         </div>
       </div>
-    </Box>
+      <Outlet />
+      {logs.open && (
+        <Modal
+          open
+          title="在线日志"
+          footer={false}
+          onCancel={() => dispatch(hideLog())}
+        >
+          <div className="overflow-y-auto h-[calc(100vh-20rem)]">
+            <Logs />
+          </div>
+        </Modal>
+      )}
+    </div>
   );
 };
 

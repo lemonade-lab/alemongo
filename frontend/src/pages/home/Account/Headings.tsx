@@ -44,10 +44,12 @@ const Headings = ({
   const [form] = Form.useForm();
   return (
     <header className="lg:flex lg:items-center lg:justify-between py-2">
-      <div className="min-w-0 flex-1"></div>
-      <Button type="primary" onClick={onCreateAccount}>
-        新建
-      </Button>
+      ``{" "}
+      <div className="flex justify-end w-full">
+        <Button type="primary" onClick={onCreateAccount}>
+          新建
+        </Button>
+      </div>
       <Modal
         open={visible}
         title="新建账户"

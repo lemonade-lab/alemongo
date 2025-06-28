@@ -73,6 +73,7 @@ export const request = async (config: AxiosRequestConfig & {
         }
         if (err?.response?.status === 401) {
             window.location.href = "/login";
+            message.error("授权失败，请重新登录");
         }
         else if (err?.response?.status === 404) {
             message.error("API未找到，请检查网络连接或联系管理员");

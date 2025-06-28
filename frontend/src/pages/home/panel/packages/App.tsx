@@ -11,12 +11,22 @@ import {
   BotInfo,
   BotPackages,
 } from "@/api";
-import {Button, Form, Input, message, Modal, Popconfirm, Tag} from "antd";
+import {
+  Button,
+  Dropdown,
+  Form,
+  Input,
+  message,
+  Modal,
+  Popconfirm,
+  Space,
+  Tag,
+} from "antd";
 import {getBotName} from "../core";
 import Box from "@/commom/Box";
 import {useNavigate} from "react-router-dom";
-import Xterm from "../Xterm";
 import YAML from "js-yaml";
+import {DownOutlined} from "@ant-design/icons";
 
 const Panel = () => {
   const [pkgs, setPkgs] = useState<BotPackages[]>([]);
@@ -34,7 +44,6 @@ const Panel = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [visible, setVisible] = useState(false);
   const [form] = Form.useForm();
-  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     if (!visible) {
@@ -135,7 +144,6 @@ const Panel = () => {
     })
       .then(() => {
         message.success("更新成功");
-        setOpen(true);
       })
       .finally(() => {
         setIsLoading(false);
@@ -229,13 +237,13 @@ const Panel = () => {
                   return (
                     <div
                       key={item.name}
-                      className="flex justify-between items-center border border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 p-3 rounded-md cursor-pointer hover:border-slate-300 hover:bg-slate-50 dark:hover:bg-zinc-800 transition-colors"
+                      className="flex flex-col xl:flex-row gap-2 justify-between border border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 p-3 rounded-md cursor-pointer hover:border-slate-300 hover:bg-slate-50 dark:hover:bg-zinc-800 transition-colors"
                       onClick={(e) => {
                         e.stopPropagation();
                         navigate(`/bots/${getBotName()}/packages/${item.name}`);
                       }}
                     >
-                      <div className="flex flex-col  md:flex-row flex-wrap gap-2">
+                      <div className="flex flex-row items-center flex-wrap gap-2">
                         <Tag color="blue">{item.name}</Tag>
                         <Tag color="blue">{pkgName}</Tag>
                         <Tag color="geekblue">{pkgJSON["description"]}</Tag>
@@ -248,11 +256,77 @@ const Panel = () => {
                           <Tag color="red">未启用</Tag>
                         )}
                       </div>
-                      <div className="flex flex-col  md:flex-row gap-2 items-center">
+
+                      {/* sm 以下：仅显示更多按钮 */}
+                      <div
+                        className="sm:hidden w-full flex justify-end"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <Dropdown
+                          menu={{
+                            items: [
+                              {
+                                key: "start",
+                                label: !isStart ? "启用" : "停用",
+                                onClick: () => {
+                                  if (isStart) {
+                                    onStop(pkgName);
+                                    return;
+                                  }
+                                  onStart(pkgName);
+                                },
+                              },
+                              {
+                                key: "config",
+                                label: "包配置",
+                                onClick: () => {
+                                  navigate(
+                                    `/bots/${getBotName()}/packages/${item.name}/package`
+                                  );
+                                },
+                              },
+                              {
+                                key: "update",
+                                label: "更新",
+                                onClick: () => {
+                                  onUpdate(item);
+                                },
+                              },
+                              {
+                                key: "forceUpdate",
+                                label: "强制更新",
+                                onClick: () => {
+                                  onForceUpdate(item);
+                                },
+                              },
+                              {
+                                key: "delete",
+                                label: "删除",
+                                danger: true,
+                                onClick: () => {
+                                  onDelete(item.name);
+                                },
+                              },
+                            ],
+                          }}
+                          trigger={["click"]}
+                        >
+                          <Button size="small" type="text">
+                            <Space>
+                              更多
+                              <DownOutlined />
+                            </Space>
+                          </Button>
+                        </Dropdown>
+                      </div>
+
+                      <div
+                        className="hidden sm:flex flex-row gap-2 flex-wrap items-center justify-end"
+                        onClick={(e) => e.stopPropagation()}
+                      >
                         <Button
                           loading={isLoadingStatus}
-                          onClick={(e) => {
-                            e.stopPropagation();
+                          onClick={() => {
                             if (isStart) {
                               onStop(pkgName);
                               return;
@@ -263,8 +337,7 @@ const Panel = () => {
                           {!isStart ? "启用" : "停用"}
                         </Button>
                         <Button
-                          onClick={(e) => {
-                            e.stopPropagation();
+                          onClick={() => {
                             navigate(
                               `/bots/${getBotName()}/packages/${item.name}/package`
                             );
@@ -273,8 +346,7 @@ const Panel = () => {
                           包配置
                         </Button>
                         <Button
-                          onClick={(e) => {
-                            e.stopPropagation();
+                          onClick={() => {
                             onUpdate(item);
                           }}
                         >
@@ -347,18 +419,6 @@ const Panel = () => {
             </Form.Item>
           </Form>
         </Modal>
-        {open && (
-          <Modal
-            open
-            title="日志"
-            onCancel={() => setOpen(false)}
-            footer={null}
-          >
-            <div className="flex h-[calc(100vh/1.5)]">
-              <Xterm info={info} onUpdate={(name) => initBotInfo(name)} />
-            </div>
-          </Modal>
-        )}
       </div>
     </Box>
   );
