@@ -11,7 +11,7 @@ import { request } from "../base";
 export const apiBotConfigsList = async (): Promise<string[]> => {
     return new Promise((resolve, reject) => {
         request({
-            url: "/bot/configs/list",
+            url: "/bot/configs",
             method: 'GET',
         })
             .then((res) => res.data)
@@ -26,8 +26,8 @@ export const apiBotConfigsUpdate = async (data: {
 }): Promise<null> => {
     return new Promise((resolve, reject) => {
         request({
-            url: "/bot/configs/update",
-            method: 'POST',
+            url: "/bot/configs",
+            method: 'PUT',
             data,
         })
             .then((res) => res.data)
@@ -57,9 +57,9 @@ export const apiBotConfigsDelete = async (data: {
 }): Promise<null> => {
     return new Promise((resolve, reject) => {
         request({
-            url: "/bot/configs/delete",
+            url: "/bot/configs",
             method: 'DELETE',
-            params: data,
+            data: data,
         })
             .then((res) => res.data)
             .then(resolve)

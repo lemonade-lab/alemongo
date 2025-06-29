@@ -27,6 +27,6 @@ export const apiUserDelete = async (data: {
     return request({
         url: "/user/delete",
         method: 'DELETE',
-        params: data,
+        data: data,
     }).then((res) => res.data);
 }

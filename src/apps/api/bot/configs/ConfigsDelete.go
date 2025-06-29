@@ -11,7 +11,8 @@ import (
 )
 
 func ConfigsDelete(ctx *gin.Context) {
-	name := ctx.Query("name")
+	// form
+	name := ctx.PostForm("name")
 	if name == "" {
 		response.ResponseError(ctx, http.StatusBadRequest, response.ConfigNameIsEmpty)
 		//ctx.JSON(http.StatusBadRequest, gin.H{
@@ -23,7 +24,8 @@ func ConfigsDelete(ctx *gin.Context) {
 	}
 	// 配置路径
 	configsPath := settings.GetConfigsPath()
-	curPath := path.Join(configsPath, name+".yaml")
+	fileName := name + ".yaml"
+	curPath := path.Join(configsPath, fileName)
 	// 判断是否存在。
 	if _, err := os.Stat(curPath); os.IsNotExist(err) {
 		response.ResponseError(ctx, http.StatusOK, response.ConfigFileIsDeleted)

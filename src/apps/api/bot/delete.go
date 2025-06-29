@@ -3,6 +3,7 @@ package bot
 import (
 	"alemongo/src/apps/api/response"
 	"alemongo/src/logic"
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -11,7 +12,8 @@ import (
 // method: DELETE
 // 删除指定名机器人
 func Delete(ctx *gin.Context) {
-	name := ctx.Query("name")
+	name := ctx.PostForm("name")
+	log.Printf("删除机器人: %s", name)
 	botPath, err := logic.DeleteBot(name)
 	if err != nil {
 		response.ResponseErrorWithMsg(ctx, http.StatusBadRequest, http.StatusBadRequest, err.Error())

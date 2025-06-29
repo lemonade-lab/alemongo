@@ -23,7 +23,7 @@
 
 ```yaml
 name: "alemongo"  # 项目名称
-mode: "release"   # 模式(release / debug)
+# mode: "release"   # 模式(release / debug)
 host: "127.0.0.1" # 
 
 # 服务器
@@ -47,6 +47,14 @@ smtp:
   password: "" # 授权码
   from_email: "" # 发送方邮箱
 ```
+
+- 自定义配置路径
+
+```sh
+--config ./config.test.yaml
+```
+
+> debug 模式下，使用 config.dev.yaml
 
 > 超级临时账户会在启动时打印，直到密码更改。
 

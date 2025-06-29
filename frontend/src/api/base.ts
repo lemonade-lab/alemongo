@@ -11,7 +11,9 @@ export const TOKEN_KEY = 'alemongo:token';
 export const QQ_TEMPLATE_KEY = 'alemongo:qq:template';
 
 const getContentType = (method: string) => {
+    if (method === 'DELETE') return "multipart/form-data"
     return method === 'GET' ? "application/jison" : "application/x-www-form-urlencoded"
+
 }
 
 const Method = {

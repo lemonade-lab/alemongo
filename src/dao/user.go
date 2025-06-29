@@ -9,12 +9,13 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
-	"gopkg.in/yaml.v3"
 	"log"
 	"os"
 	"path"
 	"sync"
 	"time"
+
+	"gopkg.in/yaml.v3"
 )
 
 // 管理员账户
@@ -23,8 +24,9 @@ var admin *models.User
 // 登录失败缓存
 var loginFailures = sync.Map{} // key: username, value: {count, lastFailedTime}
 
-// todo
-// 登录失败锁定后 / 登录后。之前发放出去的token都要失效
+// 退出登录后。
+// 记录 {"token":  ""}
+// 如果发现是黑名单token，需要解析什么时候过期。发现过期。再从黑名单中删除。确保不会占用太多资源
 
 func InitAdmin() {
 	admin = GenerateAdminAccount()

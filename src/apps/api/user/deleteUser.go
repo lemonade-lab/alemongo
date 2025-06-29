@@ -6,8 +6,9 @@ import (
 	"alemongo/src/dao"
 	"alemongo/src/logic"
 
-	"github.com/gin-gonic/gin"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 // DeleteUserHandler 删除用户的路由处理函数
@@ -21,7 +22,7 @@ func DeleteUserHandler(ctx *gin.Context) {
 		response.ResponseErrorWithMsg(ctx, http.StatusBadRequest, http.StatusBadRequest, "权限不足")
 		return
 	}
-	username := ctx.Query("username")
+	username := ctx.PostForm("username")
 	if err := logic.DeleteUser(username); err != nil {
 		response.ResponseErrorWithMsg(ctx, http.StatusBadRequest, http.StatusBadRequest, "删除失败")
 		return

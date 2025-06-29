@@ -12,7 +12,7 @@ import (
 
 // method: PUT
 func Identity(ctx *gin.Context) {
-	identity := ctx.Query("identity")
+	identity := ctx.PostForm("identity")
 	if identity == "" {
 		response.ResponseErrorWithMsg(ctx, http.StatusBadRequest, http.StatusBadRequest, "身份不能为空")
 		return
@@ -33,7 +33,7 @@ func Identity(ctx *gin.Context) {
 		ctx.Abort()
 		return
 	}
-	username := ctx.Query("username")
+	username := ctx.PostForm("username")
 	if dao.IsSuperAdmin(username) {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"code": http.StatusBadRequest,

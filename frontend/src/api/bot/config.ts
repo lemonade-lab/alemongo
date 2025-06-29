@@ -30,8 +30,8 @@ export const apiBotConfigUpdate = async (data: {
 }): Promise<null> => {
     return new Promise((resolve, reject) => {
         request({
-            url: "/bot/config/update",
-            method: 'POST',
+            url: "/bot/config",
+            method: 'PUT',
             data,
         })
             .then((res) => res.data)

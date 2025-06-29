@@ -97,9 +97,9 @@ export const apiBotPackagesDelete = async (data: {
 }): Promise<null> => {
     return new Promise((resolve, reject) => {
         request({
-            url: "/bot/packages/info",
+            url: "/bot/packages",
             method: "DELETE",
-            params: data,
+            data: data,
         })
             .then((res) => res.data)
             .then(resolve)
@@ -115,7 +115,7 @@ export const apiBotPackagesInfo = async (data: {
 }): Promise<null> => {
     return new Promise((resolve, reject) => {
         request({
-            url: "/bot/packages/info",
+            url: "/bot/packages",
             method: "POST",
             data,
         })

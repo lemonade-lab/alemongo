@@ -83,7 +83,6 @@ func setDefaults() {
 // 初始化配置信息
 func Init(filepath string) (err error) {
 	if filepath == "" {
-		log.Println("未设置运行配置，可创建文件 config.yaml 进行调整")
 		// 默认配置
 		setDefaults()
 		return nil

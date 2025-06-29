@@ -34,8 +34,8 @@ export const apiBotEnvUpdate = async (data: {
 }): Promise<string> => {
     return new Promise((resolve, reject) => {
         request({
-            url: "/bot/env/update",
-            method: 'POST',
+            url: "/bot/env",
+            method: 'PUT',
             data,
         })
             .then((res) => res.data)

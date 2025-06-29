@@ -30,9 +30,18 @@ func Use(r *gin.Engine) *gin.Engine {
 	return r
 }
 
+// get 使用 query 参数，
+// post 使用 form 参数，
+// put 使用 form 参数，
+// delete 使用 form 参数
 func Create(mode string) *gin.Engine {
 	// 根据 mode 设置 发布模式/开发模式
-	if mode == gin.ReleaseMode {
+
+	if mode == gin.DebugMode {
+		gin.SetMode(gin.DebugMode)
+	} else if mode == gin.TestMode {
+		gin.SetMode(gin.TestMode)
+	} else {
 		gin.SetMode(gin.ReleaseMode)
 	}
 
@@ -102,39 +111,48 @@ func Create(mode string) *gin.Engine {
 				SSHAPI.Use(middlewares.AuthMiddleware())
 				// 列表
 				SSHAPI.GET("/list", gitssh.List)
-				// 更新
-				SSHAPI.PUT("/update", gitssh.Update)
+				// 创建
+				SSHAPI.POST("", gitssh.GenerateSSH)
 				// 删除
-				SSHAPI.DELETE("/delete", gitssh.Delete)
+				SSHAPI.DELETE("", gitssh.Delete)
+				// 更新
+				SSHAPI.PUT("", gitssh.Update)
 				// 读取
-				SSHAPI.GET("/read", gitssh.Read)
-
-				SSHAPI.POST("/generate", gitssh.GenerateSSH)
+				SSHAPI.GET("", gitssh.Read)
 			}
+
 			// bot
 			BotAPI := v1.Group("/bot")
 			{
 				// 开始鉴权
 				BotAPI.Use(middlewares.AuthMiddleware())
+				// 获取机器人列表
 				BotAPI.GET("/list", bot.List)
-				BotAPI.POST("/create", bot.Create)
+				// 查询
 				BotAPI.POST("/info", bot.Info)
+				// 创建
+				BotAPI.POST("/create", bot.Create)
+				// 删除
 				BotAPI.DELETE("/info", bot.Delete)
+				// 运行
 				BotAPI.POST("/run", bot.Run)
+				// 停止
 				BotAPI.POST("/stop", bot.Stop)
+				// 重启
 				BotAPI.POST("/restart", bot.Restart)
+				// logs
 				BotAPI.POST("/log", bot.Log)
 
 				EnvAPI := BotAPI.Group("/env")
 				{
-					EnvAPI.POST("/", botenv.Read)
+					EnvAPI.POST("", botenv.Read)
 					EnvAPI.POST("/update", botenv.Update)
 				}
 
 				PackageAPI := BotAPI.Group("/package")
 				{
-					PackageAPI.POST("/", botpackage.Package)
-					PackageAPI.POST("/update", botpackage.PackageUpdate)
+					PackageAPI.POST("", botpackage.Package)
+					PackageAPI.PUT("", botpackage.PackageUpdate)
 				}
 
 				YarnAPI := BotAPI.Group("/yarn")
@@ -146,8 +164,8 @@ func Create(mode string) *gin.Engine {
 
 				PackagesAPI := BotAPI.Group("/packages")
 				{
-					PackagesAPI.POST("/info", botpackages.PackagesInfo)
-					PackagesAPI.DELETE("/info", botpackages.PackageDelete)
+					PackagesAPI.POST("", botpackages.PackagesInfo)
+					PackagesAPI.DELETE("", botpackages.PackageDelete)
 					PackagesAPI.POST("/clone", botpackages.PackagesClone)
 					PackagesAPI.POST("/list", botpackages.PackagesList)
 					PackagesAPI.POST("/pull", botpackages.PackagesPull)
@@ -159,16 +177,16 @@ func Create(mode string) *gin.Engine {
 
 				ConfigAPI := BotAPI.Group("/config")
 				{
-					ConfigAPI.POST("/", botconfig.ConfigData)
-					ConfigAPI.POST("/update", botconfig.ConfigUpdate)
+					ConfigAPI.POST("", botconfig.ConfigData)
+					ConfigAPI.PUT("", botconfig.ConfigUpdate)
 				}
 
 				ConfigsAPI := BotAPI.Group("/configs")
 				{
-					ConfigsAPI.POST("/", botconfigs.ConfigsData)
-					ConfigsAPI.GET("/list", botconfigs.ConfigsList)
-					ConfigsAPI.POST("/update", botconfigs.ConfigsUpdate)
-					ConfigsAPI.DELETE("/delete", botconfigs.ConfigsDelete)
+					ConfigsAPI.GET("", botconfigs.ConfigsList)
+					ConfigsAPI.POST("", botconfigs.ConfigsData)
+					ConfigsAPI.PUT("", botconfigs.ConfigsUpdate)
+					ConfigsAPI.DELETE("", botconfigs.ConfigsDelete)
 				}
 
 			}

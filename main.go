@@ -14,6 +14,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -27,15 +28,43 @@ var staticFiles embed.FS
 // 构建时指定version，方便迭代更新
 var Version = "dev"
 
+// 是否是docker启动
+var IsDocker = false
+
 // 主函数
 func main() {
 	// 输出当前版本号
 	fmt.Println("Version: ", Version)
 
 	var configFilePath string
-	// 检查是否输入配置文件路径
-	if len(os.Args) == 2 {
-		configFilePath = os.Args[1]
+	mode := settings.Conf.Mode // 默认模式
+
+	// 解析命令行参数
+	args := os.Args[1:] // 跳过程序名
+	for i, arg := range args {
+		lowerArg := strings.ToLower(arg)
+		if lowerArg == "debug" {
+			mode = gin.DebugMode
+			configFilePath = "config.dev.yaml" // 默认开发模式配置文件
+		}
+		if lowerArg == "test" {
+			mode = gin.TestMode
+			configFilePath = "config.test.yaml" // 默认测试模式配置文件
+		}
+		if lowerArg == "config" || lowerArg == "-config" || lowerArg == "--config" {
+			// 检查是否有下一个参数作为配置文件路径
+			if i+1 < len(args) {
+				configFilePath = args[i+1]
+				fmt.Printf("使用配置文件: %s\n", configFilePath)
+			} else {
+				log.Fatal("config 参数需要指定配置文件路径，例如: ./app config ./config.yaml")
+			}
+		}
+	}
+
+	if err := settings.Init(configFilePath); err != nil {
+		log.Printf("load config failed, err:%v\n", err)
+		return
 	}
 
 	// 打印当前工作目录
@@ -45,11 +74,6 @@ func main() {
 		return
 	}
 	log.Printf("当前工作目录:\n%s", cwd)
-
-	if err := settings.Init(configFilePath); err != nil {
-		log.Printf("load config failed, err:%v\n", err)
-		return
-	}
 
 	if err := logger.Init(settings.Conf.Log, settings.Conf.Mode); err != nil {
 		log.Printf("init logger failed, err:%v\n", err)
@@ -66,7 +90,7 @@ func main() {
 	_ = pm.ReviveAll() // 复活所有进程
 
 	// 创建路由
-	app := route.Create(settings.Conf.Mode)
+	app := route.Create(mode)
 
 	// 处理静态文件服务
 	app.NoRoute(func(ctx *gin.Context) {

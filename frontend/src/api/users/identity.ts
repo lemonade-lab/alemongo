@@ -14,6 +14,6 @@ export const apiIdentityUpdate = async (data: {
     return request({
         url: "/user/identity",
         method: 'PUT',
-        params: data,
+        data: data,
     }).then((res) => res.data);
 }

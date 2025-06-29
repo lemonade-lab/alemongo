@@ -11,7 +11,7 @@ export const apiSSHRead = async (data: {
     name: string;
 }) => {
     return request({
-        url: "/ssh/read",
+        url: "/ssh",
         method: 'GET',
         params: data,
     }).then((res) => res.data);
@@ -23,7 +23,7 @@ export const apiSSHUpdate = async (data: {
     content: string;
 }) => {
     return request({
-        url: "/ssh/update",
+        url: "/ssh",
         method: 'PUT',
         data,
     }).then((res) => res.data);
@@ -34,9 +34,9 @@ export const apiSSHDelete = async (data: {
     name: string;
 }) => {
     return request({
-        url: "/ssh/delete",
+        url: "/ssh",
         method: 'DELETE',
-        params: data,
+        data: data,
     }).then((res) => res.data);
 }
 
@@ -50,7 +50,7 @@ export const apiSSHGenerate = async (data: {
     key_format?: string,
 }) => {
     return request({
-        url: "/ssh/generate",
+        url: "/ssh",
         method: 'POST',
         data,
     }).then((res) => res.data);

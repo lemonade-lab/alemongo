@@ -13,8 +13,8 @@ import (
 
 func PackageDelete(ctx *gin.Context) {
 	// 获取机器人name和对应的git扩展name
-	name := ctx.Query("name")
-	app_name := ctx.Query("app_name")
+	name := ctx.PostForm("name")
+	app_name := ctx.PostForm("app_name")
 
 	var l = new(zapcore.Level)
 	if err := l.UnmarshalText([]byte(settings.Conf.Log.Level)); err != nil {

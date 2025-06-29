@@ -64,7 +64,7 @@ export const apiBotDelete = async (data: {
         request({
             url: "/bot/info",
             method: 'DELETE',
-            params: data,
+            data: data,
         })
             .then((res) => res.data)
             .then(resolve)

@@ -22,7 +22,7 @@ func Delete(ctx *gin.Context) {
 	}
 	sshPath := filepath.Join(homeDir, ".ssh")
 	// 更新指定文件内容
-	fileName := ctx.Query("name")
+	fileName := ctx.PostForm("name")
 	if fileName == "" {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"code": http.StatusBadRequest,
