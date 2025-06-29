@@ -11,7 +11,7 @@ export const TOKEN_KEY = 'alemongo:token';
 export const QQ_TEMPLATE_KEY = 'alemongo:qq:template';
 
 const getContentType = (method: string) => {
-    return method === 'POST' ? "application/x-www-form-urlencoded" : "application/json";
+    return method === 'GET' ? "application/jison" : "application/x-www-form-urlencoded"
 }
 
 const Method = {
