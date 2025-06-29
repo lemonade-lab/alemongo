@@ -15,7 +15,7 @@ const UpdatePassWord = () => {
       return;
     }
     apiPassword({
-      old_assword: values.oldPassword,
+      old_password: values.oldPassword,
       password: values.newPassword,
     }).then(() => {
       navigate("/bots");

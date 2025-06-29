@@ -32,7 +32,7 @@ export const apiLogout = async () => {
  */
 export const apiPassword = async (data: {
     password: string,
-    old_assword: string
+    old_password: string
 }) => {
     return request({
         url: "/user/password",

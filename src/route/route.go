@@ -146,7 +146,7 @@ func Create(mode string) *gin.Engine {
 				EnvAPI := BotAPI.Group("/env")
 				{
 					EnvAPI.POST("", botenv.Read)
-					EnvAPI.POST("/update", botenv.Update)
+					EnvAPI.PUT("", botenv.Update)
 				}
 
 				PackageAPI := BotAPI.Group("/package")
