@@ -6,15 +6,16 @@ import (
 	"alemongo/src/logic"
 	"alemongo/src/settings"
 	"alemongo/src/utils"
-	"net/http"
-	"os"
-	"path"
-
 	"github.com/gin-gonic/gin"
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+	"log"
+	"net/http"
+	"os"
+	"path"
+	"strings"
 )
 
 // 创建机器人
@@ -72,19 +73,6 @@ func PackagesClone(ctx *gin.Context) {
 		repoName = repoName[:len(repoName)-len(ext)]
 	}
 
-	// 确定克隆的目标路径
-	clonePath := path.Join(pkgPath, repoName)
-
-	auth, err := utils.GetSSHAuth()
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"code": http.StatusInternalServerError,
-			"msg":  "获取 SSH 认证失败",
-			"data": err.Error(),
-		})
-		return
-	}
-
 	var l = new(zapcore.Level)
 	if err := l.UnmarshalText([]byte(settings.Conf.Log.Level)); err != nil {
 		response.ResponseError(ctx, http.StatusInternalServerError, response.ErrorLogLevel)
@@ -96,23 +84,57 @@ func PackagesClone(ctx *gin.Context) {
 	}
 	botLoggerWriter := logger.NewRobotLoggerWriter(botLogger)
 	//defer botLoggerWriter.RobotLogger.Close()
-	// 克隆仓库并切换到指定分支
-	_, err = git.PlainClone(clonePath, false, &git.CloneOptions{
-		URL:           repoURL,
-		Auth:          auth, // 使用 SSH 认证
-		Progress:      botLoggerWriter.Writer(),
-		ReferenceName: plumbing.NewBranchReferenceName(branchName),
-		SingleBranch:  true,
-		Depth:         1,
-	})
-	if err != nil {
-		botLoggerWriter.RobotLogger.Logger.Error("克隆失败: ", zap.Error(err))
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"code": http.StatusInternalServerError,
-			"msg":  "克隆失败",
-			"data": nil,
+
+	// 确定克隆的目标路径
+	clonePath := path.Join(pkgPath, repoName)
+
+	if strings.Contains(repoURL, "git@") {
+		auth, err := utils.GetSSHAuth()
+		if err != nil {
+			log.Println(err)
+			ctx.JSON(http.StatusInternalServerError, gin.H{
+				"code": http.StatusInternalServerError,
+				"msg":  "获取 SSH 认证失败",
+				"data": err.Error(),
+			})
+			return
+		}
+
+		// 克隆仓库并切换到指定分支
+		_, err = git.PlainClone(clonePath, false, &git.CloneOptions{
+			URL:           repoURL,
+			Auth:          auth, // 使用 SSH 认证
+			Progress:      botLoggerWriter.Writer(),
+			ReferenceName: plumbing.NewBranchReferenceName(branchName),
+			SingleBranch:  true,
+			Depth:         1,
 		})
-		return
+		if err != nil {
+			botLoggerWriter.RobotLogger.Logger.Error("克隆失败: ", zap.Error(err))
+			ctx.JSON(http.StatusInternalServerError, gin.H{
+				"code": http.StatusInternalServerError,
+				"msg":  "克隆失败",
+				"data": nil,
+			})
+			return
+		}
+	} else if strings.Contains(repoURL, "https") {
+		_, err := git.PlainClone(clonePath, false, &git.CloneOptions{
+			URL:           repoURL,
+			Progress:      botLoggerWriter.Writer(),
+			ReferenceName: plumbing.NewBranchReferenceName(branchName),
+			SingleBranch:  true,
+			Depth:         1,
+		})
+		if err != nil {
+			botLoggerWriter.RobotLogger.Logger.Error("克隆失败: ", zap.Error(err))
+			ctx.JSON(http.StatusInternalServerError, gin.H{
+				"code": http.StatusInternalServerError,
+				"msg":  "克隆失败",
+				"data": nil,
+			})
+			return
+		}
 	}
 
 	// 返回成功响应

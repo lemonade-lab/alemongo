@@ -11,8 +11,9 @@ import (
 
 // method: PUT
 func PassWord(ctx *gin.Context) {
-	oldPassword := ctx.PostForm("old_assword")
+	oldPassword := ctx.PostForm("old_password")
 	password := ctx.PostForm("password")
+
 	// 相同
 	if password == oldPassword {
 		response.ResponseErrorWithMsg(ctx, http.StatusBadRequest, http.StatusBadRequest, "新密码不能和旧密码相同")
