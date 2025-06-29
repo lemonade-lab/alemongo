@@ -8,6 +8,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strconv"
+	"strings"
 )
 
 var ResourcesFS embed.FS
@@ -93,7 +94,8 @@ func UpdateTemplateDir(originFS embed.FS, targetFS string) error {
 		if err != nil {
 			return err
 		}
-		dstPath := filepath.Join(targetFS, path)
+		filePath := strings.TrimPrefix(path, "resources")
+		dstPath := filepath.Join(targetFS, filePath)
 
 		if d.IsDir() {
 			return os.MkdirAll(dstPath, os.ModePerm)
