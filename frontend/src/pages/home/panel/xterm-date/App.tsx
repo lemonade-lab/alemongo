@@ -28,7 +28,7 @@ const XtermDate = () => {
   };
   return (
     <Box>
-      <div className="p-2 flex-1 flex bg-slate-100 dark:bg-zinc-900 flex-col transition-colors rounded-md">
+      <div className="p-2 flex bg-slate-100 dark:bg-zinc-900 flex-col transition-colors rounded-md">
         <div className="bg-slate-600 dark:bg-zinc-900 p-1 rounded-t-md flex justify-between items-center transition-colors">
           <div className="text-white flex gap-2 items-center">
             <div>日志</div>

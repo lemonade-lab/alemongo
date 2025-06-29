@@ -120,3 +120,14 @@ func VerifyEmail(username, email, code string) error {
 func EditEmailConfig(config models.EmailConfig) error {
 	return dao.EditEmailConfig(config)
 }
+
+func GetEmailConfig() (*models.EmailConfig, error) {
+	config, err := dao.GetEmailConfig()
+	if err != nil {
+		return nil, err
+	}
+	if config == nil {
+		return &models.EmailConfig{}, nil
+	}
+	return config, nil
+}

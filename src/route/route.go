@@ -11,6 +11,7 @@ import (
 	botwarehouse "alemongo/src/apps/api/bot/warehouse"
 
 	"alemongo/src/apps/api/common"
+	"alemongo/src/apps/api/config"
 	"alemongo/src/apps/api/gitssh"
 	"alemongo/src/apps/api/receive"
 	"alemongo/src/apps/api/settings"
@@ -74,6 +75,22 @@ func Create(mode string) *gin.Engine {
 				// 重置基础机器人模板
 				SettingsAPI.POST("/template/reset", settings.ResetTemplate)
 			}
+
+			// config api
+			ConfigAPI := v1.Group("/config")
+			{
+				// 开始鉴权
+				ConfigAPI.Use(middlewares.AuthMiddleware())
+				EmailAPI := ConfigAPI.Group("/email")
+				{
+					// 获取配置
+					EmailAPI.GET("", config.GetEmail)
+					// 更改邮箱配置
+					EmailAPI.PUT("", config.UpdateEmail)
+				}
+
+			}
+
 			// user api
 			UserAPI := v1.Group("/user")
 			{
@@ -101,8 +118,6 @@ func Create(mode string) *gin.Engine {
 				UserAPI.POST("/bind_email", user.BindEmailHandler)
 				// 验证邮箱
 				UserAPI.POST("/verify_email", user.VerifyEmailHandler)
-				// 更改邮箱配置
-				UserAPI.POST("/emailConfig", user.EmailConfig)
 			}
 			// ssh
 			SSHAPI := v1.Group("/ssh")

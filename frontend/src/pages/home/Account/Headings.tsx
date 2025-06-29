@@ -44,7 +44,6 @@ const Headings = ({
   const [form] = Form.useForm();
   return (
     <header className="lg:flex lg:items-center lg:justify-between py-2">
-      ``{" "}
       <div className="flex justify-end w-full">
         <Button type="primary" onClick={onCreateAccount}>
           新建

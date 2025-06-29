@@ -488,3 +488,15 @@ func EditEmailConfig(cfg models.EmailConfig) error {
 
 	return nil
 }
+
+func GetEmailConfig() (*models.EmailConfig, error) {
+	emailConfig := &models.EmailConfig{
+		Provider:   settings.Conf.SMTP.Provider,
+		Host:       settings.Conf.SMTP.Host,
+		Port:       settings.Conf.SMTP.Port,
+		Username:   settings.Conf.SMTP.Username,
+		Password:   settings.Conf.SMTP.Password,
+		From_email: settings.Conf.SMTP.FromEmail,
+	}
+	return emailConfig, nil
+}

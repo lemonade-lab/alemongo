@@ -32,7 +32,8 @@ func GetBotEnvPath(name string) string {
 
 func GetBotConfigPath(name string) string {
 	botPath := GetBotPath(name)
-	return path.Join(botPath, "alemon.config.yaml")
+	configPath := path.Join(botPath, "alemon.config.yaml")
+	return configPath
 }
 
 func Exists(name string) bool {

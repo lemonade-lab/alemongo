@@ -13,20 +13,10 @@ func ConfigData(ctx *gin.Context) {
 	name := ctx.PostForm("name")
 	if name == "" {
 		response.ResponseError(ctx, http.StatusBadRequest, response.RobotNameIsEmpty)
-		//ctx.JSON(http.StatusBadRequest, gin.H{
-		//	"code": http.StatusBadRequest,
-		//	"msg":  "机器人名不能为空",
-		//	"data": nil,
-		//})
 		return
 	}
 	if !logic.Exists(name) {
 		response.ResponseError(ctx, http.StatusBadRequest, response.RobotNotExist)
-		//ctx.JSON(http.StatusBadRequest, gin.H{
-		//	"code": http.StatusBadRequest,
-		//	"msg":  "机器人不存在",
-		//	"data": nil,
-		//})
 		return
 	}
 	configPath := logic.GetBotConfigPath(name)
