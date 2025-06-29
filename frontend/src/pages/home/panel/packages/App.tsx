@@ -309,7 +309,6 @@ const Panel = () => {
                                 label: "删除",
                                 danger: true,
                                 onClick: () => {
-                                  dispatch(showLog());
                                   onDelete(item.name);
                                 },
                               },
@@ -380,7 +379,6 @@ const Panel = () => {
                             title="彻底删除"
                             description="你确定删除这个机器人吗?"
                             onConfirm={() => {
-                              dispatch(showLog());
                               onDelete(item.name);
                             }}
                             okText="确定"
