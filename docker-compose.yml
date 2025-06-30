@@ -17,6 +17,7 @@ services:
       - "443:443"
     volumes:
       - ./alemongo.conf:/etc/nginx/conf.d/alemongo.conf
+      # - ~/.ssh:/root/.ssh
     restart: unless-stopped
     depends_on:
       - alemongo
