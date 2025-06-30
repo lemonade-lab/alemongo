@@ -35,7 +35,6 @@ jobs:
 
       - name: 构建前端
         run: |
-          npm install yarn@1.19.1 -g
           yarn --cwd frontend install --ignore-engines
           yarn --cwd frontend build
 

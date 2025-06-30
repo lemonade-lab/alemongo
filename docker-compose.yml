@@ -8,7 +8,7 @@ services:
     ports:
       - "17187:17187"
     restart: unless-stopped
-    
+
   nginx:
     image: nginx
     container_name: nginx
@@ -17,7 +17,7 @@ services:
       - "443:443"
     volumes:
       - ./alemongo.conf:/etc/nginx/conf.d/alemongo.conf
-      # - ~/.ssh:/root/.ssh
+      - ~/.ssh:/root/.ssh
     restart: unless-stopped
     depends_on:
       - alemongo
