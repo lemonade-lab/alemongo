@@ -8,7 +8,7 @@ ENV GOPROXY=https://goproxy.cn
 COPY dist ./dist
 COPY resources ./resources
 COPY src ./src
-COPY go.mod go.sum ./
+COPY go.mod go.sum main.go ./
 
 # 打包 go，支持多架构
 ARG TARGETOS
@@ -22,7 +22,7 @@ COPY --from=builder /app/alemongo .
 # 设置yarn缓存目录
 ENV YARN_CACHE_FOLDER=/app/.yarn_cache
 # 初始化 ssh 目录
-RUN mkdir -p ~/.ssh && chmod 700 ~/.ssh
+RUN mkdir -p ~/.ssh && chmod 700 ~/.ssh && ssh-keyscan github.com >> ~/.ssh/known_hosts
 
 # 安装系统依赖、Node 依赖并构建 - 合并多个 RUN
 RUN echo "" > /etc/apt/sources.list && \
