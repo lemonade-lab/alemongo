@@ -1,14 +1,35 @@
 services:
+  redis:
+    image: redis:6.2-alpine
+    container_name: redis-container
+    ports:
+      - '6379:6379'
+    restart: unless-stopped
+    volumes:
+      - redis-data:/data
+    networks:
+      - alemongo-network
+
   alemongo:
-    # URL  hub.docker.com
-    # image: alemongo/alemongo
-    # URL  ccr.ccs.tencentyun.com
     image: ccr.ccs.tencentyun.com/ningmengchongshui/alemongo
     container_name: alemongo
     ports:
+      - "17117:17117"
+      - "17127:17127"
       - "17187:17187"
+      - "18666:18666"
     restart: unless-stopped
-
+    volumes:
+      - ~/.ssh:/root/.ssh
+      - ./work:/app/work
+      - ./config.yaml:/app/config.yaml
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - redis
+    networks:
+      - alemongo-network
+    
   nginx:
     image: nginx
     container_name: nginx
@@ -16,8 +37,19 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - ./alemongo.conf:/etc/nginx/conf.d/alemongo.conf
-      - ~/.ssh:/root/.ssh
+      - ./alemongo.conf:/etc/nginx/conf.d/default.conf
     restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     depends_on:
       - alemongo
+    networks:
+      - alemongo-network
+
+volumes:
+  redis-data:
+    driver: local
+
+networks:
+  alemongo-network:
+    driver: bridge

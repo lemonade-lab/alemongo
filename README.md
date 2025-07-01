@@ -84,6 +84,81 @@ docker compose up -d
 docker logs alemongo
 ```
 
+- alemon.config.yaml
+
+用`host.docker.internal`代替localhost/127.0.0.1
+
+```yaml
+# 可参考
+redis:
+  host: host.docker.internal
+```
+
+- 携带 onebot
+
+> 先下载 Lagrange.OneBot。具体了解 [https://lagrangedev.github.io/Lagrange.Doc](https://lagrangedev.github.io/Lagrange.Doc/v1/Lagrange.OneBot/Config/)
+
+新增 Dockerfile-onebot
+
+```sh
+FROM ubuntu:22.04
+
+WORKDIR /app
+
+RUN apt-get update && \
+    apt-get install -y \
+    ca-certificates \
+    curl \
+    wget \
+    libicu70 \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY ./Lagrange.OneBot .
+
+RUN chmod +x ./Lagrange.OneBot
+
+CMD ["./Lagrange.OneBot"]
+```
+
+补充 docker-compose.yml 
+
+```yml
+services:
+  lagrange-onebot:
+    build:
+      context: .
+      dockerfile: Dockerfile-onebot
+    container_name: lagrange-onebot
+    ports:
+      - "8081:8081"
+    volumes:
+      - ./appsettings.json:/app/appsettings.json 
+      - ./device.json:/app/device.json 
+    restart: unless-stopped
+    environment:
+      - DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=true
+    networks:
+      - alemongo-network
+```
+
+appsettings.json 补充
+
+```sh
+{
+    "Implementations": [
+        {
+            "Type": "ForwardWebSocket",
+            "Host": "0.0.0.0",
+            "Port": 8081,
+            "HeartBeatInterval": 5000,
+            "HeartBeatEnable": true,
+            "AccessToken": ""
+        }
+    ]
+}
+```
+
 ## 开发指南
 
 [README_DEV](./README_DEV.md)
+
