@@ -69,8 +69,9 @@ jobs:
           fi
           
           echo "构建镜像: $IMAGE_NAME"
-          
+
           # 构建并推送镜像
-          docker buildx build --platform linux/amd64,linux/arm64 \
+          docker buildx build \
+            --platform linux/amd64,linux/arm64 \
             -t "$IMAGE_NAME" \
             --push .

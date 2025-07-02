@@ -13,7 +13,8 @@ COPY go.mod go.sum main.go ./
 # 打包 go，支持多架构
 ARG TARGETOS
 ARG TARGETARCH
-RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -o alemongo . -ldflags "-X main.Version=1.0.0 -s -w"
+ARG VERSION
+RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -ldflags "-X main.Version=${VERSION} -X main.BuildTime=$(date +%s) -s -w" -o alemongo .  
 
 # 最终运行阶段
 FROM  node:22
