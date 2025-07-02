@@ -2,6 +2,10 @@ name: 开发分支
 
 on:
   workflow_dispatch:
+    inputs:
+      message:
+        description: '需求(例: userlogin)'
+        required: true
 
 permissions:
   contents: write
@@ -14,12 +18,17 @@ jobs:
       - name: 检出代码库
         uses: actions/checkout@v2
 
+      - name: 检查分支
+        if: github.ref != 'refs/heads/main'
+        run: |
+          echo "错误: 该工作流只能在 main 分支上运行。"
+          exit 1
+
       - name: 根据时间戳生成分支名称
         id: generate-branch
         run: |
           DATE=$(date -u +'%Y%m%d')
-          TIMESTAMP=$(date +%s)
-          BRANCH_NAME="dev-$DATE-$TIMESTAMP"
+          BRANCH_NAME="dev-$DATE-${{ github.event.inputs.message }}"
           echo "Generated branch name: $BRANCH_NAME"
           echo "branch_name=$BRANCH_NAME" >> $GITHUB_OUTPUT
 

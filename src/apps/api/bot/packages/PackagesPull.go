@@ -9,11 +9,13 @@ import (
 	"net/http"
 	"os"
 	"path"
+	"strings"
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-git/go-git/plumbing/transport"
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
 )
@@ -84,16 +86,6 @@ func PackagesPull(ctx *gin.Context) {
 		return
 	}
 
-	auth, err := utils.GetSSHAuth()
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"code": http.StatusInternalServerError,
-			"msg":  "获取 SSH 认证失败",
-			"data": err.Error(),
-		})
-		return
-	}
-
 	var l = new(zapcore.Level)
 	if err := l.UnmarshalText([]byte(settings.Conf.Log.Level)); err != nil {
 		response.ResponseError(ctx, http.StatusInternalServerError, response.ErrorLogLevel)
@@ -105,6 +97,7 @@ func PackagesPull(ctx *gin.Context) {
 	}
 	botLoggerWriter := logger.NewRobotLoggerWriter(botLogger)
 	//defer botLoggerWriter.RobotLogger.Close()
+
 	// 获取工作区
 	worktree, err := repo.Worktree()
 	if err != nil {
@@ -116,14 +109,63 @@ func PackagesPull(ctx *gin.Context) {
 		return
 	}
 
+	// 检查远程仓库的 URL 类型，只有 SSH 源才使用 SSH 认证
+	var auth transport.AuthMethod
+	remotes, err := repo.Remotes()
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"code": http.StatusInternalServerError,
+			"msg":  "获取远程仓库信息失败",
+			"data": err.Error(),
+		})
+		return
+	}
+
+	// 查找 origin 远程仓库
+	var originURL string
+	for _, remote := range remotes {
+		if remote.Config().Name == "origin" {
+			if len(remote.Config().URLs) > 0 {
+				originURL = remote.Config().URLs[0]
+			}
+			break
+		}
+	}
+
+	if originURL == "" {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"code": http.StatusInternalServerError,
+			"msg":  "未找到 origin 远程仓库",
+			"data": nil,
+		})
+		return
+	}
+
+	// 检查是否为 SSH URL (git@开头或ssh://开头)
+	if strings.HasPrefix(originURL, "git@") || strings.HasPrefix(originURL, "ssh://") {
+		auth, err = utils.GetSSHAuth()
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{
+				"code": http.StatusInternalServerError,
+				"msg":  "获取 SSH 认证失败",
+				"data": err.Error(),
+			})
+			return
+		}
+		botLoggerWriter.RobotLogger.Logger.Info("检测到 SSH 源，使用 SSH 认证", zap.String("url", originURL))
+	} else {
+		botLoggerWriter.RobotLogger.Logger.Info("检测到 HTTPS 源，不使用 SSH 认证", zap.String("url", originURL))
+	}
+
 	// 拉取最新代码
 	err = worktree.Pull(&git.PullOptions{
 		RemoteName:    "origin",
-		Auth:          auth, // 使用 SSH 认证
+		Auth:          auth, // SSH 源使用 SSH 认证，HTTPS 源为 nil
 		Progress:      botLoggerWriter.Writer(),
 		ReferenceName: plumbing.NewBranchReferenceName(branchName),
 		SingleBranch:  true,
 	})
+
 	if err != nil {
 		if err == git.NoErrAlreadyUpToDate {
 			botLoggerWriter.RobotLogger.Logger.Info("仓库已经是最新状态，无需更新")

@@ -56,22 +56,24 @@ jobs:
       - name: 构建二进制
         run: |
           # Linux 架构
+          VERSION=${{ github.event.inputs.version }}
+          LDFLAGS="-X main.Version=${VERSION} -s -w"
           mkdir -p apps/linux/amd64
           mkdir -p apps/linux/arm64
           mkdir -p apps/linux/386
-          GOOS=linux GOARCH=amd64 go build -o apps/linux/amd64/alemongo
-          GOOS=linux GOARCH=arm64 go build -o apps/linux/arm64/alemongo
-          GOOS=linux GOARCH=386 go build -o apps/linux/386/alemongo
+          GOOS=linux GOARCH=amd64 go build -o apps/linux/amd64/alemongo  -ldflags "${LDFLAGS}"
+          GOOS=linux GOARCH=arm64 go build -o apps/linux/arm64/alemongo  -ldflags "${LDFLAGS}"
+          GOOS=linux GOARCH=386 go build -o apps/linux/386/alemongo  -ldflags "${LDFLAGS}"
           # macOS 架构
           mkdir -p apps/darwin/amd64
           mkdir -p apps/darwin/arm64
-          GOOS=darwin GOARCH=amd64 go build -o apps/darwin/amd64/alemongo
-          GOOS=darwin GOARCH=arm64 go build -o apps/darwin/arm64/alemongo
+          GOOS=darwin GOARCH=amd64 go build -o apps/darwin/amd64/alemongo  -ldflags "${LDFLAGS}"
+          GOOS=darwin GOARCH=arm64 go build -o apps/darwin/arm64/alemongo  -ldflags "${LDFLAGS}"
           # Windows 架构
           mkdir -p apps/windows/amd64
           mkdir -p apps/windows/386
-          GOOS=windows GOARCH=amd64 go build -o apps/windows/amd64/alemongo.exe
-          GOOS=windows GOARCH=386 go build -o apps/windows/386/alemongo.exe
+          GOOS=windows GOARCH=amd64 go build -o apps/windows/amd64/alemongo.exe  -ldflags "${LDFLAGS}"
+          GOOS=windows GOARCH=386 go build -o apps/windows/386/alemongo.exe  -ldflags  "${LDFLAGS}"
 
       - name: 压缩文件
         run: |
