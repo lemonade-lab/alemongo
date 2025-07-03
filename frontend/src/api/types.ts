@@ -24,6 +24,10 @@ export type Info = {
         installed: boolean;
         version: string;
     },
+    base: {
+        version: string;
+        build_time: string;
+    }
     start_at: string
     location: string
 }

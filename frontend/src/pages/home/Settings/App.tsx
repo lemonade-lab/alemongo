@@ -50,6 +50,9 @@ const Settings = () => {
             <div className="text-xl md:text-2xl lg:text-3xl xl:text-4xl font-bold text-gray-800 dark:text-gray-100">
               通用设置
             </div>
+            <div className="text-sm md:text-base text-gray-500 dark:text-gray-400">
+              {common.info.base.version}
+            </div>
           </div>
           <div className="flex flex-col gap-4 items-center w-full">
             {tools.map(

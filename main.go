@@ -10,11 +10,16 @@ import (
 	"alemongo/src/route"
 	"alemongo/src/settings"
 	"alemongo/src/utils"
+	"bufio"
 	"embed"
 	"fmt"
 	"log"
+	"net"
 	"os"
+	"os/exec"
+	"runtime"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -26,18 +31,149 @@ var ResourcesFiles embed.FS
 var staticFiles embed.FS
 
 // 构建时指定version，方便迭代更新
-var Version = "dev"
+var Version = "1.0.0"
 
-// 是否是docker启动
-var IsDocker = false
+// 构建时指定build time
+var BuildTime = time.Now().Format("20060102-150405")
+
+// 检查端口是否被占用
+func isPortInUse(port string) bool {
+	ln, err := net.Listen("tcp", ":"+port)
+	if err != nil {
+		return true
+	}
+	ln.Close()
+	return false
+}
+
+// 获取占用端口的进程ID
+func getPortPID(port string) (string, error) {
+	var cmd *exec.Cmd
+
+	switch runtime.GOOS {
+	case "windows":
+		cmd = exec.Command("netstat", "-ano")
+	case "darwin", "linux":
+		cmd = exec.Command("lsof", "-i", ":"+port)
+	default:
+		return "", fmt.Errorf("不支持的操作系统")
+	}
+
+	output, err := cmd.Output()
+	if err != nil {
+		return "", err
+	}
+
+	lines := strings.Split(string(output), "\n")
+	for _, line := range lines {
+		if strings.Contains(line, ":"+port) {
+			fields := strings.Fields(line)
+			if len(fields) > 0 {
+				if runtime.GOOS == "windows" {
+					// Windows netstat 格式
+					for i, field := range fields {
+						if strings.Contains(field, ":"+port) && i+3 < len(fields) {
+							return fields[len(fields)-1], nil
+						}
+					}
+				} else {
+					// macOS/Linux lsof 格式
+					if len(fields) >= 2 {
+						return fields[1], nil
+					}
+				}
+			}
+		}
+	}
+	return "", fmt.Errorf("未找到占用端口的进程")
+}
+
+// 杀死进程
+func killProcess(pid string) error {
+	var cmd *exec.Cmd
+
+	switch runtime.GOOS {
+	case "windows":
+		cmd = exec.Command("taskkill", "/F", "/PID", pid)
+	case "darwin", "linux":
+		cmd = exec.Command("kill", "-9", pid)
+	default:
+		return fmt.Errorf("不支持的操作系统")
+	}
+
+	return cmd.Run()
+}
+
+// 询问用户是否要杀死占用端口的进程
+func askToKillProcess(port string) bool {
+	fmt.Printf("端口 %s 被占用，是否要关闭占用该端口的进程？(y/N): ", port)
+
+	reader := bufio.NewReader(os.Stdin)
+	input, err := reader.ReadString('\n')
+	if err != nil {
+		return false
+	}
+
+	input = strings.TrimSpace(strings.ToLower(input))
+	return input == "y" || input == "yes"
+}
+
+// 处理端口占用问题
+func handlePortConflict(port string, isDev bool) error {
+	if !isPortInUse(port) {
+		return nil
+	}
+
+	if !isDev {
+		return fmt.Errorf("端口 %s 已被占用", port)
+	}
+
+	fmt.Printf("检测到端口 %s 已被占用\n", port)
+
+	// 获取占用端口的进程ID
+	pid, err := getPortPID(port)
+	if err != nil {
+		fmt.Printf("无法获取占用端口的进程信息: %v\n", err)
+		return fmt.Errorf("端口 %s 已被占用", port)
+	}
+
+	fmt.Printf("占用端口的进程ID: %s\n", pid)
+
+	if askToKillProcess(port) {
+		fmt.Printf("正在关闭进程 %s...\n", pid)
+		if err := killProcess(pid); err != nil {
+			return fmt.Errorf("关闭进程失败: %v", err)
+		}
+		fmt.Println("进程已关闭")
+
+		// 等待一下确保端口释放
+		for i := 0; i < 10; i++ {
+			if !isPortInUse(port) {
+				break
+			}
+			fmt.Print(".")
+			// 简单延时
+			for j := 0; j < 100000000; j++ {
+			}
+		}
+		fmt.Println()
+
+		if isPortInUse(port) {
+			return fmt.Errorf("端口 %s 仍被占用", port)
+		}
+	} else {
+		return fmt.Errorf("用户取消启动")
+	}
+
+	return nil
+}
 
 // 主函数
 func main() {
-	// 输出当前版本号
-	fmt.Println("Version: ", Version)
 
 	var configFilePath string
 	mode := settings.Conf.Mode // 默认模式
+	isDev := false
 
 	// 解析命令行参数
 	args := os.Args[1:] // 跳过程序名
@@ -45,11 +181,15 @@ func main() {
 		lowerArg := strings.ToLower(arg)
 		if lowerArg == "debug" {
 			mode = gin.DebugMode
+			isDev = true
 			configFilePath = "config.dev.yaml" // 默认开发模式配置文件
+			Version = gin.DebugMode
+
 		}
 		if lowerArg == "test" {
 			mode = gin.TestMode
 			configFilePath = "config.test.yaml" // 默认测试模式配置文件
+			Version = gin.TestMode
 		}
 		if lowerArg == "config" || lowerArg == "-config" || lowerArg == "--config" {
 			// 检查是否有下一个参数作为配置文件路径
@@ -59,6 +199,15 @@ func main() {
 			} else {
 				log.Fatal("config 参数需要指定配置文件路径，例如: ./app config ./config.yaml")
 			}
+		}
+	}
+
+	settings.SetBaseInfo(Version, BuildTime) // 设置版本和构建时间
+
+	if configFilePath != "" && configFilePath != "config.yaml" {
+		// 检查配置文件是否存在
+		if _, err := os.Stat(configFilePath); os.IsNotExist(err) {
+			configFilePath = ""
 		}
 	}
 
@@ -78,6 +227,14 @@ func main() {
 	if err := logger.Init(settings.Conf.Log, settings.Conf.Mode); err != nil {
 		log.Printf("init logger failed, err:%v\n", err)
 		return
+	}
+
+	// 在开发模式下检查端口占用
+	if isDev {
+		if err := handlePortConflict(settings.Conf.Server.Port, true); err != nil {
+			log.Fatalf("端口处理失败: %v", err)
+			return
+		}
 	}
 
 	// 初始化文件资源

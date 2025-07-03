@@ -76,6 +76,8 @@ func Info(ctx *gin.Context) {
 		curIP = ip
 	}
 
+	baseInfo := settings.GetBaseInfo()
+
 	// 返回 JSON 响应
 	ctx.JSON(http.StatusOK, gin.H{
 		"code": http.StatusOK,
@@ -96,6 +98,10 @@ func Info(ctx *gin.Context) {
 			Git: ToolInfo{
 				Installed: isGitInstalled,
 				Version:   gitVersion,
+			},
+			Base: BaseInfo{
+				Version:   baseInfo.Version,
+				BuildTime: baseInfo.BuildTime,
 			},
 			StartAt:  settings.GetProcessRunAT(),
 			Location: curIP,

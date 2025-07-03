@@ -20,6 +20,10 @@ const initialState: State = {
     installed: false,
     version: "",
   },
+  base: {
+    version: "",
+    build_time: "",
+  },
   start_at: "",
   location: ""
 }
@@ -35,6 +39,10 @@ const notificationSlice = createSlice({
       state.git = action.payload.git
       state.start_at = action.payload.start_at
       state.location = action.payload.location
+      state.base = {
+        version: action.payload.base.version,
+        build_time: action.payload.base.build_time,
+      }
     },
   }
 })

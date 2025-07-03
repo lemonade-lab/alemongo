@@ -220,7 +220,6 @@ func registerMacOS(serviceName, description, execPath string) error {
 	if err == nil {
 		if bytes.Equal(existing, newContent) {
 			// 内容未变
-			log.Printf("plist 文件未变更，无需更新: %s", plistPath)
 			return nil
 		}
 	}

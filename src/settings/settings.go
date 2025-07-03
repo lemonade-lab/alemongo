@@ -222,3 +222,25 @@ func LogServerInfo() {
 //		},
 //	}, nil
 //}
+
+var Version string
+var BuildTime string
+
+func SetBaseInfo(version, buildTime string) {
+	Version = version
+	BuildTime = buildTime
+	// 输出当前版本号
+	log.Println("Version: ", Version, "(", BuildTime, ")")
+}
+
+type BaseInfo struct {
+	Version   string `json:"version"`    // 版本号
+	BuildTime string `json:"build_time"` // 构建时间
+}
+
+func GetBaseInfo() BaseInfo {
+	return BaseInfo{
+		Version:   Version,
+		BuildTime: BuildTime,
+	}
+}
