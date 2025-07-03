@@ -31,7 +31,8 @@ RUN echo "" > /etc/apt/sources.list && \
     echo "deb http://mirrors.aliyun.com/debian bookworm-updates main contrib non-free non-free-firmware" >> /etc/apt/sources.list && \
     echo "deb http://mirrors.aliyun.com/debian-security bookworm-security main contrib non-free non-free-firmware" >> /etc/apt/sources.list && \
     apt-get update && \
-    (apt-get install -y chromium || echo "Chromium not available for this architecture") && \
+    apt-get install chromium-browser -y && \
+    apt-get  install fonts-noto-cjk fonts-noto-color-emoji -y && \
     rm -rf /var/lib/apt/lists/*
 
 CMD ["./alemongo"]
