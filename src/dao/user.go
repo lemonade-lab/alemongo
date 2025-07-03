@@ -2,6 +2,7 @@ package dao
 
 import (
 	"alemongo/src/models"
+	"alemongo/src/paths"
 	"alemongo/src/permission"
 	"alemongo/src/pkgs/email"
 	"alemongo/src/settings"
@@ -50,7 +51,7 @@ func generateRandomPassword(length int) string {
 }
 
 func GenerateAdminAccount() *models.User {
-	userPath, err := settings.GetUserDataPath()
+	userPath, err := paths.GetUserDataPath()
 	if err != nil {
 		return &models.User{}
 	}
@@ -96,7 +97,7 @@ func SetAdminPassword(password string) bool {
 		return false
 	}
 	// 保存到文件
-	userPath, err := settings.GetUserDataPath()
+	userPath, err := paths.GetUserDataPath()
 	if err != nil {
 		log.Printf("获取用户数据目录失败: %v", err)
 		return false
@@ -133,7 +134,7 @@ func IsSuperAdmin(username string) bool {
 }
 
 func getListPath() string {
-	userPath, err := settings.GetUserDataPath()
+	userPath, err := paths.GetUserDataPath()
 	if err != nil {
 		log.Printf("获取用户数据目录失败: %v", err)
 		return ""

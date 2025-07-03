@@ -3,13 +3,15 @@ package jwt
 import (
 	"alemongo/src/apps/api/requests"
 	"alemongo/src/dao"
+
 	"alemongo/src/models"
 	"alemongo/src/permission"
 	"alemongo/src/settings"
 	"errors"
+	"time"
+
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
-	"time"
 )
 
 // 自定义Claims结构体

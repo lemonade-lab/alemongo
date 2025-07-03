@@ -2,7 +2,7 @@ package botconfigs
 
 import (
 	"alemongo/src/apps/api/response"
-	"alemongo/src/settings"
+	"alemongo/src/paths"
 	"net/http"
 	"os"
 
@@ -12,7 +12,7 @@ import (
 // 获得指定名机器人的信息
 func ConfigsList(ctx *gin.Context) {
 	// 获取配置路径
-	configsPath := settings.GetConfigsPath()
+	configsPath := paths.GetConfigsPath()
 	if _, err := os.Stat(configsPath); os.IsNotExist(err) {
 		err := os.MkdirAll(configsPath, os.ModePerm)
 		if err != nil {

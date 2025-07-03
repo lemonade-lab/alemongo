@@ -1,7 +1,7 @@
 package botpackages
 
 import (
-	"alemongo/src/logic"
+	config "alemongo/src/paths"
 	"alemongo/src/utils"
 	"encoding/json"
 	"net/http"
@@ -15,12 +15,12 @@ import (
 
 // 获取单个包的信息
 func GetPackageInfo(packagesPath, botName, appName string) (map[string]interface{}, error) {
-	gitPath := path.Join(packagesPath, appName, ".git")
-	pkgPath := path.Join(packagesPath, appName, "package.json")
+	gitPath := config.GetBotPackagesGitPathByName(botName, appName)
 	// 检查 .git 和 package.json 是否存在
 	if _, err := os.Stat(gitPath); os.IsNotExist(err) {
 		return nil, err
 	}
+	pkgPath := config.GetBotPackagesPKGFilePathByName(botName, appName)
 	if _, err := os.Stat(pkgPath); os.IsNotExist(err) {
 		return nil, err
 	}
@@ -42,7 +42,7 @@ func GetPackageInfo(packagesPath, botName, appName string) (map[string]interface
 	}
 
 	// 检查 node_modules 下是否存在
-	nodeModulesPath := path.Join(logic.GetBotPath(botName), "node_modules", pkgName)
+	nodeModulesPath := config.GetBotNodeModulesPathByName(botName, pkgName)
 	isExist := 1
 	if _, err := os.Stat(nodeModulesPath); os.IsNotExist(err) {
 		if fileInfo, err := os.Lstat(nodeModulesPath); err != nil || (fileInfo.Mode()&os.ModeSymlink == 0) {
@@ -101,7 +101,7 @@ func PackagesList(ctx *gin.Context) {
 		})
 		return
 	}
-	if !logic.Exists(botName) {
+	if !config.Exists(botName) {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"code": http.StatusBadRequest,
 			"msg":  "机器人不存在",
@@ -110,8 +110,7 @@ func PackagesList(ctx *gin.Context) {
 		return
 	}
 
-	botPath := logic.GetBotPath(botName)
-	packagesPath := path.Join(botPath, "packages")
+	packagesPath := config.GetBotPackagesPath(botName)
 	data := []map[string]interface{}{}
 
 	if _, err := os.Stat(packagesPath); os.IsNotExist(err) {

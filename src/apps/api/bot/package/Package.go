@@ -1,7 +1,7 @@
 package botpackage
 
 import (
-	"alemongo/src/logic"
+	config "alemongo/src/paths"
 	"net/http"
 	"os"
 
@@ -19,7 +19,7 @@ func Package(ctx *gin.Context) {
 		})
 		return
 	}
-	if !logic.Exists(name) {
+	if !config.Exists(name) {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"code": http.StatusBadRequest,
 			"msg":  "机器人不存在",
@@ -27,7 +27,7 @@ func Package(ctx *gin.Context) {
 		})
 		return
 	}
-	pkgPath := logic.GetBotPKGPath(name)
+	pkgPath := config.GetBotPKGPath(name)
 	if _, err := os.Stat(pkgPath); os.IsNotExist(err) {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"code": http.StatusBadRequest,

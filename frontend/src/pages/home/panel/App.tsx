@@ -17,18 +17,26 @@ const Panel = () => {
   const logs = useSelector((state: RootState) => state.logs);
   const dispatch = useDispatch();
 
+  // 判断是否是显示 在线日志
+  const isOnlineLog = useMemo(() => {
+    const pathnames = location.pathname.replace(/\/$/,"").split("/");
+    const lastPart = pathnames[pathnames.length - 1];
+    return location.pathname.includes("xterm-date") || lastPart !== info.name;
+  }, [info.name, location.pathname]);
+
   const onLog = useCallback(() => {
-    if (location.pathname.includes("xterm-date")) {
+    if (isOnlineLog) {
       navigate(`/bots/${info.name}/`);
     } else {
       navigate(`/bots/${info.name}/xterm-date`);
     }
-  }, [info.name, location.pathname, navigate]);
+  }, [info.name, isOnlineLog, navigate]);
 
+  // 打开日志模态框
   const openLogModal = useCallback(() => {
-    // 判断路径。是否是 机器人名字结尾
-    const isHome = location.pathname.endsWith(`/${info.name}`);
-    if (!logs.open && !isHome) {
+    const pathnames = location.pathname.replace(/\/$/,"").split("/");
+    const lastPart = pathnames[pathnames.length - 1];
+    if (!logs.open && lastPart !== info.name) {
       dispatch(showLog());
     }
   }, [dispatch, info.name, logs.open, location.pathname]);
@@ -39,7 +47,7 @@ const Panel = () => {
         key: "1",
         label: (
           <div onClick={onLog}>
-            {location.pathname.includes("xterm-date") ? "在线日志" : "查询日志"}
+            {isOnlineLog ? "在线日志" : "查询日志"}
           </div>
         ),
       },
@@ -147,7 +155,7 @@ const Panel = () => {
     }
 
     return i;
-  }, [info, bot, logs.open, navigate, dispatch, onLog]);
+  }, [onLog, isOnlineLog, info.node_modules, info.status, info.name, navigate, openLogModal, bot]);
 
   return (
     <div className="flex flex-col h-[calc(100vh-5.4rem)]">
@@ -206,7 +214,7 @@ const Panel = () => {
             {/* 导航按钮 */}
             <div className="flex gap-1">
               <Button type="text" size="small" onClick={onLog}>
-                {location.pathname.includes("xterm-date")
+                {isOnlineLog
                   ? "在线日志"
                   : "查询日志"}
               </Button>

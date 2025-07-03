@@ -2,6 +2,7 @@ package bot
 
 import (
 	"alemongo/src/logic"
+	config "alemongo/src/paths"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -19,7 +20,7 @@ func Stop(ctx *gin.Context) {
 
 		return
 	}
-	if !logic.Exists(name) {
+	if !config.Exists(name) {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"code": http.StatusBadRequest,
 			"msg":  "机器人不存在",

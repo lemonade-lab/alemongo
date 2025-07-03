@@ -1,4 +1,4 @@
-package config
+package apiemail
 
 import (
 	"alemongo/src/apps/api/requests"

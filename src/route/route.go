@@ -5,13 +5,14 @@ import (
 	botconfig "alemongo/src/apps/api/bot/config"
 	botconfigs "alemongo/src/apps/api/bot/configs"
 
+	apiemail "alemongo/src/apps/api/email"
+
 	botenv "alemongo/src/apps/api/bot/env"
 	botpackage "alemongo/src/apps/api/bot/package"
 	botpackages "alemongo/src/apps/api/bot/packages"
 	botwarehouse "alemongo/src/apps/api/bot/warehouse"
 
 	"alemongo/src/apps/api/common"
-	"alemongo/src/apps/api/config"
 	"alemongo/src/apps/api/gitssh"
 	"alemongo/src/apps/api/receive"
 	"alemongo/src/apps/api/settings"
@@ -84,9 +85,9 @@ func Create(mode string) *gin.Engine {
 				EmailAPI := ConfigAPI.Group("/email")
 				{
 					// 获取配置
-					EmailAPI.GET("", config.GetEmail)
+					EmailAPI.GET("", apiemail.GetEmail)
 					// 更改邮箱配置
-					EmailAPI.PUT("", config.UpdateEmail)
+					EmailAPI.PUT("", apiemail.UpdateEmail)
 				}
 
 			}

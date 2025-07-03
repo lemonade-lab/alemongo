@@ -2,12 +2,13 @@ package logic
 
 import (
 	"alemongo/src/logger"
+	"alemongo/src/paths"
+	config "alemongo/src/paths"
 	"alemongo/src/settings"
 	"alemongo/src/utils"
 	"fmt"
 	"os"
 	"os/exec"
-	"path"
 
 	"go.uber.org/zap/zapcore"
 )
@@ -40,14 +41,14 @@ func Add(name string, args []string) (string, error) {
 	}
 
 	// yarn.cjs 路径
-	cliDir := path.Join("..", "bin", "yarn.cjs")
+	cliDir := paths.GetBotYarnJavaScriptPath()
 
 	// 构建命令
 	curArgs := append([]string{"add", "-W"}, args...)
 	cmd := utils.Command("node", append([]string{cliDir}, curArgs...)...)
 
 	// 设置工作目录为机器人的路径
-	cmd.Dir = GetBotPath(name)
+	cmd.Dir = config.GetBotPath(name)
 
 	var l = new(zapcore.Level)
 	if err := l.UnmarshalText([]byte(settings.Conf.Log.Level)); err != nil {
@@ -84,11 +85,11 @@ func Install(name string) (string, error) {
 		return "机器人在运行", os.ErrExist
 	}
 	// yarn.cjs
-	cliDir := path.Join("..", "bin", "yarn.cjs")
+	cliDir := paths.GetBotYarnJavaScriptPath()
 	// yanr install
 	cmd := utils.Command("node", cliDir, "install", "--ignore-engines")
 	// 设置工作目录为机器人的路径
-	cmd.Dir = GetBotPath(name)
+	cmd.Dir = config.GetBotPath(name)
 	// cmd.Stdout = os.Stdout
 	// cmd.Stderr = os.Stderr
 	var l = new(zapcore.Level)
@@ -136,14 +137,14 @@ func Remove(name string, names []string) (string, error) {
 	}
 
 	// yarn.cjs 路径
-	cliDir := path.Join("..", "bin", "yarn.cjs")
+	cliDir := paths.GetBotYarnJavaScriptPath()
 
 	// 构建命令
 	args := append([]string{"remove", "-W"}, names...)
 	cmd := utils.Command("node", append([]string{cliDir}, args...)...)
 
 	// 设置工作目录为机器人的路径
-	cmd.Dir = GetBotPath(name)
+	cmd.Dir = config.GetBotPath(name)
 
 	var l = new(zapcore.Level)
 	if err := l.UnmarshalText([]byte(settings.Conf.Log.Level)); err != nil {

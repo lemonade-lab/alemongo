@@ -2,10 +2,9 @@ package botconfigs
 
 import (
 	"alemongo/src/apps/api/response"
-	"alemongo/src/settings"
+	"alemongo/src/paths"
 	"net/http"
 	"os"
-	"path"
 
 	"github.com/gin-gonic/gin"
 )
@@ -22,8 +21,7 @@ func ConfigsData(ctx *gin.Context) {
 		return
 	}
 	// 配置路径
-	configsPath := settings.GetConfigsPath()
-	curPath := path.Join(configsPath, name+".yaml")
+	curPath := paths.GetConfigsPathByName(name)
 	// 读取数据
 	data, err := os.ReadFile(curPath)
 	if err != nil {

@@ -1,7 +1,7 @@
 package files
 
 import (
-	"alemongo/src/settings"
+	"alemongo/src/paths"
 	"embed"
 	"io"
 	"io/fs"
@@ -16,7 +16,7 @@ import (
 
 // init 函数用于解压资源
 func Create(ResourcesFiles fs.FS) {
-	workPAth := settings.GetWorkPath()
+	workPAth := paths.GetWorkPath()
 	// 解压资源
 	err := fs.WalkDir(ResourcesFiles, ".", func(p string, d fs.DirEntry, err error) error {
 		if err != nil {

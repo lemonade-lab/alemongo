@@ -3,12 +3,12 @@ package botpackages
 import (
 	"alemongo/src/apps/api/response"
 	"alemongo/src/logger"
-	"alemongo/src/logic"
+	"alemongo/src/paths"
+	config "alemongo/src/paths"
 	"alemongo/src/settings"
 	"alemongo/src/utils"
 	"net/http"
 	"os"
-	"path"
 	"strings"
 
 	"go.uber.org/zap"
@@ -43,7 +43,7 @@ func Pull(ctx *gin.Context, isForce bool) {
 		})
 		return
 	}
-	if !logic.Exists(name) {
+	if !config.Exists(name) {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"code": http.StatusBadRequest,
 			"msg":  "机器人不存在",
@@ -53,8 +53,7 @@ func Pull(ctx *gin.Context, isForce bool) {
 	}
 
 	// 获取路径
-	botPath := logic.GetBotPath(name)
-	repoPath := path.Join(botPath, "packages", repo_name)
+	repoPath := paths.GetBotPackagesPathByName(name, repo_name)
 
 	if _, err := os.Stat(repoPath); os.IsNotExist(err) {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
@@ -65,7 +64,7 @@ func Pull(ctx *gin.Context, isForce bool) {
 		return
 	}
 
-	gitPath := path.Join(repoPath, ".git")
+	gitPath := paths.GetBotPackagesGitPathByName(name, repo_name)
 	if _, err := os.Stat(gitPath); os.IsNotExist(err) {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"code": http.StatusInternalServerError,

@@ -1,10 +1,9 @@
 package botpackages
 
 import (
-	"alemongo/src/logic"
+	config "alemongo/src/paths"
 	"net/http"
 	"os"
-	"path"
 
 	"github.com/gin-gonic/gin"
 )
@@ -20,7 +19,7 @@ func PackagesInfo(ctx *gin.Context) {
 		})
 		return
 	}
-	if !logic.Exists(botName) {
+	if !config.Exists(botName) {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"code": http.StatusBadRequest,
 			"msg":  "机器人不存在",
@@ -29,8 +28,7 @@ func PackagesInfo(ctx *gin.Context) {
 		return
 	}
 
-	botPath := logic.GetBotPath(botName)
-	packagesPath := path.Join(botPath, "packages")
+	packagesPath := config.GetBotPackagesPath(botName)
 
 	if _, err := os.Stat(packagesPath); os.IsNotExist(err) {
 		ctx.JSON(http.StatusBadRequest, gin.H{

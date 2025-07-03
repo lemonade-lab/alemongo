@@ -1,10 +1,9 @@
 package botpackage
 
 import (
-	"alemongo/src/logic"
+	config "alemongo/src/paths"
 	"net/http"
 	"os"
-	"path"
 
 	"github.com/gin-gonic/gin"
 )
@@ -28,8 +27,7 @@ func PackageUpdate(ctx *gin.Context) {
 		})
 		return
 	}
-	botPath := logic.GetBotPath(name)
-	pkgPath := path.Join(botPath, "package.json")
+	pkgPath := config.GetBotPKGPath(name)
 	// 把数据写入该文件
 	err := os.WriteFile(pkgPath, []byte(content), 0644)
 	if err != nil {

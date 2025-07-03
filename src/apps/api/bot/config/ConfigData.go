@@ -2,7 +2,7 @@ package botconfig
 
 import (
 	"alemongo/src/apps/api/response"
-	"alemongo/src/logic"
+	config "alemongo/src/paths"
 	"net/http"
 	"os"
 
@@ -15,11 +15,11 @@ func ConfigData(ctx *gin.Context) {
 		response.ResponseError(ctx, http.StatusBadRequest, response.RobotNameIsEmpty)
 		return
 	}
-	if !logic.Exists(name) {
+	if !config.Exists(name) {
 		response.ResponseError(ctx, http.StatusBadRequest, response.RobotNotExist)
 		return
 	}
-	configPath := logic.GetBotConfigPath(name)
+	configPath := config.GetBotConfigPath(name)
 	if _, err := os.Stat(configPath); os.IsNotExist(err) {
 		response.ResponseError(ctx, http.StatusNotFound, response.RobotConfigNotExist)
 		//ctx.JSON(http.StatusBadRequest, gin.H{

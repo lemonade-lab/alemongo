@@ -1,7 +1,7 @@
 package botenv
 
 import (
-	"alemongo/src/logic"
+	config "alemongo/src/paths"
 	"net/http"
 	"os"
 
@@ -18,7 +18,7 @@ func Update(ctx *gin.Context) {
 		})
 		return
 	}
-	if !logic.Exists(name) {
+	if !config.Exists(name) {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"code": http.StatusBadRequest,
 			"msg":  "机器人不存在",
@@ -26,7 +26,7 @@ func Update(ctx *gin.Context) {
 		})
 		return
 	}
-	envPath := logic.GetBotEnvPath(name)
+	envPath := config.GetBotEnvPath(name)
 	if _, err := os.Stat(envPath); os.IsNotExist(err) {
 		// 不存在。向该地址文件写入空内容
 		err := os.WriteFile(envPath, []byte(""), 0644)

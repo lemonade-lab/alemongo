@@ -1,22 +1,23 @@
 package logger
 
 import (
+	"alemongo/src/paths"
 	"alemongo/src/settings"
 	"errors"
-	"github.com/gin-gonic/gin"
-	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
-	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
 	"io"
 	"net"
 	"net/http"
 	"net/http/httputil"
 	"os"
-	"path"
 	"runtime/debug"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/gin-gonic/gin"
+	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
 const (
@@ -130,14 +131,9 @@ func Init(cfg *settings.LogConfig, mode string) (err error) {
 	return
 }
 
-func getBotPath(botName string) string {
-	return path.Join("work", "resources", botName)
-}
-
 // NewRobotLogger 为每个机器人单独建立一个日志管理
 func NewRobotLogger(botName string, level zapcore.Level) (*RobotLoggerWithRotate, error) {
-	botPath := getBotPath(botName)
-	robotLogPath := path.Join(botPath, "alemonjs", "log")
+	robotLogPath := paths.GetBotLogsPath(botName)
 	if _, err := os.Stat(robotLogPath); os.IsNotExist(err) {
 		if err := os.Mkdir(robotLogPath, os.ModePerm); err != nil {
 			// 创建目录失败

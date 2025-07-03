@@ -3,28 +3,29 @@ package dao
 import (
 	"alemongo/src/apps/api/response"
 	"alemongo/src/logger"
+	config "alemongo/src/paths"
 	"alemongo/src/utils"
 	"errors"
-	"github.com/go-git/go-git/v5"
-	"github.com/go-git/go-git/v5/plumbing"
 	"log"
 	"os"
-	"path"
+
+	"github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git/v5/plumbing"
 
 	"github.com/otiai10/copy"
 )
 
 func CreateBot(name, targetPath, resourcesPath string) (string, response.ResCode) {
-
-	// 创建目录 ./resources/{name}
+	// 创建目录 ./resources/bots/{name}
 	if err := os.MkdirAll(targetPath, 0755); err != nil {
+		log.Println("创建机器人目录失败:", err)
 		return "", response.RobotCreateFailed
 	}
 	// 模板路径
-	templatePath := path.Join(resourcesPath, "template")
-
-	// 复制文件 /resources/template 复制到 /resources/{name}
+	templatePath := config.GetBotTemplatePath()
+	// 复制文件 /resources/template 复制到 /resources/bots/{name}
 	if err := copy.Copy(templatePath, targetPath); err != nil {
+		log.Println("复制模板文件失败:", err)
 		return "", response.RobotCreateFailed
 	}
 	return targetPath, response.CodeSuccess

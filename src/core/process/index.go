@@ -2,6 +2,7 @@ package process
 
 import (
 	"alemongo/src/logger"
+	"alemongo/src/paths"
 	"alemongo/src/settings"
 	"context"
 	"encoding/json"
@@ -9,7 +10,6 @@ import (
 	"log"
 	"os"
 	"os/exec"
-	"path"
 	"strconv"
 	"sync"
 	"syscall"
@@ -109,8 +109,7 @@ func (pm *ProcessManager) AddProcess(cfg NodeProcessConfig) {
 
 // 获取进程配置文件路径
 func GetProcessConfigFilePath() string {
-	workPath := settings.GetWorkPath()
-	filePath := path.Join(workPath, "go-process.json")
+	filePath := paths.GetProcessConfigFilePath()
 	// 如果不存在，创建文件，并写入"{}"
 	if _, err := os.Stat(filePath); os.IsNotExist(err) {
 		// 创建文件

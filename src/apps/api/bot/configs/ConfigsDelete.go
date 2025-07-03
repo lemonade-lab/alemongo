@@ -2,10 +2,9 @@ package botconfigs
 
 import (
 	"alemongo/src/apps/api/response"
-	"alemongo/src/settings"
+	"alemongo/src/paths"
 	"net/http"
 	"os"
-	"path"
 
 	"github.com/gin-gonic/gin"
 )
@@ -23,9 +22,7 @@ func ConfigsDelete(ctx *gin.Context) {
 		return
 	}
 	// 配置路径
-	configsPath := settings.GetConfigsPath()
-	fileName := name + ".yaml"
-	curPath := path.Join(configsPath, fileName)
+	curPath := paths.GetConfigsPathByName(name)
 	// 判断是否存在。
 	if _, err := os.Stat(curPath); os.IsNotExist(err) {
 		response.ResponseError(ctx, http.StatusOK, response.ConfigFileIsDeleted)

@@ -3,90 +3,16 @@ package logic
 import (
 	"alemongo/src/core/process"
 	"alemongo/src/models"
-	"alemongo/src/settings"
+	config "alemongo/src/paths"
 	"os"
 	"os/exec"
 	"path"
-	"time"
 )
-
-func GetBotPath(name string) string {
-	resourcesPath := settings.GetResourcesPath()
-	return path.Join(resourcesPath, name)
-}
-
-func GetPidFilePath(name string) string {
-	resourcesPath := settings.GetResourcesPath()
-	return path.Join(resourcesPath, "process", name+".pid")
-}
-
-func GetBotPKGPath(name string) string {
-	botPath := GetBotPath(name)
-	return path.Join(botPath, "package.json")
-}
-
-func GetBotEnvPath(name string) string {
-	botPath := GetBotPath(name)
-	return path.Join(botPath, ".env")
-}
-
-func GetBotConfigPath(name string) string {
-	botPath := GetBotPath(name)
-	configPath := path.Join(botPath, "alemon.config.yaml")
-	return configPath
-}
-
-func Exists(name string) bool {
-	botPath := GetBotPath(name)
-	_, err := os.Stat(botPath)
-	return !os.IsNotExist(err)
-}
-
-func ExistsNodeModules(name string) bool {
-	botPath := GetBotPath(name)
-	nodeModulesPath := path.Join(botPath, "node_modules")
-	_, err := os.Stat(nodeModulesPath)
-	// 还需要存在 yarn.lock
-	yarnLockPath := path.Join(botPath, "yarn.lock")
-	_, err2 := os.Stat(yarnLockPath)
-	return !os.IsNotExist(err) && !os.IsNotExist(err2)
-}
 
 // 判断机器人是否在运行
 func IsRunning(name string) bool {
 	pm := process.GetProcessManager()
 	return pm.IsRunning(name)
-}
-
-func GetBotLogPath(name string) string {
-	botPath := GetBotPath(name)
-	today := time.Now().Format("2006-01-02")
-	logPath := path.Join(botPath, "alemonjs", "log", today+".log")
-	// 判断是否存在，不存在。写入空文件
-	if _, err := os.Stat(logPath); os.IsNotExist(err) {
-		// 得到该文件的目录
-		dir := path.Dir(logPath)
-		// 判断目录是否存在
-		if _, err := os.Stat(dir); os.IsNotExist(err) {
-			// 创建目录
-			if err := os.MkdirAll(dir, os.ModePerm); err != nil {
-				// 创建目录失败
-			}
-		}
-		// 创建文件
-		file, err := os.Create(logPath)
-		if err != nil {
-			// 创建文件失败
-		}
-		defer file.Close()
-	}
-	return logPath
-}
-
-func GetBotLogByDate(name string, date time.Time) string {
-	botPath := GetBotPath(name)
-	today := date.Format("2006-01-02")
-	return path.Join(botPath, "alemonjs", "log", today+".log")
 }
 
 // 运行机器人
@@ -100,11 +26,11 @@ func Run(name string) (string, error) {
 	if pm.IsRunning(name) {
 		return "机器人已经在运行", nil
 	}
-	if !ExistsNodeModules(name) {
+	if !config.ExistsNodeModules(name) {
 		return "请先安装依赖", os.ErrNotExist
 	}
 	// 机器人目录
-	botPath := GetBotPath(name)
+	botPath := config.GetBotPath(name)
 	var indexPath string
 	tryFiles := []string{
 		path.Join("alemonjs", "index.js"),
@@ -124,8 +50,8 @@ func Run(name string) (string, error) {
 		return "启动脚本不存在,请新建index.js", os.ErrNotExist
 	}
 	// 日志和 PID 文件路径
-	logPath := GetBotLogPath(name)
-	pidFile := GetPidFilePath(name)
+	logPath := config.GetBotLogPath(name)
+	pidFile := config.GetPidFilePath(name)
 	// 交给进程管理器托管
 	pm.AddProcess(process.NodeProcessConfig{
 		Name:        name,
@@ -134,7 +60,7 @@ func Run(name string) (string, error) {
 		ScriptJS:    indexPath,
 		LogPath:     logPath,
 		PidFile:     pidFile,
-		EnvFilePath: GetBotEnvPath(name),
+		EnvFilePath: config.GetBotEnvPath(name),
 	})
 	// 启动
 	proc := pm.GetProcess(name)
@@ -177,8 +103,8 @@ func Restart(name string) (string, error) {
 }
 
 func Info(name string) (models.BotInfoResponse, error) {
-	botPath := GetBotPath(name)
-	nodeModules := ExistsNodeModules(name)
+	botPath := config.GetBotPath(name)
+	nodeModules := config.ExistsNodeModules(name)
 
 	// 获取文件夹创建时间
 	fileInfo, err := os.Stat(botPath)

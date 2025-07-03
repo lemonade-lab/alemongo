@@ -3,19 +3,20 @@ package botpackages
 import (
 	"alemongo/src/apps/api/response"
 	"alemongo/src/logger"
-	"alemongo/src/logic"
+	config "alemongo/src/paths"
 	"alemongo/src/settings"
 	"alemongo/src/utils"
-	"github.com/gin-gonic/gin"
-	"github.com/go-git/go-git/v5"
-	"github.com/go-git/go-git/v5/plumbing"
-	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
 	"log"
 	"net/http"
 	"os"
 	"path"
 	"strings"
+
+	"github.com/gin-gonic/gin"
+	"github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git/v5/plumbing"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
 // 创建机器人
@@ -33,7 +34,7 @@ func PackagesClone(ctx *gin.Context) {
 		})
 		return
 	}
-	if !logic.Exists(name) {
+	if !config.Exists(name) {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"code": http.StatusBadRequest,
 			"msg":  "机器人不存在",
@@ -43,12 +44,11 @@ func PackagesClone(ctx *gin.Context) {
 	}
 
 	// 获取路径
-	botPath := logic.GetBotPath(name)
-	pkgPath := path.Join(botPath, "packages")
+	pkgsPath := config.GetBotPackagesPath(name)
 
 	// 确保 packages 文件夹存在
-	if _, err := os.Stat(pkgPath); os.IsNotExist(err) {
-		if err := os.MkdirAll(pkgPath, os.ModePerm); err != nil {
+	if _, err := os.Stat(pkgsPath); os.IsNotExist(err) {
+		if err := os.MkdirAll(pkgsPath, os.ModePerm); err != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{
 				"code": http.StatusInternalServerError,
 				"msg":  "创建 packages 文件夹失败",
@@ -86,7 +86,7 @@ func PackagesClone(ctx *gin.Context) {
 	//defer botLoggerWriter.RobotLogger.Close()
 
 	// 确定克隆的目标路径
-	clonePath := path.Join(pkgPath, repoName)
+	clonePath := config.GetBotPackagesPathByName(name, repoName)
 
 	if strings.Contains(repoURL, "git@") {
 		auth, err := utils.GetSSHAuth()

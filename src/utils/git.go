@@ -1,9 +1,10 @@
 package utils
 
 import (
-	gitssh "github.com/go-git/go-git/v5/plumbing/transport/ssh"
 	"os/user"
 	"path/filepath"
+
+	gitssh "github.com/go-git/go-git/v5/plumbing/transport/ssh"
 )
 
 // 获取 SSH 公钥认证

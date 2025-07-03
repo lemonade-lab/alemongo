@@ -31,7 +31,7 @@ var ResourcesFiles embed.FS
 var staticFiles embed.FS
 
 // 构建时指定version，方便迭代更新
-var Version = "1.0.0"
+var Version = "0.0.1"
 
 // 构建时指定build time
 var BuildTime = time.Now().Format("20060102-150405")

@@ -3,8 +3,6 @@ package settings
 import (
 	"fmt"
 	"log"
-	"os"
-	"path"
 	"time"
 
 	"github.com/fsnotify/fsnotify"
@@ -62,7 +60,7 @@ func setDefaults() {
 			Port: "17187",
 			TokenConfig: &TokenConfig{
 				Key:         "alemongo",
-				ExpiresTime: 1,
+				ExpiresTime: 24,
 			},
 		},
 		Log: &LogConfig{
@@ -109,38 +107,6 @@ func Init(filepath string) (err error) {
 	}
 }
 
-// 获取机器人模板目录
-func GetBotTemplate() string {
-	return path.Join("resources")
-}
-
-// 获取工作目录
-func GetWorkPath() string {
-	return path.Join("work")
-}
-
-// 用户数据目录
-func GetUserDataPath() (string, error) {
-	userDataPath := path.Join(GetWorkPath(), "users")
-	// 如果目录不存在，则创建
-	if err := os.MkdirAll(userDataPath, 0755); err != nil {
-		log.Printf("创建用户数据目录失败: %v", err)
-		return "", err
-	}
-	return userDataPath, nil
-}
-
-// 获取资源目录
-func GetResourcesPath() string {
-	return path.Join(GetWorkPath(), "resources")
-}
-
-// 获取目录
-func GetConfigsPath() string {
-	configsPath := path.Join(GetWorkPath(), "configs")
-	return configsPath
-}
-
 var processRunAt string
 
 // 获取当前进程运行时间
@@ -157,71 +123,6 @@ func LogServerInfo() {
 	// 打印信息
 	log.Println("http://" + server.Host + ":" + server.Port)
 }
-
-//func (app *AppConfig) MarshalYAML() (interface{}, error) {
-//	addQuotes := func(value string) string {
-//		log.Println(value)
-//		if value == "" {
-//			return value
-//		}
-//		if value[0] == '"' && value[len(value)-1] == '"' {
-//			return value
-//		}
-//		return fmt.Sprintf(`"%s"`, value)
-//	}
-//	return AppConfig{
-//		Name: addQuotes(app.Name),
-//		Mode: addQuotes(app.Mode),
-//		Server: &ServerConfig{
-//			Host: addQuotes(app.Server.Host),
-//			Port: addQuotes(app.Server.Port),
-//			TokenConfig: &TokenConfig{
-//				Key:         addQuotes(app.Server.TokenConfig.Key),
-//				ExpiresTime: app.Server.TokenConfig.ExpiresTime,
-//			},
-//		},
-//		Log: &LogConfig{
-//			Level:    addQuotes(app.Log.Level),
-//			Filename: addQuotes(app.Log.Filename),
-//		},
-//
-//		SMTP: &SMTPConfig{
-//			Provider:  addQuotes(app.SMTP.Provider),
-//			Host:      addQuotes(app.SMTP.Host),
-//			Port:      app.SMTP.Port,
-//			Username:  addQuotes(app.SMTP.Username),
-//			Password:  addQuotes(app.SMTP.Password),
-//			FromEmail: addQuotes(app.SMTP.FromEmail),
-//		},
-//	}, nil
-//}
-
-//func (app *AppConfig) MarshalYAML() (interface{}, error) {
-//	return map[string]interface{}{
-//		"name": app.Name,
-//		"mode": app.Mode,
-//		"server": map[string]interface{}{
-//			"host": app.Server.Host,
-//			"port": app.Server.Port,
-//			"tokenconfig": map[string]interface{}{
-//				"key":          app.Server.TokenConfig.Key,
-//				"expires_time": app.Server.TokenConfig.ExpiresTime,
-//			},
-//		},
-//		"log": map[string]interface{}{
-//			"level":    app.Log.Level,
-//			"filename": app.Log.Filename,
-//		},
-//		"smtp": map[string]interface{}{
-//			"provider":   app.SMTP.Provider,
-//			"host":       app.SMTP.Host,
-//			"port":       app.SMTP.Port,
-//			"username":   app.SMTP.Username,
-//			"password":   app.SMTP.Password,
-//			"from_email": app.SMTP.FromEmail,
-//		},
-//	}, nil
-//}
 
 var Version string
 var BuildTime string
