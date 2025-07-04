@@ -12,7 +12,6 @@ export const apiUserCreate = async (data: {
     password: string;
     identity: string;
 }) => {
-    console.log("apiUserCreate", data);
     return request({
         url: "/user/create",
         method: 'POST',

@@ -1,12 +1,12 @@
 package botpackages
 
 import (
+	"alemongo/src/paths"
 	config "alemongo/src/paths"
 	"alemongo/src/utils"
 	"encoding/json"
 	"net/http"
 	"os"
-	"path"
 
 	"github.com/gin-gonic/gin"
 
@@ -14,7 +14,7 @@ import (
 )
 
 // 获取单个包的信息
-func GetPackageInfo(packagesPath, botName, appName string) (map[string]interface{}, error) {
+func GetPackageInfo(botName, appName string) (map[string]interface{}, error) {
 	gitPath := config.GetBotPackagesGitPathByName(botName, appName)
 	// 检查 .git 和 package.json 是否存在
 	if _, err := os.Stat(gitPath); os.IsNotExist(err) {
@@ -69,7 +69,7 @@ func GetPackageInfo(packagesPath, botName, appName string) (map[string]interface
 	}
 
 	// 读取 README.md
-	mdPath := path.Join(packagesPath, appName, "README.md")
+	mdPath := paths.GetBotPackagesMdPathByName(botName, appName)
 	mdData := ""
 	if content, err := os.ReadFile(mdPath); err == nil {
 		mdData = string(content)
@@ -133,7 +133,7 @@ func PackagesList(ctx *gin.Context) {
 	}
 
 	for _, name := range names {
-		info, err := GetPackageInfo(packagesPath, botName, name)
+		info, err := GetPackageInfo(botName, name)
 		if err == nil && info != nil {
 			data = append(data, info)
 		}

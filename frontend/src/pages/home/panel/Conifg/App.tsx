@@ -24,8 +24,7 @@ const Conifg = () => {
     const name = getBotName();
     apiBotConfig({
       name: name,
-    }).then((res) => {
-      console.log("res", res);
+    }).then(() => {
       setYamlData(res);
     });
   }, []);
@@ -34,8 +33,7 @@ const Conifg = () => {
     apiBotConfigUpdate({
       name: name,
       content: value,
-    }).then((res) => {
-      console.log("res", res);
+    }).then(() => {
       message.success("保存成功");
       setYamlData(value);
     });

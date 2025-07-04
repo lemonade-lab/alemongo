@@ -87,6 +87,34 @@ const Panel = () => {
     initBotConfig(name);
   }, []);
 
+  // 强制安装
+  const onForceFinish = (values: {url: string; branch: string}) => {
+    Modal.confirm({
+      title: "强制安装",
+      content: "确定进行强制安装吗，将会放弃本地所有修改?",
+      okText: "确定",
+      cancelText: "取消",
+      onOk: () => {
+        setIsLoading(true);
+        apiBotPackageClone({
+          name: info.name,
+          repo_url: values.url,
+          branch_name: values.branch,
+          force: "1",
+        })
+          .then(() => {
+            initPKGNames(info.name);
+          })
+          .finally(() => {
+            setIsLoading(false);
+          });
+      },
+      onCancel: () => {
+        setVisible(false);
+      },
+    });
+  };
+
   const onFinish = (values: {url: string; branch: string}) => {
     if (isLoading) return;
     setIsLoading(true);
@@ -97,6 +125,11 @@ const Panel = () => {
     })
       .then(() => {
         initPKGNames(info.name);
+      })
+      .catch((res) => {
+        if (res.code === 2001) {
+          onForceFinish(values);
+        }
       })
       .finally(() => {
         setIsLoading(false);

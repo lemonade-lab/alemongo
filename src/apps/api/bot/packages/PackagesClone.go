@@ -19,11 +19,15 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
+var ExpAppCode = 2001
+
 // 创建机器人
 func PackagesClone(ctx *gin.Context) {
 	name := ctx.PostForm("name")
 	repoURL := ctx.PostForm("repo_url")
 	branchName := ctx.PostForm("branch_name")
+	// 强制更新
+	isForce := ctx.PostForm("force")
 
 	// 检查参数
 	if name == "" {
@@ -67,6 +71,31 @@ func PackagesClone(ctx *gin.Context) {
 			"data": nil,
 		})
 		return
+	}
+
+	appName := strings.TrimSuffix(repoName, ".git")
+
+	// 查看是否存在同名应用
+	appPath := config.GetBotPackagesPathByName(name, appName)
+	if _, err := os.Stat(appPath); !os.IsNotExist(err) {
+		if isForce == "1" {
+			// 删除已存在的应用
+			if err := os.RemoveAll(appPath); err != nil {
+				ctx.JSON(http.StatusInternalServerError, gin.H{
+					"code": http.StatusInternalServerError,
+					"msg":  "删除已存在的应用失败",
+					"data": nil,
+				})
+				return
+			}
+		} else {
+			ctx.JSON(http.StatusBadRequest, gin.H{
+				"code": ExpAppCode,
+				"msg":  "应用已存在",
+				"data": nil,
+			})
+			return
+		}
 	}
 
 	if ext := path.Ext(repoName); ext == ".git" {

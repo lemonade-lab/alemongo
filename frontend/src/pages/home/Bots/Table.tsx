@@ -97,8 +97,7 @@ const BotTable = ({onClick = () => {}}: {onClick: (key: string) => void}) => {
     apiBotYarnInstall({
       name,
     })
-      .then((res) => {
-        console.log("res", res);
+      .then(() => {
         startPolling(name);
       })
   };
@@ -108,8 +107,7 @@ const BotTable = ({onClick = () => {}}: {onClick: (key: string) => void}) => {
     apiBotDelete({
       name,
     })
-      .then((res) => {
-        console.log("res", res);
+      .then(() => {
         setData((prev) => prev.filter((item) => item.name !== name));
       })
   };

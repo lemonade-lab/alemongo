@@ -24,6 +24,7 @@ export const apiBotPackageClone = async (data: {
     name: string
     repo_url: string
     branch_name: string
+    force?: string
 }): Promise<null> => {
     return new Promise((resolve, reject) => {
         request({

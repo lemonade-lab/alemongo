@@ -1,25 +1,14 @@
 package gitssh
 
 import (
+	"alemongo/src/paths"
 	"net/http"
 	"os"
-	"path"
-	"path/filepath"
 
 	"github.com/gin-gonic/gin"
 )
 
 func Update(ctx *gin.Context) {
-	homeDir, err := os.UserHomeDir()
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"code": http.StatusBadRequest,
-			"msg":  "无法获取用户目录",
-			"data": err,
-		})
-		return
-	}
-	sshPath := filepath.Join(homeDir, ".ssh")
 	// 更新指定文件内容
 	fileName := ctx.PostForm("name")
 	if fileName == "" {
@@ -30,7 +19,14 @@ func Update(ctx *gin.Context) {
 		})
 		return
 	}
-	filePath := path.Join(sshPath, fileName)
+	filePath, err := paths.GetSSHAuthPathByName(fileName)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"code": http.StatusBadRequest,
+			"msg":  "获取文件路径失败",
+			"data": nil,
+		})
+	}
 	content := ctx.PostForm("content")
 	if content == "" {
 		ctx.JSON(http.StatusBadRequest, gin.H{

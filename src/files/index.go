@@ -59,8 +59,6 @@ func Create(ResourcesFiles fs.FS) {
 		log.Println("资源初始化失败:", err)
 		return
 	}
-
-	log.Println("资源初始化完成")
 }
 
 // 文件服务

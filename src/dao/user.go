@@ -166,6 +166,10 @@ func GetList() []models.User {
 	if err != nil {
 		return []models.User{}
 	}
+	if len(fileData) == 0 {
+		// 如果文件内容为空，返回空切片
+		return []models.User{}
+	}
 	// 解析json
 	users := []models.User{}
 	err = json.Unmarshal(fileData, &users)

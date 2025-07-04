@@ -39,7 +39,7 @@ func PackagesInfo(ctx *gin.Context) {
 		return
 	}
 
-	data, err := GetPackageInfo(packagesPath, botName, appName)
+	data, err := GetPackageInfo(botName, appName)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"code": http.StatusInternalServerError,

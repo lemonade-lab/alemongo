@@ -2,9 +2,8 @@ package utils
 
 import (
 	"alemongo/src/models"
-	"errors"
+	"alemongo/src/paths"
 	"os"
-	"path"
 	"strconv"
 )
 
@@ -23,18 +22,19 @@ func BuildSSHKeygenArgs(req models.SSHReq) ([]string, error) {
 		args = append(args, "-C", req.Comment)
 	}
 	if req.Name != "" {
-		homeDir, err := os.UserHomeDir()
+		sshPath, err := paths.GetSSHPath()
 		if err != nil {
-			// return "", errors.New("无法获取用户主目录")
-			return []string{}, errors.New("无法获取用户主目录")
+			return []string{}, err
 		}
-		dirPath := path.Join(homeDir, ".ssh")
-		if _, err := os.Stat(dirPath); os.IsNotExist(err) {
-			if os.MkdirAll(dirPath, os.ModePerm); err != nil {
+		if _, err := os.Stat(sshPath); os.IsNotExist(err) {
+			if os.MkdirAll(sshPath, os.ModePerm); err != nil {
 				return []string{}, err
 			}
 		}
-		filePath := path.Join(dirPath, req.Name)
+		filePath, err := paths.GetSSHAuthPathByName(req.Name)
+		if err != nil {
+			return []string{}, err
+		}
 		args = append(args, "-f", filePath)
 	}
 	args = append(args, "-N", req.Passphrase)

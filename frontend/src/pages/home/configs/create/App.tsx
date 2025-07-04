@@ -48,8 +48,7 @@ const ConfigEdit = () => {
       name: name,
       content: value,
     })
-      .then((res) => {
-        console.log("res", res);
+      .then(() => {
         if (!isCreate) {
           message.success("更新成功");
           return;

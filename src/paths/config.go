@@ -119,6 +119,13 @@ func GetBotPackagesPathByName(name string, appName string) string {
 	return pkgPath
 }
 
+// md
+func GetBotPackagesMdPathByName(name string, appName string) string {
+	pkgsPath := GetBotPackagesPathByName(name, appName)
+	mdPath := path.Join(pkgsPath, "README.md")
+	return mdPath
+}
+
 func GetBotPackagesGitPathByName(name string, appName string) string {
 	pkgsPath := GetBotPackagesPathByName(name, appName)
 	pkgPath := path.Join(pkgsPath, ".git")
@@ -180,4 +187,35 @@ func GetBotLogPath(name string) string {
 		defer file.Close()
 	}
 	return logPath
+}
+
+func GetSSHPath() (string, error) {
+	// 获取用户目录
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		return "", err
+	}
+	//SSH 路径
+	sshPath := path.Join(homeDir, ".ssh")
+	return sshPath, nil
+}
+
+func GetSSHAuthPathByName(name string) (string, error) {
+	// 获取用户目录
+	sshPath, err := GetSSHPath()
+	if err != nil {
+		return "", err
+	}
+	// 拼接 SSH 公钥路径
+	sshAuthPath := path.Join(sshPath, name)
+	return sshAuthPath, nil
+}
+
+func GetSSHAuthPath() (string, error) {
+	// 获取用户目录
+	sshAuthPath, err := GetSSHAuthPathByName("id_rsa")
+	if err != nil {
+		return "", err
+	}
+	return sshAuthPath, nil
 }

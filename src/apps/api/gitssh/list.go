@@ -1,26 +1,25 @@
 package gitssh
 
 import (
+	"alemongo/src/paths"
 	"alemongo/src/utils"
 	"net/http"
 	"os"
-	"path/filepath"
 
 	"github.com/gin-gonic/gin"
 )
 
 // shh 列表
 func List(ctx *gin.Context) {
-	homeDir, err := os.UserHomeDir()
+	sshPath, err := paths.GetSSHPath()
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"code": http.StatusBadRequest,
-			"msg":  "无法获取用户目录",
+			"msg":  "获取 SSH 目录失败",
 			"data": err,
 		})
 		return
 	}
-	sshPath := filepath.Join(homeDir, ".ssh")
 	// 检查目录
 	if _, err := os.Stat(sshPath); os.IsNotExist(err) {
 		ctx.JSON(http.StatusOK, gin.H{
