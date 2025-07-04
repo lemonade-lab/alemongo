@@ -24,7 +24,7 @@ const Conifg = () => {
     const name = getBotName();
     apiBotConfig({
       name: name,
-    }).then(() => {
+    }).then((res) => {
       setYamlData(res);
     });
   }, []);

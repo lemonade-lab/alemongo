@@ -28,7 +28,7 @@ let count = 0;
 
 export const server = async (config: AxiosRequestConfig & {
     method: MethodType;
-}) => {
+}): Promise<any> => {
     const { headers, ...cfg } = config;
     // 判断请求是否符合规范
     if (!Method[cfg.method]) {
