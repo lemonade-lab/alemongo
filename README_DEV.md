@@ -1,5 +1,11 @@
 ## 开发指南
 
+> debug 模式下，使用 config.dev.yaml
+
+```sh
+go run main.go debug
+```
+
 ### 建立开发分支
 
 github actoins >  开发分支 > run workflow

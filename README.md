@@ -18,7 +18,6 @@
 
 ```yaml
 name: "alemongo"  # 项目名称
-# mode: "release"   # 模式(release / debug)
 host: "127.0.0.1" # 
 
 # 服务器
@@ -40,8 +39,6 @@ log:
 --config ./config.test.yaml
 ```
 
-> debug 模式下，使用 config.dev.yaml
-
 > 超级临时账户会在启动时打印，直到密码更改。
 
 - 工作目录
@@ -50,7 +47,7 @@ log:
 
 > 如果你想让alemongo管理已经独立安装的机器人
 
-> 只需启动 alemongo 后，将机器人拖进`./work/resources`文件夹内
+> 只需启动 alemongo 后，将机器人拖进`./work/resources/bots`文件夹内
 
 ## 操作指南
 

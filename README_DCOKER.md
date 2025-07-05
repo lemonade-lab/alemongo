@@ -4,7 +4,9 @@
 
 下载仓库文件 [alemongo.conf](./alemongo.conf)
 
-> 默认使用`tencentyun`镜像地址
+> alemongo 默认使用`tencentyun`镜像地址
+
+> 若想配置镜像地址，可参考[docker-daemon](./docker-daemon.json)
 
 -  运行
 
