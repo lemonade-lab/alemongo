@@ -6,7 +6,7 @@
 
 > alemongo 默认使用`tencentyun`镜像地址
 
-> 若想配置镜像地址，可参考[docker-daemon](./docker-daemon.json)
+> 若想配置镜像地址，可参考[/etc/docker/daemon.json](./docker-daemon.json) 
 
 -  运行
 
