@@ -179,15 +179,15 @@ const BotTable = ({onClick = () => {}}: {onClick: (key: string) => void}) => {
                 详细
               </Button>
             ) : null}
-            <Button
+            {/* <Button
               type="primary"
               className=" bg-blue-500"
               onClick={() => {
-                navigate(`/bots/${record.name}/xterm-date`);
+                navigate(`/bots/${record.name}/testone`);
               }}
             >
-              日志
-            </Button>
+              测试
+            </Button> */}
             <Popconfirm
               title="彻底删除"
               description="你确定删除这个机器人吗?"

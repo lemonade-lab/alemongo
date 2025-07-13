@@ -5,9 +5,9 @@
     "@alemonjs/db": "^0.0.9",
     "@alemonjs/discord": "^2.1.0-alpha.9",
     "@alemonjs/gui": "^2.1.0-alpha.5",
-    "@alemonjs/qq-bot": "^2.1.0-alpha.14",
+    "@alemonjs/qq-bot": "^2.1.0-alpha.16",
     "@alemonjs/onebot": "^2.1.0-alpha.6",
-    "alemonjs": "^2.1.0-alpha.18",
+    "alemonjs": "^2.1.0-alpha.21",
     "jsxp": "^1.2.2"
   },
   "devDependencies": {

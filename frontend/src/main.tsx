@@ -16,3 +16,22 @@ createRoot(document.getElementById("root")!).render(
     </Provider>
   </StrictMode>
 );
+
+
+/**
+ * 设计一套在线测试方案
+ * alemonjs允许在开发模式中，开放xxx接口。
+ * 允许读取文件等。
+ */
+
+// 声明全局变量
+
+
+declare global {
+  interface Window {
+    socket: WebSocket | null;
+    vscode: {
+      postMessage: (message: any) => void;
+    };
+  }
+}

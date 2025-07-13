@@ -1,7 +1,6 @@
 import {lazy} from "react";
 import {createBrowserRouter} from "react-router-dom";
 import {WithSuspense} from "./WithSuspense";
-import Logs from "./pages/home/panel/Logs";
 
 const Home = lazy(() => import("./pages/home/App"));
 const NotRoute = lazy(() => import("./pages/404"));
@@ -12,6 +11,8 @@ const Bots = lazy(() => import("./pages/home/Bots/App"));
 const ButtonTemplate = lazy(
   () => import("./pages/home/Apps/QQBotButtonTemplate/App")
 );
+const Logs = lazy(() => import("./pages/home/panel/Logs"));
+const TestOne = lazy(() => import("./pages/home/panel/testone/App"));
 const UpdatePassWord = lazy(() => import("./pages/home/UpdatePassWord/App"));
 const OneBot = lazy(() => import("./pages/home/Apps/OneBot/App"));
 const Settings = lazy(() => import("./pages/home/Settings/App"));
@@ -131,6 +132,14 @@ const router = createBrowserRouter([
                 element: (
                   <WithSuspense>
                     <Config />
+                  </WithSuspense>
+                ),
+              },
+              {
+                path: "testone",
+                element: (
+                  <WithSuspense>
+                    <TestOne />
                   </WithSuspense>
                 ),
               },
