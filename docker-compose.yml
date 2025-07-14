@@ -19,6 +19,8 @@ services:
       - "17187:17187"
       - "18666:18666"
     restart: unless-stopped
+    environment:
+      - TZ=Asia/Shanghai  # 设置为中国时区
     volumes:
       - ~/.ssh:/root/.ssh
       - ./work:/app/work
