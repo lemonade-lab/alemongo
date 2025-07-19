@@ -16,7 +16,12 @@ import {
 } from "antd";
 import {useEffect, useState} from "react";
 import {useNavigate} from "react-router-dom";
-import {apiSSHDelete, apiSSHGenerate, apiSSHList} from "@/api/ssh";
+import {
+  apiSSHAuthorize,
+  apiSSHDelete,
+  apiSSHGenerate,
+  apiSSHList,
+} from "@/api/ssh";
 import Box from "@/commom/Box";
 const Configs = () => {
   const navigate = useNavigate();
@@ -75,13 +80,42 @@ const Configs = () => {
   const onFinish = (values) => {
     Modal.confirm({
       title: "确认生成密钥",
-      content: <div>确定生成吗？若存在<span className="text-red-600">{values.name}</span>将直接覆盖！！！</div>,
+      content: (
+        <div>
+          确定生成吗？若存在<span className="text-red-600">{values.name}</span>
+          将直接覆盖！！！
+        </div>
+      ),
       icon: <ExclamationCircleOutlined />,
       okType: "primary",
       onOk: () => onSubmit(values),
       okText: "确认",
       cancelText: "取消",
     });
+  };
+
+  const [openAuthorize, setOpenAuthorize] = useState(false);
+  const [formAuthorize] = Form.useForm();
+  const [isLoadingAuthorize, setIsLoadingAuthorize] = useState(false);
+
+  /**
+   *
+   * @param values
+   */
+  const onFinishAuthorize = (values: {address: string}) => {
+    setIsLoadingAuthorize(true);
+    apiSSHAuthorize(values)
+      .then(() => {
+        setOpenAuthorize(false);
+        formAuthorize.resetFields();
+        message.success("授权成功,请检查 known_hosts 文件");
+      })
+      .catch((error) => {
+        console.error("授权失败:", error);
+      })
+      .finally(() => {
+        setIsLoadingAuthorize(false);
+      });
   };
 
   return (
@@ -107,9 +141,17 @@ const Configs = () => {
           </Button>
           <Button
             type="primary"
+            onClick={() => {
+              setOpenAuthorize(true);
+            }}
+          >
+            授权
+          </Button>
+          <Button
+            type="primary"
             onClick={() => navigate("/ssh/id_rsa.pub/update")}
           >
-            新增配置
+            新增
           </Button>
         </div>
         <div className="flex gap-2 flex-wrap">
@@ -246,6 +288,21 @@ const Configs = () => {
             rules={[{required: true, message: "请输入注释"}]}
           >
             <Input placeholder="-C 添加注释" />
+          </Form.Item>
+        </Form>
+      </Modal>
+      <Modal
+        title="授权"
+        open={openAuthorize}
+        loading={isLoadingAuthorize}
+        onCancel={() => setOpenAuthorize(false)}
+        onOk={() => {
+          formAuthorize.submit();
+        }}
+      >
+        <Form form={formAuthorize} onFinish={onFinishAuthorize}>
+          <Form.Item label="授权地址" name="address">
+            <Input placeholder="github.com" />
           </Form.Item>
         </Form>
       </Modal>

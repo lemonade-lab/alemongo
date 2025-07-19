@@ -55,3 +55,15 @@ export const apiSSHGenerate = async (data: {
         data,
     }).then((res) => res.data);
 };
+
+
+// authorize
+export const apiSSHAuthorize = async (data: {
+    address: string;
+}) => {
+    return request({
+        url: "/ssh/authorize",
+        method: 'POST',
+        data,
+    }).then((res) => res.data);
+};

@@ -135,6 +135,8 @@ func Create(mode string) *gin.Engine {
 				SSHAPI.PUT("", gitssh.Update)
 				// 读取
 				SSHAPI.GET("", gitssh.Read)
+				// 授权地址
+				SSHAPI.POST("/authorize", gitssh.Authorize)
 			}
 
 			// bot

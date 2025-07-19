@@ -43,7 +43,7 @@ const Configs = () => {
   return (
     <Box>
       <div className="p-2 flex gap-4 flex-col bg-slate-100 dark:bg-zinc-900 transition-colors flex-1">
-        <div className=" flex justify-end">
+        <div className=" flex justify-end gap-2">
           <Button
             type="primary"
             onClick={() => navigate("/configs/alemon.config/create")}
