@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"os"
+	"regexp"
 	"runtime/debug"
 	"strings"
 	"sync"
@@ -49,19 +50,9 @@ type RobotLoggerWithRotate struct {
 func (r *RobotLoggerWithRotate) Close() error {
 	err := r.RotateLogs.Close()
 	if err != nil {
-		return errors.New("关闭日志文件失败!")
+		return errors.New("关闭日志文件失败")
 	}
 	return nil
-}
-
-type zapProgressWriter struct {
-	lg *zap.Logger
-}
-
-func (w *zapProgressWriter) Write(p []byte) (int, error) {
-	msg := strings.TrimRight(string(p), "\r\n")
-	w.lg.Info(msg)
-	return len(p), nil
 }
 
 type RobotLoggerWriter struct {
@@ -69,10 +60,82 @@ type RobotLoggerWriter struct {
 	outMu       sync.Mutex
 }
 
-func (w *RobotLoggerWriter) Writer() io.Writer {
+// WriterOption 用于控制日志写入行为
+type WriterOption struct {
+	DetectLevel bool // 是否识别日志等级
+	StripDate   bool // 是否去掉日期
+	StripLevel  bool // 是否去掉日志等级
+}
+
+// optionedZapProgressWriter 是带option能力的zap writer
+type optionedZapProgressWriter struct {
+	lg  *zap.Logger
+	opt WriterOption
+}
+
+func (w *optionedZapProgressWriter) Write(p []byte) (int, error) {
+	msg := strings.TrimRight(string(p), "\r\n")
+	// 处理 StripDate
+	if w.opt.StripDate {
+		msg = stripDate(msg)
+	}
+	// 处理 DetectLevel
+	if w.opt.DetectLevel {
+		lvl, msg2 := detectLevel(msg)
+		msg = msg2
+		if w.opt.StripLevel {
+			msg = stripLevel(msg)
+		}
+		w.lg.WithOptions(zap.AddCallerSkip(1)).Check(lvl, msg).Write()
+		return len(p), nil
+	}
+	if w.opt.StripLevel {
+		msg = stripLevel(msg)
+	}
+	w.lg.Info(msg)
+	return len(p), nil
+}
+
+func stripDate(s string) string {
+	return regexp.MustCompile(`^(?:\[\s*)?(?:\d{4}[-/]\d{2}[-/]\d{2}\s+\d{2}:\d{2}:\d{2}(?:\.\d{3})?)(?:\s*\])?\s*`).ReplaceAllString(s, "")
+}
+
+// 辅助函数：去除 [INFO] [ERROR] 等日志等级前缀
+
+func stripLevel(s string) string {
+	return regexp.MustCompile(`\[[A-Z]+\]\s*`).ReplaceAllString(s, "")
+}
+
+// 辅助函数：自动识别日志等级
+func detectLevel(s string) (zapcore.Level, string) {
+	switch {
+	case strings.HasPrefix(s, "[DEBUG]"):
+		return zapcore.DebugLevel, stripLevel(s)
+	case strings.HasPrefix(s, "[INFO]"):
+		return zapcore.InfoLevel, stripLevel(s)
+	case strings.HasPrefix(s, "[WARN]"):
+		return zapcore.WarnLevel, stripLevel(s)
+	case strings.HasPrefix(s, "[ERROR]"):
+		return zapcore.ErrorLevel, stripLevel(s)
+	case strings.HasPrefix(s, "[DPANIC]"):
+		return zapcore.DPanicLevel, stripLevel(s)
+	case strings.HasPrefix(s, "[PANIC]"):
+		return zapcore.PanicLevel, stripLevel(s)
+	case strings.HasPrefix(s, "[FATAL]"):
+		return zapcore.FatalLevel, stripLevel(s)
+	default:
+		return zapcore.InfoLevel, s
+	}
+}
+
+// 修改你的Writer方法
+func (w *RobotLoggerWriter) Writer(opt WriterOption) io.Writer {
 	w.outMu.Lock()
 	defer w.outMu.Unlock()
-	return &zapProgressWriter{lg: w.RobotLogger.Logger}
+	return &optionedZapProgressWriter{
+		lg:  w.RobotLogger.Logger,
+		opt: opt,
+	}
 }
 
 func NewRobotLoggerWriter(z *RobotLoggerWithRotate) *RobotLoggerWriter {

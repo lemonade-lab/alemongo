@@ -158,9 +158,13 @@ func Pull(ctx *gin.Context, isForce bool) {
 
 	// 拉取最新代码
 	err = worktree.Pull(&git.PullOptions{
-		RemoteName:    "origin",
-		Auth:          auth, // SSH 源使用 SSH 认证，HTTPS 源为 nil
-		Progress:      botLoggerWriter.Writer(),
+		RemoteName: "origin",
+		Auth:       auth, // SSH 源使用 SSH 认证，HTTPS 源为 nil
+		Progress: botLoggerWriter.Writer(logger.WriterOption{
+			DetectLevel: false,
+			StripDate:   false,
+			StripLevel:  false,
+		}),
 		ReferenceName: plumbing.NewBranchReferenceName(branchName),
 		SingleBranch:  true,
 		Force:         isForce,

@@ -64,8 +64,16 @@ func Add(name string, args []string) (string, error) {
 	//defer botLoggerWriter.RobotLogger.Close()
 
 	// 设置命令的输出到日志文件
-	cmd.Stdout = botLoggerWriter.Writer()
-	cmd.Stderr = botLoggerWriter.Writer()
+	cmd.Stdout = botLoggerWriter.Writer(logger.WriterOption{
+		DetectLevel: false,
+		StripDate:   false,
+		StripLevel:  false,
+	})
+	cmd.Stderr = botLoggerWriter.Writer(logger.WriterOption{
+		DetectLevel: false,
+		StripDate:   false,
+		StripLevel:  false,
+	})
 
 	// 执行命令
 	if err := cmd.Run(); err != nil {
@@ -103,8 +111,16 @@ func Install(name string) (string, error) {
 	}
 	botLoggerWriter := logger.NewRobotLoggerWriter(botLogger)
 
-	cmd.Stdout = botLoggerWriter.Writer()
-	cmd.Stderr = botLoggerWriter.Writer()
+	cmd.Stdout = botLoggerWriter.Writer(logger.WriterOption{
+		DetectLevel: false,
+		StripDate:   false,
+		StripLevel:  false,
+	})
+	cmd.Stderr = botLoggerWriter.Writer(logger.WriterOption{
+		DetectLevel: false,
+		StripDate:   false,
+		StripLevel:  false,
+	})
 
 	//defer botLoggerWriter.RobotLogger.Close()
 
@@ -160,8 +176,16 @@ func Remove(name string, names []string) (string, error) {
 	//defer botLoggerWriter.RobotLogger.Close()
 
 	// 设置命令的输出到日志文件
-	cmd.Stdout = botLoggerWriter.Writer()
-	cmd.Stderr = botLoggerWriter.Writer()
+	cmd.Stdout = botLoggerWriter.Writer(logger.WriterOption{
+		DetectLevel: false,
+		StripDate:   false,
+		StripLevel:  false,
+	})
+	cmd.Stderr = botLoggerWriter.Writer(logger.WriterOption{
+		DetectLevel: false,
+		StripDate:   false,
+		StripLevel:  false,
+	})
 
 	// 执行命令
 	if err := cmd.Run(); err != nil {

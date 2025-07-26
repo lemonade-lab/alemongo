@@ -1,9 +1,10 @@
 import {apiBotLog} from "@/api";
-import {DatePicker, DatePickerProps} from "antd";
+import {Button, DatePicker, DatePickerProps, Popconfirm} from "antd";
 import dayjs from "dayjs";
 import {useEffect, useState} from "react";
 import {getBotName} from "../core";
 import Box from "@/commom/Box";
+import {apiBotLogDelete} from "@/api/bot/logs";
 
 const XtermDate = () => {
   const [timestamp, setTimestamp] = useState<number>(Date.now());
@@ -26,6 +27,23 @@ const XtermDate = () => {
     const timestamp = date.valueOf();
     setTimestamp(timestamp);
   };
+  const [isLoading, setLoading] = useState(false);
+  const onDelete = () => {
+    if (isLoading) {
+      return;
+    }
+    setLoading(true);
+    const curtimestamp = timestamp;
+    apiBotLogDelete({name: getBotName(), timestamp: curtimestamp})
+      .then(() => {
+        if (curtimestamp === timestamp) {
+          setData([]);
+        }
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  };
   return (
     <Box>
       <div className="p-2 flex bg-slate-100 dark:bg-zinc-900 flex-col transition-colors rounded-md">
@@ -33,8 +51,20 @@ const XtermDate = () => {
           <div className="text-white flex gap-2 items-center">
             <div>日志</div>
           </div>
-          <div className="">
+          <div className="flex gap-2">
             <DatePicker defaultValue={dayjs()} onChange={onChange} />
+            <Popconfirm
+              placement="leftTop"
+              title="确认删除?"
+              disabled={isLoading}
+              okText="是"
+              cancelText="否"
+              onConfirm={onDelete}
+            >
+              <Button type="primary" danger>
+                删除
+              </Button>
+            </Popconfirm>
           </div>
         </div>
       </div>

@@ -160,6 +160,7 @@ func Create(mode string) *gin.Engine {
 				BotAPI.POST("/restart", bot.Restart)
 				// logs
 				BotAPI.POST("/log", bot.Log)
+				BotAPI.DELETE("/log", bot.LogDelete)
 
 				EnvAPI := BotAPI.Group("/env")
 				{

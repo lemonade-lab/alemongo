@@ -27,6 +27,7 @@ type NodeProcessConfig struct {
 	LogPath     string
 	PidFile     string
 	EnvFilePath string
+	Env         map[string]string
 }
 
 // 持久化结构体（包含状态）
@@ -168,8 +169,20 @@ func (mp *ManagedProcess) Start() error {
 	mp.Ctx, mp.Cancel = context.WithCancel(context.Background())
 	mp.Cmd = exec.CommandContext(mp.Ctx, mp.Config.Node, mp.Config.ScriptJS)
 	mp.Cmd.Env = LoadEnvironment(mp.Config.EnvFilePath)
-	mp.Cmd.Stdout = botLoggerWriter.Writer()
-	mp.Cmd.Stderr = botLoggerWriter.Writer()
+	// 还要支持，直接传入的环境变量 mp.Config.Env
+	for key, value := range mp.Config.Env {
+		mp.Cmd.Env = append(mp.Cmd.Env, fmt.Sprintf("%s=%s", key, value))
+	}
+	mp.Cmd.Stdout = botLoggerWriter.Writer(logger.WriterOption{
+		DetectLevel: true,
+		StripDate:   true,
+		StripLevel:  true,
+	})
+	mp.Cmd.Stderr = botLoggerWriter.Writer(logger.WriterOption{
+		DetectLevel: true,
+		StripDate:   true,
+		StripLevel:  true,
+	})
 	if mp.Config.Dir != "" {
 		mp.Cmd.Dir = mp.Config.Dir
 	}

@@ -61,6 +61,13 @@ func Run(name string) (string, error) {
 		LogPath:     logPath,
 		PidFile:     pidFile,
 		EnvFilePath: config.GetBotEnvPath(name),
+		// 支持直接加环境变量
+		Env: map[string]string{
+			// 关闭日志时间
+			// "LOGGER_TIME": "false",
+			// 关闭日志级别
+			// "LOGGER_LEVEL": "false",
+		},
 	})
 	// 启动
 	proc := pm.GetProcess(name)

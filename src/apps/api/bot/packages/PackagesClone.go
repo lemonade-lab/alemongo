@@ -131,9 +131,13 @@ func PackagesClone(ctx *gin.Context) {
 
 		// 克隆仓库并切换到指定分支
 		_, err = git.PlainClone(clonePath, false, &git.CloneOptions{
-			URL:           repoURL,
-			Auth:          auth, // 使用 SSH 认证
-			Progress:      botLoggerWriter.Writer(),
+			URL:  repoURL,
+			Auth: auth, // 使用 SSH 认证
+			Progress: botLoggerWriter.Writer(logger.WriterOption{
+				DetectLevel: false,
+				StripDate:   false,
+				StripLevel:  false,
+			}),
 			ReferenceName: plumbing.NewBranchReferenceName(branchName),
 			SingleBranch:  true,
 			Depth:         1,
@@ -149,8 +153,12 @@ func PackagesClone(ctx *gin.Context) {
 		}
 	} else if strings.Contains(repoURL, "https") {
 		_, err := git.PlainClone(clonePath, false, &git.CloneOptions{
-			URL:           repoURL,
-			Progress:      botLoggerWriter.Writer(),
+			URL: repoURL,
+			Progress: botLoggerWriter.Writer(logger.WriterOption{
+				DetectLevel: false,
+				StripDate:   false,
+				StripLevel:  false,
+			}),
 			ReferenceName: plumbing.NewBranchReferenceName(branchName),
 			SingleBranch:  true,
 			Depth:         1,

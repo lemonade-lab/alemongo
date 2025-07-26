@@ -59,8 +59,12 @@ func PackageForcedUpdate(repoPath, branch_name string, botLogger *logger.RobotLo
 	err = repo.Fetch(&git.FetchOptions{
 		RemoteName: "origin",
 		Auth:       auth,
-		Progress:   botLogger.Writer(),
-		Force:      true,
+		Progress: botLogger.Writer(logger.WriterOption{
+			DetectLevel: true,
+			StripDate:   true,
+			StripLevel:  true,
+		}),
+		Force: true,
 	})
 	if err != nil && err != git.NoErrAlreadyUpToDate {
 		log.Println(err)
