@@ -7,15 +7,20 @@ on:
         description: '版本号 (例: 0.0.1)'
         required: false
         default: 'latest'
+      login:
+        description: '登录地址 (例: sgccr.ccs.tencentyun.com)'
+        required: false
+        default: 'docker.io'
       name:
-        description: '指定镜像仓库 (例: ccr.ccs.tencentyun.com)'
+        description: '镜像仓库 (例: ccr.ccs.tencentyun.com)'
         required: false
         default: 'docker.io'
       username:
-        description: 'Docker 仓库用户名'
+        description: '仓库用户名'
         required: false
+        default: 'ningmengchongshui'
       password:
-        description: 'Docker 仓库密码'
+        description: '仓库密码'
         required: false
 
 permissions:
@@ -49,7 +54,7 @@ jobs:
       - name: Docker 登录
         if: ${{ github.event.inputs.username != '' && github.event.inputs.password != '' }}
         run: |
-          REGISTRY="${{ github.event.inputs.name || 'docker.io' }}"
+          REGISTRY="${{ github.event.inputs.login || 'docker.io' }}"
           echo "${{ github.event.inputs.password }}" | docker login "$REGISTRY" --username "${{ github.event.inputs.username }}" --password-stdin
 
       - name: 构建并推送 Docker 镜像
