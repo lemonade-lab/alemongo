@@ -1,12 +1,14 @@
 # Docker
 
+## alemongo
+
 下载仓库文件 [docker-compose](./docker-compose.yml)
 
 下载仓库文件 [alemongo.conf](./alemongo.conf)
 
-> alemongo 默认使用`tencentyun`镜像地址
+> alemongo 默认使用 `ccr.ccs.tencentyun.com`(广州腾讯云)镜像地址
 
-> 若想配置镜像地址，可参考[/etc/docker/daemon.json](./docker-daemon.json) 
+> 所有包的镜像地址，可参考[/etc/docker/daemon.json](./docker-daemon.json) 
 
 -  运行
 
@@ -30,7 +32,7 @@ redis:
   host: host.docker.internal
 ```
 
-- 携带 onebot
+## onebot
 
 > 先下载 Lagrange.OneBot。具体了解 [https://lagrangedev.github.io/Lagrange.Doc](https://lagrangedev.github.io/Lagrange.Doc/v1/Lagrange.OneBot/Config/)
 
@@ -53,7 +55,7 @@ RUN chmod +x ./Lagrange.OneBot
 CMD ["./Lagrange.OneBot"]
 ```
 
-补充 docker-compose.yml 
+补充 docker-compose.yml 以启动onebot
 
 ```yml
 services:

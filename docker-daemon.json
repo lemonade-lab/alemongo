@@ -7,6 +7,8 @@
   },
   "experimental": false,
   "registry-mirrors": [
+    "https://registry.cn-hangzhou.aliyuncs.com",
+    "https://mirror.ccs.tencentyun.com",
     "https://docker.registry.cyou",
     "https://docker-cf.registry.cyou",
     "https://dockercf.jsdelivr.fyi",
@@ -30,7 +32,6 @@
     "http://mirrors.ustc.edu.cn/",
     "https://mirrors.tuna.tsinghua.edu.cn/",
     "http://mirrors.sohu.com/",
-    "https://hub-mirror.c.163.com",
-    "https://registry.cn-hangzhou.aliyuncs.com"
+    "https://hub-mirror.c.163.com"
   ]
 }

@@ -8,7 +8,7 @@ on:
         required: false
         default: 'latest'
       login:
-        description: '登录地址 (例: sgccr.ccs.tencentyun.com)'
+        description: '登录地址 (例: ccr.ccs.tencentyun.com)'
         required: false
         default: 'docker.io'
       name:
