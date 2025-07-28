@@ -58,16 +58,15 @@ export default defineConfig({
           if (/\.(css)$/.test(name ?? '')) return 'css/[name]-[hash][extname]'
           return 'assets/[name]-[hash][extname]'
         },
-        manualChunks(id) {
-          if (id.includes('node_modules')) {
-            if (id.includes('react')) return 'vendor-react'
-            if (id.includes('lodash-es')) return 'vendor-lodash-es'
-            if (id.includes('dayjs')) return 'vendor-dayjs'
-            if (id.includes('xterm')) return 'vendor-xterm'
-            if (id.includes('react-router-dom')) return 'vendor-react-router-dom'
-            if (id.includes('react-redux')) return 'vendor-react-redux'
-            if (id.includes('redux')) return 'vendor-redux'
-          }
+        manualChunks: {
+          'react-vendor': [
+            'react',
+            'react-dom',
+            'react-router-dom',
+            'react-router',
+            'react-redux',
+            'redux',
+          ]
         }
       }
     }
