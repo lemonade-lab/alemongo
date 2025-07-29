@@ -6,7 +6,7 @@
     "@alemonjs/discord": "^2.1.0-alpha.14",
     "@alemonjs/gui": "^2.1.0-alpha.5",
     "@alemonjs/qq-bot": "^2.1.0-alpha.17",
-    "@alemonjs/onebot": "^2.1.0-alpha.7",
+    "@alemonjs/onebot": "^2.1.0-alpha.8",
     "alemonjs": "^2.1.0-alpha.24",
     "jsxp": "^1.2.2"
   },
