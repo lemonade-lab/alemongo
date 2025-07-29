@@ -6,6 +6,7 @@ type BotInfo struct {
 	Pid         int    `json:"pid"`          // 进程ID
 	NodeModules bool   `json:"node_modules"` // 是否安装依赖
 	CreateAt    string `json:"create_at"`    // 创建时间
+	Port        int    `json:"port"`         // 端口号
 }
 
 type BotInfoResponse struct {

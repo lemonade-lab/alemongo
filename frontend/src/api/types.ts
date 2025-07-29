@@ -3,6 +3,7 @@ export type BotInfo = {
     name: string;
     status: number;
     pid: number;
+    port: number;
     node_modules: boolean
     create_at: string;
 }

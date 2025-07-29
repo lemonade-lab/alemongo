@@ -190,9 +190,9 @@ const Panel = () => {
           </div>
           <div className="flex gap-2 items-center">
             <span className="text-sm text-gray-600 dark:text-gray-400">
-              Created:
+              Port:
             </span>
-            <Tags type="indigo">{info.create_at}</Tags>
+            <Tags type="indigo">{info.port}</Tags>
           </div>
         </div>
 

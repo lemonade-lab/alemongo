@@ -38,6 +38,7 @@ const BotTable = ({onClick = () => {}}: {onClick: (key: string) => void}) => {
           pid: info.pid,
           node_modules: info.node_modules,
           create_at: info.create_at,
+          port: info.port, // 添加端口信息
         };
       });
       setPageInfo({
@@ -149,6 +150,11 @@ const BotTable = ({onClick = () => {}}: {onClick: (key: string) => void}) => {
       title: "PID",
       dataIndex: "pid",
       key: "pid",
+    },
+    {
+      title: "PORT",
+      dataIndex: "port",
+      key: "port",
     },
     {
       title: "创建时间",

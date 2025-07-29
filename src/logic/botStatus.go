@@ -49,6 +49,15 @@ func Run(name string) (string, error) {
 	if !found {
 		return "启动脚本不存在,请新建index.js", os.ErrNotExist
 	}
+
+	runConfig := ReadBotConfig(name)
+
+	// port 被占用的前提是。URL 不为空
+	port := 0
+	if runConfig.URL == "" {
+		port = runConfig.Port
+	}
+
 	// 日志和 PID 文件路径
 	logPath := config.GetBotLogPath(name)
 	pidFile := config.GetPidFilePath(name)
@@ -61,6 +70,7 @@ func Run(name string) (string, error) {
 		LogPath:     logPath,
 		PidFile:     pidFile,
 		EnvFilePath: config.GetBotEnvPath(name),
+		Port:        port, // 使用配置的端口
 		// 支持直接加环境变量
 		Env: map[string]string{
 			// 关闭日志时间
@@ -121,6 +131,7 @@ func Info(name string) (models.BotInfoResponse, error) {
 	}
 
 	pm := process.GetProcessManager()
+
 	proc := pm.GetProcess(name)
 	if proc == nil {
 		return models.BotInfoResponse{
@@ -130,6 +141,7 @@ func Info(name string) (models.BotInfoResponse, error) {
 				Name:        name,
 				Status:      0,
 				Pid:         0,
+				Port:        0,
 				NodeModules: nodeModules,
 				CreateAt:    createAt,
 			},
@@ -145,6 +157,7 @@ func Info(name string) (models.BotInfoResponse, error) {
 				Name:        name,
 				Status:      1,
 				Pid:         pid,
+				Port:        proc.Config.Port,
 				NodeModules: nodeModules,
 				CreateAt:    createAt,
 			},
@@ -157,6 +170,7 @@ func Info(name string) (models.BotInfoResponse, error) {
 			Name:        name,
 			Status:      0,
 			Pid:         0,
+			Port:        0,
 			NodeModules: nodeModules,
 			CreateAt:    createAt,
 		},

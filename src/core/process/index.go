@@ -28,6 +28,7 @@ type NodeProcessConfig struct {
 	PidFile     string
 	EnvFilePath string
 	Env         map[string]string
+	Port        int
 }
 
 // 持久化结构体（包含状态）

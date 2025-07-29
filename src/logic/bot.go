@@ -5,7 +5,6 @@ import (
 	"alemongo/src/dao"
 	"alemongo/src/logger"
 	"alemongo/src/paths"
-	config "alemongo/src/paths"
 	"alemongo/src/settings"
 	"errors"
 	"fmt"
@@ -19,7 +18,7 @@ func CreateBot(name string) (string, response.ResCode) {
 	// 资源路径
 	resourcesPath := paths.GetResourcesPath()
 	// 目标路径
-	targetPath := config.GetBotPath(name)
+	targetPath := paths.GetBotPath(name)
 	// 检查是否存在目录 ./resources/bots/{name}
 	if _, err := os.Stat(targetPath); err == nil {
 		// 如果存在，返回错误
@@ -33,7 +32,7 @@ func DeleteBot(name string) (string, error) {
 	if name == "" {
 		return "", errors.New("机器人名不能为空")
 	}
-	if !config.Exists(name) {
+	if !paths.Exists(name) {
 		return "", errors.New("机器人不存在")
 	}
 	// 看看是不是在运行。在运行要就要停止
@@ -54,7 +53,7 @@ func DeleteBot(name string) (string, error) {
 
 	logger.DeleteBotLogger(name, *l)
 
-	botPath := config.GetBotPath(name)
+	botPath := paths.GetBotPath(name)
 	return dao.DeleteBot(name, botPath)
 }
 
@@ -63,7 +62,7 @@ func BotYarnInstall(name string) (string, error) {
 		return "", errors.New("机器人名不能为空")
 	}
 
-	if !config.Exists(name) {
+	if !paths.Exists(name) {
 		return "", errors.New("机器人不存在")
 	}
 	msg, err := Install(name)
@@ -78,7 +77,7 @@ func BotYarnAdd(name string, args []string) (string, error) {
 	if name == "" {
 		return "", errors.New("机器人名不能为空")
 	}
-	if !config.Exists(name) {
+	if !paths.Exists(name) {
 		return "", errors.New("机器人不存在")
 	}
 	msg, err := Add(name, args)
@@ -92,7 +91,7 @@ func BotYarnRemove(name string, args []string) (string, error) {
 	if name == "" {
 		return "", errors.New("机器人名不能为空")
 	}
-	if !config.Exists(name) {
+	if !paths.Exists(name) {
 		return "", errors.New("机器人不存在")
 	}
 	msg, err := Remove(name, args)
@@ -109,7 +108,7 @@ func PackageDelete(name, app_name string) error {
 	if app_name == "" {
 		return errors.New("扩展包名不能为空")
 	}
-	if !config.Exists(name) {
+	if !paths.Exists(name) {
 		return errors.New("机器人不存在")
 	}
 
@@ -132,7 +131,7 @@ func PackegForcedUpdate(name, repo_name, branch_name string, botLogger *logger.R
 	if branch_name == "" {
 		return errors.New("分支名不能为空")
 	}
-	if !config.Exists(name) {
+	if !paths.Exists(name) {
 		return errors.New("机器人不存在")
 	}
 
