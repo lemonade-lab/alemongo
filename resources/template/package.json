@@ -7,7 +7,7 @@
     "@alemonjs/gui": "^2.1.0-alpha.5",
     "@alemonjs/qq-bot": "^2.1.0-alpha.17",
     "@alemonjs/onebot": "^2.1.0-alpha.8",
-    "alemonjs": "^2.1.0-alpha.24",
+    "alemonjs": "^2.1.0-alpha.25",
     "jsxp": "^1.2.2"
   },
   "devDependencies": {

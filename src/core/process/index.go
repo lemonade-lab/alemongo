@@ -100,11 +100,14 @@ func (pm *ProcessManager) RemoveProcess(name string) {
 
 // 添加进程
 func (pm *ProcessManager) AddProcess(cfg NodeProcessConfig) {
+	runConfig := ReadBotConfig(cfg.Name)
 	pm.mu.Lock()
 	defer pm.mu.Unlock()
 	if _, exists := pm.Processes[cfg.Name]; exists {
+		pm.Processes[cfg.Name].Config.Port = runConfig.Port // 更新端口
 		return
 	}
+	cfg.Port = runConfig.Port // 使用配置的端口
 	mp := NewManagedProcess(cfg)
 	pm.Processes[cfg.Name] = mp
 }
@@ -219,6 +222,9 @@ func (mp *ManagedProcess) monitor() {
 	mp.mu.Lock()
 	defer mp.mu.Unlock()
 	if mp.Status != StatusRunning {
+		if mp.Status == StatusStopped {
+			mp.Config.Port = 0
+		}
 		return
 	}
 	alive := time.Since(mp.LastStartTime)
@@ -228,14 +234,15 @@ func (mp *ManagedProcess) monitor() {
 		mp.RestartCount++
 	}
 	if mp.RestartCount <= mp.MaxRestarts {
-		fmt.Printf("[%s] exited, restarting in %v (count: %d/%d)\n", mp.Config.Name, mp.RestartWait, mp.RestartCount, mp.MaxRestarts)
+		log.Printf("[%s] exited, restarting in %v (count: %d/%d)\n", mp.Config.Name, mp.RestartWait, mp.RestartCount, mp.MaxRestarts)
 		go func() {
 			time.Sleep(mp.RestartWait)
 			mp.Start()
 		}()
 	} else {
 		mp.Status = StatusStopped
-		fmt.Printf("[%s] too many restarts, giving up!\n", mp.Config.Name)
+		mp.Config.Port = 0
+		log.Printf("[%s] too many restarts, giving up!\n", mp.Config.Name)
 	}
 	// 持久化状态
 	SaveProcess(mp.Config.Name, mp.Config, mp.Status)
