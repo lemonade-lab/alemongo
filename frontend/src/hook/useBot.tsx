@@ -16,6 +16,7 @@ const useBot = () => {
     pid: 0,
     node_modules: false,
     create_at: "",
+    port: 0,
   });
   const pollingRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
