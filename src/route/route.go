@@ -61,6 +61,7 @@ func Create(mode string) *gin.Engine {
 		{
 			ReceiveAPI := v1.Group("/receive")
 			{
+				//
 				ReceiveAPI.POST("/", receive.POST)
 			}
 			CommonAPI := v1.Group("/common")
@@ -160,6 +161,7 @@ func Create(mode string) *gin.Engine {
 				BotAPI.POST("/restart", bot.Restart)
 				// logs
 				BotAPI.POST("/log", bot.Log)
+				// 删除logs
 				BotAPI.DELETE("/log", bot.LogDelete)
 
 				EnvAPI := BotAPI.Group("/env")
@@ -170,7 +172,9 @@ func Create(mode string) *gin.Engine {
 
 				PackageAPI := BotAPI.Group("/package")
 				{
+					// 获取包信息
 					PackageAPI.POST("", botpackage.Package)
+					// 更新包信息
 					PackageAPI.PUT("", botpackage.PackageUpdate)
 				}
 
@@ -184,13 +188,14 @@ func Create(mode string) *gin.Engine {
 				PackagesAPI := BotAPI.Group("/packages")
 				{
 					PackagesAPI.POST("", botpackages.PackagesInfo)
-					PackagesAPI.DELETE("", botpackages.PackageDelete)
+					PackagesAPI.DELETE("", botpackages.PackagesDelete)
+					PackagesAPI.PUT("/pkg", botpackages.PackagesUpdate)
 					PackagesAPI.POST("/clone", botpackages.PackagesClone)
 					PackagesAPI.POST("/list", botpackages.PackagesList)
 					PackagesAPI.POST("/pull", botpackages.PackagesPull)
 					PackagesPullAPI := PackagesAPI.Group("/pull")
 					{
-						PackagesPullAPI.POST("/force", botpackages.PackegForcedUpdate)
+						PackagesPullAPI.POST("/force", botpackages.PackegesForcedUpdate)
 					}
 				}
 

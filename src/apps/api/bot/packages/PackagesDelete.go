@@ -11,7 +11,7 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-func PackageDelete(ctx *gin.Context) {
+func PackagesDelete(ctx *gin.Context) {
 	// 获取机器人name和对应的git扩展name
 	name := ctx.PostForm("name")
 	app_name := ctx.PostForm("app_name")

@@ -4,6 +4,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func PackegForcedUpdate(ctx *gin.Context) {
+func PackegesForcedUpdate(ctx *gin.Context) {
 	Pull(ctx, true)
 }

@@ -1,4 +1,4 @@
-package botpackage
+package botpackages
 
 import (
 	config "alemongo/src/paths"
@@ -8,12 +8,21 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func PackageUpdate(ctx *gin.Context) {
+func PackagesUpdate(ctx *gin.Context) {
 	name := ctx.PostForm("name")
 	if name == "" {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"code": http.StatusBadRequest,
-			"msg":  "机器人名不能为空",
+			"msg":  "配置名不能为空",
+			"data": nil,
+		})
+		return
+	}
+	appName := ctx.PostForm("app_name")
+	if appName == "" {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"code": http.StatusBadRequest,
+			"msg":  "应用名不能为空",
 			"data": nil,
 		})
 		return
@@ -27,7 +36,7 @@ func PackageUpdate(ctx *gin.Context) {
 		})
 		return
 	}
-	pkgPath := config.GetBotPKGPath(name)
+	pkgPath := config.GetBotPackagesPKGFilePathByName(name, appName)
 	// 把数据写入该文件
 	err := os.WriteFile(pkgPath, []byte(content), 0644)
 	if err != nil {
