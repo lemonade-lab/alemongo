@@ -1,7 +1,7 @@
-import {Button, Tooltip} from "antd";
-import {CloseCircleOutlined, PlusCircleOutlined} from "@ant-design/icons";
-import {DataButton} from "./types";
-import classNames from "classnames";
+import { Button, Tooltip } from 'antd'
+import { CloseCircleOutlined, PlusCircleOutlined } from '@ant-design/icons'
+import { DataButton } from './types'
+import classNames from 'classnames'
 
 // 按钮行组件
 const ButtonRow = ({
@@ -10,23 +10,23 @@ const ButtonRow = ({
   onAddButton,
   onDeleteRow,
   onEditButton,
-  onDeleteButton,
+  onDeleteButton
 }: {
-  rowId: number;
-  buttons: DataButton[];
-  onAddButton: (rowId: number) => void;
-  onDeleteRow: (rowId: number) => void;
-  onEditButton: (rowId: number, buttonId: string) => void;
-  onDeleteButton: (rowId: number, buttonId: string) => void;
+  rowId: number
+  buttons: DataButton[]
+  onAddButton: (rowId: number) => void
+  onDeleteRow: (rowId: number) => void
+  onEditButton: (rowId: number, buttonId: string) => void
+  onDeleteButton: (rowId: number, buttonId: string) => void
 }) => {
   return (
     <div className="flex w-full flex-1 justify-between items-center gap-2 ">
       <div
-        className={classNames("flex w-full max-w-60 flex-wrap gap-2 bg-white", {
-          "p-1": buttons.length > 0,
+        className={classNames('flex w-full max-w-60 flex-wrap gap-2 bg-white', {
+          'p-1': buttons.length > 0
         })}
       >
-        {buttons.map((button) => (
+        {buttons.map(button => (
           <div
             key={button.id}
             className="ellipsis flex-1 relative flex items-center gap-2"
@@ -36,15 +36,15 @@ const ButtonRow = ({
               // 0: 黑字&灰框&白背景, 1: 篮字&蓝框&白背景, 3: 红文&红框&白背景, 4: 白字蓝框蓝背景
             }
             <Button
-              className={classNames("w-full", {
-                "bg-white text-gray-900 border-gray-300 hover:bg-gray-50":
+              className={classNames('w-full', {
+                'bg-white text-gray-900 border-gray-300 hover:bg-gray-50':
                   button.render_data.style === 0,
-                "bg-white text-blue-600 border-blue-600 hover:bg-blue-50":
+                'bg-white text-blue-600 border-blue-600 hover:bg-blue-50':
                   button.render_data.style === 1,
-                "bg-white text-red-600 border-red-600 hover:bg-red-50":
+                'bg-white text-red-600 border-red-600 hover:bg-red-50':
                   button.render_data.style === 3,
-                "bg-blue-600 text-white border-blue-600 hover:bg-blue-700":
-                  button.render_data.style === 4,
+                'bg-blue-600 text-white border-blue-600 hover:bg-blue-700':
+                  button.render_data.style === 4
               })}
               onClick={() => onEditButton(rowId, button.id)}
             >
@@ -78,7 +78,7 @@ const ButtonRow = ({
         </Tooltip>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default ButtonRow;
+export default ButtonRow

@@ -7,10 +7,11 @@ import { VitePWA } from 'vite-plugin-pwa'
 // https://vite.dev/config/
 const NODE_ENV = process.env.NODE_ENV === 'development'
 export default defineConfig({
-  plugins: [react(),
-  viteCompression({ algorithm: 'gzip', ext: '.gz' }),
-  viteCompression({ algorithm: 'brotliCompress', ext: '.br' }),
-  VitePWA({ registerType: 'autoUpdate' })
+  plugins: [
+    react(),
+    viteCompression({ algorithm: 'gzip', ext: '.gz' }),
+    viteCompression({ algorithm: 'brotliCompress', ext: '.br' }),
+    VitePWA({ registerType: 'autoUpdate' })
   ],
   resolve: {
     alias: [
@@ -18,14 +19,15 @@ export default defineConfig({
         find: '@',
         replacement: fileURLToPath(new URL('./src', import.meta.url))
       }
-    ]
+    ],
+    extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json']
   },
   // 代理
   server: {
     proxy: {
       '/api': {
         target: 'http://localhost:17187',
-        changeOrigin: true,
+        changeOrigin: true
         // rewrite: path => path.replace(/^\/api/, '')
       }
     }
@@ -45,9 +47,9 @@ export default defineConfig({
       compress: NODE_ENV
         ? {}
         : {
-          drop_console: true,
-          drop_debugger: true
-        }
+            drop_console: true,
+            drop_debugger: true
+          }
     },
     rollupOptions: {
       output: {
@@ -65,7 +67,7 @@ export default defineConfig({
             'react-router-dom',
             'react-router',
             'react-redux',
-            'redux',
+            'redux'
           ]
         }
       }

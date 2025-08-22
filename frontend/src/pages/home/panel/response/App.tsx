@@ -1,5 +1,5 @@
-import {Switch} from "antd";
-import {useEffect, useState} from "react";
+import { Switch } from 'antd'
+import { useEffect, useState } from 'react'
 
 /**
  * 文件夹名字应该准确的说明了该功能的一般作用
@@ -8,23 +8,21 @@ import {useEffect, useState} from "react";
 const Response = () => {
   const [list, setList] = useState<
     {
-      name: string;
-      response: string[];
+      name: string
+      response: string[]
     }[]
-  >([]);
+  >([])
   useEffect(() => {
     setList([
       {
-        name: "main",
-        response: ["response/help", "response/command", "response/word/start"],
-      },
-    ]);
-  }, []);
+        name: 'main',
+        response: ['response/help', 'response/command', 'response/word/start']
+      }
+    ])
+  }, [])
   return (
     <div className="p-2 flex gap-4 flex-col bg-slate-100 dark:bg-zinc-900 flex-1">
-      <div className="h-11  rounded-md flex justify-between   text-white items-start">
-      
-      </div>
+      <div className="h-11  rounded-md flex justify-between   text-white items-start"></div>
       <div className="flex flex-1 flex-col xl:flex-row gap-2">
         <div className="flex-1 flex flex-col  rounded-md p-2">
           {list.map((item, index) => (
@@ -53,7 +51,7 @@ const Response = () => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default Response;
+export default Response

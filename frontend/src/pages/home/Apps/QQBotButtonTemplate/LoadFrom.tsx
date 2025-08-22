@@ -1,8 +1,8 @@
-import {Button, Form, Input} from "antd";
+import { Button, Form, Input } from 'antd'
 
 const LoadForm = (props: {
-  onFinish: (values: {template: string}) => void;
-  onUpload: () => void;
+  onFinish: (values: { template: string }) => void
+  onUpload: () => void
 }) => {
   return (
     <Form onFinish={props.onFinish}>
@@ -16,7 +16,7 @@ const LoadForm = (props: {
         </Button>
       </div>
     </Form>
-  );
-};
+  )
+}
 
-export default LoadForm;
+export default LoadForm

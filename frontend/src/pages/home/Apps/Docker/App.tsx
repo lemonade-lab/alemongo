@@ -1,5 +1,5 @@
-import React from "react";
-import Box from "@/commom/Box";
+import React from 'react'
+import Box from '@/commom/Box'
 
 /**
  * @returns
@@ -7,11 +7,9 @@ import Box from "@/commom/Box";
 const Apps: React.FC = () => {
   return (
     <Box>
-      <div>
-        xxx
-      </div>
+      <div>xxx</div>
     </Box>
-  );
-};
+  )
+}
 
-export default Apps;
+export default Apps

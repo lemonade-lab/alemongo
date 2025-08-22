@@ -11,31 +11,31 @@ interface Sender {
 
 type Message =
   | {
-    type: 'image'
-    data: {
-      file: string
-      sub_type: number
-      file_id: string
-      url: string
-      file_size: string
-      file_unique: string
+      type: 'image'
+      data: {
+        file: string
+        sub_type: number
+        file_id: string
+        url: string
+        file_size: string
+        file_unique: string
+      }
     }
-  }
   | {
-    type: 'text'
-    data: { text: string }
-  }
-  | {
-    type: 'json'
-    data: string
-  }
-  | {
-    type: 'forward'
-    data: {
-      id: number
-      content: unknown[]
+      type: 'text'
+      data: { text: string }
     }
-  }
+  | {
+      type: 'json'
+      data: string
+    }
+  | {
+      type: 'forward'
+      data: {
+        id: number
+        content: unknown[]
+      }
+    }
 
 export interface MESSAGES_TYPE {
   // 机器人id

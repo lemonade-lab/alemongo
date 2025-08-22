@@ -1,15 +1,15 @@
-import MonacoEditor from "@monaco-editor/react";
+import MonacoEditor from '@monaco-editor/react'
 
 export default function MonacoCode({
   value,
   onChange,
   height = 300,
-  language = "json",
+  language = 'json'
 }: {
-  value: string;
-  onChange?: (value: string) => void;
-  height?: number | string;
-  language?: "json" | "yaml";
+  value: string
+  onChange?: (value: string) => void
+  height?: number | string
+  language?: 'json' | 'yaml'
 }) {
   return (
     <MonacoEditor
@@ -20,13 +20,13 @@ export default function MonacoCode({
       language={language}
       value={value}
       options={{
-        lineNumbers: "on",
+        lineNumbers: 'on',
         fontSize: 14,
         minimap: { enabled: false },
         scrollBeyondLastLine: false,
-        automaticLayout: true,
+        automaticLayout: true
       }}
-      onChange={(val) => onChange?.(val ?? "")}
+      onChange={val => onChange?.(val ?? '')}
     />
-  );
+  )
 }

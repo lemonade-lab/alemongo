@@ -1,31 +1,31 @@
 import { createSlice } from '@reduxjs/toolkit'
-import { Info } from '../api';
+import { Info } from '../api'
 
 type State = Info
 
 const initialState: State = {
   nvm: {
     installed: false,
-    version: "",
+    version: ''
   },
   node: {
     installed: false,
-    version: "",
+    version: ''
   },
   browser: {
     installed: false,
-    version: "",
+    version: ''
   },
   git: {
     installed: false,
-    version: "",
+    version: ''
   },
   base: {
-    version: "",
-    build_time: "",
+    version: '',
+    build_time: ''
   },
-  start_at: "",
-  location: ""
+  start_at: '',
+  location: ''
 }
 
 const notificationSlice = createSlice({
@@ -41,9 +41,9 @@ const notificationSlice = createSlice({
       state.location = action.payload.location
       state.base = {
         version: action.payload.base.version,
-        build_time: action.payload.base.build_time,
+        build_time: action.payload.base.build_time
       }
-    },
+    }
   }
 })
 

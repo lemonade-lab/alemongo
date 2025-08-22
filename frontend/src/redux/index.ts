@@ -6,7 +6,7 @@ const store = configureStore({
   reducer: {
     info: infoReducer,
     me: meInfoReducer,
-    logs: logsReducer,
+    logs: logsReducer
   }
 })
 export type RootState = ReturnType<typeof store.getState>

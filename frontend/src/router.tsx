@@ -1,53 +1,50 @@
-import {lazy} from "react";
-import {createBrowserRouter} from "react-router-dom";
-import {WithSuspense} from "./WithSuspense";
+import { lazy } from 'react'
+import { createBrowserRouter } from 'react-router-dom'
+import { WithSuspense } from './WithSuspense'
 
-const Home = lazy(() => import("./pages/home/App"));
-const NotRoute = lazy(() => import("./pages/404"));
-const Login = lazy(() => import("./pages/login/App"));
-const Panel = lazy(() => import("./pages/home/panel/App"));
-const Main = lazy(() => import("./pages/Main"));
-const Bots = lazy(() => import("./pages/home/Bots/App"));
+const Home = lazy(() => import('./pages/home/App'))
+const NotRoute = lazy(() => import('./pages/404'))
+const Login = lazy(() => import('./pages/login/App'))
+const Panel = lazy(() => import('./pages/home/panel/App'))
+const Main = lazy(() => import('./pages/Main'))
+const Bots = lazy(() => import('./pages/home/Bots/App'))
 const ButtonTemplate = lazy(
-  () => import("./pages/home/Apps/QQBotButtonTemplate/App")
-);
-const Logs = lazy(() => import("./pages/home/panel/Logs"));
-const TestOne = lazy(() => import("./pages/home/panel/testone/App"));
-const UpdatePassWord = lazy(() => import("./pages/home/UpdatePassWord/App"));
-const OneBot = lazy(() => import("./pages/home/Apps/OneBot/App"));
-const Settings = lazy(() => import("./pages/home/Settings/App"));
-const Package = lazy(() => import("./pages/home/panel/package/App"));
-const Config = lazy(() => import("./pages/home/panel/Conifg/App"));
-const XtermDate = lazy(() => import("./pages/home/panel/xterm-date/App"));
-const Response = lazy(() => import("./pages/home/panel/response/App"));
-const Packages = lazy(() => import("./pages/home/panel/packages/App"));
-const Account = lazy(() => import("./pages/home/Account/App"));
-const ConfigEdit = lazy(() => import("./pages/home/configs/create/App"));
-const Configs = lazy(() => import("./pages/home/configs/App"));
-const SSH = lazy(() => import("./pages/home/GitSSH/App"));
-const SSHUpdate = lazy(() => import("./pages/home/GitSSH/Update"));
+  () => import('./pages/home/Apps/QQBotButtonTemplate/App')
+)
+const Logs = lazy(() => import('./pages/home/panel/Logs'))
+const UpdatePassWord = lazy(() => import('./pages/home/UpdatePassWord/App'))
+const OneBot = lazy(() => import('./pages/home/Apps/OneBot/App'))
+const Settings = lazy(() => import('./pages/home/Settings/App'))
+const Package = lazy(() => import('./pages/home/panel/package/App'))
+const Config = lazy(() => import('./pages/home/panel/Conifg/App'))
+const XtermDate = lazy(() => import('./pages/home/panel/xterm-date/App'))
+const Response = lazy(() => import('./pages/home/panel/response/App'))
+const Packages = lazy(() => import('./pages/home/panel/packages/App'))
+const Account = lazy(() => import('./pages/home/Account/App'))
+const ConfigEdit = lazy(() => import('./pages/home/configs/create/App'))
+const Configs = lazy(() => import('./pages/home/configs/App'))
+const SSH = lazy(() => import('./pages/home/GitSSH/App'))
+const SSHUpdate = lazy(() => import('./pages/home/GitSSH/Update'))
 const PackagesMessage = lazy(
-  () => import("./pages/home/panel/packages/message/App")
-);
-const Apps = lazy(() => import("./pages/home/Apps/App"));
-const AppsNodeJS = lazy(() => import("./pages/home/Apps/NodeJS/App"));
-const GitPackage = lazy(
-  () => import("./pages/home/panel/packages/package/App")
-);
-const UpdateEmail = lazy(() => import("./pages/home/UpdateEmail/App"));
-const Env = lazy(() => import("./pages/home/panel/env/App"));
+  () => import('./pages/home/panel/packages/message/App')
+)
+const Apps = lazy(() => import('./pages/home/Apps/App'))
+const AppsNodeJS = lazy(() => import('./pages/home/Apps/NodeJS/App'))
+const GitPackage = lazy(() => import('./pages/home/panel/packages/package/App'))
+const UpdateEmail = lazy(() => import('./pages/home/UpdateEmail/App'))
+const Env = lazy(() => import('./pages/home/panel/env/App'))
 
 const router = createBrowserRouter([
   {
-    path: "/login",
+    path: '/login',
     element: (
       <WithSuspense>
         <Login />
       </WithSuspense>
-    ),
+    )
   },
   {
-    path: "/",
+    path: '/',
     element: (
       <WithSuspense>
         <Main />
@@ -55,7 +52,7 @@ const router = createBrowserRouter([
     ),
     children: [
       {
-        path: "/",
+        path: '/',
         element: (
           <WithSuspense>
             <Home />
@@ -63,48 +60,48 @@ const router = createBrowserRouter([
         ),
         children: [
           {
-            path: "/",
+            path: '/',
             element: (
               <WithSuspense>
                 <Apps />
               </WithSuspense>
-            ),
+            )
           },
           {
-            path: "apps/qqbot-button-template",
+            path: 'apps/qqbot-button-template',
             element: (
               <WithSuspense>
                 <ButtonTemplate />
               </WithSuspense>
-            ),
+            )
           },
           {
-            path: "apps/onebot",
+            path: 'apps/onebot',
             element: (
               <WithSuspense>
                 <OneBot />
               </WithSuspense>
-            ),
+            )
           },
           {
-            path: "apps/nodejs",
+            path: 'apps/nodejs',
             element: (
               <WithSuspense>
                 <AppsNodeJS />
               </WithSuspense>
-            ),
+            )
           },
           {
-            path: "bots",
+            path: 'bots',
             element: (
               <WithSuspense>
                 <Bots />
               </WithSuspense>
             ),
-            children: [],
+            children: []
           },
           {
-            path: "bots/:name",
+            path: 'bots/:name',
             element: (
               <WithSuspense>
                 <Panel />
@@ -112,186 +109,178 @@ const router = createBrowserRouter([
             ),
             children: [
               {
-                path: "",
+                path: '',
                 element: (
                   <WithSuspense>
                     <Config />
                   </WithSuspense>
-                ),
+                )
               },
               {
-                path: "config",
+                path: 'config',
                 element: (
                   <WithSuspense>
                     <Config />
                   </WithSuspense>
-                ),
+                )
               },
               {
-                path: "logs",
+                path: 'logs',
                 element: (
                   <WithSuspense>
                     <Logs />
                   </WithSuspense>
-                ),
+                )
               },
               {
-                path: "package",
+                path: 'package',
                 element: (
                   <WithSuspense>
                     <Package />
                   </WithSuspense>
-                ),
+                )
               },
               {
-                path: "testone",
-                element: (
-                  <WithSuspense>
-                    <TestOne />
-                  </WithSuspense>
-                ),
-              },
-              {
-                path: "xterm-date",
+                path: 'xterm-date',
                 element: (
                   <WithSuspense>
                     <XtermDate />
                   </WithSuspense>
-                ),
+                )
               },
               {
-                path: "response",
+                path: 'response',
                 element: (
                   <WithSuspense>
                     <Response />
                   </WithSuspense>
-                ),
+                )
               },
               {
-                path: "packages",
+                path: 'packages',
                 element: (
                   <WithSuspense>
                     <Packages />
                   </WithSuspense>
-                ),
+                )
               },
               {
-                path: "env",
+                path: 'env',
                 element: (
                   <WithSuspense>
                     <Env />
                   </WithSuspense>
-                ),
+                )
               },
               {
-                path: "packages/:name",
+                path: 'packages/:name',
                 element: (
                   <WithSuspense>
                     <PackagesMessage />
                   </WithSuspense>
-                ),
+                )
               },
               {
-                path: "packages/:name/package",
+                path: 'packages/:name/package',
                 element: (
                   <WithSuspense>
                     <GitPackage />
                   </WithSuspense>
-                ),
-              },
-            ],
+                )
+              }
+            ]
           },
           {
-            path: "settings",
+            path: 'settings',
             element: (
               <WithSuspense>
                 <Settings />
               </WithSuspense>
-            ),
+            )
           },
           {
-            path: "update-password",
+            path: 'update-password',
             element: (
               <WithSuspense>
                 <UpdatePassWord />
               </WithSuspense>
-            ),
+            )
           },
           {
-            path: "update-email",
+            path: 'update-email',
             element: (
               <WithSuspense>
                 <UpdateEmail />
               </WithSuspense>
-            ),
+            )
           },
           {
-            path: "account",
+            path: 'account',
             element: (
               <WithSuspense>
                 <Account />
               </WithSuspense>
-            ),
+            )
           },
           {
-            path: "ssh",
+            path: 'ssh',
             element: (
               <WithSuspense>
                 <SSH />
               </WithSuspense>
-            ),
+            )
           },
           {
-            path: "ssh/:name",
+            path: 'ssh/:name',
             element: (
               <WithSuspense>
                 <SSHUpdate />
               </WithSuspense>
-            ),
+            )
           },
           {
-            path: "ssh/:name/update",
+            path: 'ssh/:name/update',
             element: (
               <WithSuspense>
                 <SSHUpdate />
               </WithSuspense>
-            ),
+            )
           },
           {
-            path: "configs",
+            path: 'configs',
             element: (
               <WithSuspense>
                 <Configs />
               </WithSuspense>
-            ),
+            )
           },
           {
-            path: "configs/:name",
+            path: 'configs/:name',
             element: (
               <WithSuspense>
                 <ConfigEdit />
               </WithSuspense>
-            ),
+            )
           },
           {
-            path: "configs/:name/create",
+            path: 'configs/:name/create',
             element: (
               <WithSuspense>
                 <ConfigEdit />
               </WithSuspense>
-            ),
-          },
-        ],
+            )
+          }
+        ]
       },
       {
-        path: "*",
+        path: '*',
         element: (
           <WithSuspense>
             <NotRoute />
           </WithSuspense>
-        ),
-      },
-    ],
-  },
-]);
-export default router;
+        )
+      }
+    ]
+  }
+])
+export default router

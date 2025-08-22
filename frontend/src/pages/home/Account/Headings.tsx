@@ -1,7 +1,9 @@
-import {useState} from "react";
-import {apiUserCreate} from "@/api/users/admin";
-import {Button, message, Modal} from "antd";
-import {Form, Input, Select} from "antd";
+import { useState } from 'react'
+import { apiUserCreate } from '@/api/users/admin'
+import { Button, message, Modal } from 'antd'
+import { Form, Input, Select } from 'antd'
+import { UserAddOutlined } from '@ant-design/icons'
+
 /**
  *
  * @param param0
@@ -9,15 +11,15 @@ import {Form, Input, Select} from "antd";
  */
 const Headings = ({
   onUpdate = () => {},
-  selects = [],
+  selects = []
 }: {
-  onUpdate: () => void;
-  selects: string[];
+  onUpdate: () => void
+  selects: string[]
 }) => {
-  const [visible, setVisible] = useState(false);
+  const [visible, setVisible] = useState(false)
   const onCreateAccount = () => {
-    setVisible(true);
-  };
+    setVisible(true)
+  }
 
   /**
    * @param e
@@ -25,94 +27,146 @@ const Headings = ({
    */
   const onSubmit = (values: HTMLFormElement) => {
     // 检查密码是否一致
-    const username = values.username.trim();
-    const password = values.password.trim();
-    const confirm_password = values.confirm_password.trim();
+    const username = values.username.trim()
+    const password = values.password.trim()
+    const confirm_password = values.confirm_password.trim()
     if (password !== confirm_password) {
-      message.error("密码不一致");
-      return;
+      message.error('密码不一致')
+      return
     }
     apiUserCreate({
       username: username,
       password: password,
-      identity: values.identity,
-    }).then(() => {
-      onUpdate();
-      setVisible(false);
-    });
-  };
-  const [form] = Form.useForm();
+      identity: values.identity
+    })
+      .then(() => {
+        message.success('账户创建成功')
+        onUpdate()
+        setVisible(false)
+        form.resetFields()
+      })
+      .catch(() => {
+        message.error('账户创建失败，请重试')
+      })
+  }
+  const [form] = Form.useForm()
   return (
-    <header className="lg:flex lg:items-center lg:justify-between py-2">
+    <header className="lg:flex lg:items-center lg:justify-between py-4">
       <div className="flex justify-end w-full">
-        <Button type="primary" onClick={onCreateAccount}>
-          新建
+        <Button
+          type="primary"
+          onClick={onCreateAccount}
+          icon={<UserAddOutlined />}
+          className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 border-0 shadow-md hover:shadow-lg transition-all duration-300 rounded-lg px-6"
+        >
+          新建账户
         </Button>
       </div>
       <Modal
         open={visible}
-        title="新建账户"
+        title={
+          <div className="flex items-center gap-2">
+            <UserAddOutlined className="text-blue-500" />
+            <span className="font-semibold">新建账户</span>
+          </div>
+        }
         onCancel={() => setVisible(false)}
         onOk={() => {
-          form.submit();
+          form.submit()
         }}
-        okText="确定"
+        okText="确认创建"
         cancelText="取消"
+        className="dark:[&>.ant-modal-content]:bg-zinc-900/95 backdrop-blur-xl"
+        width="90%"
       >
-        <Form
-          form={form}
-          className="space-y-6 dark:[&>.ant-drawer-content]:bg-zinc-900 dark:[&>.ant-drawer-header]:bg-zinc-900 p-4"
-          onFinish={onSubmit}
-        >
-          <Form.Item
-            label="账户"
-            name="username"
-            rules={[{required: true, message: "请输入账户"}]}
+        <div className="bg-gradient-to-r from-blue-50/50 to-purple-50/50 dark:from-blue-900/20 dark:to-purple-900/20 border border-blue-200/50 dark:border-blue-700/50 rounded-lg p-4">
+          <Form
+            form={form}
+            layout="vertical"
+            className="space-y-4"
+            onFinish={onSubmit}
           >
-            <Input autoComplete="username" />
-          </Form.Item>
-          <Form.Item
-            label="身份"
-            name="identity"
-            rules={[{required: true, message: "请选择身份"}]}
-          >
-            <Select>
-              {selects.map((item) => (
-                <Select.Option key={item} value={item}>
-                  {item}
-                </Select.Option>
-              ))}
-            </Select>
-          </Form.Item>
-          <Form.Item
-            label="密码"
-            name="password"
-            rules={[{required: true, message: "请输入密码"}]}
-          >
-            <Input.Password autoComplete="new-password" />
-          </Form.Item>
-          <Form.Item
-            label="确认密码"
-            name="confirm_password"
-            dependencies={["password"]}
-            rules={[
-              {required: true, message: "请确认密码"},
-              ({getFieldValue}) => ({
-                validator(_, value) {
-                  if (!value || getFieldValue("password") === value) {
-                    return Promise.resolve();
+            <Form.Item
+              label={
+                <span className="text-gray-700 dark:text-gray-200 font-medium">
+                  账户名称
+                </span>
+              }
+              name="username"
+              rules={[{ required: true, message: '请输入账户名称' }]}
+            >
+              <Input
+                autoComplete="username"
+                placeholder="请输入账户名称"
+                className="bg-white/70 dark:bg-zinc-800/70 border-gray-300/50 dark:border-zinc-600/50 rounded-lg focus:border-blue-500 dark:focus:border-blue-400 transition-all duration-300"
+              />
+            </Form.Item>
+            <Form.Item
+              label={
+                <span className="text-gray-700 dark:text-gray-200 font-medium">
+                  用户身份
+                </span>
+              }
+              name="identity"
+              rules={[{ required: true, message: '请选择用户身份' }]}
+            >
+              <Select
+                placeholder="请选择用户身份"
+                className="bg-white/70 dark:bg-zinc-800/70"
+              >
+                {selects.map(item => (
+                  <Select.Option key={item} value={item}>
+                    {item}
+                  </Select.Option>
+                ))}
+              </Select>
+            </Form.Item>
+            <Form.Item
+              label={
+                <span className="text-gray-700 dark:text-gray-200 font-medium">
+                  登录密码
+                </span>
+              }
+              name="password"
+              rules={[{ required: true, message: '请输入登录密码' }]}
+            >
+              <Input.Password
+                autoComplete="new-password"
+                placeholder="请输入登录密码"
+                className="bg-white/70 dark:bg-zinc-800/70 border-gray-300/50 dark:border-zinc-600/50 rounded-lg focus:border-blue-500 dark:focus:border-blue-400 transition-all duration-300"
+              />
+            </Form.Item>
+            <Form.Item
+              label={
+                <span className="text-gray-700 dark:text-gray-200 font-medium">
+                  确认密码
+                </span>
+              }
+              name="confirm_password"
+              dependencies={['password']}
+              rules={[
+                { required: true, message: '请确认密码' },
+                ({ getFieldValue }) => ({
+                  validator(_, value) {
+                    if (!value || getFieldValue('password') === value) {
+                      return Promise.resolve()
+                    }
+                    return Promise.reject(new Error('两次密码输入不一致'))
                   }
-                  return Promise.reject(new Error("两次密码输入不一致"));
-                },
-              }),
-            ]}
-          >
-            <Input.Password autoComplete="new-password" />
-          </Form.Item>
-        </Form>
+                })
+              ]}
+            >
+              <Input.Password
+                autoComplete="new-password"
+                placeholder="请再次输入密码"
+                className="bg-white/70 dark:bg-zinc-800/70 border-gray-300/50 dark:border-zinc-600/50 rounded-lg focus:border-blue-500 dark:focus:border-blue-400 transition-all duration-300"
+              />
+            </Form.Item>
+          </Form>
+        </div>
       </Modal>
     </header>
-  );
-};
+  )
+}
 
-export default Headings;
+export default Headings

@@ -1,63 +1,137 @@
-import {Outlet, useLocation, useNavigate} from "react-router-dom";
-import SiderMenu from "./SiderMenu";
-import {Breadcrumb} from "antd";
-
-const map = {
-  bots: "机器人集",
-  configs: "配置集",
-  config: "配置",
-  packages: "包集",
-  package: "包",
-  create: "创建",
-  update: "更新",
-  accounts: "账户",
-  account: "账户",
-  me: "我的",
-  login: "登录",
-  "button-template": "按钮模板",
-  register: "注册",
-  settings: "设置",
-  "update-password": "修改密码",
-  "update-email": "修改邮箱",
-};
+import { Outlet } from 'react-router-dom'
+import SiderMenu from './SiderMenu'
+import { useState, useEffect } from 'react'
+import { Drawer, Button } from 'antd'
+import { MenuOutlined } from '@ant-design/icons'
+import FloatButtons from './FloatButtons'
 
 /**
- *
+ * 移动端侧边栏抽屉组件
+ */
+const MobileSidebar = ({
+  open,
+  onClose
+}: {
+  open: boolean
+  onClose: () => void
+}) => {
+  return (
+    <Drawer
+      title={
+        <div className="flex items-center gap-2">
+          <img
+            className="h-6 w-auto"
+            src="https://alemonjs.com/img/alemon.png"
+            alt="Alemongo"
+          />
+          <span className="text-white font-semibold">导航菜单</span>
+        </div>
+      }
+      placement="left"
+      onClose={onClose}
+      open={open}
+      width="280px"
+      className="dark:[&>.ant-drawer-content]:bg-gray-800/95 dark:[&>.ant-drawer-header]:bg-gray-800/95 backdrop-blur-xl"
+      styles={{
+        body: {
+          padding: 0,
+          background: 'transparent'
+        },
+        header: {
+          borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+          background: 'transparent'
+        }
+      }}
+    >
+      <div className="h-full">
+        <SiderMenu onMobileItemClick={onClose} onToggle={() => {}} />
+      </div>
+    </Drawer>
+  )
+}
+
+/**
+ * Chat风格的主页面布局
  * @returns
  */
-const Breadcrumbs = () => {
-  const location = useLocation();
-  const navigate = useNavigate();
-  // 根据路径动态生成面包屑
-  const pathSnippets = location.pathname.split("/").filter((i) => i);
-  // 处理路径参数
-  const breadcrumbItems = pathSnippets.map((name, index) => {
-    const url = `/${pathSnippets.slice(0, index + 1).join("/")}`;
-    return {
-      title: map[name] || name,
-      onClick: (e: React.MouseEvent) => {
-        e.preventDefault();
-        navigate(url);
-      },
-    };
-  });
-  return <Breadcrumb className=" cursor-pointer" items={breadcrumbItems} />;
-};
-
 const Home = () => {
-  return (
-    <>
-      <aside>
-        <SiderMenu />
-      </aside>
-      <div className="w-full flex flex-col">
-        <div className="px-4 py-2 bg-slate-200 dark:bg-zinc-800 transition-colors">
-          <Breadcrumbs />
-        </div>
-        <Outlet />
-      </div>
-    </>
-  );
-};
+  const [isMobile, setIsMobile] = useState(false)
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false)
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
 
-export default Home;
+  // 检测移动端
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768)
+    }
+
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
+
+  const handleMobileSidebarClose = () => {
+    setMobileSidebarOpen(false)
+  }
+
+  const handleSidebarToggle = (collapsed: boolean) => {
+    setSidebarCollapsed(collapsed)
+  }
+
+  return (
+    <div className="flex h-full w-full">
+      {/* 桌面端侧边栏 */}
+      {!isMobile && (
+        <aside
+          className={`${sidebarCollapsed ? 'w-16' : 'w-44'} flex-shrink-0  duration-300 ease-in-out`}
+        >
+          <SiderMenu onToggle={handleSidebarToggle} />
+        </aside>
+      )}
+
+      {/* 主内容区域 */}
+      <div className="flex-1 flex flex-col min-w-0">
+        {/* 桌面端顶部导航栏 */}
+        {/* {!isMobile && <DesktopNavbar />} */}
+
+        {/* 移动端顶部导航栏 */}
+        {isMobile && (
+          <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-gray-800/95 to-gray-900/95 dark:from-zinc-900/95 dark:to-black/95 backdrop-blur-xl border-b border-white/10 dark:border-gray-700/20">
+            <Button
+              type="text"
+              icon={<MenuOutlined />}
+              onClick={() => setMobileSidebarOpen(true)}
+              className="text-white hover:text-purple-300 hover:bg-white/10"
+            />
+            <div className="flex items-center gap-2">
+              <img
+                className="h-6 w-auto"
+                src="https://alemonjs.com/img/alemon.png"
+                alt="Alemongo"
+              />
+              <span className="text-white font-semibold text-sm">Alemongo</span>
+            </div>
+            <div className="w-8"></div> {/* 占位符，保持居中 */}
+          </div>
+        )}
+
+        {/* 内容输出区域 */}
+        <div className="flex-1 overflow-hidden">
+          <Outlet />
+        </div>
+      </div>
+
+      {/* 移动端侧边栏抽屉 */}
+      {isMobile && (
+        <MobileSidebar
+          open={mobileSidebarOpen}
+          onClose={handleMobileSidebarClose}
+        />
+      )}
+
+      <FloatButtons />
+    </div>
+  )
+}
+
+export default Home

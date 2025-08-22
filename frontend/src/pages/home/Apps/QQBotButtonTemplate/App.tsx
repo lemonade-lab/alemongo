@@ -1,110 +1,110 @@
-import { message, Modal } from "antd";
-import React, { useCallback, useEffect, useState } from "react";
-import { DataRow, EditFormValues } from "./types";
-import OutputSection from "./OutputSection";
-import MainWorkspace from "./MainWorkspace";
-import LoadForm from "./LoadFrom";
-import EditForm from "./EditForm";
-import { QQ_TEMPLATE_KEY } from "@/api/base";
-import { useForm } from "antd/es/form/Form";
-import "./index.css";
-import Box from "@/commom/Box";
+import { message, Modal } from 'antd'
+import React, { useCallback, useEffect, useState } from 'react'
+import { DataRow, EditFormValues } from './types'
+import OutputSection from './OutputSection'
+import MainWorkspace from './MainWorkspace'
+import LoadForm from './LoadFrom'
+import EditForm from './EditForm'
+import { QQ_TEMPLATE_KEY } from '@/api/base'
+import { useForm } from 'antd/es/form/Form'
+import './index.css'
+import Box from '@/commom/Box'
 
 /**
  * @returns
  */
 const ButtonTemplate: React.FC = () => {
-  const [rows, setRows] = useState<DataRow[]>([]);
-  const [output, setOutput] = useState<string>("");
+  const [rows, setRows] = useState<DataRow[]>([])
+  const [output, setOutput] = useState<string>('')
 
   // 添加行
   const addRow = () => {
     if (rows.length >= 5) {
-      message.info("最多支持5行按钮");
-      return;
+      message.info('最多支持5行按钮')
+      return
     }
-    const newRow: DataRow = { id: Date.now(), buttons: [] };
-    setRows([...rows, newRow]);
-  };
+    const newRow: DataRow = { id: Date.now(), buttons: [] }
+    setRows([...rows, newRow])
+  }
 
   // 删除行
   const deleteRow = (rowId: number) => {
-    const currentRow = rows.filter((row) => row.id !== rowId);
-    setRows(currentRow);
-  };
+    const currentRow = rows.filter(row => row.id !== rowId)
+    setRows(currentRow)
+  }
 
   // 创建按钮数据
   const createButtonData = () => {
     return {
       id: Date.now().toString(),
       render_data: {
-        label: "文字",
-        visited_label: "已点击",
-        style: 0,
+        label: '文字',
+        visited_label: '已点击',
+        style: 0
       },
       action: {
         type: 2,
         permission: {
           type: 2,
-          specify_role_ids: ["1", "2", "3"],
+          specify_role_ids: ['1', '2', '3']
         },
         click_limit: 10,
-        unsupport_tips: "不支持",
-        data: "",
+        unsupport_tips: '不支持',
+        data: '',
         at_bot_show_channel_list: false,
-        enter: false,
-      },
-    };
-  };
+        enter: false
+      }
+    }
+  }
 
   // 添加按钮
   const addButtonToRow = (rowId: number) => {
-    const row = rows.find((row) => row.id === rowId);
+    const row = rows.find(row => row.id === rowId)
     if (row && row.buttons.length >= 5) {
-      message.info("每行最多支持5个按钮");
-      return;
+      message.info('每行最多支持5个按钮')
+      return
     }
     setRows(
-      rows.map((row) =>
+      rows.map(row =>
         row.id === rowId
           ? {
               ...row,
-              buttons: [...row.buttons, createButtonData()],
+              buttons: [...row.buttons, createButtonData()]
             }
           : row
       )
-    );
-  };
+    )
+  }
 
   // 删除按钮
   const deleteButton = (rowId: number, buttonId: string) => {
     setRows(
-      rows.map((row) =>
+      rows.map(row =>
         row.id === rowId
           ? {
               ...row,
-              buttons: row.buttons.filter((button) => button.id !== buttonId),
+              buttons: row.buttons.filter(button => button.id !== buttonId)
             }
           : row
       )
-    );
-  };
+    )
+  }
 
   // 编辑按钮
   const editButton = (rowId: number, buttonId: string) => {
-    const row = rows.find((row) => row.id === rowId);
+    const row = rows.find(row => row.id === rowId)
     if (!row) {
-      message.error("未找到对应的行");
-      return;
+      message.error('未找到对应的行')
+      return
     }
-    const button = row.buttons.find((button) => button.id === buttonId);
+    const button = row.buttons.find(button => button.id === buttonId)
     if (!button) {
-      message.error("未找到对应的按钮");
-      return;
+      message.error('未找到对应的按钮')
+      return
     }
-    setCurrentEdit({ rowId, buttonId });
-    setEditVisible(true);
-  };
+    setCurrentEdit({ rowId, buttonId })
+    setEditVisible(true)
+  }
 
   /**
    * 解析模板。同时确保rows中有id
@@ -113,149 +113,149 @@ const ButtonTemplate: React.FC = () => {
    */
   const analysisButtonContent = (output: string) => {
     try {
-      const json = JSON.parse(output);
+      const json = JSON.parse(output)
       if (!json.rows) {
-        message.error("模板格式错误");
-        return;
+        message.error('模板格式错误')
+        return
       }
       // 设置输出
-      setOutput(JSON.stringify(json, null, 2));
+      setOutput(JSON.stringify(json, null, 2))
       // 格式化数据
-      const newRows: DataRow[] = json.rows;
+      const newRows: DataRow[] = json.rows
       // 检测是否有id。么有id就添加一个
-      let id = 0;
-      const rows = newRows.map((row) => {
+      let id = 0
+      const rows = newRows.map(row => {
         if (!row.id) {
-          id += 1;
+          id += 1
           return {
             ...row,
-            id: id,
-          };
+            id: id
+          }
         }
         // 存在，看看是否小于当前最大值
         if (row.id <= id) {
-          id += 1;
+          id += 1
           return {
             ...row,
-            id: id,
-          };
+            id: id
+          }
         }
-        return row;
-      });
-      setRows(rows);
+        return row
+      })
+      setRows(rows)
     } catch {
-      message.error("解析模板失败，请检查格式");
+      message.error('解析模板失败，请检查格式')
     }
-  };
+  }
 
   //  复制模板到剪贴板
   const copyTemplate = () => {
     navigator.clipboard
       .writeText(output)
-      .then(() => message.info("模板已复制到剪贴板"));
-  };
+      .then(() => message.info('模板已复制到剪贴板'))
+  }
 
   // 创建模板
   const generateOutput = useCallback(() => {
     return {
-      rows: rows.map((row) => ({
-        buttons: row.buttons.map((button) => ({
+      rows: rows.map(row => ({
+        buttons: row.buttons.map(button => ({
           id: button.id,
           render_data: button.render_data,
-          action: button.action,
-        })),
-      })),
-    };
-  }, [rows]);
+          action: button.action
+        }))
+      }))
+    }
+  }, [rows])
 
   // 时时更新输出
   useEffect(() => {
-    const template = generateOutput();
-    setOutput(JSON.stringify(template, null, 2));
-  }, [rows, generateOutput]);
+    const template = generateOutput()
+    setOutput(JSON.stringify(template, null, 2))
+  }, [rows, generateOutput])
 
   // 时时存储到本地
   useEffect(() => {
     // 从本地存储中获取数据
     if (!output) {
-      const localOutput = localStorage.getItem(QQ_TEMPLATE_KEY);
+      const localOutput = localStorage.getItem(QQ_TEMPLATE_KEY)
       if (localOutput) {
-        analysisButtonContent(localOutput);
-        return;
+        analysisButtonContent(localOutput)
+        return
       }
     }
     // 存在数据。不是init。只要发生变化就存储到本地
-    const template = generateOutput();
-    localStorage.setItem(QQ_TEMPLATE_KEY, JSON.stringify(template, null, 2));
-  }, [output, generateOutput]);
+    const template = generateOutput()
+    localStorage.setItem(QQ_TEMPLATE_KEY, JSON.stringify(template, null, 2))
+  }, [output, generateOutput])
 
   // 加载模板
-  const [visible, setVisible] = useState(false);
+  const [visible, setVisible] = useState(false)
 
   const onFinishLoad = (values: { template: string }) => {
     // 检测是否是json格式的数据
     try {
-      const json = JSON.parse(values.template);
+      const json = JSON.parse(values.template)
       if (Array.isArray(json.rows)) {
-        analysisButtonContent(values.template);
-        message.success("加载成功");
-        setVisible(false);
+        analysisButtonContent(values.template)
+        message.success('加载成功')
+        setVisible(false)
       } else {
-        message.error("模板格式错误");
+        message.error('模板格式错误')
       }
     } catch {
-      message.error("加载失败，请检查格式");
+      message.error('加载失败，请检查格式')
     }
-  };
+  }
 
   const onUpload = () => {
     // 选择json文件。
-    const input = document.createElement("input");
-    input.type = "file";
-    input.accept = ".json";
-    input.onchange = (e) => {
-      const file = (e.target as HTMLInputElement).files?.[0];
+    const input = document.createElement('input')
+    input.type = 'file'
+    input.accept = '.json'
+    input.onchange = e => {
+      const file = (e.target as HTMLInputElement).files?.[0]
       if (file) {
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          const content = event.target?.result;
+        const reader = new FileReader()
+        reader.onload = event => {
+          const content = event.target?.result
           if (content) {
             try {
-              const json = JSON.parse(content as string);
-              setOutput(JSON.stringify(json, null, 2));
+              const json = JSON.parse(content as string)
+              setOutput(JSON.stringify(json, null, 2))
             } catch {
-              message.error("文件格式错误");
+              message.error('文件格式错误')
             }
           }
-        };
-        reader.readAsText(file);
+        }
+        reader.readAsText(file)
       }
-    };
-    input.click();
-  };
+    }
+    input.click()
+  }
 
   // 编辑按钮
-  const [editVisible, setEditVisible] = useState(false);
+  const [editVisible, setEditVisible] = useState(false)
   const [currentEdit, setCurrentEdit] = useState<{
-    rowId: number;
-    buttonId: string;
-  } | null>(null);
+    rowId: number
+    buttonId: string
+  } | null>(null)
 
-  const [from] = useForm();
+  const [from] = useForm()
 
   useEffect(() => {
     if (editVisible && currentEdit) {
       // 找到数据
-      const { rowId, buttonId } = currentEdit;
-      const row = rows.find((row) => row.id === rowId);
+      const { rowId, buttonId } = currentEdit
+      const row = rows.find(row => row.id === rowId)
       if (!row) {
-        message.error("未找到对应的行");
-        return;
+        message.error('未找到对应的行')
+        return
       }
-      const button = row.buttons.find((button) => button.id === buttonId);
+      const button = row.buttons.find(button => button.id === buttonId)
       if (!button) {
-        message.error("未找到对应的按钮");
-        return;
+        message.error('未找到对应的按钮')
+        return
       }
       const values: EditFormValues = {
         label: button.render_data.label,
@@ -267,24 +267,24 @@ const ButtonTemplate: React.FC = () => {
         click_limit: button.action.click_limit,
         unsupport_tips: button.action.unsupport_tips,
         at_bot_show_channel_list: button.action.at_bot_show_channel_list,
-        enter: button.action.enter,
-      };
-      from.setFieldsValue(values);
+        enter: button.action.enter
+      }
+      from.setFieldsValue(values)
     }
-  }, [editVisible, currentEdit, rows, from]);
+  }, [editVisible, currentEdit, rows, from])
 
   const onFinishEdit = (values: EditFormValues) => {
     if (!currentEdit) {
-      message.error("编辑失败");
-      return;
+      message.error('编辑失败')
+      return
     }
-    const { rowId, buttonId } = currentEdit;
+    const { rowId, buttonId } = currentEdit
     setRows(
-      rows.map((row) => {
+      rows.map(row => {
         if (row.id === rowId) {
           return {
             ...row,
-            buttons: row.buttons.map((button) => {
+            buttons: row.buttons.map(button => {
               if (button.id === buttonId) {
                 return {
                   ...button,
@@ -292,7 +292,7 @@ const ButtonTemplate: React.FC = () => {
                     ...button.render_data,
                     label: values.label,
                     visited_label: values.visited_label,
-                    style: values.style,
+                    style: values.style
                   },
                   action: {
                     ...button.action,
@@ -300,24 +300,24 @@ const ButtonTemplate: React.FC = () => {
                     type: values.type,
                     permission: {
                       ...button.action.permission,
-                      type: values.permission,
+                      type: values.permission
                     },
                     click_limit: values.click_limit,
                     unsupport_tips: values.unsupport_tips,
                     at_bot_show_channel_list: values.at_bot_show_channel_list,
-                    enter: values.enter,
-                  },
-                };
+                    enter: values.enter
+                  }
+                }
               }
-              return button;
-            }),
-          };
+              return button
+            })
+          }
         }
-        return row;
+        return row
       })
-    );
-    setEditVisible(false);
-  };
+    )
+    setEditVisible(false)
+  }
 
   return (
     <Box>
@@ -356,7 +356,7 @@ const ButtonTemplate: React.FC = () => {
         <EditForm form={from} onFinish={onFinishEdit} />
       </Modal>
     </Box>
-  );
-};
+  )
+}
 
-export default ButtonTemplate;
+export default ButtonTemplate

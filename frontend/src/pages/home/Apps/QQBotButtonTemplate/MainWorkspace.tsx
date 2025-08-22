@@ -1,7 +1,7 @@
-import {Button, Tooltip} from "antd";
-import {PlusOutlined, UploadOutlined} from "@ant-design/icons";
-import {DataRow} from "./types";
-import ButtonRow from "./ButtonRow";
+import { Button, Tooltip } from 'antd'
+import { PlusOutlined, UploadOutlined } from '@ant-design/icons'
+import { DataRow } from './types'
+import ButtonRow from './ButtonRow'
 
 // 工作台组件
 const MainWorkspace = ({
@@ -11,15 +11,15 @@ const MainWorkspace = ({
   onDeleteRow,
   onAddButton,
   onEditButton,
-  onDeleteButton,
+  onDeleteButton
 }: {
-  rows: DataRow[];
-  onUpLoad: () => void;
-  onAddRow: () => void;
-  onDeleteRow: (rowId: number) => void;
-  onAddButton: (rowId: number) => void;
-  onEditButton: (rowId: number, buttonId: string) => void;
-  onDeleteButton: (rowId: number, buttonId: string) => void;
+  rows: DataRow[]
+  onUpLoad: () => void
+  onAddRow: () => void
+  onDeleteRow: (rowId: number) => void
+  onAddButton: (rowId: number) => void
+  onEditButton: (rowId: number, buttonId: string) => void
+  onDeleteButton: (rowId: number, buttonId: string) => void
 }) => {
   return (
     <div className="flex-1 flex flex-col gap-2">
@@ -38,7 +38,7 @@ const MainWorkspace = ({
         </div>
       </div>
       <div className="flex flex-col">
-        {rows.map((row) => (
+        {rows.map(row => (
           <ButtonRow
             key={row.id}
             rowId={row.id}
@@ -51,7 +51,7 @@ const MainWorkspace = ({
         ))}
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default MainWorkspace;
+export default MainWorkspace

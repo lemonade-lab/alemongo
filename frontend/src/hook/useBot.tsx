@@ -3,93 +3,93 @@ import {
   apiBotRun,
   apiBotStop,
   apiBotYarnInstall,
-  BotInfo,
-} from "@/api";
-import {getBotName} from "@/pages/home/panel/core";
-import {message} from "antd";
-import {useEffect, useRef, useState} from "react";
+  BotInfo
+} from '@/api'
+import { getBotName } from '@/pages/home/panel/core'
+import { message } from 'antd'
+import { useEffect, useRef, useState } from 'react'
 
 const useBot = () => {
   const [info, setInfo] = useState<BotInfo>({
-    name: "",
+    name: '',
     status: 0,
     pid: 0,
     node_modules: false,
-    create_at: "",
-    port: 0,
-  });
-  const pollingRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    create_at: '',
+    port: 0
+  })
+  const pollingRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const onUpdate = (name: string) => {
     apiBotInfo({
-      name,
-    }).then((res) => {
-      setInfo(res);
-    });
-  };
+      name
+    }).then(res => {
+      setInfo(res)
+    })
+  }
 
   useEffect(() => {
-    const name = getBotName();
-    onUpdate(name);
+    const name = getBotName()
+    onUpdate(name)
     return () => {
       // 清除轮训
       if (pollingRef.current) {
-        clearTimeout(pollingRef.current);
+        clearTimeout(pollingRef.current)
       }
-    };
-  }, []);
+    }
+  }, [])
 
-  const [isLoading, setLoading] = useState(false);
+  const [isLoading, setLoading] = useState(false)
 
   // 开始轮训
   const startPollingInstall = (name: string) => {
     pollingRef.current = setTimeout(() => {
-      apiBotInfo({name}).then((res) => {
+      apiBotInfo({ name }).then(res => {
         if (!res.node_modules) {
-          startPollingInstall(name);
-          return;
+          startPollingInstall(name)
+          return
         }
-        message.success("依赖安装完成");
-        setInfo(res);
+        message.success('依赖安装完成')
+        setInfo(res)
         // 去掉loading
-        setLoading(false);
-      });
-    }, 1000);
-  };
+        setLoading(false)
+      })
+    }, 1000)
+  }
 
   const onInstall = (name: string) => {
     if (isLoading) {
-      message.warning("正在安装中，请稍后");
-      return;
+      message.warning('正在安装中，请稍后')
+      return
     }
-    setLoading(true);
+    setLoading(true)
     // 安装依赖
     apiBotYarnInstall({
-      name,
+      name
     })
       .then(() => {
-        startPollingInstall(name);
+        startPollingInstall(name)
       })
       .finally(() => {
-        setLoading(false);
-      });
-  };
+        setLoading(false)
+      })
+  }
 
   const onRun = (name: string) => {
     apiBotRun({
-      name,
+      name
     }).then(() => {
-      onUpdate(name);
-    });
-  };
+      onUpdate(name)
+    })
+  }
 
   const onStop = (name: string) => {
     apiBotStop({
-      name,
+      name
     }).then(() => {
-      onUpdate(name);
-    });
-  };
+      onUpdate(name)
+    })
+  }
 
   const control = {
     info,
@@ -98,10 +98,10 @@ const useBot = () => {
     onInstall,
     onUpdate,
     onRun,
-    onStop,
-  };
+    onStop
+  }
 
-  return [control];
-};
+  return [control]
+}
 
-export default useBot;
+export default useBot

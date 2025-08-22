@@ -1,13 +1,13 @@
-import { Button } from "antd";
-import { CopyOutlined } from "@ant-design/icons";
+import { Button } from 'antd'
+import { CopyOutlined } from '@ant-design/icons'
 
 // 生成结果组件
 const OutputSection = ({
   output,
-  onCopy,
+  onCopy
 }: {
-  output: string;
-  onCopy: () => void;
+  output: string
+  onCopy: () => void
 }) => {
   return (
     <div className="flex-1 flex flex-col bg-white dark:bg-zinc-800 rounded-md transition-colors shadow">
@@ -26,7 +26,7 @@ const OutputSection = ({
         />
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default OutputSection;
+export default OutputSection

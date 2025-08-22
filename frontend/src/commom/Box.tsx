@@ -1,5 +1,5 @@
-import classNames from "classnames";
-import {PropsWithChildren} from "react";
+import classNames from 'classnames'
+import { PropsWithChildren } from 'react'
 
 /**
  * 自由滚动的盒子
@@ -9,23 +9,23 @@ import {PropsWithChildren} from "react";
 const Box = ({
   boxRef,
   children,
-  className,
+  className
 }: PropsWithChildren<{
-  boxRef?: React.RefObject<HTMLDivElement>;
-  className?: string;
+  boxRef?: React.RefObject<HTMLDivElement>
+  className?: string
 }>) => {
   return (
     <div
       ref={boxRef}
-      className="flex-1 flex overflow-auto bg-slate-100 dark:bg-zinc-900 transition-colors "
+      className="flex-1 p-4 h-full w-full flex overflow-auto transition-colors "
     >
       <div className="flex-1 flex w-[100px]">
-        <div className={classNames(className, "flex-1 flex flex-col")}>
+        <div className={classNames(className, 'flex-1 flex flex-col')}>
           {children}
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default Box;
+export default Box

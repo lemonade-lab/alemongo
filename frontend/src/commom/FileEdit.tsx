@@ -1,65 +1,84 @@
-import {Button, Input, message} from "antd";
-import {useEffect, useState} from "react";
-import MonacoEditor from "@monaco-editor/react"; // 假设你已安装 monaco-editor，统一与 JSONEdit 的体验
-import useCodeTheme from "@/hook/useCodeTheme";
+import { Button, Input, message } from 'antd'
+import { useEffect, useState } from 'react'
+import MonacoEditor from '@monaco-editor/react'
+import useCodeTheme from '@/hook/useCodeTheme'
+import { SaveOutlined } from '@ant-design/icons'
 
 const FileEdit = ({
   name,
   value,
   onSave,
-  disableName = false,
+  disableName = false
 }: {
-  name?: string;
-  value: string;
-  onSave: (name: string, value: string) => void;
-  disableName?: boolean;
+  name?: string
+  value: string
+  onSave: (name: string, value: string) => void
+  disableName?: boolean
 }) => {
-  const [fileData, setFileData] = useState<string>(value || "");
-  const [inputValue, setInputValue] = useState<string>(name || "");
-  const theme = useCodeTheme();
+  const [fileData, setFileData] = useState<string>(value || '')
+  const [inputValue, setInputValue] = useState<string>(name || '')
+  const theme = useCodeTheme()
 
   useEffect(() => {
-    setFileData(value || "");
+    setFileData(value || '')
     if (name) {
-      setInputValue(name);
+      setInputValue(name)
     }
-  }, [name, value]);
+  }, [name, value])
 
   const handleCodeChange = (val: string | undefined) => {
-    setFileData(val ?? "");
-  };
+    setFileData(val ?? '')
+  }
 
   const handleSave = () => {
     if (!inputValue) {
-      message.error("文件名不能为空");
-      return;
+      message.error('文件名不能为空')
+      return
     }
-    onSave(inputValue, fileData);
-  };
+    onSave(inputValue, fileData)
+  }
 
   return (
-    <div className="flex flex-1 flex-col gap-2">
-      <div className="flex-1 flex flex-col rounded-md bg-white dark:bg-zinc-900 transition-colors">
-        <div className="flex items-center justify-between p-1 bg-slate-400 dark:bg-zinc-800 rounded-t-md">
-          <div>
-            {disableName ? (
-              <div className="px-2 dark:text-white min-w-[120px]">{name}</div>
-            ) : (
+    <div className="w-full h-full flex flex-col bg-gradient-to-br from-gray-50 to-gray-100 dark:from-zinc-900 dark:to-zinc-800 rounded-xl shadow-2xl border border-gray-200/50 dark:border-zinc-700/50 backdrop-blur-sm">
+      {/* 顶部工具栏 */}
+      <div className="flex items-center justify-between px-4 py-2 bg-gradient-to-r from-white/80 to-gray-50/80 dark:from-zinc-800/80 dark:to-zinc-900/80 backdrop-blur-xl border-b border-gray-200/50 dark:border-zinc-700/50 rounded-t-xl">
+        <div className="flex items-center gap-3">
+          {!disableName && (
+            <div className="relative">
               <Input
                 value={inputValue}
-                placeholder="文件名"
+                placeholder="文件名称"
                 allowClear
-                onChange={(e) => setInputValue(e.target.value)}
-                style={{minWidth: 120}}
+                onChange={e => setInputValue(e.target.value)}
+                className="w-48 bg-white/70 dark:bg-zinc-800/70 border-gray-300/50 dark:border-zinc-600/50 rounded-lg focus:border-blue-500 dark:focus:border-blue-400 transition-all duration-300"
+                style={{ minWidth: 120 }}
               />
-            )}
-          </div>
-          <Button type="primary" onClick={handleSave}>
+            </div>
+          )}
+          {disableName && (
+            <div className="px-4 py-2 bg-white/70 dark:bg-zinc-800/70 border border-gray-300/50 dark:border-zinc-600/50 rounded-lg min-w-[120px] inline-block">
+              <span className="text-gray-700 dark:text-gray-200 font-medium">
+                {name}
+              </span>
+            </div>
+          )}
+        </div>
+        <div className="flex items-center gap-3">
+          <Button
+            type="primary"
+            icon={<SaveOutlined />}
+            onClick={handleSave}
+            className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 border-0 shadow-lg hover:shadow-xl transition-all duration-300 rounded-lg px-6"
+          >
             保存
           </Button>
         </div>
-        <div className="flex overflow-auto flex-1 max-h-[120vh] xl:max-h-none">
-          <div className="flex-1 flex w-full dark:text-white">
+      </div>
+
+      {/* 编辑器区域 */}
+      <div className="flex-1 min-h-0 flex flex-col bg-white/90 dark:bg-zinc-900/90 backdrop-blur-sm rounded-b-xl overflow-hidden">
+        <div className="flex-1 flex flex-col min-h-0 p-2">
+          <div className="flex-1 rounded-lg overflow-hidden border border-gray-200/50 dark:border-zinc-700/50 shadow-inner">
             <MonacoEditor
               value={fileData}
               language="plaintext"
@@ -68,13 +87,21 @@ const FileEdit = ({
               theme={theme}
               options={{
                 fontSize: 14,
-                lineNumbers: "on",
-                minimap: {enabled: false},
+                lineNumbers: 'on',
+                minimap: { enabled: false },
                 scrollBeyondLastLine: false,
                 automaticLayout: true,
-                wordWrap: "off",
+                wordWrap: 'off',
                 formatOnPaste: false,
                 formatOnType: false,
+                padding: { top: 16, bottom: 16 },
+                roundedSelection: false,
+                scrollbar: {
+                  vertical: 'visible',
+                  horizontal: 'visible',
+                  verticalScrollbarSize: 8,
+                  horizontalScrollbarSize: 8
+                }
               }}
               onChange={handleCodeChange}
             />
@@ -82,7 +109,7 @@ const FileEdit = ({
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default FileEdit;
+export default FileEdit

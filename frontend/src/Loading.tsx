@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react'
 
 const Loading: React.FC = () => (
   <div className="flex flex-col items-center justify-center size-full bg-gradient-to-br from-blue-100 via-white to-purple-100">
@@ -8,6 +8,6 @@ const Loading: React.FC = () => (
     <h2 className="text-xl font-semibold text-gray-700 mb-2">页面加载中</h2>
     <p className="text-gray-400 text-sm">请稍候，精彩内容马上呈现...</p>
   </div>
-);
+)
 
-export default Loading;
+export default Loading

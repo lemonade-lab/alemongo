@@ -1,4 +1,4 @@
-import { request } from "../base";
+import { request } from '../base'
 
 /**
  * 流程：
@@ -8,39 +8,36 @@ import { request } from "../base";
 
 /**
  * 绑定
- * @param data 
- * @returns 
+ * @param data
+ * @returns
  */
-export const apiBindEmail = async (data: {
-    email: string;
-}) => {
-    return new Promise((resolve, reject) => {
-        request({
-            url: "/user/bind_email",
-            method: 'POST',
-            data
-        })
-            .then((res) => res.data)
-            .then(resolve)
-            .catch(reject);
-    });
+export const apiBindEmail = async (data: { email: string }) => {
+  return new Promise((resolve, reject) => {
+    request({
+      url: '/user/bind_email',
+      method: 'POST',
+      data
+    })
+      .then(res => res.data)
+      .then(resolve)
+      .catch(reject)
+  })
 }
-
 
 /**
  * 校验
- * @param data 
- * @returns 
+ * @param data
+ * @returns
  */
-export const apiVerifyEmail = async (data) => {
-    return new Promise((resolve, reject) => {
-        request({
-            url: "/user/verify_email",
-            method: 'POST',
-            data
-        })
-            .then((res) => res.data)
-            .then(resolve)
-            .catch(reject);
-    });
+export const apiVerifyEmail = async data => {
+  return new Promise((resolve, reject) => {
+    request({
+      url: '/user/verify_email',
+      method: 'POST',
+      data
+    })
+      .then(res => res.data)
+      .then(resolve)
+      .catch(reject)
+  })
 }

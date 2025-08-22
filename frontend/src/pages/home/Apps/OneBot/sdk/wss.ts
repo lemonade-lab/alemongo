@@ -1,7 +1,7 @@
 const randomUUID = () => {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-    const r = Math.random() * 16 | 0
-    const v = c === 'x' ? r : (r & 0x3 | 0x8)
+    const r = (Math.random() * 16) | 0
+    const v = c === 'x' ? r : (r & 0x3) | 0x8
     return v.toString(16)
   })
 }
@@ -18,18 +18,18 @@ type OneBotEventMap = {
   MESSAGES: MESSAGES_TYPE
   META: meta_event_lifecycle | meta_event_heartbeat
   REQUEST_ADD_FRIEND: {
-    group_id: string;
-    flag: string;
-    user_id: string;
-    request_type: string;
-    sub_type: string;
+    group_id: string
+    flag: string
+    user_id: string
+    request_type: string
+    sub_type: string
   }
   REQUEST_ADD_GROUP: {
-    group_id: string;
-    flag: string;
-    user_id: string;
-    request_type: string;
-    sub_type: string;
+    group_id: string
+    flag: string
+    user_id: string
+    request_type: string
+    sub_type: string
   }
   NOTICE_GROUP_MEMBER_INCREASE: object
   NOTICE_GROUP_MEMBER_REDUCE: object
@@ -51,11 +51,11 @@ export class OneBotClient {
   #options: {
     [key: string]: string | number | boolean | undefined
   } = {
-      url: '',
-      access_token: '',
-      reverse_enable: false,
-      reverse_port: 17158
-    }
+    url: '',
+    access_token: '',
+    reverse_enable: false,
+    reverse_port: 17158
+  }
 
   /**
    * 设置配置
@@ -98,7 +98,10 @@ export class OneBotClient {
    * @param key 事件名称
    * @param val 事件处理函数
    */
-  on<T extends keyof OneBotEventMap>(key: T, val: (event: OneBotEventMap[T]) => void) {
+  on<T extends keyof OneBotEventMap>(
+    key: T,
+    val: (event: OneBotEventMap[T]) => void
+  ) {
     if (!this.#events) this.#events = {}
     if (!this.#events[key]) {
       this.#events[key] = []
@@ -107,10 +110,12 @@ export class OneBotClient {
     return this
   }
 
-
-  handleEvent<T extends keyof OneBotEventMap>(key: T, event: OneBotEventMap[T]) {
+  handleEvent<T extends keyof OneBotEventMap>(
+    key: T,
+    event: OneBotEventMap[T]
+  ) {
     if (this.#events[key]) {
-      this.#events[key].forEach((callback) => {
+      this.#events[key].forEach(callback => {
         callback(event)
       })
     }
@@ -183,8 +188,8 @@ export class OneBotClient {
             this.#echo[event?.echo].resolve(
               event?.data
                 ? new Proxy(event, {
-                  get: (target, prop) => target.event[prop] ?? target[prop]
-                })
+                    get: (target, prop) => target.event[prop] ?? target[prop]
+                  })
                 : event
             )
           // clearTimeout(this.#echo[event?.echo].timeout)
@@ -215,7 +220,7 @@ export class OneBotClient {
       // message
       this.#ws.onmessage = onMessage
       // close
-      this.#ws.onclose = (code) => {
+      this.#ws.onclose = code => {
         console.debug(`close:${code}`)
         this.handleEvent('CLOSE', {
           code: code,
@@ -223,7 +228,6 @@ export class OneBotClient {
         })
         onClose(code, null)
       }
-
     }
   }
 
@@ -336,7 +340,11 @@ export class OneBotClient {
    * @param options
    * @returns
    */
-  setFriendAddRequest(options: { flag: string; approve: boolean; remark?: string }) {
+  setFriendAddRequest(options: {
+    flag: string
+    approve: boolean
+    remark?: string
+  }) {
     if (!this.#ws) return
     return this.#ws.send(
       JSON.stringify({
