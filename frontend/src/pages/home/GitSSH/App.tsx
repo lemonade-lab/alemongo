@@ -1,7 +1,6 @@
 import {
   ExclamationCircleOutlined,
   KeyOutlined,
-  PlusOutlined,
   DeleteOutlined,
   SafetyCertificateOutlined
 } from '@ant-design/icons'

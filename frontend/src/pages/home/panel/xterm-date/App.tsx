@@ -12,12 +12,7 @@ import { useEffect, useState } from 'react'
 import { getBotName } from '../core'
 import Box from '@/commom/Box'
 import { apiBotLogDelete } from '@/api/bot/logs'
-import {
-  DeleteOutlined,
-  CalendarOutlined,
-  FileTextOutlined,
-  ReloadOutlined
-} from '@ant-design/icons'
+import { DeleteOutlined, ReloadOutlined } from '@ant-design/icons'
 
 const XtermDate = () => {
   const [timestamp, setTimestamp] = useState<number>(Date.now())

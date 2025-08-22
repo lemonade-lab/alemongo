@@ -44,7 +44,7 @@ const MobileSidebar = ({
       }}
     >
       <div className="h-full">
-        <SiderMenu onMobileItemClick={onClose} onToggle={() => {}} />
+        <SiderMenu onMobileItemClick={onClose} />
       </div>
     </Drawer>
   )
@@ -57,7 +57,6 @@ const MobileSidebar = ({
 const Home = () => {
   const [isMobile, setIsMobile] = useState(false)
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false)
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
 
   // 检测移动端
   useEffect(() => {
@@ -74,18 +73,12 @@ const Home = () => {
     setMobileSidebarOpen(false)
   }
 
-  const handleSidebarToggle = (collapsed: boolean) => {
-    setSidebarCollapsed(collapsed)
-  }
-
   return (
     <div className="flex h-full w-full">
       {/* 桌面端侧边栏 */}
       {!isMobile && (
-        <aside
-          className={`${sidebarCollapsed ? 'w-16' : 'w-44'} flex-shrink-0  duration-300 ease-in-out`}
-        >
-          <SiderMenu onToggle={handleSidebarToggle} />
+        <aside className={`w-44 flex-shrink-0  duration-300 ease-in-out`}>
+          <SiderMenu />
         </aside>
       )}
 
