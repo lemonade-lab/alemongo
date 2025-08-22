@@ -50,61 +50,97 @@ type SMTPConfig struct {
 	FromEmail string `mapstructure:"from_email" yaml:"from_email"`
 }
 
-// 设置默认值
-func setDefaults() {
-	Conf = &AppConfig{
-		Name: ServiceName,
-		Mode: "release",
-		Server: &ServerConfig{
-			Host: "127.0.0.1",
-			Port: "17187",
-			TokenConfig: &TokenConfig{
-				Key:         "alemongo",
-				ExpiresTime: 24,
-			},
-		},
-		Log: &LogConfig{
-			Level:    "info",
-			Filename: "alemongo_logs",
-		},
-		SMTP: &SMTPConfig{
-			Provider:  "qq",
-			Host:      "smtp.qq.com",
-			Port:      587,
-			Username:  "",
-			Password:  "",
-			FromEmail: "",
-		},
+// 补全所有字段默认值
+func fillDefaults() {
+	if Conf == nil {
+		Conf = &AppConfig{}
+	}
+	if Conf.Name == "" {
+		Conf.Name = ServiceName
+	}
+	if Conf.Mode == "" {
+		Conf.Mode = "release"
+	}
+	if Conf.Server == nil {
+		Conf.Server = &ServerConfig{}
+	}
+	if Conf.Server.Host == "" {
+		Conf.Server.Host = "127.0.0.1"
+	}
+	if Conf.Server.Port == "" {
+		Conf.Server.Port = "17187"
+	}
+	if Conf.Server.TokenConfig == nil {
+		Conf.Server.TokenConfig = &TokenConfig{}
+	}
+	if Conf.Server.TokenConfig.Key == "" {
+		Conf.Server.TokenConfig.Key = "alemongo"
+	}
+	if Conf.Server.TokenConfig.ExpiresTime == 0 {
+		Conf.Server.TokenConfig.ExpiresTime = 24
+	}
+	if Conf.Log == nil {
+		Conf.Log = &LogConfig{}
+	}
+	if Conf.Log.Level == "" {
+		Conf.Log.Level = "info"
+	}
+	if Conf.Log.Filename == "" {
+		Conf.Log.Filename = "alemongo_logs"
+	}
+	if Conf.SMTP == nil {
+		Conf.SMTP = &SMTPConfig{}
+	}
+	if Conf.SMTP.Provider == "" {
+		Conf.SMTP.Provider = "qq"
+	}
+	if Conf.SMTP.Host == "" {
+		Conf.SMTP.Host = "smtp.qq.com"
+	}
+	if Conf.SMTP.Port == 0 {
+		Conf.SMTP.Port = 587
+	}
+	if Conf.SMTP.Username == "" {
+		Conf.SMTP.Username = ""
+	}
+	if Conf.SMTP.Password == "" {
+		Conf.SMTP.Password = ""
+	}
+	if Conf.SMTP.FromEmail == "" {
+		Conf.SMTP.FromEmail = ""
 	}
 }
 
 // 初始化配置信息
 func Init(filepath string) (err error) {
 	if filepath == "" {
-		// 默认配置
-		setDefaults()
+		Conf = &AppConfig{} // 保证 fillDefaults 可用
+		fillDefaults()
 		return nil
-	} else {
-		viper.SetConfigFile(filepath)
-		err = viper.ReadInConfig()
-		if err != nil {
-			fmt.Printf("viper.ReadInConfig failed, err:%v\n", err)
-			return
-		}
+	}
+	viper.SetConfigFile(filepath)
+	err = viper.ReadInConfig()
+	if err != nil {
+		fmt.Printf("viper.ReadInConfig failed, err:%v\n", err)
+		Conf = &AppConfig{}
+		fillDefaults()
+		return nil
+	}
 
+	if err := viper.Unmarshal(Conf); err != nil {
+		fmt.Printf("viper.Unmarshal failed, err:%v\n", err)
+	}
+	fillDefaults()
+
+	viper.WatchConfig()
+	viper.OnConfigChange(func(in fsnotify.Event) {
+		fmt.Printf("config file changed: %v\n", in.Name)
 		if err := viper.Unmarshal(Conf); err != nil {
 			fmt.Printf("viper.Unmarshal failed, err:%v\n", err)
 		}
-
-		viper.WatchConfig()
-		viper.OnConfigChange(func(in fsnotify.Event) {
-			fmt.Printf("config file changed: %v\n", in.Name)
-			if err := viper.Unmarshal(Conf); err != nil {
-				fmt.Printf("viper.Unmarshal failed, err:%v\n", err)
-			}
-		})
-		return
-	}
+		fillDefaults()
+	})
+	return nil
 }
 
 var processRunAt string

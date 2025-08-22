@@ -1,56 +1,32 @@
 import {Outlet, useLocation, useNavigate} from "react-router-dom";
-import {Button, Dropdown, MenuProps, Modal, Space, Tooltip} from "antd";
+import {Button, Dropdown, MenuProps, Space, Tooltip} from "antd";
 import Tags from "@/commom/Tags";
 import useBot from "@/hook/useBot";
 import {DownOutlined} from "@ant-design/icons";
 import {useCallback, useMemo} from "react";
-import {RootState} from "@/redux";
-import {useDispatch, useSelector} from "react-redux";
-import Logs from "./Logs";
-import {showLog, hideLog} from "@/redux/logs";
 
 const Panel = () => {
   const [bot] = useBot();
   const info = bot.info;
   const navigate = useNavigate();
   const location = useLocation();
-  const logs = useSelector((state: RootState) => state.logs);
-  const dispatch = useDispatch();
 
   // 判断是否是显示 在线日志
   const isOnlineLog = useMemo(() => {
-    const pathnames = location.pathname.replace(/\/$/,"").split("/");
-    const lastPart = pathnames[pathnames.length - 1];
-    return location.pathname.includes("xterm-date") || lastPart !== info.name;
-  }, [info.name, location.pathname]);
+    // 不是日志页面 或者 当前是日志页面
+    return !location.pathname.includes("logs")
+  }, [location.pathname]);
 
   const onLog = useCallback(() => {
     if (isOnlineLog) {
-      navigate(`/bots/${info.name}/`);
+      navigate(`/bots/${info.name}/logs`);
     } else {
       navigate(`/bots/${info.name}/xterm-date`);
     }
   }, [info.name, isOnlineLog, navigate]);
 
-  // 打开日志模态框
-  const openLogModal = useCallback(() => {
-    const pathnames = location.pathname.replace(/\/$/,"").split("/");
-    const lastPart = pathnames[pathnames.length - 1];
-    if (!logs.open && lastPart !== info.name) {
-      dispatch(showLog());
-    }
-  }, [dispatch, info.name, logs.open, location.pathname]);
-
   const items: MenuProps["items"] = useMemo(() => {
     const i: MenuProps["items"] = [
-      {
-        key: "1",
-        label: (
-          <div onClick={onLog}>
-            {isOnlineLog ? "在线日志" : "查询日志"}
-          </div>
-        ),
-      },
       {
         key: "2",
         label: (
@@ -88,6 +64,14 @@ const Panel = () => {
         ),
       },
       {
+        key: "1",
+        label: (
+          <div onClick={onLog}>
+            {isOnlineLog ? "在线日志" : "查询日志"}
+          </div>
+        ),
+      },
+      {
         type: "divider",
       },
       {
@@ -95,7 +79,6 @@ const Panel = () => {
         label: (
           <div
             onClick={() => {
-              openLogModal();
               bot.onInstall(info.name);
             }}
           >
@@ -126,7 +109,6 @@ const Panel = () => {
         label: (
           <div
             onClick={() => {
-              openLogModal();
               // 运行机器人
               bot.onRun(info.name);
             }}
@@ -143,7 +125,6 @@ const Panel = () => {
         label: (
           <div
             onClick={() => {
-              openLogModal();
               // 加载依赖
               bot.onInstall(info.name);
             }}
@@ -155,7 +136,7 @@ const Panel = () => {
     }
 
     return i;
-  }, [onLog, isOnlineLog, info.node_modules, info.status, info.name, navigate, openLogModal, bot]);
+  }, [onLog, isOnlineLog, info.node_modules, info.status, info.name, navigate, bot]);
 
   return (
     <div className="flex flex-col h-[calc(100vh-5.4rem)]">
@@ -213,11 +194,6 @@ const Panel = () => {
           <div className="flex flex-wrap gap-2 items-center w-full justify-end">
             {/* 导航按钮 */}
             <div className="flex gap-1">
-              <Button type="text" size="small" onClick={onLog}>
-                {isOnlineLog
-                  ? "在线日志"
-                  : "查询日志"}
-              </Button>
               <Button
                 type="text"
                 size="small"
@@ -235,16 +211,21 @@ const Panel = () => {
               <Button
                 type="text"
                 size="small"
-                onClick={() => navigate(`/bots/${info.name}/packages`)}
+                onClick={() => navigate(`/bots/${info.name}/env`)}
               >
-                应用
+                环境
               </Button>
               <Button
                 type="text"
                 size="small"
-                onClick={() => navigate(`/bots/${info.name}/env`)}
+                onClick={() => navigate(`/bots/${info.name}/packages`)}
               >
-                环境
+                应用
+              </Button>
+              <Button type="text" size="small" onClick={onLog}>
+                {isOnlineLog
+                  ? "在线日志"
+                  : "查询日志"}
               </Button>
             </div>
 
@@ -256,7 +237,6 @@ const Panel = () => {
                     size="small"
                     className="text-amber-800 dark:text-amber-200 bg-amber-100 dark:bg-amber-800 border-amber-300 dark:border-amber-600 hover:bg-amber-200 dark:hover:bg-amber-700"
                     onClick={() => {
-                      openLogModal();
                       bot.onInstall(info.name);
                     }}
                   >
@@ -282,7 +262,6 @@ const Panel = () => {
                   size="small"
                   className="bg-green-600 hover:bg-green-700 border-green-600 hover:border-green-700"
                   onClick={() => {
-                    openLogModal();
                     bot.onRun(info.name);
                   }}
                 >
@@ -296,7 +275,6 @@ const Panel = () => {
                   size="small"
                   className="bg-amber-500 hover:bg-amber-600 border-amber-500 hover:border-amber-600"
                   onClick={() => {
-                    openLogModal();
                     bot.onInstall(info.name);
                   }}
                 >
@@ -308,18 +286,6 @@ const Panel = () => {
         </div>
       </div>
       <Outlet />
-      {logs.open && (
-        <Modal
-          open
-          title="在线日志"
-          footer={false}
-          onCancel={() => dispatch(hideLog())}
-        >
-          <div className="overflow-y-auto h-[calc(100vh-20rem)]">
-            <Logs />
-          </div>
-        </Modal>
-      )}
     </div>
   );
 };

@@ -14,7 +14,7 @@
 
 ## 配置文件
 
-> 根目录下，创建`config.yaml`文件
+> 根目录下，创建`./work/config.yaml`文件 (默认)
 
 ```yaml
 name: "alemongo"  # 项目名称
@@ -36,7 +36,7 @@ log:
 - 自定义配置路径
 
 ```sh
---config ./config.test.yaml
+--config ./work/config.test.yaml
 ```
 
 > 超级临时账户会在启动时打印，直到密码更改。

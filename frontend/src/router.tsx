@@ -115,6 +115,22 @@ const router = createBrowserRouter([
                 path: "",
                 element: (
                   <WithSuspense>
+                    <Config />
+                  </WithSuspense>
+                ),
+              },
+              {
+                path: "config",
+                element: (
+                  <WithSuspense>
+                    <Config />
+                  </WithSuspense>
+                ),
+              },
+              {
+                path: "logs",
+                element: (
+                  <WithSuspense>
                     <Logs />
                   </WithSuspense>
                 ),
@@ -124,14 +140,6 @@ const router = createBrowserRouter([
                 element: (
                   <WithSuspense>
                     <Package />
-                  </WithSuspense>
-                ),
-              },
-              {
-                path: "config",
-                element: (
-                  <WithSuspense>
-                    <Config />
                   </WithSuspense>
                 ),
               },

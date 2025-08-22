@@ -83,7 +83,6 @@ const ConfigEdit = () => {
           name={getName()}
           value={data}
           type="yaml"
-          mode="yaml"
         />
       </div>
     </Box>

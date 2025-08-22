@@ -171,7 +171,7 @@ func handlePortConflict(port string, isDev bool) error {
 // 主函数
 func main() {
 
-	var configFilePath string
+	var configFilePath string = "work/config.yaml"
 	mode := settings.Conf.Mode // 默认模式
 	isDev := false
 
@@ -182,13 +182,12 @@ func main() {
 		if lowerArg == "debug" {
 			mode = gin.DebugMode
 			isDev = true
-			configFilePath = "config.dev.yaml" // 默认开发模式配置文件
+			configFilePath = "work/config.dev.yaml" // 默认开发模式配置文件
 			Version = gin.DebugMode
-
 		}
 		if lowerArg == "test" {
 			mode = gin.TestMode
-			configFilePath = "config.test.yaml" // 默认测试模式配置文件
+			configFilePath = "work/config.test.yaml" // 默认测试模式配置文件
 			Version = gin.TestMode
 		}
 		if lowerArg == "config" || lowerArg == "-config" || lowerArg == "--config" {

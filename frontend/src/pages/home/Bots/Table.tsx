@@ -11,7 +11,7 @@ import {useNavigate} from "react-router-dom";
 import Pagination from "../../../commom/Pagination";
 import Box from "@/commom/Box";
 import Headings from "./Headings";
-import { useCommon } from "@/hook/useCommon";
+import {useCommon} from "@/hook/useCommon";
 
 const BotTable = ({onClick = () => {}}: {onClick: (key: string) => void}) => {
   // 数据
@@ -52,7 +52,7 @@ const BotTable = ({onClick = () => {}}: {onClick: (key: string) => void}) => {
   const [common] = useCommon();
 
   useEffect(() => {
-    if(!common.info.start_at){
+    if (!common.info.start_at) {
       return;
     }
     initData();
@@ -73,18 +73,17 @@ const BotTable = ({onClick = () => {}}: {onClick: (key: string) => void}) => {
   // 开始轮训
   const startPolling = (name: string) => {
     setTimeout(() => {
-      apiBotInfo({name})
-        .then((res) => {
-          if (!res.node_modules) {
-            // 继续轮训。
-            startPolling(name);
-            return;
-          }
-          // 去掉loading
-          setNames((prev) => prev.filter((item) => item !== name));
-          // 更新数据
-          setDateByAPI(res);
-        })
+      apiBotInfo({name}).then((res) => {
+        if (!res.node_modules) {
+          // 继续轮训。
+          startPolling(name);
+          return;
+        }
+        // 去掉loading
+        setNames((prev) => prev.filter((item) => item !== name));
+        // 更新数据
+        setDateByAPI(res);
+      });
     }, 1000);
   };
 
@@ -97,20 +96,18 @@ const BotTable = ({onClick = () => {}}: {onClick: (key: string) => void}) => {
     // 安装依赖
     apiBotYarnInstall({
       name,
-    })
-      .then(() => {
-        startPolling(name);
-      })
+    }).then(() => {
+      startPolling(name);
+    });
   };
 
   const onDelete = (name: string) => {
     // 删除
     apiBotDelete({
       name,
-    })
-      .then(() => {
-        setData((prev) => prev.filter((item) => item.name !== name));
-      })
+    }).then(() => {
+      setData((prev) => prev.filter((item) => item.name !== name));
+    });
   };
 
   const navigate = useNavigate();
@@ -177,23 +174,16 @@ const BotTable = ({onClick = () => {}}: {onClick: (key: string) => void}) => {
               </Button>
             ) : null}
             {record.node_modules ? (
-              <Button
-                type="primary"
-                className=" bg-blue-500"
-                onClick={() => onGoPanel(record.name)}
-              >
-                详细
-              </Button>
+              <>
+                <Button
+                  type="primary"
+                  className=" bg-blue-500"
+                  onClick={() => onGoPanel(record.name)}
+                >
+                  详细
+                </Button>
+              </>
             ) : null}
-            {/* <Button
-              type="primary"
-              className=" bg-blue-500"
-              onClick={() => {
-                navigate(`/bots/${record.name}/testone`);
-              }}
-            >
-              测试
-            </Button> */}
             <Popconfirm
               title="彻底删除"
               description="你确定删除这个机器人吗?"

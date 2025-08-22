@@ -51,19 +51,6 @@ const Apps: React.FC = () => {
       open: true,
     },
     {
-      name: "OneBOT",
-      icon: (
-        <img
-          className="w-20 h-20 object-contain"
-          src="https://avatars.githubusercontent.com/u/56297293?s=200&v=4"
-        />
-      ),
-      onClick: () => {
-        message.warning("功能正在开发中，敬请期待！");
-      },
-      open: false,
-    },
-    {
       name: "NodeJS",
       icon: (
         <img
@@ -85,30 +72,6 @@ const Apps: React.FC = () => {
       ),
       onClick: () => {
         message.warning("防火墙功能正在开发中，敬请期待！");
-      },
-    },
-    {
-      name: "Dokcer",
-      icon: (
-        <img
-          className="w-20 h-20 object-contain"
-          src="https://www.docker.com/app/uploads/2024/01/icon-docker-square.svg"
-        />
-      ),
-      onClick: () => {
-        message.warning("Docker 功能正在开发中，敬请期待！");
-      },
-    },
-    {
-      name: "Nginx",
-      icon: (
-        <img
-          className="w-20 h-20 object-contain"
-          src="https://nginx.org/img/nginx_logo_dark.png"
-        />
-      ),
-      onClick: () => {
-        message.warning("Nginx 功能正在开发中，敬请期待！");
       },
     },
     {

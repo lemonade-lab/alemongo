@@ -48,6 +48,7 @@ const Conifg = () => {
           disabledName
           value={yamlData}
           onSave={onSave}
+          onChange={setYamlData}
           rightHeader={
             <div className="flex gap-2">
               <Select
@@ -89,7 +90,6 @@ const Conifg = () => {
             </div>
           }
           type="yaml"
-          mode="yaml"
         />
       </div>
     </Box>

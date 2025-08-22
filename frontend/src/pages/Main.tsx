@@ -20,9 +20,9 @@ const Main = () => {
     }
   }, [me, navigate, dispatch]);
   return (
-    <div className="w-screen h-screen flex flex-col">
+    <div className="w-screen min-h-screen flex flex-col">
       <Navbars />
-      <main className="flex flex-row h-[calc(100vh-3rem)]">
+      <main className="flex-1 flex flex-row overflow-auto">
         <Outlet />
       </main>
     </div>
