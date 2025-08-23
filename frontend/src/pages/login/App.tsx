@@ -36,14 +36,25 @@ const Login = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center relative overflow-hidden  duration-300">
+    <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-gradient-to-br from-gray-900 via-gray-800 to-black dark:from-zinc-900 dark:via-gray-800 dark:to-black">
+      {/* 动态背景 */}
+      <div className="absolute inset-0 bg-gradient-to-r from-purple-900/20 via-blue-900/20 to-indigo-900/20 animate-pulse"></div>
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(120,119,198,0.1),transparent_50%)]"></div>
+      
       {/* 登录卡片 */}
       <div className="relative z-10 animate-fade-in-up">
-        <div className="chatgpt-card p-8 w-96 max-w-md mx-4 shadow-2xl animate-float">
+        <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-8 w-96 max-w-md mx-4 shadow-2xl hover:shadow-purple-500/20 transition-all duration-300">
           {/* 头部 */}
           <div className="text-center mb-8">
+            <div className="flex items-center justify-center mb-4">
+              <img
+                className="h-12 w-auto mr-3"
+                src="https://alemonjs.com/img/alemon.png"
+                alt="Alemongo"
+              />
+            </div>
             <h2 className="text-3xl font-bold gradient-text mb-2">欢迎登录</h2>
-            <p className="text-gray-600 dark:text-gray-400 text-sm">
+            <p className="text-gray-300 dark:text-gray-400 text-sm">
               阿柠檬服务端平台
             </p>
           </div>
@@ -54,7 +65,7 @@ const Login = () => {
             <div className="space-y-2">
               <label
                 htmlFor="username"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                className="block text-sm font-medium text-gray-200 dark:text-gray-300"
               >
                 用户名
               </label>
@@ -65,7 +76,7 @@ const Login = () => {
                   id="username"
                   autoComplete="username"
                   required
-                  className="chatgpt-input pl-8 w-full px-4 py-3 text-base"
+                  className="w-full px-4 py-3 pl-10 text-base bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all duration-200"
                   placeholder="请输入用户名"
                 />
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -91,14 +102,14 @@ const Login = () => {
               <div className="flex items-center justify-between">
                 <label
                   htmlFor="password"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                  className="block text-sm font-medium text-gray-200 dark:text-gray-300"
                 >
                   密码
                 </label>
                 <button
                   type="button"
                   onClick={handleForgetPassword}
-                  className="text-sm font-medium text-purple-600 dark:text-purple-400 hover:text-purple-500 dark:hover:text-purple-300 transition-colors duration-200"
+                  className="text-sm font-medium text-purple-400 hover:text-purple-300 transition-colors duration-200"
                 >
                   忘记密码？
                 </button>
@@ -110,7 +121,7 @@ const Login = () => {
                   id="password"
                   autoComplete="current-password"
                   required
-                  className="chatgpt-input  pl-8  w-full px-4 py-3 text-base"
+                  className="w-full px-4 py-3 pl-10 text-base bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all duration-200"
                   placeholder="请输入密码"
                 />
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -134,7 +145,7 @@ const Login = () => {
             {/* 登录按钮 */}
             <button
               type="submit"
-              className="chatgpt-button w-full py-3 text-lg font-semibold shadow-lg"
+              className="w-full py-3 text-lg font-semibold bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-lg shadow-lg hover:shadow-purple-500/25 transform hover:scale-105 transition-all duration-200"
             >
               登录
             </button>
@@ -142,7 +153,7 @@ const Login = () => {
 
           {/* 底部版权信息 */}
           <div className="mt-8 text-center">
-            <p className="text-xs text-gray-500 dark:text-gray-400 select-none">
+            <p className="text-xs text-gray-400 dark:text-gray-500 select-none">
               &copy; {new Date().getFullYear()} Lemonade Robot Platform
             </p>
           </div>

@@ -10,6 +10,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"strings"
 	"text/template"
 )
 
@@ -180,6 +181,13 @@ WantedBy=multi-user.target
 
 // macOS 注册逻辑
 func registerMacOS(serviceName, description, execPath string) error {
+	// 检查服务是否已经加载
+	if checkIfRegisteredMacOS(serviceName) {
+		log.Printf("服务 %s 已经注册并加载", serviceName)
+		return nil
+	}
+
+	workingDir := filepath.Dir(execPath)
 	plistTemplate := `<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
@@ -190,25 +198,64 @@ func registerMacOS(serviceName, description, execPath string) error {
     <array>
         <string>{{.ExecPath}}</string>
     </array>
+    <key>WorkingDirectory</key>
+    <string>{{.WorkingDir}}</string>
     <key>RunAtLoad</key>
     <true/>
     <key>KeepAlive</key>
     <true/>
+    <key>StandardOutPath</key>
+    <string>{{.LogPath}}</string>
+    <key>StandardErrorPath</key>
+    <string>{{.LogPath}}</string>
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>{{.PathEnv}}</string>
+        <key>HOME</key>
+        <string>{{.HomeDir}}</string>
+    </dict>
 </dict>
 </plist>
 `
 	plistPath := fmt.Sprintf("%s/Library/LaunchAgents/%s.plist", os.Getenv("HOME"), serviceName)
+
+	// 获取环境变量
+	pathEnv := os.Getenv("PATH")
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		homeDir = "/Users/root"
+	}
+
+	// 日志文件路径
+	logPath := fmt.Sprintf("%s/Library/Logs/%s.log", os.Getenv("HOME"), serviceName)
+
+	// 扩展 ServiceConfig 结构体用于模板
+	type MacOSServiceConfig struct {
+		ServiceName string
+		Description string
+		ExecPath    string
+		WorkingDir  string
+		PathEnv     string
+		HomeDir     string
+		LogPath     string
+	}
+
+	config := MacOSServiceConfig{
+		ServiceName: serviceName,
+		Description: description,
+		ExecPath:    execPath,
+		WorkingDir:  workingDir,
+		PathEnv:     pathEnv,
+		HomeDir:     homeDir,
+		LogPath:     logPath,
+	}
 
 	// 渲染新内容到 buffer
 	var buf bytes.Buffer
 	tmpl, err := template.New("launchdPlist").Parse(plistTemplate)
 	if err != nil {
 		return fmt.Errorf("解析 plist 模板失败: %w", err)
-	}
-	config := ServiceConfig{
-		ServiceName: serviceName,
-		Description: description,
-		ExecPath:    execPath,
 	}
 	if err := tmpl.Execute(&buf, config); err != nil {
 		return fmt.Errorf("渲染 plist 模板失败: %w", err)
@@ -219,9 +266,18 @@ func registerMacOS(serviceName, description, execPath string) error {
 	existing, err := os.ReadFile(plistPath)
 	if err == nil {
 		if bytes.Equal(existing, newContent) {
-			// 内容未变
-			return nil
+			// 内容未变，但可能未加载
+			log.Printf("plist 文件已存在且内容未变: %s", plistPath)
+		} else {
+			// 内容不同，需要重新加载
+			log.Printf("plist 文件内容已更新，需要重新加载")
 		}
+	}
+
+	// 确保目录存在
+	plistDir := filepath.Dir(plistPath)
+	if err := os.MkdirAll(plistDir, 0755); err != nil {
+		return fmt.Errorf("创建 plist 目录失败: %w", err)
 	}
 
 	// 内容不同或文件不存在，写入新内容
@@ -234,7 +290,39 @@ func registerMacOS(serviceName, description, execPath string) error {
 		return fmt.Errorf("写入 plist 文件失败: %w", err)
 	}
 
-	log.Printf("已创建/更新系统服务, 若后台挂载请运行:\nlaunchctl load %s ", plistPath)
+	// 尝试自动加载服务
+	if err := loadMacOSService(plistPath); err != nil {
+		log.Printf("自动加载服务失败: %v", err)
+		log.Printf("请手动运行: launchctl load %s", plistPath)
+	} else {
+		log.Printf("服务已成功加载: %s", serviceName)
+	}
+
+	log.Printf("已创建/更新系统服务: %s", plistPath)
 	log.Printf("若卸载服务，请运行:\nlaunchctl unload %s", plistPath)
 	return nil
+}
+
+// checkIfRegisteredMacOS 检查 macOS 服务是否已注册并加载
+func checkIfRegisteredMacOS(serviceName string) bool {
+	// 检查 launchctl 列表中是否包含该服务
+	cmd := utils.Command("launchctl", "list")
+	output, err := cmd.Output()
+	if err != nil {
+		return false
+	}
+
+	// 检查输出中是否包含服务名称
+	return strings.Contains(string(output), serviceName)
+}
+
+// loadMacOSService 加载 macOS 服务
+func loadMacOSService(plistPath string) error {
+	// 先尝试卸载（如果已存在）
+	unloadCmd := utils.Command("launchctl", "unload", plistPath)
+	unloadCmd.Run() // 忽略错误，因为可能服务本来就没加载
+
+	// 加载服务
+	loadCmd := utils.Command("launchctl", "load", plistPath)
+	return loadCmd.Run()
 }

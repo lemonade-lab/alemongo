@@ -74,6 +74,8 @@ func Create(mode string) *gin.Engine {
 			{
 				// 开机自启
 				SettingsAPI.GET("/powerboot", settings.PowerBoot)
+				// 获取开机自启动状态
+				SettingsAPI.GET("/powerboot/status", settings.GetAutoStartStatus)
 				// 重置基础机器人模板
 				SettingsAPI.POST("/template/reset", settings.ResetTemplate)
 			}
