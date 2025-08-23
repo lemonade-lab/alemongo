@@ -7,33 +7,20 @@ import {
   LockOutlined,
   AppstoreOutlined
 } from '@ant-design/icons'
-import {
-  FloatButton,
-  Dropdown,
-  Drawer,
-  Modal,
-  Form,
-  Input,
-  InputNumber,
-  message,
-  MenuProps
-} from 'antd'
+import { FloatButton, Drawer } from 'antd'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 import { RootState } from '@/redux'
 import useTheme from '@/hook/useTheme'
 import { apiLogout } from '@/api'
-import { apiGetConfigEmail, apiUpdateEmailConfig } from '@/api/config/email'
 
 const FloatButtons = () => {
   const navigate = useNavigate()
   const storeMe = useSelector((state: RootState) => state.me.info)
   const { dark, setDark } = useTheme()
   const [open, setOpen] = useState(false)
-  const [openEmailModal, setOpenEmailModal] = useState(false)
-  const [form] = Form.useForm()
-  const [isLoading, setIsLoading] = useState(false)
+  const [userMenuOpen, setUserMenuOpen] = useState(false)
 
   const goLogout = () => {
     apiLogout().then(() => {
@@ -41,109 +28,65 @@ const FloatButtons = () => {
     })
   }
 
-  const onSubmit = (values: HTMLFormElement) => {
-    if (isLoading) {
-      return
-    }
-    setIsLoading(true)
-    apiUpdateEmailConfig({
-      provider: values.provider,
-      host: values.host,
-      port: values.port,
-      username: values.username,
-      password: values.password,
-      from_email: values.from_email
-    })
-      .then(() => {
-        message.success('邮箱服务配置成功')
-        setOpenEmailModal(false)
-      })
-      .finally(() => {
-        setIsLoading(false)
-      })
-  }
-
-  const onEmailModal = () => {
-    if (isLoading) {
-      message.warning('正在加载，请稍后')
-      return
-    }
-    setIsLoading(true)
-    apiGetConfigEmail()
-      .then(res => {
-        form.setFieldsValue({
-          provider: res.provider,
-          host: res.host,
-          port: res.port,
-          username: res.username,
-          password: res.password,
-          from_email: res.from_email
-        })
-        setOpenEmailModal(true)
-      })
-      .finally(() => {
-        setIsLoading(false)
-      })
-  }
-
-  const items: MenuProps['items'] = [
-    {
-      key: '1',
-      label: <div onClick={() => navigate('/settings')}>通用设置</div>,
-      icon: <SettingOutlined />
-    },
-    {
-      key: '2',
-      label: <div onClick={() => navigate('/update-password')}>更改密码</div>,
-      icon: <LockOutlined />
-    },
-    {
-      key: '3',
-      label: <div onClick={() => navigate('/update-email')}>更改邮箱</div>,
-      icon: <MailOutlined />
-    },
-    {
-      key: '4',
-      label: <div onClick={onEmailModal}>邮箱服务</div>,
-      icon: <MailOutlined />
-    },
-    {
-      type: 'divider'
-    },
-    {
-      key: '0',
-      label: <div onClick={goLogout}>退出账户</div>,
-      icon: <LogoutOutlined />
-    }
-  ]
-
-  const itemsMap: {
-    [key: string]: string
-  } = {
-    1: '',
-    2: '',
-    3: '',
-    4: 'admin',
-    0: ''
-  }
-
-  const curItems = items.filter(item => {
-    const value = itemsMap[String(item.key)]
-    if (value) {
-      if (value !== storeMe.identity) {
-        return false
-      }
-    }
-    return true
-  })
-
   return (
     <>
       <FloatButton.Group
         trigger="click"
         type="primary"
-        style={{ insetInlineEnd: 24, bottom: 81 }}
+        style={{ insetInlineEnd: 9, bottom: 9 * 14 }}
+        icon={<UserOutlined />}
+        open={userMenuOpen}
+        onOpenChange={setUserMenuOpen}
+      >
+        {/* 更改密码 */}
+        <FloatButton
+          icon={<LockOutlined />}
+          tooltip="更改密码"
+          onClick={() => {
+            navigate('/update-password')
+            setUserMenuOpen(false)
+          }}
+        />
+
+        {/* 更改邮箱 */}
+        <FloatButton
+          icon={<MailOutlined />}
+          tooltip="更改邮箱"
+          onClick={() => {
+            navigate('/update-email')
+            setUserMenuOpen(false)
+          }}
+        />
+
+        {/* 邮箱服务 - 仅管理员可见 */}
+        {storeMe.identity === 'admin' && (
+          <FloatButton
+            icon={<MailOutlined />}
+            tooltip="邮箱服务"
+            onClick={() => {
+              navigate('/email-service')
+              setUserMenuOpen(false)
+            }}
+          />
+        )}
+
+        {/* 退出账户 */}
+        <FloatButton
+          icon={<LogoutOutlined />}
+          tooltip="退出账户"
+          onClick={() => {
+            goLogout()
+            setUserMenuOpen(false)
+          }}
+        />
+      </FloatButton.Group>
+
+      <FloatButton.Group
+        trigger="click"
+        type="primary"
+        style={{ insetInlineEnd: 9, bottom: 9 * 9 }}
         icon={<AppstoreOutlined />}
+        placement="left"
       >
         {/* 主题切换按钮 */}
         <FloatButton
@@ -172,26 +115,23 @@ const FloatButtons = () => {
               )}
             </div>
           }
-          tooltip="主题切换"
+          // tooltip="主题切换"
           onClick={() => setDark(!dark)}
         />
 
         {/* 通知按钮 */}
         <FloatButton
           icon={<BellOutlined />}
-          tooltip="通知"
+          // tooltip="通知"
           onClick={() => setOpen(true)}
         />
 
-        {/* 用户菜单按钮 */}
-        <Dropdown
-          menu={{ items: curItems }}
-          placement="topRight"
-          arrow={{ pointAtCenter: true }}
-          trigger={['click']}
-        >
-          <FloatButton icon={<UserOutlined />} tooltip="用户菜单" />
-        </Dropdown>
+        {/* 设置按钮 */}
+        <FloatButton
+          icon={<SettingOutlined />}
+          // tooltip="设置"
+          onClick={() => navigate('/settings')}
+        />
       </FloatButton.Group>
 
       {/* 通知抽屉 */}
@@ -217,6 +157,7 @@ const FloatButtons = () => {
         closable={{ 'aria-label': 'Close Button' }}
         onClose={() => setOpen(false)}
         open={open}
+        placement="left"
         className="dark:[&>.ant-drawer-content]:bg-zinc-900/95 dark:[&>.ant-drawer-header]:bg-zinc-900/95 backdrop-blur-xl"
         width="80%"
       >
@@ -243,99 +184,8 @@ const FloatButtons = () => {
           </div>
         </div>
       </Drawer>
-
-      {/* 邮箱配置模态框 */}
-      <Modal
-        open={openEmailModal}
-        title={
-          <div className="flex items-center gap-2">
-            <svg
-              className="w-4 h-4 text-blue-500"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-            >
-              <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
-              <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
-            </svg>
-            <span className="gradient-text font-semibold text-sm">
-              邮箱服务配置
-            </span>
-          </div>
-        }
-        onCancel={() => setOpenEmailModal(false)}
-        onOk={() => {
-          form.submit()
-        }}
-        okText="确定"
-        cancelText="取消"
-        loading={isLoading}
-        className="dark:[&>.ant-modal-content]:bg-zinc-900/95 backdrop-blur-xl"
-        width="90%"
-      >
-        <Form form={form} className="space-y-4 p-2" onFinish={onSubmit}>
-          <Form.Item
-            label="类别"
-            name="provider"
-            rules={[{ required: true, message: '请选择邮箱类别' }]}
-          >
-            <Input allowClear placeholder="qq" className="chatgpt-input" />
-          </Form.Item>
-          <Form.Item
-            label="服务器"
-            name="host"
-            rules={[{ required: true, message: '请输入 SMTP 服务器' }]}
-          >
-            <Input
-              allowClear
-              placeholder="smtp.qq.com"
-              className="chatgpt-input"
-            />
-          </Form.Item>
-          <Form.Item
-            label="端口"
-            name="port"
-            rules={[{ required: true, message: '请输入端口号' }]}
-          >
-            <InputNumber placeholder="587" className="chatgpt-input" />
-          </Form.Item>
-          <Form.Item
-            label="账号"
-            name="username"
-            rules={[{ required: true, message: '请输入账号' }]}
-          >
-            <Input
-              allowClear
-              placeholder="xxx@qq.com"
-              className="chatgpt-input"
-            />
-          </Form.Item>
-          <Form.Item
-            label="授权码"
-            name="password"
-            rules={[{ required: true, message: '请输入授权码' }]}
-          >
-            <Input.Password
-              allowClear
-              placeholder="授权码"
-              className="chatgpt-input"
-            />
-          </Form.Item>
-          <Form.Item
-            label="来源邮箱"
-            name="from_email"
-            rules={[{ required: true, message: '请输入来源邮箱' }]}
-          >
-            <Input
-              allowClear
-              placeholder="xxx@qq.com"
-              className="chatgpt-input"
-            />
-          </Form.Item>
-        </Form>
-      </Modal>
     </>
   )
 }
 
-// 删除原来的 DesktopNavbar 组件，功能已整合到 FloatButtons 中
 export default FloatButtons

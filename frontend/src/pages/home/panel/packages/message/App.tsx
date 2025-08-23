@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
 import { apiBotPackagesInfo, BotPackages } from '@/api'
 import { Tag } from 'antd'
-import Box from '@/commom/Box'
+import Box from '@/commom/layout/Box'
 import { getBotName, getGitPackageName } from '../../core'
-import Markdown from '@/commom/Markdown'
+import Markdown from '@/components/Markdown'
 import dayjs from 'dayjs'
 import {
   InfoCircleOutlined,
@@ -38,17 +38,7 @@ const PackagesMessage = () => {
   return (
     <Box>
       <div className="flex-1 flex flex-col bg-gradient-to-br from-white/90 to-gray-50/90 dark:from-zinc-900/90 dark:to-zinc-800/90 backdrop-blur-sm rounded-xl p-6 shadow-xl border border-gray-200/50 dark:border-zinc-700/50 transition-all duration-300">
-        {/* 扩展信息头部 */}
         <div className="mb-6">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 bg-gradient-to-r from-blue-400 to-purple-500 rounded-xl flex items-center justify-center shadow-lg">
-              <InfoCircleOutlined className="w-6 h-6 text-white" />
-            </div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-              扩展信息
-            </h1>
-          </div>
-
           {/* 基本信息标签 */}
           <div className="flex flex-wrap gap-3 mb-4">
             <div className="flex items-center gap-2">

@@ -2,8 +2,8 @@ import { useNavigate } from 'react-router-dom'
 import { message } from 'antd'
 import { useEffect, useState } from 'react'
 import { apiSSHList, apiSSHRead, apiSSHUpdate } from '@/api/ssh'
-import FileEdit from '@/commom/FileEdit'
-import Box from '@/commom/Box'
+import FileEdit from '@/commom/edit/FileEdit'
+import Box from '@/commom/layout/Box'
 const SSHUpdate = () => {
   const navigate = useNavigate()
   const [configNames, setConfigNames] = useState<string[]>([])

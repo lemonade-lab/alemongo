@@ -10,7 +10,7 @@ import {
 import dayjs from 'dayjs'
 import { useEffect, useState } from 'react'
 import { getBotName } from '../core'
-import Box from '@/commom/Box'
+import Box from '@/commom/layout/Box'
 import { apiBotLogDelete } from '@/api/bot/logs'
 import { DeleteOutlined, ReloadOutlined } from '@ant-design/icons'
 

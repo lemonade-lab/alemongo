@@ -32,6 +32,7 @@ const Apps = lazy(() => import('./pages/home/Apps/App'))
 const AppsNodeJS = lazy(() => import('./pages/home/Apps/NodeJS/App'))
 const GitPackage = lazy(() => import('./pages/home/panel/packages/package/App'))
 const UpdateEmail = lazy(() => import('./pages/home/UpdateEmail/App'))
+const EmailService = lazy(() => import('./pages/home/EmailService/App'))
 const Env = lazy(() => import('./pages/home/panel/env/App'))
 
 const router = createBrowserRouter([
@@ -211,6 +212,14 @@ const router = createBrowserRouter([
             element: (
               <WithSuspense>
                 <UpdateEmail />
+              </WithSuspense>
+            )
+          },
+          {
+            path: 'email-service',
+            element: (
+              <WithSuspense>
+                <EmailService />
               </WithSuspense>
             )
           },

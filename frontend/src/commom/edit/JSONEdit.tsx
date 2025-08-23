@@ -2,7 +2,7 @@ import { Button, Input, message, Form } from 'antd'
 import { useEffect, useState, useCallback, useRef } from 'react'
 import YAML from 'js-yaml'
 import JSONForm from './JSONForm'
-import { nameMap } from './NameMap'
+import { nameMap } from '../config/NameMap'
 import MonacoEditor from '@monaco-editor/react'
 import cloneDeep from 'lodash/cloneDeep'
 import useCodeTheme from '@/hook/useCodeTheme'
@@ -112,8 +112,7 @@ const JSONEdit = ({
         onChangeProp?.(value)
       } catch (error) {
         setDisabled(true)
-        const errorMessage = error instanceof Error ? error.message : '未知错误'
-        message.error(`格式错误: ${errorMessage}`)
+        console.error(error)
       }
     },
     [type, form, onChangeProp]
@@ -239,52 +238,52 @@ const JSONEdit = ({
   return (
     <div className="w-full h-full flex flex-col bg-gradient-to-br from-gray-50 to-gray-100 dark:from-zinc-900 dark:to-zinc-800 rounded-xl shadow-2xl border border-gray-200/50 dark:border-zinc-700/50 backdrop-blur-sm">
       {/* 顶部工具栏 */}
-      <div className="flex items-center justify-between px-4 py-2 bg-gradient-to-r from-white/80 to-gray-50/80 dark:from-zinc-800/80 dark:to-zinc-900/80 backdrop-blur-xl border-b border-gray-200/50 dark:border-zinc-700/50 rounded-t-xl">
-        <div className="flex items-center gap-3">
+      <div className="flex flex-col sm:flex-row  items-end  sm:items-center justify-end sm:justify-between gap-2 sm:gap-4 bg-gradient-to-r from-white/80 to-gray-50/80 dark:from-zinc-800/80 dark:to-zinc-900/80 backdrop-blur-xl border-b border-gray-200/50 dark:border-zinc-700/50 rounded-t-xl mobile-p-3">
+        <div className="flex items-center gap-3 justify-center">
           {!disabledName && (
-            <div className="relative">
+            <div className="relative mobile-w-full">
               <Input
                 value={nameValue}
                 placeholder="配置名称"
                 allowClear
                 onChange={e => setNameValue(e.target.value)}
-                className="w-48 bg-white/70 dark:bg-zinc-800/70 border-gray-300/50 dark:border-zinc-600/50 rounded-lg focus:border-blue-500 dark:focus:border-blue-400 transition-all duration-300"
+                className="w-48 bg-white/70 dark:bg-zinc-800/70 border-gray-300/50 dark:border-zinc-600/50 rounded-lg focus:border-blue-500 dark:focus:border-blue-400 transition-all duration-300 mobile-input mobile-w-full"
                 style={{ minWidth: 120 }}
               />
             </div>
           )}
           {disabledName && (
-            <div className="px-4 py-2 bg-white/70 dark:bg-zinc-800/70 border border-gray-300/50 dark:border-zinc-600/50 rounded-lg min-w-[120px] inline-block">
-              <span className="text-gray-700 dark:text-gray-200 font-medium">
+            <div className="px-2 py-1 bg-white/70 dark:bg-zinc-800/70 border border-gray-300/50 dark:border-zinc-600/50 rounded-lg min-w-[120px] inline-block mobile-w-full mobile-text-center">
+              <span className="text-gray-700 dark:text-gray-200 font-medium mobile-text-sm">
                 {nameValue}
               </span>
             </div>
           )}
           {disabled && (
-            <div className="flex items-center gap-2 px-3 py-1 bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-700/50 rounded-lg">
+            <div className="flex items-center w-44 gap-2 px-3 py-1 bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-700/50 rounded-lg">
               <ExclamationCircleOutlined className="text-red-500 dark:text-red-400" />
-              <span className="text-red-600 dark:text-red-400 text-sm font-medium">
+              <span className="text-red-600 dark:text-red-400 text-sm font-medium mobile-text-xs">
                 格式错误
               </span>
             </div>
           )}
           {!disabled && (
-            <div className="flex items-center gap-2 px-3 py-1 bg-green-100 dark:bg-green-900/30 border border-green-300 dark:border-green-700/50 rounded-lg">
+            <div className="flex items-center gap-2 w-44 px-3 py-1 bg-green-100 dark:bg-green-900/30 border border-green-300 dark:border-green-700/50 rounded-lg">
               <CheckCircleOutlined className="text-green-500 dark:text-green-400" />
-              <span className="text-green-600 dark:text-green-400 text-sm font-medium">
+              <span className="text-green-600 dark:text-green-400 text-sm font-medium mobile-text-xs">
                 格式正确
               </span>
             </div>
           )}
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-end gap-3  justify-center">
           {rightHeader || null}
           <Button
             disabled={disabled}
             onClick={handleSave}
             type="primary"
             icon={<SaveOutlined />}
-            className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 border-0 shadow-lg hover:shadow-xl transition-all duration-300 rounded-lg px-6"
+            className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 border-0  hover:shadow-xl transition-all duration-300 rounded-lg"
           >
             保存
           </Button>
@@ -292,12 +291,12 @@ const JSONEdit = ({
       </div>
 
       {/* Tab 导航 */}
-      <div className="flex bg-gradient-to-r from-gray-100/80 to-gray-200/80 dark:from-zinc-800/80 dark:to-zinc-900/80 backdrop-blur-sm border-b border-gray-200/50 dark:border-zinc-700/50">
+      <div className="flex flex-col sm:flex-row bg-gradient-to-r from-gray-100/80 to-gray-200/80 dark:from-zinc-800/80 dark:to-zinc-900/80 backdrop-blur-sm border-b border-gray-200/50 dark:border-zinc-700/50 mobile-flex-col">
         {tabList.map(tab => (
           <button
             key={tab.key}
             className={`
-              flex items-center gap-2 px-6 py-3 focus:outline-none transition-all duration-300 font-medium
+              flex items-center gap-2 py-1 px-3 sm:px-6 sm:py-3 focus:outline-none transition-all duration-300 font-medium mobile-button touch-optimized mobile-w-full mobile-justify-center mobile-h-12
               ${
                 activeKey === tab.key
                   ? 'bg-white dark:bg-zinc-900 text-blue-600 dark:text-blue-400 border-b-2 border-blue-500 shadow-sm'
@@ -308,7 +307,7 @@ const JSONEdit = ({
             type="button"
           >
             {tab.icon}
-            {tab.label}
+            <span className="mobile-text-sm">{tab.label}</span>
           </button>
         ))}
       </div>
@@ -316,7 +315,7 @@ const JSONEdit = ({
       {/* 内容区域 */}
       <div className="flex-1 min-h-0 flex flex-col bg-white/90 dark:bg-zinc-900/90 backdrop-blur-sm rounded-b-xl overflow-hidden">
         {activeKey === 'form' && (
-          <div className="flex-1 p-6 overflow-auto">
+          <div className="flex-1 p-6 overflow-auto mobile-p-3 mobile-scroll">
             <Form
               form={form}
               labelCol={{ flex: '80px' }}
@@ -335,7 +334,7 @@ const JSONEdit = ({
           </div>
         )}
         {activeKey === 'code' && (
-          <div className="flex-1 flex flex-col min-h-0 p-2">
+          <div className="flex-1 flex flex-col min-h-0 p-2 mobile-p-1">
             <div className="flex-1 rounded-lg overflow-hidden border border-gray-200/50 dark:border-zinc-700/50 shadow-inner">
               <MonacoEditor
                 value={strData}

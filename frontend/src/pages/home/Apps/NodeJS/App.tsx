@@ -1,5 +1,5 @@
 import React from 'react'
-import Box from '@/commom/Box'
+import Box from '@/commom/layout/Box'
 import { Tabs, TabsProps } from 'antd'
 
 /**

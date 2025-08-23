@@ -1,5 +1,5 @@
 import { apiResetTemplate } from '@/api/settings/template'
-import Box from '@/commom/Box'
+import Box from '@/commom/layout/Box'
 import { useCommon } from '@/hook/useCommon'
 import { SettingOutlined } from '@ant-design/icons'
 import { message } from 'antd'

@@ -1,5 +1,5 @@
 import { Button, Input, message } from 'antd'
-import Box from '@/commom/Box'
+import Box from '@/commom/layout/Box'
 import { apiBindEmail, apiVerifyEmail } from '@/api'
 import { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'

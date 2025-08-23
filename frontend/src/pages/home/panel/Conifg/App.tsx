@@ -7,8 +7,8 @@ import {
 import { useEffect, useState } from 'react'
 import { Button, message, Select } from 'antd'
 import { getBotName } from '../core'
-import Box from '@/commom/Box'
-import JSONEdit from '@/commom/JSONEdit'
+import Box from '@/commom/layout/Box'
+import JSONEdit from '@/commom/edit/JSONEdit'
 
 const Conifg = () => {
   const [yamlData, setYamlData] = useState<string>('')

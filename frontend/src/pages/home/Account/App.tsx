@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { User } from '../../../api'
-import Pagination from '../../../commom/Pagination'
+import Pagination from '../../../components/Pagination'
 import { apiUserDelete, apiUserList } from '@/api/users/admin'
 import { Button, Popconfirm, Table, TableProps } from 'antd'
 import { apiIdentityList, apiIdentityUpdate } from '@/api/users/identity'
@@ -13,6 +13,7 @@ import {
   DeleteOutlined,
   CrownOutlined
 } from '@ant-design/icons'
+import { Box } from '@/commom'
 
 /**
  * @returns
@@ -83,6 +84,8 @@ const UserTable = () => {
 
   const columns: TableProps<User>['columns'] = [
     {
+      width: 160,
+      fixed: 'left',
       title: (
         <div className="flex items-center gap-2">
           <UserOutlined className="text-purple-500" />
@@ -105,6 +108,7 @@ const UserTable = () => {
       )
     },
     {
+      width: 130,
       title: (
         <div className="flex items-center gap-2">
           <SafetyCertificateOutlined className="text-blue-500" />
@@ -138,6 +142,7 @@ const UserTable = () => {
       }
     },
     {
+      width: 160,
       title: (
         <div className="flex items-center gap-2">
           <CrownOutlined className="text-green-500" />
@@ -155,6 +160,7 @@ const UserTable = () => {
       )
     },
     {
+      width: 160,
       title: (
         <div className="flex items-center gap-2">
           <TeamOutlined className="text-red-500" />
@@ -198,51 +204,58 @@ const UserTable = () => {
   ]
 
   return (
-    <div className="p-6 flex-1 flex flex-col h-full bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-all duration-300">
-      {/* 头部区域 */}
-      <div className="mb-6">
+    <Box>
+      <div className="sm:p-6  gap-2 flex-1 flex flex-col h-full bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-all duration-300">
+        {/* 头部区域 */}
         <Headings
           selects={selects}
           onUpdate={() => {
             initData()
           }}
         />
-      </div>
 
-      {/* 表格区域 */}
-      <div className="flex-1 overflow-hidden">
-        <div className="bg-gradient-to-br from-white/90 to-gray-50/90 dark:from-zinc-900/90 dark:to-zinc-800/90 backdrop-blur-sm border border-gray-200/50 dark:border-zinc-700/50 rounded-xl shadow-xl">
-          <Table
-            pagination={false}
-            columns={columns}
-            dataSource={curData}
-            className="[&_.ant-table-thead_.ant-table-cell]:bg-gradient-to-r [&_.ant-table-thead_.ant-table-cell]:from-blue-50/80 [&_.ant-table-thead_.ant-table-cell]:to-purple-50/80 [&_.ant-table-thead_.ant-table-cell]:dark:from-blue-900/30 [&_.ant-table-thead_.ant-table-cell]:dark:to-purple-900/30 [&_.ant-table-thead_.ant-table-cell]:backdrop-blur-sm [&_.ant-table-thead_.ant-table-cell]:border-b [&_.ant-table-thead_.ant-table-cell]:border-blue-200/30 [&_.ant-table-thead_.ant-table-cell]:dark:border-blue-700/30 [&_.ant-table-tbody_.ant-table-cell]:border-b [&_.ant-table-tbody_.ant-table-cell]:border-gray-200/20 [&_.ant-table-tbody_.ant-table-cell]:dark:border-gray-700/20 [&_.ant-table-tbody_.ant-table-row]:hover:bg-gradient-to-r [&_.ant-table-tbody_.ant-table-row]:hover:from-blue-50/50 [&_.ant-table-tbody_.ant-table-row]:hover:to-purple-50/50 [&_.ant-table-tbody_.ant-table-row]:dark:hover:from-blue-900/20 [&_.ant-table-tbody_.ant-table-row]:dark:hover:to-purple-900/20 [&_.ant-table-tbody_.ant-table-row]:transition-all [&_.ant-table-tbody_.ant-table-row]:duration-300"
-            rowClassName={() =>
-              'hover:bg-gradient-to-r hover:from-blue-50/50 hover:to-purple-50/50 dark:hover:from-blue-900/20 dark:hover:to-purple-900/20 transition-all duration-300'
-            }
-          />
-        </div>
-      </div>
-
-      {/* 分页区域 */}
-      {pageInfo.total && (
-        <div className="mt-6 flex justify-center w-full">
-          <div className="w-full bg-gradient-to-r from-white/80 to-gray-50/80 dark:from-zinc-900/80 dark:to-zinc-800/80 backdrop-blur-sm rounded-xl px-6 py-4 border border-gray-200/50 dark:border-zinc-700/50 shadow-lg">
-            <Pagination
-              total={pageInfo.total}
-              pageSize={pageInfo.pageSize}
-              page={pageInfo.page}
-              onPageChange={page => {
-                setPageInfo({
-                  ...pageInfo,
-                  page
-                })
-              }}
+        {/* 表格区域 */}
+        <div className="flex-1 overflow-hidden">
+          <div className="bg-gradient-to-br from-white/90 to-gray-50/90 dark:from-zinc-900/90 dark:to-zinc-800/90 backdrop-blur-sm border border-gray-200/50 dark:border-zinc-700/50 rounded-xl shadow-xl">
+            <Table
+              pagination={false}
+              columns={columns}
+              dataSource={curData}
+              direction='ltr'
+              virtual
+              // {
+              //   {
+              //     'virtual'
+              //   }
+              // }
+              className="[&_.ant-table-thead_.ant-table-cell]:bg-gradient-to-r [&_.ant-table-thead_.ant-table-cell]:from-blue-50/80 [&_.ant-table-thead_.ant-table-cell]:to-purple-50/80 [&_.ant-table-thead_.ant-table-cell]:dark:from-blue-900/30 [&_.ant-table-thead_.ant-table-cell]:dark:to-purple-900/30 [&_.ant-table-thead_.ant-table-cell]:backdrop-blur-sm [&_.ant-table-thead_.ant-table-cell]:border-b [&_.ant-table-thead_.ant-table-cell]:border-blue-200/30 [&_.ant-table-thead_.ant-table-cell]:dark:border-blue-700/30 [&_.ant-table-tbody_.ant-table-cell]:border-b [&_.ant-table-tbody_.ant-table-cell]:border-gray-200/20 [&_.ant-table-tbody_.ant-table-cell]:dark:border-gray-700/20 [&_.ant-table-tbody_.ant-table-row]:hover:bg-gradient-to-r [&_.ant-table-tbody_.ant-table-row]:hover:from-blue-50/50 [&_.ant-table-tbody_.ant-table-row]:hover:to-purple-50/50 [&_.ant-table-tbody_.ant-table-row]:dark:hover:from-blue-900/20 [&_.ant-table-tbody_.ant-table-row]:dark:hover:to-purple-900/20 [&_.ant-table-tbody_.ant-table-row]:transition-all [&_.ant-table-tbody_.ant-table-row]:duration-300"
+              rowClassName={() =>
+                'hover:bg-gradient-to-r hover:from-blue-50/50 hover:to-purple-50/50 dark:hover:from-blue-900/20 dark:hover:to-purple-900/20 transition-all duration-300'
+              }
             />
           </div>
         </div>
-      )}
-    </div>
+
+        {/* 分页区域 */}
+        {pageInfo.total ? (
+          <div className="mt-6 flex justify-center w-full">
+            <div className="w-full bg-gradient-to-r from-white/80 to-gray-50/80 dark:from-zinc-900/80 dark:to-zinc-800/80 backdrop-blur-sm rounded-xl px-6 py-4 border border-gray-200/50 dark:border-zinc-700/50 shadow-lg">
+              <Pagination
+                total={pageInfo.total}
+                pageSize={pageInfo.pageSize}
+                page={pageInfo.page}
+                onPageChange={page => {
+                  setPageInfo({
+                    ...pageInfo,
+                    page
+                  })
+                }}
+              />
+            </div>
+          </div>
+        ) : null}
+      </div>
+    </Box>
   )
 }
 

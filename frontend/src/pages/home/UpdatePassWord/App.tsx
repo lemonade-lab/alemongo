@@ -1,7 +1,7 @@
 import { Form, Input, message } from 'antd'
 import { useNavigate } from 'react-router-dom'
 import { apiPassword } from '../../../api'
-import Box from '@/commom/Box'
+import Box from '@/commom/layout/Box'
 
 /**
  * Chat风格的密码修改页面

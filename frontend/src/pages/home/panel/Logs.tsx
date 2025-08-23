@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { apiBotLog } from '@/api'
 import { getBotName } from './core'
-import Box from '@/commom/Box'
+import Box from '@/commom/layout/Box'
 
 /**
  * Chat风格的日志查看页面

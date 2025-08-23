@@ -82,7 +82,7 @@ const JSONForm = ({
           <div
             key={domKey}
             className={classNames('transition-all duration-300', {
-              'bg-gradient-to-r from-blue-50/50 to-purple-50/50 dark:from-blue-900/20 dark:to-purple-900/20 border border-blue-200/50 dark:border-blue-700/50 rounded-xl p-4  shadow-lg hover:shadow-xl':
+              'bg-gradient-to-r from-blue-50/50 to-purple-50/50 dark:from-blue-900/20 dark:to-purple-900/20 border border-blue-200/50 dark:border-blue-700/50 rounded-xl  p-2 ms:p-4   shadow-lg hover:shadow-xl':
                 !isChild,
               'bg-gradient-to-r from-gray-50/50 to-slate-50/50 dark:from-gray-800/20 dark:to-slate-800/20 border border-gray-200/50 dark:border-gray-700/50 rounded-lg p-3 mb-4 shadow-md':
                 isChild
@@ -171,7 +171,7 @@ const JSONForm = ({
           <div
             key={domKey}
             className={classNames('transition-all duration-300', {
-              'bg-gradient-to-r from-purple-50/50 to-indigo-50/50 dark:from-purple-900/20 dark:to-indigo-900/20 border border-purple-200/50 dark:border-purple-700/50 rounded-xl p-4  shadow-lg hover:shadow-xl':
+              'bg-gradient-to-r from-purple-50/50 to-indigo-50/50 dark:from-purple-900/20 dark:to-indigo-900/20 border border-purple-200/50 dark:border-purple-700/50 rounded-xl  p-2 ms:p-4   shadow-lg hover:shadow-xl':
                 !isChild,
               'bg-gradient-to-r from-gray-50/50 to-slate-50/50 dark:from-gray-800/20 dark:to-slate-800/20 border border-gray-200/50 dark:border-gray-700/50 rounded-lg p-3 mb-4 shadow-md':
                 isChild
@@ -240,7 +240,7 @@ const JSONForm = ({
             className={classNames(
               'flex flex-row gap-3 transition-all duration-300',
               {
-                'bg-gradient-to-r from-emerald-50/50 to-teal-50/50 dark:from-emerald-900/20 dark:to-teal-900/20 border border-emerald-200/50 dark:border-emerald-700/50 rounded-xl p-4  shadow-lg hover:shadow-xl':
+                'bg-gradient-to-r from-emerald-50/50 to-teal-50/50 dark:from-emerald-900/20 dark:to-teal-900/20 border border-emerald-200/50 dark:border-emerald-700/50 rounded-xl  p-2 ms:p-4   shadow-lg hover:shadow-xl':
                   !isChild,
                 'bg-gradient-to-r from-gray-50/50 to-slate-50/50 dark:from-gray-800/20 dark:to-slate-800/20 border border-gray-200/50 dark:border-gray-700/50 rounded-lg p-3 mb-4 shadow-md':
                   isChild
@@ -290,7 +290,7 @@ const JSONForm = ({
           className={classNames(
             'flex flex-row gap-3 transition-all duration-300',
             {
-              'bg-gradient-to-r from-orange-50/50 to-amber-50/50 dark:from-orange-900/20 dark:to-amber-900/20 border border-orange-200/50 dark:border-orange-700/50 rounded-xl p-4  shadow-lg hover:shadow-xl':
+              'bg-gradient-to-r from-orange-50/50 to-amber-50/50 dark:from-orange-900/20 dark:to-amber-900/20 border border-orange-200/50 dark:border-orange-700/50 rounded-xl  p-2 ms:p-4   shadow-lg hover:shadow-xl':
                 !isChild,
               'bg-gradient-to-r from-gray-50/50 to-slate-50/50 dark:from-gray-800/20 dark:to-slate-800/20 border border-gray-200/50 dark:border-gray-700/50 rounded-lg p-3 mb-4 shadow-md':
                 isChild
@@ -336,7 +336,7 @@ const JSONForm = ({
 
   return (
     <>
-      <div className="bg-gradient-to-r from-blue-50/80 to-purple-50/80 dark:from-blue-900/30 dark:to-purple-900/30 border border-blue-200/50 dark:border-blue-700/50 rounded-xl p-4  shadow-lg backdrop-blur-sm">
+      <div className="bg-gradient-to-r from-blue-50/80 to-purple-50/80 dark:from-blue-900/30 dark:to-purple-900/30 border border-blue-200/50 dark:border-blue-700/50 rounded-xl  p-2 ms:p-4   shadow-lg backdrop-blur-sm">
         <Space.Compact className="w-full">
           <Input
             placeholder="输入配置项名称"

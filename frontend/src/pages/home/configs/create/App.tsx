@@ -2,8 +2,8 @@ import { useNavigate } from 'react-router-dom'
 import { message } from 'antd'
 import { apiBotConfigs, apiBotConfigsList, apiBotConfigsUpdate } from '@/api'
 import { useEffect, useState } from 'react'
-import Box from '@/commom/Box'
-import JSONEdit from '@/commom/JSONEdit'
+import Box from '@/commom/layout/Box'
+import JSONEdit from '@/commom/edit/JSONEdit'
 const ConfigEdit = () => {
   const navigate = useNavigate()
   const [configNames, setConfigNames] = useState<string[]>([])

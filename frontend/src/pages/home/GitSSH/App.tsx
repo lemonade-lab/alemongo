@@ -13,7 +13,7 @@ import {
   apiSSHGenerate,
   apiSSHList
 } from '@/api/ssh'
-import Box from '@/commom/Box'
+import Box from '@/commom/layout/Box'
 
 const Configs = () => {
   const navigate = useNavigate()
@@ -122,118 +122,120 @@ const Configs = () => {
 
   return (
     <Box>
-      <div className="p-6 flex gap-6 flex-col transition-colors">
-        {/* 顶部操作栏 */}
-        <div className="flex justify-end gap-3">
-          <Button
-            type="primary"
-            icon={<KeyOutlined />}
-            onClick={() => {
-              setOpen(true)
-              form.resetFields()
-              form.setFieldsValue({
-                key_type: 'rsa',
-                bit_size: 2048,
-                name: 'id_rsa',
-                comment: 'your@gmail.com',
-                hash_algo: '',
-                key_format: ''
-              })
-            }}
-            className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 border-0 shadow-md hover:shadow-lg transition-all duration-300 rounded-lg px-6"
-          >
-            生成密钥
-          </Button>
-          <Button
-            type="primary"
-            icon={<SafetyCertificateOutlined />}
-            onClick={() => {
-              setOpenAuthorize(true)
-            }}
-            className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 border-0 shadow-md hover:shadow-lg transition-all duration-300 rounded-lg px-6"
-          >
-            授权
-          </Button>
-          <Button
-            type="primary"
-            onClick={() => navigate('/ssh/id_rsa.pub/update')}
-            className="chatgpt-button px-6 py-2 text-base font-semibold"
-            icon={
-              <svg
-                className="w-4 h-4 mr-2"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                />
-              </svg>
-            }
-          >
-            新增
-          </Button>
-        </div>
-
-        {/* SSH 配置卡片网格 */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {sshNames.map((name, index) => {
-            return (
-              <div
-                key={index}
-                className="group relative overflow-hidden rounded-xl transition-all duration-300 animate-fade-in-up hover:scale-105"
-                style={{ animationDelay: `${index * 0.1}s` }}
-                onClick={() => navigate(`/ssh/${name}`)}
-              >
-                <div className="bg-gradient-to-br from-white/90 to-gray-50/90 dark:from-zinc-900/90 dark:to-zinc-800/90 backdrop-blur-sm border border-gray-200/50 dark:border-zinc-700/50 rounded-xl p-6 h-full shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer">
-                  {/* 配置图标 */}
-                  <div className="flex items-center justify-center mb-4">
-                    <div className="w-16 h-16 bg-gradient-to-r from-purple-400 to-blue-500 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
-                      <KeyOutlined className="w-8 h-8 text-white" />
-                    </div>
-                  </div>
-
-                  {/* 配置名称 */}
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 text-center mb-4 truncate">
-                    {name}
-                  </h3>
-
-                  {/* 操作按钮 */}
-                  <Button
-                    type="primary"
-                    danger
-                    icon={<DeleteOutlined />}
-                    className="w-full bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700 border-0 shadow-md hover:shadow-lg transition-all duration-300 rounded-lg"
-                    onClick={e => {
-                      e.stopPropagation()
-                      onDelete(name)
-                    }}
-                  >
-                    删除
-                  </Button>
-                </div>
-              </div>
-            )
-          })}
-        </div>
-
-        {/* 空状态 */}
-        {sshNames.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-12">
-            <div className="w-24 h-24 bg-gradient-to-r from-gray-200 to-gray-300 dark:from-zinc-700 dark:to-zinc-600 rounded-full flex items-center justify-center mb-4">
-              <KeyOutlined className="w-12 h-12 text-gray-400 dark:text-gray-500" />
-            </div>
-            <h3 className="text-lg font-medium text-gray-600 dark:text-gray-400 mb-2">
-              暂无 SSH 配置
-            </h3>
-            <p className="text-sm text-gray-500 dark:text-gray-500 text-center">
-              点击上方按钮创建您的第一个 SSH 密钥配置
-            </p>
+      <div className="sm:p-6">
+        <div className="flex gap-6 flex-col transition-colors">
+          {/* 顶部操作栏 */}
+          <div className="flex justify-end gap-3">
+            <Button
+              type="primary"
+              icon={<KeyOutlined />}
+              onClick={() => {
+                setOpen(true)
+                form.resetFields()
+                form.setFieldsValue({
+                  key_type: 'rsa',
+                  bit_size: 2048,
+                  name: 'id_rsa',
+                  comment: 'your@gmail.com',
+                  hash_algo: '',
+                  key_format: ''
+                })
+              }}
+              className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 border-0 shadow-md hover:shadow-lg transition-all duration-300 rounded-lg px-6"
+            >
+              生成密钥
+            </Button>
+            <Button
+              type="primary"
+              icon={<SafetyCertificateOutlined />}
+              onClick={() => {
+                setOpenAuthorize(true)
+              }}
+              className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 border-0 shadow-md hover:shadow-lg transition-all duration-300 rounded-lg px-6"
+            >
+              授权
+            </Button>
+            <Button
+              type="primary"
+              onClick={() => navigate('/ssh/id_rsa.pub/update')}
+              className="chatgpt-button px-6 py-2 text-base font-semibold"
+              icon={
+                <svg
+                  className="w-4 h-4 mr-2"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                  />
+                </svg>
+              }
+            >
+              新增
+            </Button>
           </div>
-        )}
+
+          {/* SSH 配置卡片网格 */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {sshNames.map((name, index) => {
+              return (
+                <div
+                  key={index}
+                  className="group relative overflow-hidden rounded-xl transition-all duration-300 animate-fade-in-up hover:scale-105"
+                  style={{ animationDelay: `${index * 0.1}s` }}
+                  onClick={() => navigate(`/ssh/${name}`)}
+                >
+                  <div className="bg-gradient-to-br from-white/90 to-gray-50/90 dark:from-zinc-900/90 dark:to-zinc-800/90 backdrop-blur-sm border border-gray-200/50 dark:border-zinc-700/50 rounded-xl p-6 h-full shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer">
+                    {/* 配置图标 */}
+                    <div className="flex items-center justify-center mb-4">
+                      <div className="w-16 h-16 bg-gradient-to-r from-purple-400 to-blue-500 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                        <KeyOutlined className="w-8 h-8 text-white" />
+                      </div>
+                    </div>
+
+                    {/* 配置名称 */}
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 text-center mb-4 truncate">
+                      {name}
+                    </h3>
+
+                    {/* 操作按钮 */}
+                    <Button
+                      type="primary"
+                      danger
+                      icon={<DeleteOutlined />}
+                      className="w-full bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700 border-0 shadow-md hover:shadow-lg transition-all duration-300 rounded-lg"
+                      onClick={e => {
+                        e.stopPropagation()
+                        onDelete(name)
+                      }}
+                    >
+                      删除
+                    </Button>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+
+          {/* 空状态 */}
+          {sshNames.length === 0 && (
+            <div className="flex flex-col items-center justify-center py-12">
+              <div className="w-24 h-24 bg-gradient-to-r from-gray-200 to-gray-300 dark:from-zinc-700 dark:to-zinc-600 rounded-full flex items-center justify-center mb-4">
+                <KeyOutlined className="w-12 h-12 text-gray-400 dark:text-gray-500" />
+              </div>
+              <h3 className="text-lg font-medium text-gray-600 dark:text-gray-400 mb-2">
+                暂无 SSH 配置
+              </h3>
+              <p className="text-sm text-gray-500 dark:text-gray-500 text-center">
+                点击上方按钮创建您的第一个 SSH 密钥配置
+              </p>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* 生成密钥模态框 */}

@@ -1,5 +1,5 @@
 import React from 'react'
-import Box from '@/commom/Box'
+import Box from '@/commom/layout/Box'
 import { useNavigate } from 'react-router-dom'
 import { BorderOutlined } from '@ant-design/icons'
 import { message } from 'antd'
@@ -117,7 +117,7 @@ const Apps: React.FC = () => {
 
   return (
     <Box>
-      <div className="p-6">
+      <div className="sm:p-6">
         {/* 页面标题 */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold gradient-text mb-2">应用中心</h1>
@@ -187,7 +187,7 @@ const Apps: React.FC = () => {
         </div>
 
         {/* 底部提示 */}
-        <div className="mt-12 text-center">
+        <div className="my-8 text-center">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
             <svg
               className="w-5 h-5 text-blue-500"

@@ -2,8 +2,8 @@ import { apiBotPackage, apiBotPackageUpdate } from '@/api'
 import { Spin } from 'antd'
 import { useEffect, useState } from 'react'
 import { getBotName } from '../core'
-import Box from '@/commom/Box'
-import JSONEdit from '@/commom/JSONEdit'
+import Box from '@/commom/layout/Box'
+import JSONEdit from '@/commom/edit/JSONEdit'
 
 const Package = () => {
   const [pkgData, setPkgData] = useState<string>('')

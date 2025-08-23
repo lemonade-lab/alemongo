@@ -51,7 +51,7 @@ const Headings = ({
   }
   const [form] = Form.useForm()
   return (
-    <header className="lg:flex lg:items-center lg:justify-between py-4">
+    <header className="lg:flex lg:items-center lg:justify-between ">
       <div className="flex justify-end w-full">
         <Button
           type="primary"

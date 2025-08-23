@@ -3,7 +3,7 @@ import { Button, Modal } from 'antd'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { apiBotConfigsDelete, apiBotConfigsList } from '@/api'
-import Box from '@/commom/Box'
+import Box from '@/commom/layout/Box'
 
 /**
  * Chat风格的配置管理页面
@@ -51,7 +51,7 @@ const Configs = () => {
 
   return (
     <Box>
-      <div className="flex gap-6 flex-col bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900  duration-300 flex-1">
+      <div className="sm:p-6 flex gap-6 flex-col bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900  duration-300 flex-1">
         {/* 头部区域 */}
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-3">

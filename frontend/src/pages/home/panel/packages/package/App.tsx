@@ -6,8 +6,8 @@ import {
 import { message, Spin } from 'antd'
 import { useEffect, useState } from 'react'
 import { getBotName, getGitPackageName } from '../../core'
-import Box from '@/commom/Box'
-import JSONEdit from '@/commom/JSONEdit'
+import Box from '@/commom/layout/Box'
+import JSONEdit from '@/commom/edit/JSONEdit'
 import { FileTextOutlined } from '@ant-design/icons'
 
 const GitPackage = () => {

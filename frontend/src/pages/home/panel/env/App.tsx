@@ -1,7 +1,7 @@
 import { message } from 'antd'
 import { useEffect, useState } from 'react'
-import FileEdit from '@/commom/FileEdit'
-import Box from '@/commom/Box'
+import FileEdit from '@/commom/edit/FileEdit'
+import Box from '@/commom/layout/Box'
 import { apiBotEnv, apiBotEnvUpdate } from '@/api/bot/env'
 import { getBotName } from '../core'
 const SSHUpdate = () => {

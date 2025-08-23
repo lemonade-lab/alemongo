@@ -43,8 +43,10 @@ const MenuItem = ({
       }}
       onMouseDown={() => setIsPressed(true)}
       onMouseUp={() => setIsPressed(false)}
+      onTouchStart={() => setIsPressed(true)}
+      onTouchEnd={() => setIsPressed(false)}
       className={`
-        relative group cursor-pointer  duration-500 ease-out
+        relative group cursor-pointer  duration-500 ease-out touch-optimized
         ${isCollapsed ? 'w-12 h-12 mx-auto mb-3' : 'w-full h-12 mb-2 pr-8'}
         ${
           isSelected
@@ -54,6 +56,7 @@ const MenuItem = ({
         rounded-xl backdrop-blur-sm transform hover:scale-105
         ${isPressed ? 'scale-95' : ''}
         animate-fadeIn
+        mobile-touch-feedback
       `}
       style={{
         animationDelay: `${index * 100}ms`,
@@ -96,7 +99,7 @@ const MenuItem = ({
         {!isCollapsed && (
           <span
             className={`
-            font-medium  duration-300 whitespace-nowrap
+            font-medium  duration-300 whitespace-nowrap mobile-text-sm
             ${isSelected ? 'text-white font-semibold' : 'text-gray-300 group-hover:text-white'}
             ${isHovered ? 'transform translate-x-1 animate-text-slide' : ''}
           `}
@@ -146,14 +149,14 @@ const CustomMenu = ({
       {/* 菜单标题 */}
       {!collapsed && (
         <div className="mb-6 px-4">
-          <h2 className="text-white/80 text-sm font-medium uppercase tracking-wider">
+          <h2 className="text-white/80 text-sm font-medium uppercase tracking-wider mobile-text-xs">
             ALEMONGO
           </h2>
           <div className="mt-2 h-px bg-gradient-to-r from-purple-500/50 to-transparent"></div>
         </div>
       )}
       {/* 菜单项 */}
-      <div className="flex-1">
+      <div className="flex-1 mobile-scroll">
         {items.map((item, index) => (
           <MenuItem
             key={item.key}
@@ -212,7 +215,7 @@ const SiderMenu = ({
   }
 
   return (
-    <div className="relative h-full px-2">
+    <div className="relative h-full px-2 mobile-p-3">
       {/* 背景装饰 */}
       <div className="absolute inset-0 bg-gradient-to-b from-gray-700/95 to-gray-800/95 dark:from-zinc-800/95 dark:to-zinc-900/95 backdrop-blur-xl border-r border-white/10 dark:border-gray-700/20"></div>
 

@@ -8,7 +8,7 @@ import EditForm from './EditForm'
 import { QQ_TEMPLATE_KEY } from '@/api/base'
 import { useForm } from 'antd/es/form/Form'
 import './index.css'
-import Box from '@/commom/Box'
+import Box from '@/commom/layout/Box'
 
 /**
  * @returns

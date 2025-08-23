@@ -2,6 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 @import url('./scrollbar.scss');
+@import url('./mobile.scss');
 @import url('animate.css');
 
 // Chat风格的全局样式
@@ -11,6 +12,10 @@ body {
   padding: 0;
   width: 100%;
   height: 100%;
+  // 移动端优化
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
 #root {
@@ -25,6 +30,41 @@ body {
 
 img {
   pointer-events: none;
+}
+
+// 移动端安全区域适配
+.mobile-safe-area {
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
+// 移动端触摸优化
+.touch-optimized {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  user-select: none;
+}
+
+// 移动端滚动优化
+.mobile-scroll {
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+
+// 移动端按钮优化
+.mobile-button {
+  min-height: 44px;
+  min-width: 44px;
+  touch-action: manipulation;
+}
+
+// 移动端输入框优化
+.mobile-input {
+  font-size: 16px; // 防止iOS缩放
+  -webkit-appearance: none;
+  border-radius: 0;
 }
 
 // Chat风格的滚动条
@@ -56,6 +96,22 @@ img {
   background: rgba(75, 85, 99, 0.8);
 }
 
+// 移动端滚动条优化
+@media (max-width: 768px) {
+  ::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: rgba(156, 163, 175, 0.3);
+  }
+  
+  .dark ::-webkit-scrollbar-thumb {
+    background: rgba(75, 85, 99, 0.3);
+  }
+}
+
 // Chat风格的卡片阴影
 .chatgpt-card {
   background: rgba(255, 255, 255, 0.95);
@@ -68,6 +124,14 @@ img {
 .dark .chatgpt-card {
   background: rgba(17, 24, 39, 0.95);
   border: 1px solid rgba(75, 85, 99, 0.2);
+}
+
+// 移动端卡片优化
+@media (max-width: 768px) {
+  .chatgpt-card {
+    border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  }
 }
 
 // Chat风格的按钮
@@ -84,6 +148,24 @@ img {
 .chatgpt-button:hover {
   transform: translateY(-1px);
   box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+}
+
+// 移动端按钮优化
+@media (max-width: 768px) {
+  .chatgpt-button {
+    // min-height: 44px;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+  }
+  
+  .chatgpt-button:hover {
+    transform: none;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+  }
+  
+  .chatgpt-button:active {
+    transform: scale(0.98);
+  }
 }
 
 // Chat风格的输入框
@@ -103,6 +185,15 @@ img {
 .dark .chatgpt-input {
   background: rgba(17, 24, 39, 0.1);
   border: 1px solid rgba(75, 85, 99, 0.2);
+}
+
+// 移动端输入框优化
+@media (max-width: 768px) {
+  .chatgpt-input {
+    font-size: 16px;
+    border-radius: 6px;
+    min-height: 44px;
+  }
 }
 
 // Chat风格的动画效果
@@ -351,4 +442,180 @@ img {
 
 .animate-text-slide {
   animation: textSlide 0.4s ease-out;
+}
+
+// 移动端专用样式
+@media (max-width: 768px) {
+  // 移动端字体大小优化
+  .mobile-text-xs {
+    font-size: 0.75rem;
+    line-height: 1rem;
+  }
+  
+  .mobile-text-sm {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+  }
+  
+  .mobile-text-base {
+    font-size: 1rem;
+    line-height: 1.5rem;
+  }
+  
+  .mobile-text-lg {
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+  }
+  
+  // 移动端间距优化
+  .mobile-p-2 {
+    padding: 0.5rem;
+  }
+  
+  .mobile-p-3 {
+    padding: 0.75rem;
+  }
+  
+  .mobile-p-4 {
+    padding: 1rem;
+  }
+  
+  .mobile-m-2 {
+    margin: 0.5rem;
+  }
+  
+  .mobile-m-3 {
+    margin: 0.75rem;
+  }
+  
+  .mobile-m-4 {
+    margin: 1rem;
+  }
+  
+  // 移动端布局优化
+  .mobile-flex-col {
+    flex-direction: column;
+  }
+  
+  .mobile-w-full {
+    width: 100%;
+  }
+  
+  .mobile-h-auto {
+    height: auto;
+  }
+  
+  // 移动端隐藏元素
+  .mobile-hidden {
+    display: none;
+  }
+  
+  // 移动端显示元素
+  .mobile-block {
+    display: block;
+  }
+  
+  .mobile-flex {
+    display: flex;
+  }
+  
+  // 移动端触摸反馈
+  .mobile-touch-feedback {
+    transition: all 0.15s ease;
+  }
+  
+  .mobile-touch-feedback:active {
+    transform: scale(0.95);
+    opacity: 0.8;
+  }
+  
+  // 移动端抽屉优化
+  .mobile-drawer {
+    width: 100% !important;
+    max-width: 320px;
+  }
+  
+  // 移动端模态框优化
+  .mobile-modal {
+    margin: 16px;
+    max-width: calc(100vw - 32px);
+  }
+  
+  // 移动端表格优化
+  .mobile-table {
+    font-size: 0.875rem;
+  }
+  
+  .mobile-table th,
+  .mobile-table td {
+    padding: 0.5rem 0.25rem;
+  }
+  
+  // 移动端表单优化
+  .mobile-form-item {
+    margin-bottom: 1rem;
+  }
+  
+  .mobile-form-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+  }
+  
+  // 移动端按钮组优化
+  .mobile-button-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .mobile-button-group .ant-btn {
+    width: 100%;
+    height: 44px;
+  }
+}
+
+// 平板端优化
+@media (min-width: 769px) and (max-width: 1024px) {
+  .tablet-w-1\/2 {
+    width: 50%;
+  }
+  
+  .tablet-w-1\/3 {
+    width: 33.333333%;
+  }
+  
+  .tablet-w-2\/3 {
+    width: 66.666667%;
+  }
+}
+
+// 横屏模式优化
+@media (orientation: landscape) and (max-height: 500px) {
+  .landscape-hidden {
+    display: none;
+  }
+  
+  .landscape-compact {
+    padding: 0.5rem;
+    margin: 0.25rem;
+  }
+}
+
+// 高分辨率屏幕优化
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .retina-border {
+    border-width: 0.5px;
+  }
+}
+
+// 减少动画（用户偏好）
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

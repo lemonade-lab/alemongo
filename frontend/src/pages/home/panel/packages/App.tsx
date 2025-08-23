@@ -23,7 +23,7 @@ import {
   Tag
 } from 'antd'
 import { getBotName } from '../core'
-import Box from '@/commom/Box'
+import Box from '@/commom/layout/Box'
 import { useNavigate } from 'react-router-dom'
 import YAML from 'js-yaml'
 import {
@@ -321,13 +321,13 @@ const Panel = () => {
                           color="blue"
                           className="text-sm font-medium px-3 py-1 rounded-lg"
                         >
-                          {item.name}
+                          dir: {item.name}
                         </Tag>
                         <Tag
                           color="blue"
                           className="text-sm font-medium px-3 py-1 rounded-lg"
                         >
-                          {pkgName}
+                         {pkgName}
                         </Tag>
                         <Tag
                           color="geekblue"
@@ -335,6 +335,15 @@ const Panel = () => {
                         >
                           {pkgJSON['description']}
                         </Tag>
+                        {
+                          // 版本
+                          <Tag
+                            color="geekblue"
+                            className="text-sm font-medium px-3 py-1 rounded-lg"
+                          >
+                            v{pkgJSON['version']}
+                          </Tag>
+                        }
                         {isStart ? (
                           <Tag
                             color="green"

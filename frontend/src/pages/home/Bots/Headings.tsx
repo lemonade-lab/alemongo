@@ -40,9 +40,9 @@ const Headings = ({
   const [form] = Form.useForm()
 
   return (
-    <header className="flex justify-between items-center gap-4 py-4">
+    <header className="flex justify-between items-center gap-4 ">
       {/* 左侧信息区域 */}
-      <div className="flex-1 flex gap-6 flex-col lg:flex-row">
+      <div className="flex-1 flex gap-2 sm:gap-6 flex-col lg:flex-row">
         {/* NodeJS 版本信息 */}
         <div className="flex items-center text-sm">
           <div className="flex items-center gap-2 px-3 py-2 bg-white/10 backdrop-blur-sm rounded-lg border border-white/20">
