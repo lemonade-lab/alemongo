@@ -44,10 +44,10 @@ const GitPackage = () => {
       content: value
     })
       .then(() => {
-        message.success('配置保存成功')
+        message.success('保存成功')
       })
       .catch(() => {
-        message.error('配置保存失败，请重试')
+        message.error('保存失败，请重试')
       })
       .finally(() => {
         setIsLoading(false)

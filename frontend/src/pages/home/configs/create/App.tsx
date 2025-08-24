@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { message } from 'antd'
 import { apiBotConfigs, apiBotConfigsList, apiBotConfigsUpdate } from '@/api'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import Box from '@/commom/layout/Box'
 import JSONEdit from '@/commom/edit/JSONEdit'
 const ConfigEdit = () => {
@@ -9,9 +9,12 @@ const ConfigEdit = () => {
   const [configNames, setConfigNames] = useState<string[]>([])
   const [data, setData] = useState<string>('')
   // 是否是创建配置
-  const isCreate = window.location.pathname.includes('create')
-  // 获取当前配置名称
-  const getName = () => {
+
+  const isCreate = useMemo(() => {
+    return window.location.pathname.includes('create')
+  }, [])
+
+  const name = useMemo(() => {
     if (isCreate) {
       const names = window.location.pathname.split('/')
       // 获取倒数第二个元素
@@ -21,12 +24,12 @@ const ConfigEdit = () => {
     const path = window.location.pathname
     const name = path.split('/').pop()
     return name
-  }
+  }, [isCreate])
+  
 
   useEffect(() => {
     if (!isCreate) {
       // 获取当前配置数据
-      const name = getName()
       if (!name) {
         message.error('错误访问')
         return
@@ -41,7 +44,7 @@ const ConfigEdit = () => {
         setConfigNames(res)
       })
     }
-  }, [isCreate])
+  }, [isCreate, name])
 
   const updateContent = (name: string, value: string) => {
     apiBotConfigsUpdate({
@@ -53,6 +56,9 @@ const ConfigEdit = () => {
         return
       }
       navigate('/configs')
+    })
+    .catch(() => {
+      message.error('保存失败，请重试')
     })
   }
 
@@ -73,13 +79,15 @@ const ConfigEdit = () => {
     }
     updateContent(name, value)
   }
+
+  //
   return (
     <Box>
       <div className="p-2 flex gap-4 flex-col  transition-colors flex-1">
         <JSONEdit
           disabledName={!isCreate}
           onSave={onSave}
-          name={getName()}
+          name={name}
           value={data}
           type="yaml"
         />

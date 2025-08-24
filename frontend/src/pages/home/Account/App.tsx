@@ -216,7 +216,7 @@ const UserTable = () => {
 
         {/* 表格区域 */}
         <div className="flex-1 overflow-hidden">
-          <div className="bg-gradient-to-br from-white/90 to-gray-50/90 dark:from-zinc-900/90 dark:to-zinc-800/90 backdrop-blur-sm border border-gray-200/50 dark:border-zinc-700/50 rounded-xl shadow-xl">
+          <div className="bg-gradient-to-br from-white/90 to-gray-50/90 dark:from-zinc-900/90 dark:to-zinc-800/90 backdrop-blur-sm border border-gray-200/50 dark:border-zinc-700/50 rounded-xl shadow-sm">
             <Table
               pagination={false}
               columns={columns}
@@ -239,7 +239,7 @@ const UserTable = () => {
         {/* 分页区域 */}
         {pageInfo.total ? (
           <div className="mt-6 flex justify-center w-full">
-            <div className="w-full bg-gradient-to-r from-white/80 to-gray-50/80 dark:from-zinc-900/80 dark:to-zinc-800/80 backdrop-blur-sm rounded-xl px-6 py-4 border border-gray-200/50 dark:border-zinc-700/50 shadow-lg">
+            <div className="w-full bg-gradient-to-r from-white/80 to-gray-50/80 dark:from-zinc-900/80 dark:to-zinc-800/80 backdrop-blur-sm rounded-xl px-6 py-4 border border-gray-200/50 dark:border-zinc-700/50 shadow-sm">
               <Pagination
                 total={pageInfo.total}
                 pageSize={pageInfo.pageSize}

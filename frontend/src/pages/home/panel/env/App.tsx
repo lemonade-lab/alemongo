@@ -26,9 +26,13 @@ const SSHUpdate = () => {
     apiBotEnvUpdate({
       name: botName,
       content: value
-    }).then(() => {
-      message.success('更新成功')
     })
+      .then(() => {
+        message.success('更新成功')
+      })
+      .catch(() => {
+        message.error('保存失败，请重试')
+      })
   }
 
   const onSave = (_name: string, value: string) => {

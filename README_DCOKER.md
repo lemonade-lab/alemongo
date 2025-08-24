@@ -87,17 +87,15 @@ RUN chmod +x ./Lagrange.OneBot
 CMD ["./Lagrange.OneBot"]
 ```
 
-补充 docker-compose.yml 以启动onebot
+补充 `docker-compose.yml` 以启动onebot
 
 ```yml
 services:
-  lagrange-onebot:
+  onebot:
     build:
       context: .
       dockerfile: Dockerfile-onebot
-    container_name: lagrange-onebot
-    ports:
-      - "8081:8081"
+    container_name: onebot
     volumes:
       - ./appsettings.json:/app/appsettings.json 
       - ./device.json:/app/device.json 
@@ -106,12 +104,16 @@ services:
       - DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=true
     networks:
       - alemongo-network
+    depends_on:
+      - alemongo
+
 ```
 
+还补充 `alemongo.conf` 以转发 onebot，同时调整nginx
 
 ```sh
 # 查看目录
-docker logs lagrange-onebot
+docker logs onebot
 ```
 
 > 自建/自动生成的`appsettings.json`文件需要补充下面的内容

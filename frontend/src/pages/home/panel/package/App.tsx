@@ -1,5 +1,5 @@
 import { apiBotPackage, apiBotPackageUpdate } from '@/api'
-import { Spin } from 'antd'
+import { message, Spin } from 'antd'
 import { useEffect, useState } from 'react'
 import { getBotName } from '../core'
 import Box from '@/commom/layout/Box'
@@ -22,9 +22,16 @@ const Package = () => {
     apiBotPackageUpdate({
       name: name,
       content: value
-    }).finally(() => {
-      setIsLoading(false)
     })
+    .then(() => {
+      message.success('保存成功')
+    })
+    .catch(() => {
+      message.error('保存失败，请重试')
+    })
+      .finally(() => {
+        setIsLoading(false)
+      })
   }
 
   const initBotPackage = (name: string) => {

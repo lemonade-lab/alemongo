@@ -14,7 +14,6 @@ import {
   PlusOutlined,
   DeleteOutlined,
   SettingOutlined,
-  ClearOutlined,
   MinusOutlined,
   FileTextOutlined,
   FolderOutlined,
@@ -129,17 +128,6 @@ const JSONForm = ({
                   <div className="flex items-center justify-end gap-3 flex-1">
                     {fields.length > 0 && (
                       <>
-                        <Button
-                          type="dashed"
-                          danger
-                          icon={<ClearOutlined />}
-                          onClick={() =>
-                            handleAddChild([...currentKey], 'array')
-                          }
-                          className="border-red-300 dark:border-red-600 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-300"
-                        >
-                          清空
-                        </Button>
                         <Button
                           type="dashed"
                           danger

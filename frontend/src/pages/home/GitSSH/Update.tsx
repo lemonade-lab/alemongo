@@ -53,6 +53,9 @@ const SSHUpdate = () => {
         navigate('/ssh')
       }
     })
+    .catch(() => {
+      message.error('保存失败，请重试')
+    })
   }
 
   const onSave = (name: string, value: string) => {

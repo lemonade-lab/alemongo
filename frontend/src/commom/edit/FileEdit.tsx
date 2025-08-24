@@ -1,8 +1,9 @@
 import { Button, Input, message } from 'antd'
 import { useEffect, useState } from 'react'
-import MonacoEditor from '@monaco-editor/react'
+import MonacoEditor from './MonacoEditor'
 import useCodeTheme from '@/hook/useCodeTheme'
 import { SaveOutlined } from '@ant-design/icons'
+import { createMonacoChineseConfig } from './monacoI18n'
 
 const FileEdit = ({
   name,
@@ -29,6 +30,9 @@ const FileEdit = ({
   const handleCodeChange = (val: string | undefined) => {
     setFileData(val ?? '')
   }
+  
+  // 获取MonacoEditor稳定配置
+  const monacoConfig = createMonacoChineseConfig('plaintext', theme)
 
   const handleSave = () => {
     if (!inputValue) {
@@ -80,30 +84,17 @@ const FileEdit = ({
         <div className="flex-1 flex flex-col min-h-0 p-2">
           <div className="flex-1 rounded-lg overflow-hidden border border-gray-200/50 dark:border-zinc-700/50 shadow-inner">
             <MonacoEditor
+              disabled={false}
+              onSave={()=>{
+                handleSave()
+              }}
               value={fileData}
               language="plaintext"
               width="100%"
               height="100%"
               theme={theme}
-              options={{
-                fontSize: 14,
-                lineNumbers: 'on',
-                minimap: { enabled: false },
-                scrollBeyondLastLine: false,
-                automaticLayout: true,
-                wordWrap: 'off',
-                formatOnPaste: false,
-                formatOnType: false,
-                padding: { top: 16, bottom: 16 },
-                roundedSelection: false,
-                scrollbar: {
-                  vertical: 'visible',
-                  horizontal: 'visible',
-                  verticalScrollbarSize: 8,
-                  horizontalScrollbarSize: 8
-                }
-              }}
               onChange={handleCodeChange}
+              {...monacoConfig}
             />
           </div>
         </div>

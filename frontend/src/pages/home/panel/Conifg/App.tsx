@@ -33,10 +33,14 @@ const Conifg = () => {
     apiBotConfigUpdate({
       name: name,
       content: value
-    }).then(() => {
-      message.success('保存成功')
-      setYamlData(value)
     })
+      .then(() => {
+        message.success('保存成功')
+        setYamlData(value)
+      })
+      .catch(() => {
+        message.error('保存失败，请重试')
+      })
   }
   const [isLoading, setIsLoading] = useState(false)
   const [select, setSelect] = useState<string>('')
@@ -47,7 +51,7 @@ const Conifg = () => {
         disabledName
         value={yamlData}
         onSave={onSave}
-        onChange={setYamlData}
+        // onChange={setYamlData}
         rightHeader={
           <div className="flex gap-2">
             <Select

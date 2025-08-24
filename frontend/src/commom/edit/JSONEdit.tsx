@@ -1,9 +1,9 @@
 import { Button, Input, message, Form } from 'antd'
-import { useEffect, useState, useCallback, useRef } from 'react'
+import { useEffect, useState } from 'react'
 import YAML from 'js-yaml'
 import JSONForm from './JSONForm'
 import { nameMap } from '../config/NameMap'
-import MonacoEditor from '@monaco-editor/react'
+import MonacoEditor from './MonacoEditor'
 import cloneDeep from 'lodash/cloneDeep'
 import useCodeTheme from '@/hook/useCodeTheme'
 import {
@@ -13,7 +13,7 @@ import {
   ExclamationCircleOutlined,
   CheckCircleOutlined
 } from '@ant-design/icons'
-
+ 
 type BaseType = string | number | string[] | number[]
 type ObjectType = {
   [key: string]: BaseType | ObjectType
@@ -43,7 +43,6 @@ const JSONEdit = ({
   name,
   value,
   onSave,
-  onChange: onChangeProp,
   disabledName = false,
   type = 'json',
   rightHeader = null
@@ -51,179 +50,172 @@ const JSONEdit = ({
   name?: string
   value: string
   onSave: (name: string, value: string) => void
-  onChange?: (value: string) => void
   disabledName?: boolean
   type?: 'json' | 'yaml'
   rightHeader?: React.ReactNode
 }) => {
-  const [jsonData, setJsonData] = useState<ObjectType>({})
-  const [strData, setStrData] = useState<string>('')
+  const [formData, setFormData] = useState<ObjectType>({})
+  const [codeData, setCodeData] = useState<string>('')
   const [form] = Form.useForm()
   const [disabled, setDisabled] = useState(false)
   const [nameValue, setNameValue] = useState<string>('')
   const [activeKey, setActiveKey] = useState<'form' | 'code'>('form')
   const theme = useCodeTheme()
 
-  // 防止循环 set
-  const lastStrData = useRef<string>(null)
-  const lastJsonData = useRef<ObjectType>(null)
-
+ 
+  // 初始化数据
   useEffect(() => {
     try {
-      const values = value ? safeDecode(value, type) : {}
+      const initialData = value ? safeDecode(value, type) : {}
+      const initialStr = safeEncode(initialData, type)
+      setFormData(initialData)
+      setCodeData(initialStr)
       form.resetFields()
-      setJsonData(values)
-      setStrData(safeEncode(values, type))
-      form.setFieldsValue(values)
+      form.setFieldsValue(initialData)
       setDisabled(false)
-      lastStrData.current = safeEncode(values, type)
-      lastJsonData.current = cloneDeep(values)
     } catch {
       setDisabled(true)
     }
   }, [value, type, form])
 
-  const updateStrData = useCallback(() => {
-    const formData = form.getFieldsValue()
-    if (JSON.stringify(formData) === JSON.stringify(lastJsonData.current))
-      return
-    setJsonData(formData)
-    const str = safeEncode(formData, type)
-    setStrData(str)
-    setDisabled(false)
-    lastStrData.current = str
-    lastJsonData.current = cloneDeep(formData)
-    onChangeProp?.(str)
-  }, [form, type, onChangeProp])
+ 
+  const handleFormChange = () => {
+      const formData = form.getFieldsValue();
+      setFormData(formData)
+  }
 
-  const handleCodeChange = useCallback(
-    (val: string | undefined) => {
-      const value = val ?? ''
-      if (value === lastStrData.current) return
-      setStrData(value) // 只更新本地状态，不格式化
+  // 处理Code模式下的数据变化
+  const handleCodeChange = (val: string | undefined) => {
+    const value = val ?? ''
+    setCodeData(value)
+    try {
+      safeDecode(value, type)
+      setDisabled(false)
+    } catch {
+      setDisabled(true)
+    }
+  }
 
+  // 切换模式时的数据同步
+  const handleModeChange = (newMode: 'form' | 'code') => {
+    if (newMode === activeKey) return
+    if (newMode === 'form') {
+      // 切换到Form模式：将Code数据同步到Form
       try {
-        const json = safeDecode(value, type)
-        setJsonData(json)
-        form.setFieldsValue(json)
+        const jsonData = safeDecode(codeData, type)
+        setFormData(jsonData)
+        form.setFieldsValue(jsonData)
         setDisabled(false)
-        lastStrData.current = value // 只记录原始字符串
-        lastJsonData.current = cloneDeep(json)
-        onChangeProp?.(value)
-      } catch (error) {
-        setDisabled(true)
-        console.error(error)
-      }
-    },
-    [type, form, onChangeProp]
-  )
-
-  const handleAddChild = useCallback(
-    (keyPath: string[], dataType: InputDataType) => {
-      if (!Array.isArray(keyPath) || keyPath.length === 0) {
-        message.error('非法路径')
+      } catch {
+        message.error('代码格式错误，无法切换到表单模式')
         return
       }
-      const newData = cloneDeep(jsonData)
-      let status = true
-      const updateNestedObject = (
-        obj: Record<string, unknown>,
-        keys: string[],
-        value: ObjectType
-      ) => {
-        const [currentKey, ...restKeys] = keys
-        if (restKeys.length === 0) {
-          if (obj[currentKey] !== undefined) {
-            message.warning(`key ${currentKey} 已存在，请使用其他名称`)
-            status = false
-            return
-          }
-          obj[currentKey] = value
-        } else {
-          if (!obj[currentKey] || typeof obj[currentKey] !== 'object') {
-            obj[currentKey] = {}
-          }
-          updateNestedObject(
+    } else {
+      // 切换到Code模式：将Form数据同步到Code
+      const str = safeEncode(formData, type)
+      setCodeData(str)
+      setDisabled(false)
+    }
+    setActiveKey(newMode)
+  }
+
+  const handleAddChild = (keyPath: string[], dataType: InputDataType) => {
+    if (!Array.isArray(keyPath) || keyPath.length === 0) {
+      message.error('非法路径')
+      return
+    }
+    const newData = cloneDeep(formData)
+    let status = true
+    const updateNestedObject = (
+      obj: Record<string, unknown>,
+      keys: string[],
+      value: ObjectType
+    ) => {
+      const [currentKey, ...restKeys] = keys
+      if (restKeys.length === 0) {
+        if (obj[currentKey] !== undefined) {
+          message.warning(`key ${currentKey} 已存在，请使用其他名称`)
+          status = false
+          return
+        }
+        obj[currentKey] = value
+      } else {
+        if (!obj[currentKey] || typeof obj[currentKey] !== 'object') {
+          obj[currentKey] = {}
+        }
+        updateNestedObject(
+          obj[currentKey] as Record<string, unknown>,
+          restKeys,
+          value
+        )
+      }
+    }
+    const newValue = () => {
+      switch (dataType) {
+        case 'array':
+          return []
+        case 'object':
+          return {}
+        case 'string':
+          return ''
+        case 'boolean':
+          return false
+        default:
+          return ''
+      }
+    }
+    updateNestedObject(newData, keyPath, newValue())
+    if (!status) return
+    message.info('修改成功')
+    setFormData(newData)
+    form.setFieldsValue(newData)
+  }
+
+  const handleDelChild = (keyPath: string[]) => {
+    if (!Array.isArray(keyPath) || keyPath.length === 0) {
+      message.error('非法路径')
+      return
+    }
+    const newData = cloneDeep(formData)
+    const deleteNestedObject = (
+      obj: Record<string, unknown>,
+      keys: string[]
+    ) => {
+      const [currentKey, ...restKeys] = keys
+      if (restKeys.length === 0) {
+        delete obj[currentKey]
+      } else {
+        if (obj[currentKey] && typeof obj[currentKey] === 'object') {
+          deleteNestedObject(
             obj[currentKey] as Record<string, unknown>,
-            restKeys,
-            value
+            restKeys
           )
         }
       }
-      const newValue = () => {
-        switch (dataType) {
-          case 'array':
-            return []
-          case 'object':
-            return {}
-          case 'string':
-            return ''
-          case 'boolean':
-            return false
-          default:
-            return ''
-        }
-      }
-      updateNestedObject(newData, keyPath, newValue())
-      if (!status) return
-      message.info('修改成功')
-      setJsonData(newData)
-      setStrData(safeEncode(newData, type))
-      form.setFieldsValue(newData)
-      setDisabled(false)
-      lastStrData.current = safeEncode(newData, type)
-      lastJsonData.current = cloneDeep(newData)
-      onChangeProp?.(safeEncode(newData, type))
-    },
-    [jsonData, type, form, onChangeProp]
-  )
+    }
+    deleteNestedObject(newData, keyPath)
+    setFormData(newData)
+    form.setFieldsValue(newData)
+  }
 
-  const handleDelChild = useCallback(
-    (keyPath: string[]) => {
-      if (!Array.isArray(keyPath) || keyPath.length === 0) {
-        message.error('非法路径')
-        return
-      }
-      const newData = cloneDeep(jsonData)
-      const deleteNestedObject = (
-        obj: Record<string, unknown>,
-        keys: string[]
-      ) => {
-        const [currentKey, ...restKeys] = keys
-        if (restKeys.length === 0) {
-          delete obj[currentKey]
-        } else {
-          if (obj[currentKey] && typeof obj[currentKey] === 'object') {
-            deleteNestedObject(
-              obj[currentKey] as Record<string, unknown>,
-              restKeys
-            )
-          }
-        }
-      }
-      deleteNestedObject(newData, keyPath)
-      setJsonData(newData)
-      setStrData(safeEncode(newData, type))
-      form.setFieldsValue(newData)
-      setDisabled(false)
-      lastStrData.current = safeEncode(newData, type)
-      lastJsonData.current = cloneDeep(newData)
-      onChangeProp?.(safeEncode(newData, type))
-    },
-    [jsonData, type, form, onChangeProp]
-  )
-
-  const handleSave = useCallback(() => {
+  const handleSave = () => {
     if (!nameValue) {
       message.error('名称不能为空')
       return
     }
     try {
-      onSave(nameValue, safeEncode(jsonData, type))
+      // 根据当前模式使用对应的数据
+      let saveData: string
+      if (activeKey === 'form') {
+        saveData = safeEncode(formData, type)
+      } else {
+        saveData = codeData
+      }
+      onSave(nameValue, saveData)
     } catch {
       message.error('保存失败，请重试')
     }
-  }, [jsonData, nameValue, onSave, type])
+  }
 
   useEffect(() => {
     if (name) setNameValue(name)
@@ -231,8 +223,8 @@ const JSONEdit = ({
 
   // ---------- 自定义Tab ----------
   const tabList = [
-    { key: 'form', label: '表单模式', icon: <FormOutlined /> },
-    { key: 'code', label: '源码模式', icon: <CodeOutlined /> }
+    { key: 'form', label: '表单', icon: <FormOutlined /> },
+    { key: 'code', label: <div className="flex items-center gap-2">源码<div className="text-xs text-gray-500 dark:text-gray-400">(可右键菜单)</div></div>, icon: <CodeOutlined /> }
   ]
 
   return (
@@ -247,7 +239,6 @@ const JSONEdit = ({
                 placeholder="配置名称"
                 allowClear
                 onChange={e => setNameValue(e.target.value)}
-                className="w-48 bg-white/70 dark:bg-zinc-800/70 border-gray-300/50 dark:border-zinc-600/50 rounded-lg focus:border-blue-500 dark:focus:border-blue-400 transition-all duration-300 mobile-input mobile-w-full"
                 style={{ minWidth: 120 }}
               />
             </div>
@@ -291,7 +282,7 @@ const JSONEdit = ({
       </div>
 
       {/* Tab 导航 */}
-      <div className="flex flex-col sm:flex-row bg-gradient-to-r from-gray-100/80 to-gray-200/80 dark:from-zinc-800/80 dark:to-zinc-900/80 backdrop-blur-sm border-b border-gray-200/50 dark:border-zinc-700/50 mobile-flex-col">
+      <div className="flex flex-row bg-gradient-to-r from-gray-100/80 to-gray-200/80 dark:from-zinc-800/80 dark:to-zinc-900/80 backdrop-blur-sm border-b border-gray-200/50 dark:border-zinc-700/50">
         {tabList.map(tab => (
           <button
             key={tab.key}
@@ -303,7 +294,7 @@ const JSONEdit = ({
                   : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-white/50 dark:hover:bg-zinc-800/50'
               }
             `}
-            onClick={() => setActiveKey(tab.key as 'form' | 'code')}
+            onClick={() => handleModeChange(tab.key as 'form' | 'code')}
             type="button"
           >
             {tab.icon}
@@ -318,13 +309,13 @@ const JSONEdit = ({
           <div className="flex-1 p-6 overflow-auto mobile-p-3 mobile-scroll">
             <Form
               form={form}
-              labelCol={{ flex: '80px' }}
-              onValuesChange={updateStrData}
+              labelCol={{span: 6}}
+              onValuesChange={handleFormChange}
               className="h-full"
             >
               <div className="flex flex-col gap-4">
                 <JSONForm
-                  data={jsonData}
+                  data={formData}
                   map={nameMap}
                   handleAddChild={handleAddChild}
                   handleDelChild={handleDelChild}
@@ -337,30 +328,14 @@ const JSONEdit = ({
           <div className="flex-1 flex flex-col min-h-0 p-2 mobile-p-1">
             <div className="flex-1 rounded-lg overflow-hidden border border-gray-200/50 dark:border-zinc-700/50 shadow-inner">
               <MonacoEditor
-                value={strData}
-                language={type === 'yaml' ? 'yaml' : 'json'}
+                value={codeData}
+                disabled={disabled}
+                onSave={handleSave}
+                language={type}
                 width="100%"
                 height="100%"
-                options={{
-                  fontSize: 14,
-                  lineNumbers: 'on',
-                  minimap: { enabled: false },
-                  scrollBeyondLastLine: false,
-                  automaticLayout: true,
-                  wordWrap: 'off',
-                  formatOnPaste: false,
-                  formatOnType: false,
-                  padding: { top: 16, bottom: 16 },
-                  roundedSelection: false,
-                  scrollbar: {
-                    vertical: 'visible',
-                    horizontal: 'visible',
-                    verticalScrollbarSize: 8,
-                    horizontalScrollbarSize: 8
-                  }
-                }}
                 onChange={handleCodeChange}
-                theme={theme}
+                theme={theme} 
               />
             </div>
           </div>
