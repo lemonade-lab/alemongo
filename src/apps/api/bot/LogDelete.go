@@ -49,8 +49,12 @@ func LogDelete(ctx *gin.Context) {
 		// 如果没有提供时间戳，使用当前时间
 		date = time.Now()
 	}
+
 	// 获取日志路径
+	logDate := date.Format("2006-01-02")
+	today := time.Now().Format("2006-01-02")
 	logPath := config.GetBotLogByDate(name, date)
+
 	if logPath == "" {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"code": http.StatusInternalServerError,
@@ -69,7 +73,21 @@ func LogDelete(ctx *gin.Context) {
 		return
 	}
 	// 删除日志文件
-	err := os.Remove(logPath)
+	var err error
+	if today == logDate {
+		err := os.Truncate(logPath, 0)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{
+				"code": http.StatusInternalServerError,
+				"msg":  "删除日志文件失败",
+				"data": nil,
+			})
+			return
+		}
+	} else {
+		err = os.Remove(logPath)
+	}
+
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"code": http.StatusInternalServerError,
