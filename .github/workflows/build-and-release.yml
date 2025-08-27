@@ -4,8 +4,8 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: '版本号 (例: 0.0.1)'
-        required: true
+        description: '版本号(自增)'
+        required: false
 
 permissions:
   contents: write
@@ -47,8 +47,10 @@ jobs:
             archive: zip
 
     steps:
-      - name: 检出代码
+      - name: 结账代码
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: 设置 Node.js 环境
         uses: actions/setup-node@v4
@@ -68,25 +70,49 @@ jobs:
           go-version: '1.23.0'
           cache: true
 
+      - name: 自动获取/自增版本号
+        id: versioning
+        run: |
+          if [[ -n "${{ github.event.inputs.version }}" ]]; then
+            VERSION="${{ github.event.inputs.version }}"
+            [[ $VERSION != v* ]] && VERSION="v$VERSION"
+          else
+            LATEST_TAG=$(git tag --sort=-v:refname | grep -E "^v[0-9]+\.[0-9]+\.[0-9]+$" | head -n 1)
+            if [ -z "$LATEST_TAG" ]; then
+              VERSION="v0.0.1"
+            else
+              VERSION_NUM=${LATEST_TAG#v}
+              MAJOR=$(echo $VERSION_NUM | cut -d. -f1)
+              MINOR=$(echo $VERSION_NUM | cut -d. -f2)
+              PATCH=$(echo $VERSION_NUM | cut -d. -f3)
+              PATCH=$((PATCH + 1))
+              VERSION="v$MAJOR.$MINOR.$PATCH"
+            fi
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "本次发布版本号: $VERSION"
+
       - name: 构建二进制文件
         run: |
-          VERSION=${{ github.event.inputs.version }}
+          VERSION=${{ steps.versioning.outputs.version }}
           LDFLAGS="-X main.Version=${VERSION} -X main.BuildTime=$(date +%s) -s -w"
           GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -ldflags "${LDFLAGS}" -o alemongo${{ matrix.ext }}
 
       - name: 创建压缩包
         run: |
+          VERSION=${{ steps.versioning.outputs.version }}
           if [ "${{ matrix.archive }}" = "tar.gz" ]; then
-            tar -czf alemongo-${{ matrix.goos }}-${{ matrix.goarch }}-${{ github.event.inputs.version }}.tar.gz alemongo${{ matrix.ext }}
+            tar -czf alemongo-${{ matrix.goos }}-${{ matrix.goarch }}-${VERSION}.tar.gz alemongo${{ matrix.ext }}
           else
-            zip alemongo-${{ matrix.goos }}-${{ matrix.goarch }}-${{ github.event.inputs.version }}.zip alemongo${{ matrix.ext }}
+            zip alemongo-${{ matrix.goos }}-${{ matrix.goarch }}-${VERSION}.zip alemongo${{ matrix.ext }}
           fi
 
       - name: 上传构建产物
         uses: actions/upload-artifact@v4
         with:
           name: alemongo-${{ matrix.goos }}-${{ matrix.goarch }}
-          path: alemongo-${{ matrix.goos }}-${{ matrix.goarch }}-${{ github.event.inputs.version }}.${{ matrix.archive }}
+          path: |
+            alemongo-${{ matrix.goos }}-${{ matrix.goarch }}-${{ steps.versioning.outputs.version }}.${{ matrix.archive }}
 
   release:
     name: 创建发布
@@ -101,8 +127,12 @@ jobs:
       - name: 创建 GitHub Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: v${{ github.event.inputs.version }}
-          name: Release v${{ github.event.inputs.version }}
+          tag_name: ${{ needs.build.outputs.version || steps.versioning.outputs.version }}
+          name: Release ${{ needs.build.outputs.version || steps.versioning.outputs.version }}
           files: artifacts/**/alemongo-*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 输出版本号
+        run: |
+          echo "本次发布版本号: ${{ needs.build.outputs.version || steps.versioning.outputs.version }}"
