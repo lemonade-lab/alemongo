@@ -1,4 +1,4 @@
-import { Button, Spin, Tag, message, Modal } from 'antd'
+import { Button, Spin, Tag, message, Modal, Tooltip } from 'antd'
 import { useNavigate } from 'react-router-dom'
 import { useCommon } from '@/hook/useCommon'
 import { useEffect, useState } from 'react'
@@ -168,9 +168,13 @@ const Home = () => {
                         <div className="flex flex-col gap-2 justify-between chatgpt-card p-6 h-full hover:scale-105 transition-transform duration-300">
                           {/* 头部信息 */}
                           <div className="flex items-center justify-between mb-4">
-                            <h3 className="text-lg font-bold gradient-text truncate">
-                              {bot.name}
-                            </h3>
+                            <Tooltip
+                              title={bot?.name.length > 12 ? bot.name : ''}
+                            >
+                              <h3 className="text-lg font-bold gradient-text truncate">
+                                {bot.name}
+                              </h3>
+                            </Tooltip>
                             <Tag
                               color={bot.status === 1 ? 'green' : 'red'}
                               className="rounded-full px-3 py-1 text-xs font-medium"

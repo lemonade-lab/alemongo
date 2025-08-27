@@ -184,13 +184,10 @@ const XtermDate = () => {
 
                     {/* 日志内容 */}
                     <div className="ml-6">
-                      <pre className="text-sm text-gray-700 dark:text-gray-300 font-mono whitespace-pre-wrap break-words leading-relaxed">
+                      <pre className="select-text text-sm text-gray-700 dark:text-gray-300 font-mono whitespace-pre-wrap break-words leading-relaxed">
                         {item}
                       </pre>
                     </div>
-
-                    {/* 悬停效果 */}
-                    <div className="absolute inset-0 bg-gradient-to-r from-purple-500/0 via-purple-500/5 to-blue-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded"></div>
                   </div>
                 ))}
               </div>

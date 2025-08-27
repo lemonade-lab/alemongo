@@ -153,7 +153,7 @@ const Logs = () => {
               >
                 {/* 日志内容 */}
                 <div className="flex-1">
-                  <div className="text-sm text-gray-800 dark:text-gray-200 font-mono leading-relaxed">
+                  <div className="select-text text-sm text-gray-800 dark:text-gray-200 font-mono leading-relaxed">
                     {item}
                   </div>
                 </div>
