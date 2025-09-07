@@ -1,7 +1,9 @@
 package bot
 
 import (
+	"alemongo/src/apps/api/response"
 	config "alemongo/src/paths"
+	"bufio"
 	"net/http"
 	"os"
 	"strconv"
@@ -13,12 +15,28 @@ import (
 // 获得指定名机器人的信息
 func Log(ctx *gin.Context) {
 	name := ctx.PostForm("name")
+	pageStr := ctx.PostForm("page")
+	pageSizeStr := ctx.PostForm("pageSize")
 	if name == "" {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"code": http.StatusBadRequest,
 			"msg":  "机器人名不能为空",
 			"data": nil,
 		})
+		return
+	}
+	if pageStr == "" || pageSizeStr == "" {
+		response.ResponseErrorWithMsg(ctx, http.StatusBadRequest, http.StatusBadRequest, "参数错误")
+		return
+	}
+	page, err := strconv.Atoi(pageStr)
+	if err != nil {
+		response.ResponseErrorWithMsg(ctx, http.StatusBadRequest, http.StatusBadRequest, err.Error())
+		return
+	}
+	pageSize, err := strconv.Atoi(pageSizeStr)
+	if err != nil {
+		response.ResponseErrorWithMsg(ctx, http.StatusBadRequest, http.StatusBadRequest, err.Error())
 		return
 	}
 	if !config.Exists(name) {
@@ -59,23 +77,44 @@ func Log(ctx *gin.Context) {
 		})
 		return
 	}
-	// 不存在
-	if _, err := os.Stat(logPath); os.IsNotExist(err) {
-		ctx.JSON(http.StatusOK, gin.H{
-			"code": http.StatusOK,
-			"msg":  "请求成功",
-			"data": "",
-		})
+
+	logFile, err := os.Open(logPath)
+	if err != nil {
+		if os.IsNotExist(err) {
+			ctx.JSON(http.StatusOK, gin.H{
+				"code": http.StatusOK,
+				"msg":  "请求成功",
+				"data": "",
+			})
+			return
+		} else {
+			response.ResponseErrorWithMsg(ctx, http.StatusInternalServerError, http.StatusInternalServerError, "打开日志文件失败")
+			return
+		}
+	}
+	defer logFile.Close()
+	scanner := bufio.NewScanner(logFile)
+	var logLines []string
+	lineCount := 0
+	startLine := (page - 1) * pageSize
+	for scanner.Scan() {
+		lineCount++
+		if lineCount <= startLine {
+			continue
+		}
+		if len(logLines) < pageSize {
+			logLines = append(logLines, scanner.Text())
+		} else {
+			break
+		}
+	}
+	if err := scanner.Err(); err != nil {
+		response.ResponseErrorWithMsg(ctx, http.StatusInternalServerError, http.StatusInternalServerError, "日志文件读取错误")
 		return
 	}
-	logData, err := os.ReadFile(logPath)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"code": http.StatusInternalServerError,
-			"msg":  "无法读取日志文件",
-			"data": nil,
-		})
-		return
+	logData := ""
+	for _, line := range logLines {
+		logData += line + "\n"
 	}
 	// 按换行符分割日志
 	ctx.JSON(http.StatusOK, gin.H{
