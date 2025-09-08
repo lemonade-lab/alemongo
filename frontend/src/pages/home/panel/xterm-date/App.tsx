@@ -79,7 +79,7 @@ const XtermDate = () => {
   return (
     <Box>
       {/* 主容器 - Chat风格卡片 */}
-      <div className="chatgpt-card p-6 animate-fade-in-up h-full">
+      <div className="chatgpt-card p-6 h-full">
         {/* 头部区域 */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
@@ -140,7 +140,7 @@ const XtermDate = () => {
           {/* 日志头部 */}
           <div className="flex items-center justify-between mb-4 p-3 bg-gradient-to-r from-gray-100/80 to-gray-200/80 dark:from-gray-800/80 dark:to-gray-700/80 rounded-t-xl backdrop-blur-sm border-b border-gray-200/50 dark:border-gray-600/50">
             <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+              <div className="w-2 h-2 bg-green-500 rounded-full "></div>
               <span className="font-medium text-gray-700 dark:text-gray-300">
                 日志内容
               </span>
@@ -171,7 +171,7 @@ const XtermDate = () => {
                 {data.map((item, index) => (
                   <div
                     key={index}
-                    className="group relative px-4 py-3 border-b border-gray-100/50 dark:border-gray-700/50 hover:bg-gradient-to-r hover:from-purple-50/50 hover:to-blue-50/50 dark:hover:from-purple-900/20 dark:hover:to-blue-900/20 transition-all duration-200 animate-fadeIn"
+                    className="group relative px-4 py-3 border-b border-gray-100/50 dark:border-gray-700/50 hover:bg-gradient-to-r hover:from-purple-50/50 hover:to-blue-50/50 dark:hover:from-purple-900/20 dark:hover:to-blue-900/20"
                     style={{
                       animationDelay: `${index * 50}ms`,
                       animationFillMode: 'both'

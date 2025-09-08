@@ -49,6 +49,10 @@ log:
 
 > 只需启动 alemongo 后，将机器人拖进`./work/resources/bots`文件夹内
 
+- 最新模板 package.json
+
+[package.json](./resources/template/package.json)
+
 ## 操作指南
 
 [linux](./docs/linux.md)
