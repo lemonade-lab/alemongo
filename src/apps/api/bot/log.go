@@ -96,19 +96,24 @@ func Log(ctx *gin.Context) {
 		}
 	}
 	defer logFile.Close()
+	// 修复 count：应返回日志文件总行数，而不是当前页截断后的行数
 	scanner := bufio.NewScanner(logFile)
+	// 若单行可能超过 64K，可放宽 buffer（可选）
+	buf := make([]byte, 0, 1024*1024)
+	scanner.Buffer(buf, 1024*1024)
 	var logLines []string
 	lineCount := 0
 	startLine := (page - 1) * pageSize
+	if startLine < 0 {
+		startLine = 0
+	}
+	endLine := startLine + pageSize
 	for scanner.Scan() {
 		lineCount++
-		if lineCount <= startLine {
-			continue
-		}
-		if len(logLines) < pageSize {
+		// 收集处于当前页范围内的行
+		if lineCount > startLine && lineCount <= endLine {
 			logLines = append(logLines, scanner.Text())
-		} else {
-			break
+			continue
 		}
 	}
 	if err := scanner.Err(); err != nil {

@@ -41,8 +41,8 @@ const XtermDate = () => {
     apiBotLog(params)
       .then(res => {
         const {log, count} = res || {};
-          setTotal(count || 0) // TODO: 后端返回总数
-
+        // 后端返回总数
+        setTotal(count || 0)
         // 根据换行符分割
         const lines = log.split('\n')
         // 过滤掉空行

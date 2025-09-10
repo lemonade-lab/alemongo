@@ -3,10 +3,10 @@
   "type": "module",
   "dependencies": {
     "@alemonjs/db": "^0.0.11",
-    "@alemonjs/discord": "^2.1.0-alpha.15",
+    "@alemonjs/discord": "^2.1.0-alpha.18",
     "@alemonjs/qq-bot": "^2.1.0-alpha.17",
     "@alemonjs/onebot": "^2.1.0-alpha.9",
-    "alemonjs": "^2.1.0-alpha.39",
+    "alemonjs": "^2.1.0-alpha.45",
     "jsxp": "^1.2.2"
   },
   "devDependencies": {
