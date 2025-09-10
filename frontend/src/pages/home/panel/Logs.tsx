@@ -20,9 +20,10 @@ const Logs = () => {
     pollingRef.current = setTimeout(() => {
       apiBotLog({ name })
         .then(res => {
+          const {log} = res || {};
           setIsLoading(false)
           // 根据换行符分割
-          const lines = res.split('\n')
+          const lines = log.split('\n')
           // 过滤掉空行
           const filteredLines = lines.filter(line => line.trim() !== '')
           setData(filteredLines)
@@ -62,33 +63,7 @@ const Logs = () => {
   return (
     <Box boxRef={logRef}>
       {/* 头部区域 */}
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center">
-            <svg
-              className="w-5 h-5 text-white"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-              />
-            </svg>
-          </div>
-          <div>
-            <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
-              实时日志
-            </h2>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              机器人运行状态监控
-            </p>
-          </div>
-        </div>
-
+      <div className="flex items-center justify-between mb-2">
         {/* 状态指示器 */}
         <div className="flex items-center gap-2">
           <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>

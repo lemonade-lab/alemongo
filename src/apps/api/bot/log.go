@@ -84,7 +84,10 @@ func Log(ctx *gin.Context) {
 			ctx.JSON(http.StatusOK, gin.H{
 				"code": http.StatusOK,
 				"msg":  "请求成功",
-				"data": "",
+				"data": gin.H{
+					"log":   "",
+					"count": 0,
+				},
 			})
 			return
 		} else {
@@ -120,6 +123,9 @@ func Log(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{
 		"code": http.StatusOK,
 		"msg":  "请求成功",
-		"data": string(logData),
+		"data": gin.H{
+			"log":   string(logData),
+			"count": lineCount,
+		},
 	})
 }

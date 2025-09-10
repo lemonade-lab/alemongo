@@ -81,12 +81,21 @@ export const apiBotInfo = async (data: { name: string }): Promise<BotInfo> => {
 export const apiBotLog = async (data: {
   name: string
   timestamp?: number
-}): Promise<string> => {
+  page?: string
+  pageSize?: string
+}): Promise<{
+  log: string
+  count: number
+}> => {
   return new Promise((resolve, reject) => {
     request({
       url: '/bot/log',
       method: 'POST',
-      data
+      data: {
+        ...data,
+        page: data.page || '1',
+        pageSize: data.pageSize || '100'
+      }
     })
       .then(res => res.data)
       .then(resolve)

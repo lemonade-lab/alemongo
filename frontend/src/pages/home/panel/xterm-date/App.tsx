@@ -12,7 +12,8 @@ import { useEffect, useState } from 'react'
 import { getBotName } from '../core'
 import Box from '@/commom/layout/Box'
 import { apiBotLogDelete } from '@/api/bot/logs'
-import { DeleteOutlined, ReloadOutlined } from '@ant-design/icons'
+import { DeleteOutlined } from '@ant-design/icons'
+import { Pagination } from '@/commom'
 
 const XtermDate = () => {
   const [timestamp, setTimestamp] = useState<number>(Date.now())
@@ -20,13 +21,30 @@ const XtermDate = () => {
   const [isLoading, setLoading] = useState(false)
   const [isRefreshing, setIsRefreshing] = useState(false)
 
+  const [pageInfo, setPageInfo] = useState({
+    page: 1,
+    pageSize: 100
+  })
+
+  const [total, setTotal] = useState(0)
+
   useEffect(() => {
-    const name = getBotName()
     setIsRefreshing(true)
-    apiBotLog({ name, timestamp: timestamp })
+
+    const params = {
+      name: getBotName(),
+      timestamp,
+      page: String(pageInfo.page),
+      pageSize: String(pageInfo.pageSize)
+    }
+
+    apiBotLog(params)
       .then(res => {
+        const {log, count} = res || {};
+          setTotal(count || 0) // TODO: 后端返回总数
+
         // 根据换行符分割
-        const lines = res.split('\n')
+        const lines = log.split('\n')
         // 过滤掉空行
         const filteredLines = lines.filter(line => line.trim() !== '')
         setData(filteredLines)
@@ -34,7 +52,7 @@ const XtermDate = () => {
       .finally(() => {
         setIsRefreshing(false)
       })
-  }, [timestamp])
+  }, [timestamp, pageInfo])
 
   const onChange: DatePickerProps['onChange'] = date => {
     if (!date) {
@@ -62,26 +80,12 @@ const XtermDate = () => {
       })
   }
 
-  const handleRefresh = () => {
-    const name = getBotName()
-    setIsRefreshing(true)
-    apiBotLog({ name, timestamp: timestamp })
-      .then(res => {
-        const lines = res.split('\n')
-        const filteredLines = lines.filter(line => line.trim() !== '')
-        setData(filteredLines)
-      })
-      .finally(() => {
-        setIsRefreshing(false)
-      })
-  }
-
   return (
     <Box>
       {/* 主容器 - Chat风格卡片 */}
-      <div className="chatgpt-card p-6 h-full">
+      <div className="p-2 h-full flex flex-col gap-2 justify-between">
         {/* 头部区域 */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="flex-1">
               <DatePicker
@@ -97,15 +101,6 @@ const XtermDate = () => {
 
           {/* 操作按钮组 */}
           <div className="flex items-center gap-3">
-            <Button
-              icon={<ReloadOutlined />}
-              onClick={handleRefresh}
-              loading={isRefreshing}
-              className="chatgpt-button"
-              size="middle"
-            >
-              刷新
-            </Button>
             <Popconfirm
               placement="leftTop"
               title={
@@ -136,7 +131,7 @@ const XtermDate = () => {
         </div>
 
         {/* 日志内容区域 */}
-        <div className="relative">
+        <div className="relative chatgpt-card flex-1">
           {/* 日志头部 */}
           <div className="flex items-center justify-between mb-4 p-3 bg-gradient-to-r from-gray-100/80 to-gray-200/80 dark:from-gray-800/80 dark:to-gray-700/80 rounded-t-xl backdrop-blur-sm border-b border-gray-200/50 dark:border-gray-600/50">
             <div className="flex items-center gap-2">
@@ -167,7 +162,7 @@ const XtermDate = () => {
                 />
               </div>
             ) : (
-              <div className="h-[calc(100vh-27rem)] xl:h-[calc(100vh-17rem)] overflow-y-auto">
+              <div className="h-[calc(100vh-28rem)] sm:h-[calc(100vh-25rem)] md:h-[calc(100vh-23rem)] xl:h-[calc(100vh-19rem)] overflow-y-auto">
                 {data.map((item, index) => (
                   <div
                     key={index}
@@ -194,6 +189,26 @@ const XtermDate = () => {
             )}
           </div>
         </div>
+        {
+          // 分页器
+        }
+        {
+          <div className="flex justify-center w-full">
+            <div className="w-full bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm rounded-lg px-4 py-2 border border-white/20 dark:border-gray-700/20">
+              <Pagination
+                total={total}
+                pageSize={pageInfo.pageSize}
+                page={pageInfo.page}
+                onPageChange={page => {
+                  setPageInfo({
+                    ...pageInfo,
+                    page
+                  })
+                }}
+              />
+            </div>
+          </div>
+        }
       </div>
     </Box>
   )
