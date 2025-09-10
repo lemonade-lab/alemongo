@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { apiBotLog } from '@/api'
+import { apiBotLogOnLine } from '@/api'
 import { getBotName } from './core'
 import Box from '@/commom/layout/Box'
 
@@ -18,7 +18,7 @@ const Logs = () => {
   const startPolling = (name: string) => {
     clearTimeout(pollingRef.current!)
     pollingRef.current = setTimeout(() => {
-      apiBotLog({ name })
+      apiBotLogOnLine({ name , timestamp: Date.now() })
         .then(res => {
           const {log} = res || {};
           setIsLoading(false)

@@ -163,6 +163,7 @@ func Create(mode string) *gin.Engine {
 				BotAPI.POST("/restart", bot.Restart)
 				// logs
 				BotAPI.POST("/log", bot.Log)
+				BotAPI.POST("/log-online", bot.LogOnline)
 				// 删除logs
 				BotAPI.DELETE("/log", bot.LogDelete)
 

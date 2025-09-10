@@ -129,3 +129,106 @@ func Log(ctx *gin.Context) {
 		},
 	})
 }
+
+// 获取最新的日志。size 表示最后多少行
+func LogOnline(ctx *gin.Context) {
+	name := ctx.PostForm("name")
+	sizeStr := ctx.PostForm("size")
+	if name == "" {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"code": http.StatusBadRequest,
+			"msg":  "机器人名不能为空",
+			"data": nil,
+		})
+		return
+	}
+	if sizeStr == "" {
+		response.ResponseErrorWithMsg(ctx, http.StatusBadRequest, http.StatusBadRequest, "参数错误")
+		return
+	}
+	size, err := strconv.Atoi(sizeStr)
+	if err != nil {
+		response.ResponseErrorWithMsg(ctx, http.StatusBadRequest, http.StatusBadRequest, err.Error())
+		return
+	}
+	if !config.Exists(name) {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"code": http.StatusBadRequest,
+			"msg":  "机器人不存在",
+			"data": nil,
+		})
+		return
+	}
+	// 时间戳
+	timestamp := ctx.PostForm("timestamp")
+	var date time.Time
+	if timestamp != "" {
+		// 解析时间戳
+		timestampInt, err := strconv.ParseInt(timestamp, 10, 64)
+		if err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{
+				"code": http.StatusBadRequest,
+				"msg":  "时间戳格式错误",
+				"data": nil,
+			})
+			return
+		}
+		// 转换为时间（毫秒转秒）
+		date = time.Unix(timestampInt/1000, (timestampInt%1000)*int64(time.Millisecond))
+	} else {
+		// 如果没有提供时间戳，使用当前时间
+		date = time.Now()
+	}
+	// 获取日志路径
+	logPath := config.GetBotLogByDate(name, date)
+	if logPath == "" {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"code": http.StatusInternalServerError,
+			"msg":  "无法获取日志路径",
+			"data": nil,
+		})
+		return
+	}
+
+	logFile, err := os.Open(logPath)
+	if err != nil {
+		if os.IsNotExist(err) {
+			ctx.JSON(http.StatusOK, gin.H{
+				"code": http.StatusOK,
+				"msg":  "请求成功",
+				"data": gin.H{
+					"log": "",
+				},
+			})
+			return
+		} else {
+			response.ResponseErrorWithMsg(ctx, http.StatusInternalServerError, http.StatusInternalServerError, "打开日志文件失败")
+			return
+		}
+	}
+	defer logFile.Close()
+	scanner := bufio.NewScanner(logFile)
+	var logLines []string
+	for scanner.Scan() {
+		logLines = append(logLines, scanner.Text())
+	}
+	if err := scanner.Err(); err != nil {
+		response.ResponseErrorWithMsg(ctx, http.StatusInternalServerError, http.StatusInternalServerError, "日志文件读取错误")
+		return
+	}
+	// 取最后 size 行
+	if size > len(logLines) {
+		size = len(logLines)
+	}
+	logData := ""
+	for _, line := range logLines[len(logLines)-size:] {
+		logData += line + "\n"
+	}
+	ctx.JSON(http.StatusOK, gin.H{
+		"code": http.StatusOK,
+		"msg":  "请求成功",
+		"data": gin.H{
+			"log": string(logData),
+		},
+	})
+}
