@@ -17,9 +17,9 @@ import (
 // @Param app_name formData string true "应用名称"
 // @Param branch_name formData string true "分支名称"
 // @Param commit_hash formData string true "提交哈希值"
-// @Success 200 {object} response.SuccessResponse{msg=string} "切换成功"
-// @Failure 400 {object} response.ErrorResponse{msg=string} "参数错误或应用不存在"
-// @Failure 500 {object} response.ErrorResponse{msg=string} "切换分支失败"
+// @Success 200 {object} response.ResponseData{msg=string} "切换成功"
+// @Failure 400 {object} response.ResponseData{msg=string} "参数错误或应用不存在"
+// @Failure 500 {object} response.ResponseData{msg=string} "切换分支失败"
 // @Router /api/v1/packages/switch [post]
 func PackagesSwitch(c *gin.Context) {
 	botName := c.PostForm("name")

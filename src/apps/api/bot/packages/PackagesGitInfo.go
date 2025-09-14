@@ -20,9 +20,9 @@ import (
 // @Param app_name query string true "应用名称"
 // @Param page query int false "页码"
 // @Param page_size query int false "每页数量"
-// @Success 200 {object} response.Response{data=models.BotPackagesGitBranches} "成功"
-// @Failure 400 {object} response.Response "参数错误"
-// @Failure 500 {object} response.Response "内部错误"
+// @Success 200 {object} response.ResponseData{data=models.BotPackagesGitBranches} "成功"
+// @Failure 400 {object} response.ResponseData "参数错误"
+// @Failure 500 {object} response.ResponseData "内部错误"
 // @Router /api/v1/bot/packages/git/branches [get]
 func GitBranches(c *gin.Context) {
 	botName := c.Query("name")
@@ -100,9 +100,9 @@ func GitBranches(c *gin.Context) {
 // @Param branch_name query string true "分支名称"
 // @Param page query int false "页码"
 // @Param page_size query int false "每页数量"
-// @Success 200 {object} response.Response{data=models.BotPackagesGitCommits} "成功"
-// @Failure 400 {object} response.Response "参数错误"
-// @Failure 500 {object} response.Response "内部错误"
+// @Success 200 {object} response.ResponseData{data=models.BotPackagesGitCommits} "成功"
+// @Failure 400 {object} response.ResponseData "参数错误"
+// @Failure 500 {object} response.ResponseData "内部错误"
 // @Router /api/v1/bot/packages/git/commits [get]
 func GitCommits(c *gin.Context) {
 	botName := c.Query("name")
