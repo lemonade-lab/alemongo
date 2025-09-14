@@ -168,6 +168,13 @@ func handlePortConflict(port string, isDev bool) error {
 	return nil
 }
 
+// @title 这里写标题
+// @version 0.0.1
+// @description alemongo 机器人面板
+// @termsOfService http://swagger.io/terms/
+
+// @host 127.0.0.1:17187
+// @BasePath http://127.0.0.1:17187/
 // 主函数
 func main() {
 

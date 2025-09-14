@@ -8,7 +8,15 @@ import (
 	"net/http"
 )
 
-// 登录
+// Login 登陆接口
+// @Summary 登陆接口
+// @Param username formData string true "用户名"
+// @Param password formData string true "密码"
+// @Success 200 {object} response.ResponseData{data=string} "成功"
+// @Failure 400 {object} response.ResponseData "参数错误"
+// @Failure 401 {object} response.ResponseData "用户名或密码错误"
+// @Failure 429 {object} response.ResponseData "账户已被锁定"
+// @Router /user/login [post]
 func Login(ctx *gin.Context) {
 	username := ctx.PostForm("username")
 	password := ctx.PostForm("password")
