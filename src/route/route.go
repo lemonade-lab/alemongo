@@ -20,7 +20,10 @@ import (
 	"alemongo/src/logger"
 	"alemongo/src/middlewares"
 
+	_ "alemongo/docs"
 	"github.com/gin-gonic/gin"
+	swaggerfiles "github.com/swaggo/files"
+	gs "github.com/swaggo/gin-swagger"
 )
 
 // 路由初始化
@@ -49,7 +52,7 @@ func Create(mode string) *gin.Engine {
 
 	// 创建路由
 	r := gin.New()
-
+	r.GET("swagger/*any", gs.WrapHandler(swaggerfiles.Handler))
 	// 实例化app
 	app := Use(r)
 
@@ -161,6 +164,8 @@ func Create(mode string) *gin.Engine {
 				BotAPI.POST("/stop", bot.Stop)
 				// 重启
 				BotAPI.POST("/restart", bot.Restart)
+				// 复制机器人
+				BotAPI.POST("/copy", bot.Copy)
 				// logs
 				BotAPI.POST("/log", bot.Log)
 				BotAPI.POST("/log-online", bot.LogOnline)
@@ -177,6 +182,7 @@ func Create(mode string) *gin.Engine {
 				{
 					// 获取包信息
 					PackageAPI.POST("", botpackage.Package)
+
 					// 更新包信息
 					PackageAPI.PUT("", botpackage.PackageUpdate)
 				}
@@ -200,6 +206,12 @@ func Create(mode string) *gin.Engine {
 					{
 						PackagesPullAPI.POST("/force", botpackages.PackegesForcedUpdate)
 					}
+					// 返回包的git branches 信息
+					PackagesAPI.GET("/gitbranches", botpackages.GitBranches)
+					// 返回包的git branch 对应的所有 commit 记录
+					PackagesAPI.GET("/gitcommits", botpackages.GitCommits)
+					// 切换当前包到指定的branch/commit
+					PackagesAPI.POST("/switch", botpackages.PackagesSwitch)
 				}
 
 				ConfigAPI := BotAPI.Group("/config")

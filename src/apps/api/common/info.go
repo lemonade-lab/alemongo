@@ -55,6 +55,13 @@ func getGit() (string, bool) {
 	return getCommandOutput("git", "--version")
 }
 
+// @Summary 获取环境信息
+// @Description 获取环境信息
+// @Tags 公共
+// @Accept json
+// @Produce json
+// @Success 200 {object} InfoResponse
+// @Router /common/info [get]
 func Info(ctx *gin.Context) {
 	// 1) 检查 nvm 是否安装
 	nvmVersion, isNvmInstalled := getNVMJS()

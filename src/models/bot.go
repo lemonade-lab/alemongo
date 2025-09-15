@@ -14,3 +14,26 @@ type BotInfoResponse struct {
 	Msg  string  `json:"msg"`
 	Data BotInfo `json:"data"`
 }
+
+type BotPackagesGitBranchCommitsInfo struct {
+	Hash    string `json:"hash"`
+	Message string `json:"message"`
+	Author  string `json:"author"`
+	Date    string `json:"date"`
+}
+
+type BotPackagesGitCommits struct {
+	Commits   []BotPackagesGitBranchCommitsInfo `json:"commits"`
+	Total     int                               `json:"total"`
+	Page      int                               `json:"page"`
+	PageSize  int                               `json:"page_size"`
+	TotalPage int                               `json:"total_page"`
+}
+
+type BotPackagesGitBranches struct {
+	Branches  []string `json:"branches"`
+	Total     int      `json:"total"`
+	Page      int      `json:"page"`
+	PageSize  int      `json:"page_size"`
+	TotalPage int      `json:"total_page"`
+}
