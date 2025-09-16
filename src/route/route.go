@@ -156,6 +156,8 @@ func Create(mode string) *gin.Engine {
 				BotAPI.POST("/info", bot.Info)
 				// 创建
 				BotAPI.POST("/create", bot.Create)
+				// 创建群组机器人
+				BotAPI.POST("/botgroup", bot.CreateBotGroup)
 				// 删除
 				BotAPI.DELETE("/info", bot.Delete)
 				// 运行
