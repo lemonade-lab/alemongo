@@ -294,6 +294,47 @@ paths:
       summary: 切换机器人应用分支
       tags:
       - 机器人应用
+  /bot/copy:
+    post:
+      consumes:
+      - application/json
+      description: 复制机器人
+      parameters:
+      - description: 机器人名
+        in: formData
+        name: bot_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.ResponseData'
+            - properties:
+                data: {}
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.ResponseData'
+            - properties:
+                data: {}
+              type: object
+        "500":
+          description: 内部错误
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.ResponseData'
+            - properties:
+                data: {}
+              type: object
+      summary: 复制机器人
+      tags:
+      - 机器人
   /common/info:
     get:
       consumes:

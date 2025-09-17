@@ -24,3 +24,8 @@ func Create(ctx *gin.Context) {
 
 	response.ResponseSuccess(ctx, targetPath)
 }
+
+// todo 创建群组机器人
+func CreateBotGroup(c *gin.Context) {
+
+}

@@ -14,6 +14,7 @@ import (
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/go-git/go-git/v5/plumbing/object"
+	"io"
 	"log"
 	"os"
 	"path"
@@ -35,6 +36,97 @@ func CreateBot(name string) (string, response.ResCode) {
 		return "", response.RobotAlreadyExist
 	}
 	return dao.CreateBot(name, targetPath, resourcesPath)
+}
+
+// CopyDir 复制目录下的所有文件到目标目录
+func CopyDir(src, dest string) error {
+	err := clearFloder(dest)
+	if err != nil {
+		return fmt.Errorf("clearFloder: %w", err)
+	}
+	err = copyFolder(src, dest)
+	if err != nil {
+		return fmt.Errorf("copyFolder: %w", err)
+	}
+	return nil
+}
+
+func copyFolder(src, dest string) error {
+	err := os.MkdirAll(dest, os.ModePerm)
+	if err != nil {
+		return err
+	}
+	entries, err := os.ReadDir(src)
+	if err != nil {
+		return fmt.Errorf("read dir %s failed: %w", src, err)
+	}
+	for _, entry := range entries {
+		sourcePath := path.Join(src, entry.Name())
+		targetPath := path.Join(dest, entry.Name())
+		if entry.Name() == "logs" || entry.Name() == "log" {
+			continue
+		}
+		if entry.IsDir() {
+			err = copyFolder(sourcePath, targetPath)
+			if err != nil {
+				return fmt.Errorf("copy folder failed: %w", err)
+			}
+		} else {
+			err = CopyFile(sourcePath, targetPath)
+			if err != nil {
+				return fmt.Errorf("copy file failed: %w", err)
+			}
+		}
+	}
+	return nil
+}
+
+func CopyFile(src, dest string) error {
+	sourceFile, err := os.Open(src)
+	if err != nil {
+		return fmt.Errorf("open source file: %w", err)
+	}
+	defer sourceFile.Close()
+	destFile, err := os.Create(dest)
+	if err != nil {
+		return fmt.Errorf("create file %s failed: %w", dest, err)
+	}
+	defer destFile.Close()
+	_, err = io.Copy(destFile, sourceFile)
+	if err != nil {
+		return fmt.Errorf("copy file %s to %s failed: %w", src, dest, err)
+	}
+
+	srcInfo, err := os.Stat(src)
+	if err != nil {
+		return fmt.Errorf("stat file %s failed: %w", src, err)
+	}
+	err = os.Chmod(dest, srcInfo.Mode())
+	if err != nil {
+		return fmt.Errorf("chmod fail: %w", err)
+	}
+	return destFile.Sync()
+}
+
+func clearFloder(targetPath string) error {
+	entries, err := os.ReadDir(targetPath)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return nil
+		}
+		return fmt.Errorf("read dir fail: %w", err)
+	}
+	for _, entry := range entries {
+		entryPath := path.Join(targetPath, entry.Name())
+		if entry.Name() == "logs" || entry.Name() == "log" {
+			continue
+		}
+		err := os.RemoveAll(entryPath)
+		if err != nil {
+			return fmt.Errorf("删除文件失败: %w", err)
+		}
+	}
+	return nil
 }
 
 func DeleteBot(name string) (string, error) {
