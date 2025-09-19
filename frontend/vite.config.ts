@@ -6,12 +6,16 @@ import { VitePWA } from 'vite-plugin-pwa'
 
 // https://vite.dev/config/
 const NODE_ENV = process.env.NODE_ENV === 'development'
+const outDir = '../dist'
 export default defineConfig({
   plugins: [
     react(),
     viteCompression({ algorithm: 'gzip', ext: '.gz' }),
     viteCompression({ algorithm: 'brotliCompress', ext: '.br' }),
-    VitePWA({ registerType: 'autoUpdate' })
+    VitePWA({
+      registerType: 'autoUpdate',
+      outDir: outDir,
+    })
   ],
   resolve: {
     alias: [
@@ -53,7 +57,7 @@ export default defineConfig({
     },
     rollupOptions: {
       output: {
-        dir: '../dist',
+        dir: outDir,
         entryFileNames: 'js/[name]-[hash].js',
         chunkFileNames: 'js/[name]-[hash].js',
         assetFileNames: ({ name }) => {
