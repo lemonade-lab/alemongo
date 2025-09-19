@@ -20,8 +20,6 @@ import (
 	"alemongo/src/logger"
 	"alemongo/src/middlewares"
 
-	_ "alemongo/docs"
-
 	"github.com/gin-gonic/gin"
 	swaggerfiles "github.com/swaggo/files"
 	gs "github.com/swaggo/gin-swagger"
