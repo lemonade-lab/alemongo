@@ -508,6 +508,11 @@ func GetEmailConfig() (*models.EmailConfig, error) {
 
 // 通过 GitHub ID 查找用户
 func GetUserByGitHubID(githubID int64) (models.User, bool) {
+	// GitHub ID 为 0 表示未绑定，不应该匹配任何用户
+	if githubID <= 0 {
+		return models.User{}, false
+	}
+
 	users := GetList()
 	for _, user := range users {
 		if user.GitHubID == githubID {

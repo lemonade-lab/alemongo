@@ -6,9 +6,11 @@ import (
 	"alemongo/src/pkgs/email"
 	"alemongo/src/pkgs/github"
 	"alemongo/src/pkgs/jwt"
+	"alemongo/src/settings"
 	"alemongo/src/utils"
 	"errors"
 	"fmt"
+	"log"
 	"math/rand"
 )
 
@@ -163,36 +165,35 @@ func GitHubLogin(code string) (string, error) {
 }
 
 // BindGitHubAccount 绑定 GitHub 账号
-func BindGitHubAccount(username, password, code string) error {
-	// 1. 验证用户密码
-	userInfo := &models.User{}
+func BindGitHubAccount(username, code string) error {
+	// 1. 验证用户是否存在
+
 	if dao.IsSuperAdmin(username) {
-		userInfo = dao.GetAdmin()
+		// 超级管理员用户存在，继续处理
+		log.Println("超级管理员用户存在")
 	} else {
-		user, exist := dao.GetUserByUserName(username)
+		_, exist := dao.GetUserByUserName(username)
 		if !exist {
 			return errors.New("用户不存在")
 		}
-		userInfo = &user
-	}
-
-	if password != userInfo.PassWord {
-		return errors.New("密码错误")
 	}
 
 	// 2. 用授权码换取访问令牌
+
 	token, err := github.ExchangeCodeForToken(code)
 	if err != nil {
 		return fmt.Errorf("获取访问令牌失败: %v", err)
 	}
 
 	// 3. 获取 GitHub 用户信息
+
 	githubUser, err := github.GetUserInfo(token.AccessToken)
 	if err != nil {
 		return fmt.Errorf("获取用户信息失败: %v", err)
 	}
 
 	// 4. 绑定账号
+
 	err = dao.BindGitHubAccount(username, githubUser)
 	if err != nil {
 		return err
@@ -209,4 +210,15 @@ func UnbindGitHubAccount(username string) error {
 // GetGitHubAuthURL 获取 GitHub 授权 URL
 func GetGitHubAuthURL(state string) string {
 	return github.GetAuthURL(state)
+}
+
+// GetGitHubConfigStatus 获取 GitHub 配置状态
+func GetGitHubConfigStatus() map[string]interface{} {
+	config := map[string]interface{}{
+		"client_id_configured":     settings.Conf.GitHub.ClientID != "",
+		"client_secret_configured": settings.Conf.GitHub.ClientSecret != "",
+		"redirect_url_configured":  settings.Conf.GitHub.RedirectURL != "",
+		"fully_configured":         settings.Conf.GitHub.ClientID != "" && settings.Conf.GitHub.ClientSecret != "" && settings.Conf.GitHub.RedirectURL != "",
+	}
+	return config
 }

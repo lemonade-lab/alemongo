@@ -53,15 +53,9 @@ const Login = () => {
     const state = urlParams.get('state')
     
     if (code && state === 'login') {
-      try {
-        const token = await apiGitHubLogin({ code, state })
-        dispatch(setToken(token))
-        navigate('/')
-        message.success('GitHub 登录成功')
-      } catch (error: unknown) {
-        const errorMessage = error instanceof Error ? error.message : 'GitHub 登录失败'
-        message.error(errorMessage)
-      }
+      const token = await apiGitHubLogin({ code, state })
+      dispatch(setToken(token))
+      navigate('/')
     }
   }, [dispatch, navigate])
 

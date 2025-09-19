@@ -5,6 +5,8 @@ import { SettingOutlined } from '@ant-design/icons'
 import { message } from 'antd'
 import { useState } from 'react'
 import GitHubBinding from '../GitHubBinding'
+import { useSelector } from 'react-redux'
+import { RootState } from '@/redux'
 
 /**
  * Chat风格的设置页面
@@ -12,6 +14,7 @@ import GitHubBinding from '../GitHubBinding'
  */
 const Settings = () => {
   const [common] = useCommon()
+  const username = useSelector((state: RootState) => state.me.info.username)
 
   const tools = [
     {
@@ -122,10 +125,9 @@ const Settings = () => {
             )}
           </div>
 
-          {/* GitHub 绑定区域 */}
-          <div className="w-full">
-            <GitHubBinding />
-          </div>
+          {
+              username !== 'lemonade' && <div className='w-full'><GitHubBinding /></div>
+            }
 
           {/* 重置模板区域 */}
           <div className="w-full">

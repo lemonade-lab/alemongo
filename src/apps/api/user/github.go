@@ -2,6 +2,7 @@ package user
 
 import (
 	"alemongo/src/apps/api/response"
+	"alemongo/src/dao"
 	"alemongo/src/logic"
 	"alemongo/src/models"
 	"net/http"
@@ -24,6 +25,15 @@ func GetGitHubAuthURL(ctx *gin.Context) {
 	response.ResponseSuccess(ctx, authURL)
 }
 
+// GetGitHubConfigStatus 获取 GitHub 配置状态
+// @Summary 获取 GitHub 配置状态
+// @Success 200 {object} response.ResponseData{data=object} "成功"
+// @Router /user/github/config-status [get]
+func GetGitHubConfigStatus(ctx *gin.Context) {
+	config := logic.GetGitHubConfigStatus()
+	response.ResponseSuccess(ctx, config)
+}
+
 // GitHubLogin GitHub 快捷登录
 // @Summary GitHub 快捷登录
 // @Param code formData string true "授权码"
@@ -34,13 +44,24 @@ func GetGitHubAuthURL(ctx *gin.Context) {
 func GitHubLogin(ctx *gin.Context) {
 	var req models.GitHubOAuthRequest
 	if err := ctx.ShouldBind(&req); err != nil {
-		response.ResponseErrorWithMsg(ctx, http.StatusBadRequest, http.StatusBadRequest, "参数错误")
+		response.ResponseErrorWithMsg(ctx, http.StatusBadRequest, http.StatusBadRequest, "参数错误: "+err.Error())
+		return
+	}
+
+	// 验证授权码
+	if req.Code == "" {
+		response.ResponseErrorWithMsg(ctx, http.StatusBadRequest, http.StatusBadRequest, "授权码不能为空")
 		return
 	}
 
 	tokenValue, err := logic.GitHubLogin(req.Code)
 	if err != nil {
-		response.ResponseErrorWithMsg(ctx, http.StatusBadRequest, http.StatusBadRequest, err.Error())
+		// 根据错误类型返回不同的状态码
+		statusCode := http.StatusBadRequest
+		if err.Error() == "该 GitHub 账号未绑定任何用户，请先绑定" {
+			statusCode = http.StatusUnauthorized
+		}
+		response.ResponseErrorWithMsg(ctx, statusCode, http.StatusBadRequest, err.Error())
 		return
 	}
 
@@ -49,17 +70,16 @@ func GitHubLogin(ctx *gin.Context) {
 
 // BindGitHubAccount 绑定 GitHub 账号
 // @Summary 绑定 GitHub 账号
-// @Param username formData string true "用户名"
-// @Param password formData string true "密码"
 // @Param code formData string true "授权码"
 // @Success 200 {object} response.ResponseData "成功"
 // @Failure 400 {object} response.ResponseData "参数错误"
 // @Failure 401 {object} response.ResponseData "认证失败"
 // @Router /user/github/bind [post]
 func BindGitHubAccount(ctx *gin.Context) {
-	var req models.GitHubBindRequest
-	if err := ctx.ShouldBind(&req); err != nil {
-		response.ResponseErrorWithMsg(ctx, http.StatusBadRequest, http.StatusBadRequest, "参数错误")
+	// 从JWT token中获取当前登录的用户名
+	username, exists := ctx.Get("username")
+	if !exists {
+		response.ResponseErrorWithMsg(ctx, http.StatusUnauthorized, http.StatusUnauthorized, "未登录")
 		return
 	}
 
@@ -69,7 +89,13 @@ func BindGitHubAccount(ctx *gin.Context) {
 		return
 	}
 
-	err := logic.BindGitHubAccount(req.Username, req.Password, code)
+	// 超级管理员不能绑定 GitHub 账号
+	if dao.IsSuperAdmin(username.(string)) {
+		response.ResponseErrorWithMsg(ctx, http.StatusBadRequest, http.StatusBadRequest, "超级管理员不能绑定 GitHub 账号")
+		return
+	}
+
+	err := logic.BindGitHubAccount(username.(string), code)
 	if err != nil {
 		response.ResponseErrorWithMsg(ctx, http.StatusBadRequest, http.StatusBadRequest, err.Error())
 		return

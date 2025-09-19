@@ -104,10 +104,12 @@ func Create(mode string) *gin.Engine {
 				UserAPI.POST("/login", user.Login)
 				// GitHub 相关接口（无需认证）
 				UserAPI.GET("/github/auth-url", user.GetGitHubAuthURL)
+				UserAPI.GET("/github/config-status", user.GetGitHubConfigStatus)
 				UserAPI.POST("/github/login", user.GitHubLogin)
-				UserAPI.POST("/github/bind", user.BindGitHubAccount)
 				// 开始鉴权
 				UserAPI.Use(middlewares.AuthMiddleware())
+				// GitHub 绑定（需要认证）
+				UserAPI.POST("/github/bind", user.BindGitHubAccount)
 				// 退出登录
 				UserAPI.GET("/logout", user.Logout)
 				// 获取用户信息

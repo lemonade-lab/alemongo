@@ -64,16 +64,15 @@ export const apiGitHubLogin = async (data: {
   return server({
     url: '/user/github/login',
     method: 'POST',
+    timeout: 1000 * 6,
     data: data
   }).then(res => res.data)
 }
 
 export const apiBindGitHubAccount = async (data: {
-  username: string
-  password: string
   code: string
 }) => {
-  return server({
+  return request({
     url: '/user/github/bind',
     method: 'POST',
     data: data

@@ -1,7 +1,25 @@
 import React, { useState, useEffect } from 'react'
-import { Card, Button, message, Modal, Form, Input, Avatar, Typography } from 'antd'
-import { GithubOutlined, LinkOutlined, DisconnectOutlined } from '@ant-design/icons'
-import { apiGetGitHubAuthURL, apiBindGitHubAccount, apiUnbindGitHubAccount, apiInfo } from '@/api'
+import {
+  Card,
+  Button,
+  message,
+  Modal,
+  Form,
+  Input,
+  Avatar,
+  Typography
+} from 'antd'
+import {
+  GithubOutlined,
+  LinkOutlined,
+  DisconnectOutlined
+} from '@ant-design/icons'
+import {
+  apiGetGitHubAuthURL,
+  apiBindGitHubAccount,
+  apiUnbindGitHubAccount,
+  apiInfo
+} from '@/api'
 
 const { Title, Text } = Typography
 
@@ -36,21 +54,46 @@ const GitHubBinding: React.FC = () => {
   const handleBindGitHub = async () => {
     try {
       const authURL = await apiGetGitHubAuthURL('bind')
-      // 打开新窗口进行 GitHub 授权
-      const popup = window.open(authURL, 'github-auth', 'width=600,height=600,scrollbars=yes,resizable=yes')
-      
-      // 监听授权完成
+
+      // 打开弹窗进行 GitHub 授权
+      const popup = window.open(
+        authURL,
+        'github-auth',
+        'width=600,height=600,scrollbars=yes,resizable=yes'
+      )
+
+      if (!popup) {
+        message.error('无法打开授权窗口，请检查浏览器弹窗设置')
+        return
+      }
+
+      // 监听弹窗消息
+      const messageHandler = (event: MessageEvent) => {
+        // 验证消息来源
+        if (event.origin !== window.location.origin) {
+          return
+        }
+
+        if (event.data.type === 'GITHUB_AUTH_SUCCESS') {
+          const { code } = event.data
+          popup.close()
+          window.removeEventListener('message', messageHandler)
+          handleBindWithCode(code)
+        } else if (event.data.type === 'GITHUB_AUTH_ERROR') {
+          const { error } = event.data
+          popup.close()
+          window.removeEventListener('message', messageHandler)
+          message.error(error || 'GitHub 授权失败')
+        }
+      }
+
+      window.addEventListener('message', messageHandler)
+
+      // 监听弹窗关闭
       const checkClosed = setInterval(() => {
-        if (popup?.closed) {
+        if (popup.closed) {
           clearInterval(checkClosed)
-          // 检查 URL 参数
-          const urlParams = new URLSearchParams(window.location.search)
-          const code = urlParams.get('code')
-          const state = urlParams.get('state')
-          
-          if (code && state === 'bind') {
-            handleBindWithCode(code)
-          }
+          window.removeEventListener('message', messageHandler)
         }
       }, 1000)
     } catch {
@@ -60,21 +103,11 @@ const GitHubBinding: React.FC = () => {
 
   // 使用授权码绑定
   const handleBindWithCode = async (code: string) => {
-    try {
-      const values = await form.validateFields()
-      await apiBindGitHubAccount({
-        username: values.username,
-        password: values.password,
-        code: code
-      })
-      message.success('GitHub 账号绑定成功')
-      setBindModalVisible(false)
-      form.resetFields()
-      fetchUserInfo()
-    } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : '绑定失败'
-      message.error(errorMessage)
-    }
+    await apiBindGitHubAccount({ code })
+    message.success('GitHub 账号绑定成功')
+    setBindModalVisible(false)
+    form.resetFields()
+    fetchUserInfo()
   }
 
   // 解绑 GitHub
@@ -88,7 +121,8 @@ const GitHubBinding: React.FC = () => {
           message.success('GitHub 账号解绑成功')
           fetchUserInfo()
         } catch (error: unknown) {
-          const errorMessage = error instanceof Error ? error.message : '解绑失败'
+          const errorMessage =
+            error instanceof Error ? error.message : '解绑失败'
           message.error(errorMessage)
         }
       }
@@ -106,8 +140,8 @@ const GitHubBinding: React.FC = () => {
         {userInfo?.is_github_bound ? (
           <div className="flex items-center justify-between p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
             <div className="flex items-center space-x-3">
-              <Avatar 
-                src={userInfo.github_avatar} 
+              <Avatar
+                src={userInfo.github_avatar}
                 icon={<GithubOutlined />}
                 size={48}
               />
@@ -115,14 +149,12 @@ const GitHubBinding: React.FC = () => {
                 <Title level={5} className="mb-1">
                   {userInfo.github_username}
                 </Title>
-                <Text type="secondary">
-                  GitHub ID: {userInfo.github_id}
-                </Text>
+                <Text type="secondary">GitHub ID: {userInfo.github_id}</Text>
               </div>
             </div>
-            <Button 
-              type="primary" 
-              danger 
+            <Button
+              type="primary"
+              danger
               icon={<DisconnectOutlined />}
               onClick={handleUnbindGitHub}
             >
@@ -132,12 +164,14 @@ const GitHubBinding: React.FC = () => {
         ) : (
           <div className="text-center p-6 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
             <GithubOutlined className="text-4xl text-gray-400 mb-4" />
-            <Title level={4} className="mb-2">未绑定 GitHub 账号</Title>
+            <Title level={4} className="mb-2">
+              未绑定 GitHub 账号
+            </Title>
             <Text type="secondary" className="mb-4 block">
               绑定 GitHub 账号后，您可以使用 GitHub 快捷登录
             </Text>
-            <Button 
-              type="primary" 
+            <Button
+              type="primary"
               icon={<LinkOutlined />}
               onClick={showBindModal}
               size="large"
@@ -162,33 +196,27 @@ const GitHubBinding: React.FC = () => {
         <Form
           form={form}
           layout="vertical"
-          onFinish={() => {
-            // 表单验证通过后，开始 GitHub 授权流程
-            handleBindGitHub()
+          onFinish={async values => {
+            // 如果有授权码，直接绑定；否则跳转到GitHub授权
+            if (values.code) {
+              await handleBindWithCode(values.code)
+            } else {
+              handleBindGitHub()
+            }
           }}
         >
-          <Form.Item
-            name="username"
-            label="用户名"
-            rules={[{ required: true, message: '请输入用户名' }]}
-          >
-            <Input placeholder="请输入您的用户名" />
-          </Form.Item>
-          
-          <Form.Item
-            name="password"
-            label="密码"
-            rules={[{ required: true, message: '请输入密码' }]}
-          >
-            <Input.Password placeholder="请输入您的密码" />
+          <Form.Item name="code" style={{ display: 'none' }}>
+            <Input />
           </Form.Item>
 
           <div className="text-center space-y-3">
             <Text type="secondary" className="text-sm">
-              点击确认后将跳转到 GitHub 进行授权
+              {form.getFieldValue('code')
+                ? '检测到GitHub授权码，请确认绑定'
+                : '点击确认后将跳转到 GitHub 进行授权'}
             </Text>
             <div className="flex space-x-2">
-              <Button 
+              <Button
                 onClick={() => {
                   setBindModalVisible(false)
                   form.resetFields()
@@ -197,12 +225,8 @@ const GitHubBinding: React.FC = () => {
               >
                 取消
               </Button>
-              <Button 
-                type="primary" 
-                htmlType="submit"
-                className="flex-1"
-              >
-                确认绑定
+              <Button type="primary" htmlType="submit" className="flex-1">
+                {form.getFieldValue('code') ? '确认绑定' : '跳转授权'}
               </Button>
             </div>
           </div>
