@@ -2,84 +2,29 @@ import {
   SettingOutlined,
   UserOutlined,
   BellOutlined,
-  LogoutOutlined,
-  MailOutlined,
-  LockOutlined,
   AppstoreOutlined
 } from '@ant-design/icons'
 import { FloatButton, Drawer } from 'antd'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useSelector } from 'react-redux'
-import { RootState } from '@/redux'
 import useTheme from '@/hook/useTheme'
-import { apiLogout } from '@/api'
 
 const FloatButtons = () => {
   const navigate = useNavigate()
-  const storeMe = useSelector((state: RootState) => state.me.info)
   const { dark, setDark } = useTheme()
   const [open, setOpen] = useState(false)
-  const [userMenuOpen, setUserMenuOpen] = useState(false)
 
-  const goLogout = () => {
-    apiLogout().then(() => {
-      navigate('/login')
-    })
-  }
 
   return (
     <>
-      <FloatButton.Group
-        trigger="click"
+      {/* 个人中心按钮 */}
+      <FloatButton
+        icon={<UserOutlined />}
+        tooltip="个人中心"
         type="primary"
         style={{ insetInlineEnd: 9, bottom: 9 * 14 }}
-        icon={<UserOutlined />}
-        open={userMenuOpen}
-        onOpenChange={setUserMenuOpen}
-      >
-        {/* 更改密码 */}
-        <FloatButton
-          icon={<LockOutlined />}
-          tooltip="更改密码"
-          onClick={() => {
-            navigate('/update-password')
-            setUserMenuOpen(false)
-          }}
-        />
-
-        {/* 更改邮箱 */}
-        <FloatButton
-          icon={<MailOutlined />}
-          tooltip="更改邮箱"
-          onClick={() => {
-            navigate('/update-email')
-            setUserMenuOpen(false)
-          }}
-        />
-
-        {/* 邮箱服务 - 仅管理员可见 */}
-        {storeMe.identity === 'admin' && (
-          <FloatButton
-            icon={<MailOutlined />}
-            tooltip="邮箱服务"
-            onClick={() => {
-              navigate('/email-service')
-              setUserMenuOpen(false)
-            }}
-          />
-        )}
-
-        {/* 退出账户 */}
-        <FloatButton
-          icon={<LogoutOutlined />}
-          tooltip="退出账户"
-          onClick={() => {
-            goLogout()
-            setUserMenuOpen(false)
-          }}
-        />
-      </FloatButton.Group>
+        onClick={() => navigate('/profile')}
+      />
 
       <FloatButton.Group
         trigger="click"

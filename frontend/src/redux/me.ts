@@ -29,6 +29,10 @@ type State = {
     password: string
     identity: string
     mastername: string
+    github_id: number
+    github_username: string
+    github_avatar: string
+    is_github_bound: boolean
   }
 }
 
@@ -41,7 +45,11 @@ const initialState: State = {
     username: '',
     password: '',
     identity: '',
-    mastername: ''
+    mastername: '',
+    github_id: 0,
+    github_username: '',
+    github_avatar: '',
+    is_github_bound: false
   }
 }
 
@@ -61,6 +69,10 @@ const notificationSlice = createSlice({
       state.info.mastername = action.payload?.mastername
       state.info.email = action.payload?.email
       state.info.is_email_verified = action.payload?.is_email_verified || false
+      state.info.github_id = action.payload?.github_id || 0
+      state.info.github_username = action.payload?.github_username || ''
+      state.info.github_avatar = action.payload?.github_avatar || ''
+      state.info.is_github_bound = action.payload?.is_github_bound || false
     }
   }
 })

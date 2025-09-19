@@ -16,6 +16,7 @@ import {
 import { Box } from '@/commom'
 
 /**
+ * 用户管理表格组件
  * @returns
  */
 const UserTable = () => {

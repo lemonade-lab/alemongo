@@ -12,7 +12,6 @@ const ButtonTemplate = lazy(
   () => import('./pages/home/Apps/QQBotButtonTemplate/App')
 )
 const Logs = lazy(() => import('./pages/home/panel/Logs'))
-const UpdatePassWord = lazy(() => import('./pages/home/UpdatePassWord/App'))
 const OneBot = lazy(() => import('./pages/home/Apps/OneBot/App'))
 const Settings = lazy(() => import('./pages/home/Settings/App'))
 const Package = lazy(() => import('./pages/home/panel/package/App'))
@@ -21,6 +20,7 @@ const XtermDate = lazy(() => import('./pages/home/panel/xterm-date/App'))
 const Response = lazy(() => import('./pages/home/panel/response/App'))
 const Packages = lazy(() => import('./pages/home/panel/packages/App'))
 const Account = lazy(() => import('./pages/home/Account/App'))
+const Profile = lazy(() => import('./pages/home/Profile/App'))
 const ConfigEdit = lazy(() => import('./pages/home/configs/create/App'))
 const Configs = lazy(() => import('./pages/home/configs/App'))
 const SSH = lazy(() => import('./pages/home/GitSSH/App'))
@@ -31,8 +31,6 @@ const PackagesMessage = lazy(
 const Apps = lazy(() => import('./pages/home/Apps/App'))
 const AppsNodeJS = lazy(() => import('./pages/home/Apps/NodeJS/App'))
 const GitPackage = lazy(() => import('./pages/home/panel/packages/package/App'))
-const UpdateEmail = lazy(() => import('./pages/home/UpdateEmail/App'))
-const EmailService = lazy(() => import('./pages/home/EmailService/App'))
 const Env = lazy(() => import('./pages/home/panel/env/App'))
 
 const router = createBrowserRouter([
@@ -200,34 +198,18 @@ const router = createBrowserRouter([
             )
           },
           {
-            path: 'update-password',
-            element: (
-              <WithSuspense>
-                <UpdatePassWord />
-              </WithSuspense>
-            )
-          },
-          {
-            path: 'update-email',
-            element: (
-              <WithSuspense>
-                <UpdateEmail />
-              </WithSuspense>
-            )
-          },
-          {
-            path: 'email-service',
-            element: (
-              <WithSuspense>
-                <EmailService />
-              </WithSuspense>
-            )
-          },
-          {
             path: 'account',
             element: (
               <WithSuspense>
                 <Account />
+              </WithSuspense>
+            )
+          },
+          {
+            path: 'profile',
+            element: (
+              <WithSuspense>
+                <Profile />
               </WithSuspense>
             )
           },

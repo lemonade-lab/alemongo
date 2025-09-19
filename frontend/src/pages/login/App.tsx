@@ -53,9 +53,27 @@ const Login = () => {
     const state = urlParams.get('state')
     
     if (code && state === 'login') {
-      const token = await apiGitHubLogin({ code, state })
-      dispatch(setToken(token))
-      navigate('/')
+      try {
+        const token = await apiGitHubLogin({ code, state })
+        dispatch(setToken(token))
+        navigate('/')
+      } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : 'GitHub 登录失败'
+        message.error(errorMessage)
+      }
+    } else if (code && state === 'bind') {
+      // 绑定状态，通过postMessage通知父页面
+      if (window.opener) {
+        window.opener.postMessage({
+          type: 'GITHUB_AUTH_SUCCESS',
+          code,
+          state
+        }, window.location.origin)
+        window.close()
+      } else {
+        // 如果不是弹窗，显示错误信息
+        message.error('绑定操作需要在弹窗中完成')
+      }
     }
   }, [dispatch, navigate])
 
