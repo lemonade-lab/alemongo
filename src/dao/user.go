@@ -505,3 +505,95 @@ func GetEmailConfig() (*models.EmailConfig, error) {
 	}
 	return emailConfig, nil
 }
+
+// 通过 GitHub ID 查找用户
+func GetUserByGitHubID(githubID int64) (models.User, bool) {
+	users := GetList()
+	for _, user := range users {
+		if user.GitHubID == githubID {
+			return user, true
+		}
+	}
+	return models.User{}, false
+}
+
+// 检查 GitHub ID 是否已被绑定
+func IsGitHubIDBound(githubID int64) bool {
+	_, exists := GetUserByGitHubID(githubID)
+	return exists
+}
+
+// 绑定 GitHub 账号
+func BindGitHubAccount(username string, githubInfo *models.GitHubUserInfo) error {
+	users := GetList()
+	curI := -1
+	for i, user := range users {
+		if user.UserName == username {
+			curI = i
+			break
+		}
+	}
+	if curI == -1 {
+		return errors.New("用户不存在")
+	}
+
+	// 检查 GitHub ID 是否已被其他用户绑定
+	if IsGitHubIDBound(githubInfo.ID) {
+		return errors.New("该 GitHub 账号已被其他用户绑定")
+	}
+
+	// 更新用户信息
+	users[curI].GitHubID = githubInfo.ID
+	users[curI].GitHubUsername = githubInfo.Login
+	users[curI].GitHubAvatar = githubInfo.Avatar
+	users[curI].IsGitHubBound = true
+
+	// 如果用户没有邮箱，使用 GitHub 邮箱
+	if users[curI].Email == "" && githubInfo.Email != "" {
+		users[curI].Email = githubInfo.Email
+		users[curI].IsEmailVerified = true
+	}
+
+	userListPath := getListPath()
+	fileData, err := json.Marshal(users)
+	if err != nil {
+		return err
+	}
+	err = os.WriteFile(userListPath, fileData, 0644)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// 解绑 GitHub 账号
+func UnbindGitHubAccount(username string) error {
+	users := GetList()
+	curI := -1
+	for i, user := range users {
+		if user.UserName == username {
+			curI = i
+			break
+		}
+	}
+	if curI == -1 {
+		return errors.New("用户不存在")
+	}
+
+	// 清除 GitHub 绑定信息
+	users[curI].GitHubID = 0
+	users[curI].GitHubUsername = ""
+	users[curI].GitHubAvatar = ""
+	users[curI].IsGitHubBound = false
+
+	userListPath := getListPath()
+	fileData, err := json.Marshal(users)
+	if err != nil {
+		return err
+	}
+	err = os.WriteFile(userListPath, fileData, 0644)
+	if err != nil {
+		return err
+	}
+	return nil
+}

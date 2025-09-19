@@ -4,6 +4,7 @@ import (
 	"alemongo/src/dao"
 	"alemongo/src/models"
 	"alemongo/src/pkgs/email"
+	"alemongo/src/pkgs/github"
 	"alemongo/src/pkgs/jwt"
 	"alemongo/src/utils"
 	"errors"
@@ -130,4 +131,82 @@ func GetEmailConfig() (*models.EmailConfig, error) {
 		return &models.EmailConfig{}, nil
 	}
 	return config, nil
+}
+
+// GitHubLogin GitHub 快捷登录
+func GitHubLogin(code string) (string, error) {
+	// 1. 用授权码换取访问令牌
+	token, err := github.ExchangeCodeForToken(code)
+	if err != nil {
+		return "", fmt.Errorf("获取访问令牌失败: %v", err)
+	}
+
+	// 2. 获取 GitHub 用户信息
+	githubUser, err := github.GetUserInfo(token.AccessToken)
+	if err != nil {
+		return "", fmt.Errorf("获取用户信息失败: %v", err)
+	}
+
+	// 3. 检查是否已绑定
+	user, exists := dao.GetUserByGitHubID(githubUser.ID)
+	if !exists {
+		return "", errors.New("该 GitHub 账号未绑定任何用户，请先绑定")
+	}
+
+	// 4. 生成 JWT token
+	tokenValue, err := jwt.CreateToken(user.UserName)
+	if err != nil {
+		return "", errors.New("生成 token 失败")
+	}
+
+	return tokenValue, nil
+}
+
+// BindGitHubAccount 绑定 GitHub 账号
+func BindGitHubAccount(username, password, code string) error {
+	// 1. 验证用户密码
+	userInfo := &models.User{}
+	if dao.IsSuperAdmin(username) {
+		userInfo = dao.GetAdmin()
+	} else {
+		user, exist := dao.GetUserByUserName(username)
+		if !exist {
+			return errors.New("用户不存在")
+		}
+		userInfo = &user
+	}
+
+	if password != userInfo.PassWord {
+		return errors.New("密码错误")
+	}
+
+	// 2. 用授权码换取访问令牌
+	token, err := github.ExchangeCodeForToken(code)
+	if err != nil {
+		return fmt.Errorf("获取访问令牌失败: %v", err)
+	}
+
+	// 3. 获取 GitHub 用户信息
+	githubUser, err := github.GetUserInfo(token.AccessToken)
+	if err != nil {
+		return fmt.Errorf("获取用户信息失败: %v", err)
+	}
+
+	// 4. 绑定账号
+	err = dao.BindGitHubAccount(username, githubUser)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// UnbindGitHubAccount 解绑 GitHub 账号
+func UnbindGitHubAccount(username string) error {
+	return dao.UnbindGitHubAccount(username)
+}
+
+// GetGitHubAuthURL 获取 GitHub 授权 URL
+func GetGitHubAuthURL(state string) string {
+	return github.GetAuthURL(state)
 }

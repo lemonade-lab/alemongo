@@ -4,6 +4,7 @@ import { useCommon } from '@/hook/useCommon'
 import { SettingOutlined } from '@ant-design/icons'
 import { message } from 'antd'
 import { useState } from 'react'
+import GitHubBinding from '../GitHubBinding'
 
 /**
  * Chat风格的设置页面
@@ -88,9 +89,6 @@ const Settings = () => {
 
           {/* 工具状态列表 */}
           <div className="flex flex-col gap-4 items-center w-full">
-            <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4">
-              系统组件状态
-            </h2>
             {tools.map(
               tool =>
                 tool.data?.installed && (
@@ -122,6 +120,11 @@ const Settings = () => {
                   </div>
                 )
             )}
+          </div>
+
+          {/* GitHub 绑定区域 */}
+          <div className="w-full">
+            <GitHubBinding />
           </div>
 
           {/* 重置模板区域 */}

@@ -22,6 +22,7 @@ type AppConfig struct {
 	Server *ServerConfig `mapstructure:"server" yaml:"server"`
 	Log    *LogConfig    `mapstructure:"log" yaml:"log"`
 	SMTP   *SMTPConfig   `mapstructure:"smtp" yaml:"smtp"`
+	GitHub *GitHubConfig `mapstructure:"github" yaml:"github"`
 }
 
 type ServerConfig struct {
@@ -48,6 +49,13 @@ type SMTPConfig struct {
 	Username  string `mapstructure:"username" yaml:"username"`
 	Password  string `mapstructure:"password" yaml:"password"`
 	FromEmail string `mapstructure:"from_email" yaml:"from_email"`
+}
+
+// GitHub OAuth 配置
+type GitHubConfig struct {
+	ClientID     string `mapstructure:"client_id" yaml:"client_id"`
+	ClientSecret string `mapstructure:"client_secret" yaml:"client_secret"`
+	RedirectURL  string `mapstructure:"redirect_url" yaml:"redirect_url"`
 }
 
 // 补全所有字段默认值
@@ -108,6 +116,18 @@ func fillDefaults() {
 	}
 	if Conf.SMTP.FromEmail == "" {
 		Conf.SMTP.FromEmail = ""
+	}
+	if Conf.GitHub == nil {
+		Conf.GitHub = &GitHubConfig{}
+	}
+	if Conf.GitHub.ClientID == "" {
+		Conf.GitHub.ClientID = ""
+	}
+	if Conf.GitHub.ClientSecret == "" {
+		Conf.GitHub.ClientSecret = ""
+	}
+	if Conf.GitHub.RedirectURL == "" {
+		Conf.GitHub.RedirectURL = ""
 	}
 }
 

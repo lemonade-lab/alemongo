@@ -21,6 +21,7 @@ import (
 	"alemongo/src/middlewares"
 
 	_ "alemongo/docs"
+
 	"github.com/gin-gonic/gin"
 	swaggerfiles "github.com/swaggo/files"
 	gs "github.com/swaggo/gin-swagger"
@@ -103,6 +104,10 @@ func Create(mode string) *gin.Engine {
 			{
 				// 登录
 				UserAPI.POST("/login", user.Login)
+				// GitHub 相关接口（无需认证）
+				UserAPI.GET("/github/auth-url", user.GetGitHubAuthURL)
+				UserAPI.POST("/github/login", user.GitHubLogin)
+				UserAPI.POST("/github/bind", user.BindGitHubAccount)
 				// 开始鉴权
 				UserAPI.Use(middlewares.AuthMiddleware())
 				// 退出登录
@@ -125,6 +130,8 @@ func Create(mode string) *gin.Engine {
 				UserAPI.POST("/bind_email", user.BindEmailHandler)
 				// 验证邮箱
 				UserAPI.POST("/verify_email", user.VerifyEmailHandler)
+				// GitHub 解绑（需要认证）
+				UserAPI.POST("/github/unbind", user.UnbindGitHubAccount)
 			}
 			// ssh
 			SSHAPI := v1.Group("/ssh")

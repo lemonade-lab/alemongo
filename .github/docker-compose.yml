@@ -5,6 +5,13 @@ services:
     ports:
       - "17187:17187"
     restart: unless-stopped
+    environment:
+      - TZ=Asia/Shanghai
+    volumes:
+      - ~/.ssh:/root/.ssh
+      - ./work:/app/work
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   nginx:
     image: nginx:alpine

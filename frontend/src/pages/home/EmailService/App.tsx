@@ -79,8 +79,8 @@ const EmailService = () => {
 
   return (
     <Box>
-      <div className="p-6 flex gap-6 flex-col bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 duration-300 flex-1 min-h-screen">
-        <div className="flex flex-col items-center gap-6 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm p-8 rounded-2xl border border-white/20 dark:border-gray-700/20 shadow-2xl duration-300 max-w-2xl mx-auto w-full">
+      <div className="p-6 flex gap-6 flex-col bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900  flex-1 min-h-screen">
+        <div className="flex flex-col items-center gap-6 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm p-8 rounded-2xl border border-white/20 dark:border-gray-700/20 shadow-2xl  max-w-2xl mx-auto w-full">
           {/* 头部区域 */}
           <div className="text-center">
             <div className="relative mb-6">
