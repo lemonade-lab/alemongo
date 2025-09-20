@@ -294,6 +294,7 @@ func PackagesGitCheckout(name, repo_url, isForce, branch_name, commitHash string
 	// 确定克隆的目标路径
 	clonePath := config.GetBotPackagesPathByName(name, repoName)
 	var repo *git.Repository
+	branch_name = strings.TrimPrefix(branch_name, "origin/")
 	if strings.Contains(repo_url, "git@") {
 		auth, err := utils.GetSSHAuth()
 		if err != nil {
@@ -406,40 +407,25 @@ func PackageGitCommits(repo_url, branch_name string) ([]models.BotPackagesGitBra
 	defer os.RemoveAll(tmpPath)
 	// 克隆仓库
 	var repo *git.Repository
+	branch_name = strings.TrimPrefix(branch_name, "origin/")
 	if strings.Contains(repo_url, "git@") {
 		auth, err := utils.GetSSHAuth()
 		if err != nil {
 			return nil, err
 		}
-		// 判断是远程分支还是本地分支
-		var refName plumbing.ReferenceName
-		if strings.HasPrefix(branch_name, "origin/") {
-			refName = plumbing.NewRemoteReferenceName("origin", strings.TrimPrefix(branch_name, "origin/"))
-		} else {
-			refName = plumbing.NewBranchReferenceName(branch_name)
-		}
-
 		repo, err = git.PlainClone(tmpPath, false, &git.CloneOptions{
 			URL:           repo_url,
 			Auth:          auth,
-			ReferenceName: refName,
+			ReferenceName: plumbing.NewBranchReferenceName(branch_name),
 			SingleBranch:  true,
 		})
 		if err != nil {
 			return nil, fmt.Errorf("克隆SSH仓库失败: %w", err)
 		}
 	} else if strings.Contains(repo_url, "https") {
-		// 判断是远程分支还是本地分支
-		var refName plumbing.ReferenceName
-		if strings.HasPrefix(branch_name, "origin/") {
-			refName = plumbing.NewRemoteReferenceName("origin", strings.TrimPrefix(branch_name, "origin/"))
-		} else {
-			refName = plumbing.NewBranchReferenceName(branch_name)
-		}
-
 		repo, err = git.PlainClone(tmpPath, false, &git.CloneOptions{
 			URL:           repo_url,
-			ReferenceName: refName,
+			ReferenceName: plumbing.NewBranchReferenceName(branch_name),
 			SingleBranch:  true,
 		})
 		if err != nil {
