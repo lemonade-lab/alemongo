@@ -1,4 +1,14 @@
-import { Button, Spin, Tag, message, Modal, Tooltip } from 'antd'
+import {
+  Button,
+  Spin,
+  Tag,
+  message,
+  Modal,
+  Tooltip,
+  MenuProps,
+  Dropdown,
+  Space
+} from 'antd'
 import { useNavigate } from 'react-router-dom'
 import { useCommon } from '@/hook/useCommon'
 import { useEffect, useState } from 'react'
@@ -7,12 +17,16 @@ import {
   apiBotYarnInstall,
   apiBotInfo,
   apiBotDelete,
+  apiBotCopy,
   BotInfo
 } from '@/api'
 import Pagination from '@/components/Pagination'
 import Headings from './Headings'
 import './index.scss'
-import { ExclamationCircleOutlined } from '@ant-design/icons'
+import {
+  DownOutlined,
+  ExclamationCircleOutlined,
+} from '@ant-design/icons'
 import { Box } from '@/commom'
 
 /**
@@ -94,7 +108,7 @@ const Home = () => {
       },
       onOk: () => {
         apiBotDelete({ name }).then(() => {
-          message.success('删除成功')
+          // 刷新机器人列表
           apiBotList().then(res => {
             setBots(res)
             setPageInfo(prev => ({ ...prev, total: res.length }))
@@ -102,6 +116,62 @@ const Home = () => {
         })
       }
     })
+  }
+
+  // 复制机器人
+  const onCopy = (name: string) => {
+    Modal.confirm({
+      title: (
+        <div className="flex items-center gap-2">
+          <span className="font-semibold">复制机器人</span>
+        </div>
+      ),
+      content: `确定复制机器人 "${name}" 吗？将创建一个名为 "${name}-copy" 的新机器人。`,
+      icon: <ExclamationCircleOutlined className="text-blue-500" />,
+      okText: '确认复制',
+      cancelText: '取消',
+      okButtonProps: {
+        className: 'bg-gradient-to-r from-blue-500 to-cyan-500 border-none'
+      },
+      onOk: () => {
+        apiBotCopy({ bot_name: name }).then(() => {
+          message.success('复制成功')
+          // 刷新机器人列表
+          apiBotList().then(res => {
+            setBots(res)
+            setPageInfo(prev => ({ ...prev, total: res.length }))
+          })
+        })
+      }
+    })
+  }
+
+  const createMenu = bot => {
+    return [
+      {
+        key: '1',
+        label: '加载依赖',
+        disabled: !!bot.node_modules || loadingNames.includes(bot.name),
+        onClick: () => {
+          onInstall(bot.name)
+        }
+      },
+      {
+        key: '2',
+        label: '复制',
+        onClick: () => {
+          onCopy(bot.name)
+        }
+      },
+      {
+        key: '3',
+        danger: true,
+        label: '删除',
+        onClick: () => {
+          onDelete(bot.name)
+        }
+      }
+    ] as MenuProps['items']
   }
 
   return (
@@ -175,12 +245,6 @@ const Home = () => {
                                 {bot.name}
                               </h3>
                             </Tooltip>
-                            <Tag
-                              color={bot.status === 1 ? 'green' : 'red'}
-                              className="rounded-full px-3 py-1 text-xs font-medium"
-                            >
-                              {bot.status === 1 ? '运行中' : '已停止'}
-                            </Tag>
                           </div>
 
                           {/* 详细信息 */}
@@ -235,32 +299,30 @@ const Home = () => {
                             </div>
                           </div>
 
-                          {/* 操作按钮 */}
-                          <div className="flex gap-2 ">
-                            {!bot.node_modules ? (
-                              <Button
-                                type="primary"
-                                className="flex-1  bg-gradient-to-r from-yellow-500 to-orange-500 border-none"
-                                loading={loadingNames.includes(bot.name)}
-                                onClick={e => {
-                                  e.stopPropagation()
-                                  onInstall(bot.name)
-                                }}
-                              >
-                                加载依赖
-                              </Button>
-                            ) : null}
-                            <Button
-                              type="primary"
-                              danger
-                              onClick={e => {
-                                e.stopPropagation()
-                                onDelete(bot.name)
-                              }}
-                              className="flex-1 cursor-pointer bg-gradient-to-r from-red-500 to-pink-500 border-none hover:from-red-600 hover:to-pink-600"
+                          <div
+                            className="flex justify-between"
+                            onClick={e => e.stopPropagation()}
+                          >
+                            <Tag
+                              color={bot.status === 1 ? 'green' : 'red'}
+                              className="rounded-full px-3 py-1 text-xs font-medium"
                             >
-                              删除
-                            </Button>
+                              {
+                                loadingNames.includes(bot.name) ? '加载依赖中...' : bot.status === 1 ? '运行中' : '已停止'
+                              }
+                            </Tag>
+
+                            <Dropdown
+                              menu={{ items: createMenu(bot) }}
+                              trigger={['click']}
+                            >
+                              <a onClick={e => e.preventDefault()}>
+                                <Space>
+                                  操作
+                                  <DownOutlined />
+                                </Space>
+                              </a>
+                            </Dropdown>
                           </div>
                         </div>
                       </div>

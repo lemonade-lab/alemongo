@@ -1,6 +1,6 @@
-# GitHub OAuth 集成说明
+# GitHub OAuth
 
-本文档说明如何在 alemongo 项目中配置和使用 GitHub OAuth 快捷登录和账号绑定功能。
+如何在 alemongo 项目中配置和使用 GitHub OAuth 快捷登录和账号绑定功能。
 
 ## 配置步骤
 
@@ -15,7 +15,7 @@
 4. 点击 "Register application"
 5. 记录下 `Client ID` 和 `Client Secret`
 
-### 2. 配置后端
+### 2. 配置
 
 在 `config.yaml` 文件中添加 GitHub 配置：
 
@@ -28,6 +28,6 @@ github:
   redirect_url: "http://ip:17187/login"
 ```
 
-### 4. 重启服务
+### 3. 重启服务
 
 配置完成后重启 alemongo 服务以加载新配置。

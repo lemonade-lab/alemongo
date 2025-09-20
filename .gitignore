@@ -46,5 +46,5 @@ pnpm-lock.yaml
 /word
 /dist
 /alemongo
-
+_logs
 config*.yaml

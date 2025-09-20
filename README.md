@@ -63,9 +63,13 @@ log:
 
 ## Docker 部署
 
+> 推荐使用 docker 进行快速部署
+
 [README_DCOKER](./README_DCOKER.md)
 
 ## Github 快捷登录
+
+[README_GITHUB_OAUTH](./README_GITHUB_OAUTH.md)
 
 ## 常见问题
 

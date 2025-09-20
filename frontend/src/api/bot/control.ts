@@ -77,3 +77,16 @@ export const apiBotInfo = async (data: { name: string }): Promise<BotInfo> => {
       .catch(reject)
   })
 }
+
+export const apiBotCopy = async (data: { bot_name: string }) => {
+  return new Promise((resolve, reject) => {
+    request({
+      url: '/bot/copy',
+      method: 'POST',
+      data
+    })
+      .then(res => res.data)
+      .then(resolve)
+      .catch(reject)
+  })
+}

@@ -102,38 +102,23 @@ func Create(mode string) *gin.Engine {
 			// user api
 			UserAPI := v1.Group("/user")
 			{
-				// 登录
-				UserAPI.POST("/login", user.Login)
-				// GitHub 相关接口（无需认证）
-				UserAPI.GET("/github/auth-url", user.GetGitHubAuthURL)
-				UserAPI.GET("/github/config-status", user.GetGitHubConfigStatus)
-				UserAPI.POST("/github/login", user.GitHubLogin)
-				// 开始鉴权
-				UserAPI.Use(middlewares.AuthMiddleware())
-				// GitHub 绑定（需要认证）
-				UserAPI.POST("/github/bind", user.BindGitHubAccount)
-				// 退出登录
-				UserAPI.GET("/logout", user.Logout)
-				// 获取用户信息
-				UserAPI.GET("/info", user.Info)
-				// 修改密码
-				UserAPI.PUT("/password", user.PassWord)
-				// 列表
-				UserAPI.GET("/list", user.List)
-				// 添加
-				UserAPI.POST("/create", user.CreateUserHandler)
-				// 删除
-				UserAPI.DELETE("/delete", user.DeleteUserHandler)
-				// 修改身份
-				UserAPI.PUT("/identity", user.Identity)
-				// 身份列表
-				UserAPI.GET("/identity/list", user.IdentityList)
-				// 绑定邮箱
-				UserAPI.POST("/bind_email", user.BindEmailHandler)
-				// 验证邮箱
-				UserAPI.POST("/verify_email", user.VerifyEmailHandler)
-				// GitHub 解绑（需要认证）
-				UserAPI.POST("/github/unbind", user.UnbindGitHubAccount)
+				UserAPI.POST("/login", user.Login)                               // 登录
+				UserAPI.GET("/github/auth-url", user.GetGitHubAuthURL)           // 获取 GitHub 授权 URL
+				UserAPI.GET("/github/config-status", user.GetGitHubConfigStatus) // 获取 GitHub 配置状态
+				UserAPI.POST("/github/login", user.GitHubLogin)                  // GitHub 快捷登录
+				UserAPI.POST("/github/unbind", user.UnbindGitHubAccount)         // GitHub 解绑（需要认证）
+				UserAPI.POST("/github/bind", user.BindGitHubAccount)             // GitHub 绑定（需要认证）
+				UserAPI.Use(middlewares.AuthMiddleware())                        // 开始鉴权
+				UserAPI.GET("/logout", user.Logout)                              // 退出登录
+				UserAPI.GET("/info", user.Info)                                  // 获取用户信息
+				UserAPI.PUT("/password", user.PassWord)                          // 修改密码
+				UserAPI.GET("/list", user.List)                                  // 列表
+				UserAPI.POST("/create", user.CreateUserHandler)                  // 添加
+				UserAPI.DELETE("/delete", user.DeleteUserHandler)                // 删除
+				UserAPI.PUT("/identity", user.Identity)                          // 修改身份
+				UserAPI.GET("/identity/list", user.IdentityList)                 // 身份列表
+				UserAPI.POST("/bind_email", user.BindEmailHandler)               // 绑定邮箱
+				UserAPI.POST("/verify_email", user.VerifyEmailHandler)           // 验证邮箱
 			}
 			// ssh
 			SSHAPI := v1.Group("/ssh")
