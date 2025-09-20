@@ -30,6 +30,7 @@ func PackagesSwitch(c *gin.Context) {
 		response.ResponseErrorWithMsg(c, http.StatusBadRequest, http.StatusBadRequest, "参数错误")
 		return
 	}
+
 	if !config.Exists(botName) {
 		response.ResponseErrorWithMsg(c, http.StatusBadRequest, http.StatusBadRequest, "机器人不存在")
 		return
@@ -44,6 +45,7 @@ func PackagesSwitch(c *gin.Context) {
 	repo_url := data["git"].(map[string]string)["repo"]
 	err = logic.PackagesGitCheckout(botName, repo_url, "1", branchName, commitHash)
 	if err != nil {
+		//fmt.Printf("切换分支到指定commit失败: %v\n", err)
 		response.ResponseErrorWithMsg(c, http.StatusBadRequest, http.StatusBadRequest, "切换分支失败")
 		return
 	}
