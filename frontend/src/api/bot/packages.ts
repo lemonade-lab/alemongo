@@ -222,3 +222,20 @@ export const apiBotPackagesGitSwitch = async (data: {
       .catch(reject)
   })
 }
+
+// 从远程获取最新分支信息
+export const apiBotPackagesGitFetch = async (data: {
+  name: string
+  app_name: string
+}): Promise<{ message: string; branches: string[] }> => {
+  return new Promise((resolve, reject) => {
+    request({
+      url: '/bot/packages/gitfetch',
+      method: 'POST',
+      params: data
+    })
+      .then(res => res.data) // 获取data字段内的内容
+      .then(resolve)
+      .catch(reject)
+  })
+}

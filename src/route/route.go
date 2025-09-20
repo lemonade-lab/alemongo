@@ -208,6 +208,8 @@ func Create(mode string) *gin.Engine {
 					PackagesAPI.GET("/gitcommits", botpackages.GitCommits)
 					// 切换当前包到指定的branch/commit
 					PackagesAPI.POST("/switch", botpackages.PackagesSwitch)
+					// 从远程获取最新分支信息
+					PackagesAPI.POST("/gitfetch", botpackages.GitFetch)
 				}
 
 				ConfigAPI := BotAPI.Group("/config")
