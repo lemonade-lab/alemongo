@@ -14,7 +14,7 @@ export default defineConfig({
     viteCompression({ algorithm: 'brotliCompress', ext: '.br' }),
     VitePWA({
       registerType: 'autoUpdate',
-      outDir: outDir,
+      outDir: outDir
     })
   ],
   resolve: {

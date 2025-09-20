@@ -15,7 +15,7 @@ export const useMobile = () => {
     const checkScreenSize = () => {
       const width = window.innerWidth
       const height = window.innerHeight
-      
+
       setScreenSize({ width, height })
       setIsMobile(width <= 768)
       setIsTablet(width > 768 && width <= 1024)
@@ -26,7 +26,7 @@ export const useMobile = () => {
 
     // 监听窗口大小变化
     window.addEventListener('resize', checkScreenSize)
-    
+
     // 监听方向变化
     window.addEventListener('orientationchange', () => {
       setTimeout(checkScreenSize, 100)
@@ -50,7 +50,11 @@ export const useMobile = () => {
     // 横屏检测
     isLandscape: screenSize.width > screenSize.height,
     // 安全区域检测
-    hasSafeArea: typeof window !== 'undefined' && 'CSS' in window && 'supports' in window.CSS && window.CSS.supports('padding-top: env(safe-area-inset-top)')
+    hasSafeArea:
+      typeof window !== 'undefined' &&
+      'CSS' in window &&
+      'supports' in window.CSS &&
+      window.CSS.supports('padding-top: env(safe-area-inset-top)')
   }
 }
 
@@ -84,13 +88,18 @@ export const useMobileScroll = () => {
       if (target.scrollTop === 0 && e.touches[0].clientY > 0) {
         e.preventDefault()
       }
-      if (target.scrollTop + target.clientHeight >= target.scrollHeight && e.touches[0].clientY < 0) {
+      if (
+        target.scrollTop + target.clientHeight >= target.scrollHeight &&
+        e.touches[0].clientY < 0
+      ) {
         e.preventDefault()
       }
     }
 
-    document.addEventListener('touchmove', preventOverscroll, { passive: false })
-    
+    document.addEventListener('touchmove', preventOverscroll, {
+      passive: false
+    })
+
     return () => {
       document.removeEventListener('touchmove', preventOverscroll)
     }
@@ -107,7 +116,7 @@ export const useMobileKeyboard = () => {
     const handleResize = () => {
       const height = window.innerHeight
       const width = window.innerWidth
-      
+
       // 简单的键盘检测逻辑
       if (height < width * 0.8) {
         setKeyboardVisible(true)
@@ -117,7 +126,7 @@ export const useMobileKeyboard = () => {
     }
 
     window.addEventListener('resize', handleResize)
-    
+
     return () => {
       window.removeEventListener('resize', handleResize)
     }

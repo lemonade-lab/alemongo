@@ -64,24 +64,23 @@ const Settings = () => {
   useEffect(() => {
     if (userInfo.username === 'lemonade') {
       apiGetConfigEmail()
-      .then(res => {
-        emailForm.setFieldsValue({
-          provider: res.provider,
-          host: res.host,
-          port: res.port,
-          username: res.username,
-          password: res.password,
-          from_email: res.from_email
+        .then(res => {
+          emailForm.setFieldsValue({
+            provider: res.provider,
+            host: res.host,
+            port: res.port,
+            username: res.username,
+            password: res.password,
+            from_email: res.from_email
+          })
         })
-      })
-      .catch(() => {
-        message.error('获取邮箱配置失败')
-      })
-      .finally(() => {
-        setInitialEmailLoading(false)
-      })
-    }
-    else {
+        .catch(() => {
+          message.error('获取邮箱配置失败')
+        })
+        .finally(() => {
+          setInitialEmailLoading(false)
+        })
+    } else {
       setInitialEmailLoading(false)
     }
   }, [emailForm, userInfo.username])

@@ -1,17 +1,6 @@
 import { useEffect, useState } from 'react'
-import { 
-  apiBotPackagesInfo, 
-  apiBotPackagesDelete,
-  BotPackages 
-} from '@/api'
-import { 
-  Tag, 
-  Button, 
-  Space, 
-  message, 
-  Popconfirm,
-  Modal 
-} from 'antd'
+import { apiBotPackagesInfo, apiBotPackagesDelete, BotPackages } from '@/api'
+import { Tag, Button, Space, message, Popconfirm } from 'antd'
 import Box from '@/commom/layout/Box'
 import { getBotName, getGitPackageName } from '../../core'
 import Markdown from '@/components/Markdown'
@@ -56,7 +45,7 @@ const PackagesMessage = () => {
     setIsLoading(true)
     const botName = getBotName()
     const appName = getGitPackageName()
-    
+
     apiBotPackagesDelete({
       name: botName,
       app_name: appName

@@ -19,15 +19,12 @@ import {
   Tag,
   Typography,
   Spin,
-  Empty,
-  Divider
+  Empty
 } from 'antd'
 import {
   BranchesOutlined,
   CodeOutlined,
   SwapOutlined,
-  ReloadOutlined,
-  CheckCircleOutlined,
   ClockCircleOutlined,
   UserOutlined,
   ExclamationCircleOutlined
@@ -36,7 +33,7 @@ import { getBotName, getGitPackageName } from '../../core'
 import Box from '@/commom/layout/Box'
 import dayjs from 'dayjs'
 
-const { Title, Text } = Typography
+const { Text } = Typography
 const { Option } = Select
 
 const GitManager = () => {
@@ -59,7 +56,8 @@ const GitManager = () => {
   const [isLoadingCommits, setIsLoadingCommits] = useState(false)
   const [isSwitching, setIsSwitching] = useState(false)
   const [switchModalVisible, setSwitchModalVisible] = useState(false)
-  const [selectedCommit, setSelectedCommit] = useState<BotPackagesGitBranchCommitsInfo | null>(null)
+  const [selectedCommit, setSelectedCommit] =
+    useState<BotPackagesGitBranchCommitsInfo | null>(null)
 
   const botName = getBotName()
   const appName = getGitPackageName()
@@ -176,9 +174,7 @@ const GitManager = () => {
       dataIndex: 'message',
       key: 'message',
       ellipsis: true,
-      render: (message: string) => (
-        <Text className="text-sm">{message}</Text>
-      )
+      render: (message: string) => <Text className="text-sm">{message}</Text>
     },
     {
       title: '作者',
@@ -282,7 +278,9 @@ const GitManager = () => {
                         current={commits.page}
                         total={commits.total}
                         pageSize={commits.page_size}
-                        onChange={(page, pageSize) => loadCommits(selectedBranch, page, pageSize)}
+                        onChange={(page, pageSize) =>
+                          loadCommits(selectedBranch, page, pageSize)
+                        }
                         showSizeChanger
                         showQuickJumper
                         showTotal={(total, range) =>

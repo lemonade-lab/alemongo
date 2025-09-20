@@ -1,5 +1,5 @@
-import { request } from "../base"
-import { BotInfo } from "../types"
+import { request } from '../base'
+import { BotInfo } from '../types'
 
 export const apiBotList = async (): Promise<BotInfo[]> => {
   return request({

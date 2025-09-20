@@ -25,7 +25,6 @@ const ConfigEdit = () => {
     const name = path.split('/').pop()
     return name
   }, [isCreate])
-  
 
   useEffect(() => {
     if (!isCreate) {
@@ -50,16 +49,17 @@ const ConfigEdit = () => {
     apiBotConfigsUpdate({
       name: name,
       content: value
-    }).then(() => {
-      if (!isCreate) {
-        message.success('更新成功')
-        return
-      }
-      navigate('/configs')
     })
-    .catch(() => {
-      message.error('保存失败，请重试')
-    })
+      .then(() => {
+        if (!isCreate) {
+          message.success('更新成功')
+          return
+        }
+        navigate('/configs')
+      })
+      .catch(() => {
+        message.error('保存失败，请重试')
+      })
   }
 
   const onSave = (name: string, value: string) => {

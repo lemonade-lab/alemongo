@@ -19,7 +19,7 @@ const MonacoEditor = (
     theme,
     ...rest
   } = props
-  
+
   // 获取MonacoEditor稳定配置
   const monacoConfig = createMonacoChineseConfig(language, theme)
 
@@ -42,16 +42,7 @@ const MonacoEditor = (
     return () => {
       document.removeEventListener('keydown', handleKeyDown)
     }
-  }, [
-    disabled,
-    onSave,
-    value,
-    language,
-    width,
-    height,
-    onChange,
-    theme,
-  ])
+  }, [disabled, onSave, value, language, width, height, onChange, theme])
 
   return (
     <MonacoEditorReact

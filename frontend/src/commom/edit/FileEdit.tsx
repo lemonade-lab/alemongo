@@ -30,7 +30,7 @@ const FileEdit = ({
   const handleCodeChange = (val: string | undefined) => {
     setFileData(val ?? '')
   }
-  
+
   // 获取MonacoEditor稳定配置
   const monacoConfig = createMonacoChineseConfig('plaintext', theme)
 
@@ -85,7 +85,7 @@ const FileEdit = ({
           <div className="flex-1 rounded-lg overflow-hidden border border-gray-200/50 dark:border-zinc-700/50 shadow-inner">
             <MonacoEditor
               disabled={false}
-              onSave={()=>{
+              onSave={() => {
                 handleSave()
               }}
               value={fileData}

@@ -23,12 +23,12 @@ const Package = () => {
       name: name,
       content: value
     })
-    .then(() => {
-      message.success('保存成功')
-    })
-    .catch(() => {
-      message.error('保存失败，请重试')
-    })
+      .then(() => {
+        message.success('保存成功')
+      })
+      .catch(() => {
+        message.error('保存失败，请重试')
+      })
       .finally(() => {
         setIsLoading(false)
       })

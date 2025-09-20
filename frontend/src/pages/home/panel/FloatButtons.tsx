@@ -1,13 +1,13 @@
-import { 
-  ControlOutlined, 
-  SettingOutlined, 
-  AppstoreOutlined, 
-  EnvironmentOutlined, 
-  FileTextOutlined, 
-  ReloadOutlined, 
-  StopOutlined, 
-  PlayCircleOutlined, 
-  DownloadOutlined, 
+import {
+  ControlOutlined,
+  SettingOutlined,
+  AppstoreOutlined,
+  EnvironmentOutlined,
+  FileTextOutlined,
+  ReloadOutlined,
+  StopOutlined,
+  PlayCircleOutlined,
+  DownloadOutlined,
   BookOutlined
 } from '@ant-design/icons'
 import { FloatButton } from 'antd'
@@ -50,7 +50,7 @@ const FloatButtons = () => {
         onClick: () => {
           navigate(`/bots/${info.name}/config`)
         },
-        tip: '配置',
+        tip: '配置'
       },
       {
         key: '1',
@@ -58,7 +58,7 @@ const FloatButtons = () => {
         onClick: () => {
           navigate(`/bots/${info.name}/package`)
         },
-        tip: '包管理',
+        tip: '包管理'
       },
       {
         key: '3',
@@ -66,7 +66,7 @@ const FloatButtons = () => {
         onClick: () => {
           navigate(`/bots/${info.name}/packages`)
         },
-        tip: '应用',
+        tip: '应用'
       },
       {
         key: '4',
@@ -74,47 +74,65 @@ const FloatButtons = () => {
         onClick: () => {
           navigate(`/bots/${info.name}/env`)
         },
-        tip: '环境',
+        tip: '环境'
       },
       {
         key: '1',
-        icon: <div className={classNames({
-          'text-lime-500': isOnlineLog,
-          'text-gray-500': !isOnlineLog,
-        })}><FileTextOutlined /></div>,
+        icon: (
+          <div
+            className={classNames({
+              'text-lime-500': isOnlineLog,
+              'text-gray-500': !isOnlineLog
+            })}
+          >
+            <FileTextOutlined />
+          </div>
+        ),
         onClick: onLog,
-        tip: isOnlineLog ? '在线日志' : '查询日志',
+        tip: isOnlineLog ? '在线日志' : '查询日志'
       },
       {
         key: '5',
-        icon: <div className="text-yellow-500"><ReloadOutlined /></div>,
+        icon: (
+          <div className="text-yellow-500">
+            <ReloadOutlined />
+          </div>
+        ),
         onClick: () => {
           bot.onInstall(info.name)
         },
-        tip: '重载',
+        tip: '重载'
       }
     ]
 
     if (info.node_modules && info.status) {
       i.push({
         key: '6',
-        icon: <div className="text-red-500"><StopOutlined /></div>,
+        icon: (
+          <div className="text-red-500">
+            <StopOutlined />
+          </div>
+        ),
         onClick: () => {
           bot.onStop(info.name)
         },
-        tip: '停止',
+        tip: '停止'
       })
     }
 
     if (info.node_modules && !info.status) {
       i.push({
         key: '7',
-        icon: <div className="text-green-500"><PlayCircleOutlined /></div>,
+        icon: (
+          <div className="text-green-500">
+            <PlayCircleOutlined />
+          </div>
+        ),
         onClick: () => {
           // 运行机器人
           bot.onRun(info.name)
         },
-        tip: '运行',
+        tip: '运行'
       })
     }
 
@@ -126,7 +144,7 @@ const FloatButtons = () => {
           // 加载依赖
           bot.onInstall(info.name)
         },
-        tip: '加载',
+        tip: '加载'
       })
     }
 

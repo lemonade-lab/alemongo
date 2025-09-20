@@ -3,8 +3,8 @@
 // 移动端视口优化
 @viewport {
   width: device-width;
-  initial-scale: 1.0;
-  maximum-scale: 1.0;
+  initial-scale: 1;
+  maximum-scale: 1;
   user-scalable: no;
 }
 
@@ -17,7 +17,9 @@
 }
 
 // 允许文本选择
-input, textarea, [contenteditable] {
+input,
+textarea,
+[contenteditable] {
   -webkit-user-select: text;
   user-select: text;
 }
@@ -35,7 +37,7 @@ input, textarea, [contenteditable] {
   min-width: 44px;
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
-  
+
   &:active {
     transform: scale(0.98);
     opacity: 0.8;
@@ -48,7 +50,7 @@ input, textarea, [contenteditable] {
   -webkit-appearance: none;
   border-radius: 0;
   min-height: 44px;
-  
+
   &:focus {
     font-size: 16px !important;
   }
@@ -58,7 +60,7 @@ input, textarea, [contenteditable] {
 .mobile-card {
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  
+
   @media (max-width: 375px) {
     border-radius: 6px;
     margin: 8px;
@@ -70,7 +72,7 @@ input, textarea, [contenteditable] {
   margin: 16px;
   max-width: calc(100vw - 32px);
   border-radius: 12px;
-  
+
   @media (max-width: 375px) {
     margin: 8px;
     max-width: calc(100vw - 16px);
@@ -82,7 +84,7 @@ input, textarea, [contenteditable] {
 .mobile-drawer {
   width: 100% !important;
   max-width: 320px;
-  
+
   @media (max-width: 375px) {
     max-width: 280px;
   }
@@ -91,16 +93,18 @@ input, textarea, [contenteditable] {
 // 移动端表格优化
 .mobile-table {
   font-size: 0.875rem;
-  
-  th, td {
+
+  th,
+  td {
     padding: 0.5rem 0.25rem;
     word-break: break-word;
   }
-  
+
   @media (max-width: 375px) {
     font-size: 0.75rem;
-    
-    th, td {
+
+    th,
+    td {
       padding: 0.25rem 0.125rem;
     }
   }
@@ -111,14 +115,16 @@ input, textarea, [contenteditable] {
   .ant-form-item {
     margin-bottom: 1rem;
   }
-  
+
   .ant-form-item-label {
     display: block;
     margin-bottom: 0.5rem;
     font-weight: 500;
   }
-  
-  .ant-input, .ant-select, .ant-picker {
+
+  .ant-input,
+  .ant-select,
+  .ant-picker {
     min-height: 44px;
     font-size: 16px;
   }
@@ -129,7 +135,7 @@ input, textarea, [contenteditable] {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  
+
   .ant-btn {
     width: 100%;
     height: 44px;
@@ -194,19 +200,43 @@ input, textarea, [contenteditable] {
 }
 
 // 移动端间距优化
-.mobile-p-1 { padding: 0.25rem; }
-.mobile-p-2 { padding: 0.5rem; }
-.mobile-p-3 { padding: 0.75rem; }
-.mobile-p-4 { padding: 1rem; }
-.mobile-p-5 { padding: 1.25rem; }
-.mobile-p-6 { padding: 1.5rem; }
+.mobile-p-1 {
+  padding: 0.25rem;
+}
+.mobile-p-2 {
+  padding: 0.5rem;
+}
+.mobile-p-3 {
+  padding: 0.75rem;
+}
+.mobile-p-4 {
+  padding: 1rem;
+}
+.mobile-p-5 {
+  padding: 1.25rem;
+}
+.mobile-p-6 {
+  padding: 1.5rem;
+}
 
-.mobile-m-1 { margin: 0.25rem; }
-.mobile-m-2 { margin: 0.5rem; }
-.mobile-m-3 { margin: 0.75rem; }
-.mobile-m-4 { margin: 1rem; }
-.mobile-m-5 { margin: 1.25rem; }
-.mobile-m-6 { margin: 1.5rem; }
+.mobile-m-1 {
+  margin: 0.25rem;
+}
+.mobile-m-2 {
+  margin: 0.5rem;
+}
+.mobile-m-3 {
+  margin: 0.75rem;
+}
+.mobile-m-4 {
+  margin: 1rem;
+}
+.mobile-m-5 {
+  margin: 1.25rem;
+}
+.mobile-m-6 {
+  margin: 1.5rem;
+}
 
 // 移动端布局优化
 .mobile-flex-col {
@@ -236,7 +266,7 @@ input, textarea, [contenteditable] {
 // 移动端触摸反馈
 .mobile-touch-feedback {
   transition: all 0.15s ease;
-  
+
   &:active {
     transform: scale(0.95);
     opacity: 0.8;
@@ -249,7 +279,7 @@ input, textarea, [contenteditable] {
   align-items: center;
   justify-content: center;
   min-height: 200px;
-  
+
   .ant-spin {
     font-size: 24px;
   }
@@ -263,7 +293,7 @@ input, textarea, [contenteditable] {
   justify-content: center;
   padding: 2rem;
   text-align: center;
-  
+
   .ant-empty-description {
     font-size: 0.875rem;
     color: rgba(0, 0, 0, 0.45);
@@ -278,7 +308,7 @@ input, textarea, [contenteditable] {
   justify-content: center;
   padding: 2rem;
   text-align: center;
-  
+
   .ant-result-subtitle {
     font-size: 0.875rem;
   }
@@ -305,34 +335,34 @@ input, textarea, [contenteditable] {
   white-space: nowrap;
   z-index: 1000;
   pointer-events: none;
-  
+
   &::before {
     content: '';
     position: absolute;
     border: 4px solid transparent;
   }
-  
+
   &.top::before {
     border-top-color: rgba(0, 0, 0, 0.8);
     top: 100%;
     left: 50%;
     transform: translateX(-50%);
   }
-  
+
   &.bottom::before {
     border-bottom-color: rgba(0, 0, 0, 0.8);
     bottom: 100%;
     left: 50%;
     transform: translateX(-50%);
   }
-  
+
   &.left::before {
     border-left-color: rgba(0, 0, 0, 0.8);
     left: 100%;
     top: 50%;
     transform: translateY(-50%);
   }
-  
+
   &.right::before {
     border-right-color: rgba(0, 0, 0, 0.8);
     right: 100%;
@@ -353,7 +383,7 @@ input, textarea, [contenteditable] {
 @media (prefers-contrast: high) {
   .mobile-high-contrast {
     border: 2px solid currentColor;
-    
+
     .ant-btn {
       border: 2px solid currentColor;
     }
@@ -365,7 +395,7 @@ input, textarea, [contenteditable] {
   .mobile-dark-mode {
     background-color: #1a1a1a;
     color: #ffffff;
-    
+
     .ant-btn {
       background-color: #333333;
       border-color: #555555;
@@ -379,7 +409,7 @@ input, textarea, [contenteditable] {
   .mobile-print-hidden {
     display: none !important;
   }
-  
+
   .mobile-print-visible {
     display: block !important;
   }

@@ -40,7 +40,7 @@ const XtermDate = () => {
 
     apiBotLog(params)
       .then(res => {
-        const {log, count} = res || {};
+        const { log, count } = res || {}
         // 后端返回总数
         setTotal(count || 0)
         // 根据换行符分割

@@ -18,9 +18,9 @@ const Logs = () => {
   const startPolling = (name: string) => {
     clearTimeout(pollingRef.current!)
     pollingRef.current = setTimeout(() => {
-      apiBotLogOnLine({ name , timestamp: Date.now() })
+      apiBotLogOnLine({ name, timestamp: Date.now() })
         .then(res => {
-          const {log} = res || {};
+          const { log } = res || {}
           setIsLoading(false)
           // 根据换行符分割
           const lines = log.split('\n')

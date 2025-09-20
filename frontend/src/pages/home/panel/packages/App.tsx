@@ -153,7 +153,6 @@ const Panel = () => {
       })
   }
 
-
   const onUpdate = (item: BotPackages | null) => {
     if (!item || isLoading) return
     setIsLoading(true)
@@ -308,7 +307,7 @@ const Panel = () => {
                           color="blue"
                           className="text-sm font-medium px-3 py-1 rounded-lg"
                         >
-                         {pkgName}
+                          {pkgName}
                         </Tag>
                         <Tag
                           color="geekblue"
@@ -383,7 +382,7 @@ const Panel = () => {
                                   dispatch(showLog())
                                   onForceUpdate(item)
                                 }
-                              },
+                              }
                             ]
                           }}
                           trigger={['click']}

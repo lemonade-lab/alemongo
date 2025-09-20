@@ -13,7 +13,7 @@ import {
   ExclamationCircleOutlined,
   CheckCircleOutlined
 } from '@ant-design/icons'
- 
+
 type BaseType = string | number | string[] | number[]
 type ObjectType = {
   [key: string]: BaseType | ObjectType
@@ -62,7 +62,6 @@ const JSONEdit = ({
   const [activeKey, setActiveKey] = useState<'form' | 'code'>('form')
   const theme = useCodeTheme()
 
- 
   // 初始化数据
   useEffect(() => {
     try {
@@ -78,10 +77,9 @@ const JSONEdit = ({
     }
   }, [value, type, form])
 
- 
   const handleFormChange = () => {
-      const formData = form.getFieldsValue();
-      setFormData(formData)
+    const formData = form.getFieldsValue()
+    setFormData(formData)
   }
 
   // 处理Code模式下的数据变化
@@ -224,7 +222,18 @@ const JSONEdit = ({
   // ---------- 自定义Tab ----------
   const tabList = [
     { key: 'form', label: '表单', icon: <FormOutlined /> },
-    { key: 'code', label: <div className="flex items-center gap-2">源码<div className="text-xs text-gray-500 dark:text-gray-400">(可右键菜单)</div></div>, icon: <CodeOutlined /> }
+    {
+      key: 'code',
+      label: (
+        <div className="flex items-center gap-2">
+          源码
+          <div className="text-xs text-gray-500 dark:text-gray-400">
+            (可右键菜单)
+          </div>
+        </div>
+      ),
+      icon: <CodeOutlined />
+    }
   ]
 
   return (
@@ -309,7 +318,7 @@ const JSONEdit = ({
           <div className="flex-1 p-6 overflow-auto mobile-p-3 mobile-scroll">
             <Form
               form={form}
-              labelCol={{span: 6}}
+              labelCol={{ span: 6 }}
               onValuesChange={handleFormChange}
               className="h-full"
             >
@@ -335,7 +344,7 @@ const JSONEdit = ({
                 width="100%"
                 height="100%"
                 onChange={handleCodeChange}
-                theme={theme} 
+                theme={theme}
               />
             </div>
           </div>

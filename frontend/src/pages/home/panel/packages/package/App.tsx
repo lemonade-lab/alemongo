@@ -8,7 +8,6 @@ import { useEffect, useState } from 'react'
 import { getBotName, getGitPackageName } from '../../core'
 import Box from '@/commom/layout/Box'
 import JSONEdit from '@/commom/edit/JSONEdit'
-import { FileTextOutlined } from '@ant-design/icons'
 
 const GitPackage = () => {
   const [pkgData, setPkgData] = useState<string>('')
@@ -63,7 +62,6 @@ const GitPackage = () => {
     <Box>
       <div className="p-6 flex-1 flex bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-all duration-300">
         <div className="flex-1 flex flex-col">
-
           {/* 编辑器区域 */}
           <div className="flex-1 min-h-0">
             <Spin

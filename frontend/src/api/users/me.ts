@@ -69,9 +69,7 @@ export const apiGitHubLogin = async (data: {
   }).then(res => res.data)
 }
 
-export const apiBindGitHubAccount = async (data: {
-  code: string
-}) => {
+export const apiBindGitHubAccount = async (data: { code: string }) => {
   return request({
     url: '/user/github/bind',
     method: 'POST',

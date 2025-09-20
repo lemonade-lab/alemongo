@@ -222,7 +222,7 @@ const UserTable = () => {
               pagination={false}
               columns={columns}
               dataSource={curData}
-              direction='ltr'
+              direction="ltr"
               virtual
               // {
               //   {

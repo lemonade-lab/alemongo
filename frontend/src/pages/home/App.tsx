@@ -25,7 +25,9 @@ const MobileSidebar = ({
             src="https://alemonjs.com/img/alemon.png"
             alt="Alemongo"
           />
-          <span className="text-white font-semibold mobile-text-sm">导航菜单</span>
+          <span className="text-white font-semibold mobile-text-sm">
+            导航菜单
+          </span>
         </div>
       }
       placement="left"
@@ -55,11 +57,7 @@ const MobileSidebar = ({
 /**
  * 移动端顶部导航栏
  */
-const MobileNavbar = ({
-  onMenuClick
-}: {
-  onMenuClick: () => void
-}) => {
+const MobileNavbar = ({ onMenuClick }: { onMenuClick: () => void }) => {
   return (
     <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-gray-800/95 to-gray-900/95 dark:from-zinc-900/95 dark:to-black/95 backdrop-blur-xl border-b border-white/10 dark:border-gray-700/20 mobile-safe-area">
       <Button
@@ -75,7 +73,9 @@ const MobileNavbar = ({
           src="https://alemonjs.com/img/alemon.png"
           alt="Alemongo"
         />
-        <span className="text-white font-semibold mobile-text-sm">Alemongo</span>
+        <span className="text-white font-semibold mobile-text-sm">
+          Alemongo
+        </span>
       </div>
       <div className="w-10"></div> {/* 占位符，保持居中 */}
     </div>
@@ -110,9 +110,7 @@ const Home = () => {
       {/* 主内容区域 */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* 移动端顶部导航栏 */}
-        {isMobile && (
-          <MobileNavbar onMenuClick={handleMobileMenuClick} />
-        )}
+        {isMobile && <MobileNavbar onMenuClick={handleMobileMenuClick} />}
 
         {/* 内容输出区域 */}
         <div className="flex-1 overflow-hidden mobile-scroll">

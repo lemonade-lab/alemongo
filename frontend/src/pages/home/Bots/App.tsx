@@ -23,10 +23,7 @@ import {
 import Pagination from '@/components/Pagination'
 import Headings from './Headings'
 import './index.scss'
-import {
-  DownOutlined,
-  ExclamationCircleOutlined,
-} from '@ant-design/icons'
+import { DownOutlined, ExclamationCircleOutlined } from '@ant-design/icons'
 import { Box } from '@/commom'
 
 /**
@@ -307,9 +304,11 @@ const Home = () => {
                               color={bot.status === 1 ? 'green' : 'red'}
                               className="rounded-full px-3 py-1 text-xs font-medium"
                             >
-                              {
-                                loadingNames.includes(bot.name) ? '加载依赖中...' : bot.status === 1 ? '运行中' : '已停止'
-                              }
+                              {loadingNames.includes(bot.name)
+                                ? '加载依赖中...'
+                                : bot.status === 1
+                                  ? '运行中'
+                                  : '已停止'}
                             </Tag>
 
                             <Dropdown

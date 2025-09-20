@@ -47,15 +47,16 @@ const SSHUpdate = () => {
     apiSSHUpdate({
       name: name,
       content: value
-    }).then(() => {
-      message.success('更新成功')
-      if (isUpdate) {
-        navigate('/ssh')
-      }
     })
-    .catch(() => {
-      message.error('保存失败，请重试')
-    })
+      .then(() => {
+        message.success('更新成功')
+        if (isUpdate) {
+          navigate('/ssh')
+        }
+      })
+      .catch(() => {
+        message.error('保存失败，请重试')
+      })
   }
 
   const onSave = (name: string, value: string) => {

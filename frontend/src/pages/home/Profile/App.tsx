@@ -185,7 +185,7 @@ const Profile: React.FC = () => {
         try {
           await apiUnbindGitHubAccount()
           message.success('GitHub 账号解绑成功')
-        updateUserInfo.updateUserInfo()
+          updateUserInfo.updateUserInfo()
         } catch (error: unknown) {
           const errorMessage =
             error instanceof Error ? error.message : '解绑失败'
