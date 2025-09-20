@@ -116,7 +116,6 @@ docker-compose*.yml
 
 # 文档
 *.md
-docs/
 
 # 其他
 .DS_Store

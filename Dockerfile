@@ -1,11 +1,12 @@
 # 后端构建阶段  
-FROM  golang:1.23 AS builder
+FROM  golang:1.24 AS builder
 WORKDIR /app
 # 配置 Go 模块代理为国内镜像源
 ENV GOPROXY=https://goproxy.cn
 COPY dist ./dist
 COPY resources ./resources
 COPY src ./src
+COPY docs ./docs
 COPY go.mod go.sum main.go ./
 # 打包 go 支持多架构
 ARG TARGETOS

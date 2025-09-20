@@ -55,26 +55,26 @@ log:
 
 ## 操作指南
 
-[linux](./docs/linux.md)
+[linux](./READMES/linux.md)
 
-[macos](./docs/maxos.md)
+[macos](./READMES/maxos.md)
 
-[windows](./docs/windows.md)
+[windows](./READMES/windows.md)
 
 ## Docker 部署
 
 > 推荐使用 docker 进行快速部署
 
-[README_DCOKER](./README_DCOKER.md)
+[README_DCOKER](./READMES/README_DCOKER.md)
 
 ## Github 快捷登录
 
-[README_GITHUB_OAUTH](./README_GITHUB_OAUTH.md)
+[README_GITHUB_OAUTH](./READMES/README_GITHUB_OAUTH.md)
 
 ## 常见问题
 
-[README_QUESTION](./README_QUESTION.md)
+[README_QUESTION](./READMES/README_QUESTION.md)
 
 ## 贡献指南
 
-[README_DEV](./README_DEV.md)
+[README_DEV](./READMES/README_DEV.md)

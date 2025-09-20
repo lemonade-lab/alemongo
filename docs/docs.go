@@ -769,11 +769,11 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "0.0.1",
-	Host:             "127.0.0.1",
-	BasePath:         "/api/v1",
+	Host:             "127.0.0.1:17187",
+	BasePath:         "http://127.0.0.1:17187/",
 	Schemes:          []string{},
-	Title:            "ALEMONGO",
-	Description:      "阿柠檬机器人面板",
+	Title:            "这里写标题",
+	Description:      "alemongo 机器人面板",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",
