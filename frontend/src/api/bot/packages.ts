@@ -140,3 +140,85 @@ export const apiBotPackagesGitPackageUpdate = async (data: {
       .catch(reject)
   })
 }
+
+// Git 分支相关类型定义
+export type BotPackagesGitBranchCommitsInfo = {
+  hash: string
+  message: string
+  author: string
+  date: string
+}
+
+export type BotPackagesGitCommits = {
+  commits: BotPackagesGitBranchCommitsInfo[]
+  total: number
+  page: number
+  page_size: number
+  total_page: number
+}
+
+export type BotPackagesGitBranches = {
+  branches: string[]
+  total: number
+  page: number
+  page_size: number
+  total_page: number
+}
+
+// 获取Git分支列表
+export const apiBotPackagesGitBranches = async (data: {
+  name: string
+  app_name: string
+  page?: number
+  page_size?: number
+}): Promise<BotPackagesGitBranches> => {
+  return new Promise((resolve, reject) => {
+    request({
+      url: '/bot/packages/gitbranches',
+      method: 'GET',
+      params: data
+    })
+      .then(res => res.data)
+      .then(resolve)
+      .catch(reject)
+  })
+}
+
+// 获取Git提交记录
+export const apiBotPackagesGitCommits = async (data: {
+  name: string
+  app_name: string
+  branch_name: string
+  page?: number
+  page_size?: number
+}): Promise<BotPackagesGitCommits> => {
+  return new Promise((resolve, reject) => {
+    request({
+      url: '/bot/packages/gitcommits',
+      method: 'GET',
+      params: data
+    })
+      .then(res => res.data)
+      .then(resolve)
+      .catch(reject)
+  })
+}
+
+// 切换Git分支/提交
+export const apiBotPackagesGitSwitch = async (data: {
+  name: string
+  app_name: string
+  branch_name: string
+  commit_hash: string
+}): Promise<null> => {
+  return new Promise((resolve, reject) => {
+    request({
+      url: '/bot/packages/switch',
+      method: 'POST',
+      data
+    })
+      .then(res => res.data)
+      .then(resolve)
+      .catch(reject)
+  })
+}

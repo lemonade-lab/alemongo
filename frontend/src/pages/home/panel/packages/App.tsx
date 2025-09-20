@@ -4,7 +4,6 @@ import {
   apiBotConfigUpdate,
   apiBotInfo,
   apiBotPackageClone,
-  apiBotPackagesDelete,
   apiBotPackagesList,
   apiBotPackagesPull,
   apiBotPackagesPullForce,
@@ -31,10 +30,8 @@ import {
   PlusOutlined,
   PlayCircleOutlined,
   PauseCircleOutlined,
-  SettingOutlined,
   SyncOutlined,
   ExclamationCircleOutlined,
-  DeleteOutlined,
   AppstoreOutlined
 } from '@ant-design/icons'
 import { useDispatch } from 'react-redux'
@@ -156,22 +153,6 @@ const Panel = () => {
       })
   }
 
-  const onDelete = (name: string) => {
-    // 删除扩展
-    if (isLoading) return
-    setIsLoading(true)
-    apiBotPackagesDelete({
-      name: info.name,
-      app_name: name
-    })
-      .then(() => {
-        message.success('删除成功')
-        initPKGNames(info.name)
-      })
-      .finally(() => {
-        setIsLoading(false)
-      })
-  }
 
   const onUpdate = (item: BotPackages | null) => {
     if (!item || isLoading) return
@@ -386,16 +367,6 @@ const Panel = () => {
                                 }
                               },
                               {
-                                key: 'config',
-                                label: '包配置',
-                                icon: <SettingOutlined />,
-                                onClick: () => {
-                                  navigate(
-                                    `/bots/${getBotName()}/packages/${item.name}/package`
-                                  )
-                                }
-                              },
-                              {
                                 key: 'update',
                                 label: '更新',
                                 icon: <SyncOutlined />,
@@ -413,15 +384,6 @@ const Panel = () => {
                                   onForceUpdate(item)
                                 }
                               },
-                              {
-                                key: 'delete',
-                                label: '删除',
-                                icon: <DeleteOutlined />,
-                                danger: true,
-                                onClick: () => {
-                                  onDelete(item.name)
-                                }
-                              }
                             ]
                           }}
                           trigger={['click']}
@@ -468,17 +430,6 @@ const Panel = () => {
                           {!isStart ? '启用' : '停用'}
                         </Button>
                         <Button
-                          icon={<SettingOutlined />}
-                          onClick={() => {
-                            navigate(
-                              `/bots/${getBotName()}/packages/${item.name}/package`
-                            )
-                          }}
-                          className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 border-0 shadow-md hover:shadow-lg transition-all duration-300 rounded-lg"
-                        >
-                          包配置
-                        </Button>
-                        <Button
                           icon={<SyncOutlined />}
                           onClick={() => {
                             dispatch(showLog())
@@ -511,31 +462,6 @@ const Panel = () => {
                               className="bg-gradient-to-r from-yellow-500 to-orange-600 hover:from-yellow-600 hover:to-orange-700 border-0 shadow-md hover:shadow-lg transition-all duration-300 rounded-lg"
                             >
                               强制更新
-                            </Button>
-                          </Popconfirm>
-                        </div>
-                        <div onClick={e => e.stopPropagation()}>
-                          <Popconfirm
-                            title={
-                              <div className="flex items-center gap-2">
-                                <DeleteOutlined className="text-red-500" />
-                                <span className="font-semibold">彻底删除</span>
-                              </div>
-                            }
-                            description="你确定删除这个扩展吗?"
-                            onConfirm={() => {
-                              onDelete(item.name)
-                            }}
-                            okText="确定"
-                            cancelText="取消"
-                            className="dark:[&>.ant-popover-content]:bg-zinc-900/95 backdrop-blur-xl"
-                          >
-                            <Button
-                              type="primary"
-                              icon={<DeleteOutlined />}
-                              className="bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700 border-0 shadow-md hover:shadow-lg transition-all duration-300 rounded-lg"
-                            >
-                              删除
                             </Button>
                           </Popconfirm>
                         </div>

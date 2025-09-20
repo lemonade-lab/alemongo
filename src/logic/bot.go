@@ -5,15 +5,11 @@ import (
 	"alemongo/src/dao"
 	"alemongo/src/logger"
 	"alemongo/src/models"
-	"alemongo/src/paths"
 	config "alemongo/src/paths"
 	"alemongo/src/settings"
 	"alemongo/src/utils"
 	"errors"
 	"fmt"
-	"github.com/go-git/go-git/v5"
-	"github.com/go-git/go-git/v5/plumbing"
-	"github.com/go-git/go-git/v5/plumbing/object"
 	"io"
 	"log"
 	"os"
@@ -21,14 +17,18 @@ import (
 	"strings"
 	"time"
 
+	"github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git/v5/plumbing"
+	"github.com/go-git/go-git/v5/plumbing/object"
+
 	"go.uber.org/zap/zapcore"
 )
 
 func CreateBot(name string) (string, response.ResCode) {
 	// 资源路径
-	resourcesPath := paths.GetResourcesPath()
+	resourcesPath := config.GetResourcesPath()
 	// 目标路径
-	targetPath := paths.GetBotPath(name)
+	targetPath := config.GetBotPath(name)
 	// 检查是否存在目录 ./resources/bots/{name}
 	if _, err := os.Stat(targetPath); err == nil {
 		// 如果存在，返回错误
@@ -133,7 +133,7 @@ func DeleteBot(name string) (string, error) {
 	if name == "" {
 		return "", errors.New("机器人名不能为空")
 	}
-	if !paths.Exists(name) {
+	if !config.Exists(name) {
 		return "", errors.New("机器人不存在")
 	}
 	// 看看是不是在运行。在运行要就要停止
@@ -154,7 +154,7 @@ func DeleteBot(name string) (string, error) {
 
 	logger.DeleteBotLogger(name, *l)
 
-	botPath := paths.GetBotPath(name)
+	botPath := config.GetBotPath(name)
 	return dao.DeleteBot(name, botPath)
 }
 
@@ -163,7 +163,7 @@ func BotYarnInstall(name string) (string, error) {
 		return "", errors.New("机器人名不能为空")
 	}
 
-	if !paths.Exists(name) {
+	if !config.Exists(name) {
 		return "", errors.New("机器人不存在")
 	}
 	msg, err := Install(name)
@@ -178,7 +178,7 @@ func BotYarnAdd(name string, args []string) (string, error) {
 	if name == "" {
 		return "", errors.New("机器人名不能为空")
 	}
-	if !paths.Exists(name) {
+	if !config.Exists(name) {
 		return "", errors.New("机器人不存在")
 	}
 	msg, err := Add(name, args)
@@ -192,7 +192,7 @@ func BotYarnRemove(name string, args []string) (string, error) {
 	if name == "" {
 		return "", errors.New("机器人名不能为空")
 	}
-	if !paths.Exists(name) {
+	if !config.Exists(name) {
 		return "", errors.New("机器人不存在")
 	}
 	msg, err := Remove(name, args)
@@ -209,11 +209,11 @@ func PackageDelete(name, app_name string) error {
 	if app_name == "" {
 		return errors.New("扩展包名不能为空")
 	}
-	if !paths.Exists(name) {
+	if !config.Exists(name) {
 		return errors.New("机器人不存在")
 	}
 
-	packagePath := paths.GetBotPackagesPathByName(name, app_name)
+	packagePath := config.GetBotPackagesPathByName(name, app_name)
 	// 判断git扩展包是否存在
 	if _, err := os.Stat(packagePath); os.IsNotExist(err) {
 		return errors.New("扩展包不存在")
@@ -232,16 +232,16 @@ func PackegForcedUpdate(name, repo_name, branch_name string, botLogger *logger.R
 	if branch_name == "" {
 		return errors.New("分支名不能为空")
 	}
-	if !paths.Exists(name) {
+	if !config.Exists(name) {
 		return errors.New("机器人不存在")
 	}
 
-	repoPath := paths.GetBotPackagesPathByName(name, repo_name)
+	repoPath := config.GetBotPackagesPathByName(name, repo_name)
 
 	if _, err := os.Stat(repoPath); os.IsNotExist(err) {
 		return errors.New("仓库不存在")
 	}
-	gitPath := paths.GetBotPackagesGitPathByName(name, repo_name)
+	gitPath := config.GetBotPackagesGitPathByName(name, repo_name)
 
 	if _, err := os.Stat(gitPath); os.IsNotExist(err) {
 		return errors.New("仓库不存在")
@@ -251,7 +251,7 @@ func PackegForcedUpdate(name, repo_name, branch_name string, botLogger *logger.R
 }
 
 func PackagesGitCheckout(name, repo_url, isForce, branch_name, commitHash string) error {
-	pkgsPath := paths.GetBotPackagesPath(name)
+	pkgsPath := config.GetBotPackagesPath(name)
 	if _, err := os.Stat(pkgsPath); os.IsNotExist(err) {
 		if err := os.MkdirAll(pkgsPath, os.ModePerm); err != nil {
 			return err
@@ -364,16 +364,23 @@ func PackageGitBranches(repo_url string) ([]string, error) {
 			Auth: auth,
 		})
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("克隆SSH仓库失败: %w", err)
 		}
 	} else if strings.Contains(repo_url, "https") {
 		repo, err = git.PlainClone(tmpPath, false, &git.CloneOptions{
 			URL: repo_url,
 		})
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("克隆HTTPS仓库失败: %w", err)
 		}
+	} else {
+		return nil, fmt.Errorf("不支持的仓库URL格式: %s", repo_url)
 	}
+
+	if repo == nil {
+		return nil, fmt.Errorf("仓库克隆失败")
+	}
+
 	var branches []string
 	refs, err := repo.References()
 	if err != nil {
@@ -404,22 +411,48 @@ func PackageGitCommits(repo_url, branch_name string) ([]models.BotPackagesGitBra
 		if err != nil {
 			return nil, err
 		}
+		// 判断是远程分支还是本地分支
+		var refName plumbing.ReferenceName
+		if strings.HasPrefix(branch_name, "origin/") {
+			refName = plumbing.NewRemoteReferenceName("origin", strings.TrimPrefix(branch_name, "origin/"))
+		} else {
+			refName = plumbing.NewBranchReferenceName(branch_name)
+		}
+
 		repo, err = git.PlainClone(tmpPath, false, &git.CloneOptions{
 			URL:           repo_url,
 			Auth:          auth,
-			ReferenceName: plumbing.NewBranchReferenceName(branch_name),
-			SingleBranch:  true,
-		})
-	} else if strings.Contains(repo_url, "https") {
-		repo, err = git.PlainClone(tmpPath, false, &git.CloneOptions{
-			URL:           repo_url,
-			ReferenceName: plumbing.NewBranchReferenceName(branch_name),
+			ReferenceName: refName,
 			SingleBranch:  true,
 		})
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("克隆SSH仓库失败: %w", err)
 		}
+	} else if strings.Contains(repo_url, "https") {
+		// 判断是远程分支还是本地分支
+		var refName plumbing.ReferenceName
+		if strings.HasPrefix(branch_name, "origin/") {
+			refName = plumbing.NewRemoteReferenceName("origin", strings.TrimPrefix(branch_name, "origin/"))
+		} else {
+			refName = plumbing.NewBranchReferenceName(branch_name)
+		}
+
+		repo, err = git.PlainClone(tmpPath, false, &git.CloneOptions{
+			URL:           repo_url,
+			ReferenceName: refName,
+			SingleBranch:  true,
+		})
+		if err != nil {
+			return nil, fmt.Errorf("克隆HTTPS仓库失败: %w", err)
+		}
+	} else {
+		return nil, fmt.Errorf("不支持的仓库URL格式: %s", repo_url)
 	}
+
+	if repo == nil {
+		return nil, fmt.Errorf("仓库克隆失败")
+	}
+
 	head, err := repo.Head()
 	if err != nil {
 		return nil, fmt.Errorf("获取仓库头失败: %w", err)

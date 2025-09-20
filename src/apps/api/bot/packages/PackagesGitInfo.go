@@ -6,9 +6,10 @@ import (
 	"alemongo/src/models"
 	config "alemongo/src/paths"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
+
+	"github.com/gin-gonic/gin"
 )
 
 // @Summary 获取应用git所有分支
@@ -56,7 +57,7 @@ func GitBranches(c *gin.Context) {
 	packagePath := data["git"].(map[string]string)["repo"]
 	branches, err := logic.PackageGitBranches(packagePath)
 	if err != nil {
-		response.ResponseErrorWithMsg(c, http.StatusBadRequest, http.StatusBadRequest, fmt.Errorf("获取git分支失败: %w", err))
+		response.ResponseErrorWithMsg(c, http.StatusBadRequest, http.StatusBadRequest, fmt.Sprintf("获取git分支失败: %v", err))
 		return
 	}
 	total := len(branches)
@@ -122,6 +123,7 @@ func GitCommits(c *gin.Context) {
 	}
 	if botName == "" || appName == "" || branchName == "" {
 		response.ResponseErrorWithMsg(c, http.StatusBadRequest, http.StatusBadRequest, "bot name or app name is empty")
+		return
 	}
 	if !config.Exists(botName) {
 		response.ResponseErrorWithMsg(c, http.StatusBadRequest, http.StatusBadRequest, "bot "+botName+" not exists")
@@ -135,7 +137,7 @@ func GitCommits(c *gin.Context) {
 	packagePath := data["git"].(map[string]string)["repo"]
 	commits, err := logic.PackageGitCommits(packagePath, branchName)
 	if err != nil {
-		response.ResponseErrorWithMsg(c, http.StatusBadRequest, http.StatusBadRequest, fmt.Errorf("获取git提交记录失败: %w", err))
+		response.ResponseErrorWithMsg(c, http.StatusBadRequest, http.StatusBadRequest, fmt.Sprintf("获取git提交记录失败: %v", err))
 		return
 	}
 	total := len(commits)

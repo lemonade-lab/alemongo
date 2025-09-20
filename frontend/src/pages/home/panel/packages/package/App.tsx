@@ -63,20 +63,6 @@ const GitPackage = () => {
     <Box>
       <div className="p-6 flex-1 flex bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-all duration-300">
         <div className="flex-1 flex flex-col">
-          {/* 页面标题 */}
-          <div className="mb-6">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 bg-gradient-to-r from-blue-400 to-purple-500 rounded-xl flex items-center justify-center shadow-lg">
-                <FileTextOutlined className="w-6 h-6 text-white" />
-              </div>
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                包配置
-              </h1>
-            </div>
-            <p className="text-gray-600 dark:text-gray-400 ml-13">
-              编辑扩展的 package.json 配置文件
-            </p>
-          </div>
 
           {/* 编辑器区域 */}
           <div className="flex-1 min-h-0">
