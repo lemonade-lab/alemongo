@@ -212,6 +212,8 @@ func main() {
 		}
 	}
 
+	docs.SwaggerInfo.Version = Version
+
 	settings.SetBaseInfo(Version, BuildTime) // 设置版本和构建时间
 
 	if configFilePath != "" && configFilePath != "config.yaml" {
@@ -284,8 +286,5 @@ func main() {
 		log.Fatalf("Failed to start server: %v", err)
 		return
 	}
-
-	// programmatically set swagger info
-	docs.SwaggerInfo.Title = "Swagger Example API"
 
 }

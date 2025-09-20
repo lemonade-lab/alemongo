@@ -42,6 +42,6 @@ git commit -m "update: XXX"  # 提交信息
 git push origin HEAD:for/dev-xxx-xxx/1 # 提交到待PR分支
 ```
 
-### 后端接口文档
-- 访问 `http://localhost:17187/swagger/index.html`
+### 接口文档
+- 访问 `/api/v1/swagger/index.html#/`
 - 注意每次更新接口/添加新接口后，需要执行`swag init`重新生成接口文档

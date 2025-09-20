@@ -350,6 +350,98 @@ paths:
       summary: 获取环境信息
       tags:
       - 公共
+  /user/github/auth-url:
+    get:
+      parameters:
+      - description: 状态参数
+        in: query
+        name: state
+        type: string
+      responses:
+        "200":
+          description: 成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.ResponseData'
+            - properties:
+                data:
+                  type: string
+              type: object
+      summary: 获取 GitHub 授权 URL
+  /user/github/bind:
+    post:
+      parameters:
+      - description: 授权码
+        in: formData
+        name: code
+        required: true
+        type: string
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/response.ResponseData'
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/response.ResponseData'
+        "401":
+          description: 认证失败
+          schema:
+            $ref: '#/definitions/response.ResponseData'
+      summary: 绑定 GitHub 账号
+  /user/github/config-status:
+    get:
+      responses:
+        "200":
+          description: 成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.ResponseData'
+            - properties:
+                data:
+                  type: object
+              type: object
+      summary: 获取 GitHub 配置状态
+  /user/github/login:
+    post:
+      parameters:
+      - description: 授权码
+        in: formData
+        name: code
+        required: true
+        type: string
+      responses:
+        "200":
+          description: 成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.ResponseData'
+            - properties:
+                data:
+                  type: string
+              type: object
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/response.ResponseData'
+        "401":
+          description: 登录失败
+          schema:
+            $ref: '#/definitions/response.ResponseData'
+      summary: GitHub 快捷登录
+  /user/github/unbind:
+    post:
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/response.ResponseData'
+        "400":
+          description: 解绑失败
+          schema:
+            $ref: '#/definitions/response.ResponseData'
+      summary: 解绑 GitHub 账号
   /user/login:
     post:
       parameters:
