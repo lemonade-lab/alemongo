@@ -1,6 +1,7 @@
 package main
 
 import (
+	"alemongo/docs"
 	"alemongo/src/core/autoregister"
 	"alemongo/src/core/process"
 	"alemongo/src/dao"
@@ -23,6 +24,9 @@ import (
 
 	"github.com/gin-gonic/gin"
 )
+
+// gin-swagger middleware
+// swagger embed files
 
 //go:embed resources/**/* resources/*
 var ResourcesFiles embed.FS
@@ -280,4 +284,8 @@ func main() {
 		log.Fatalf("Failed to start server: %v", err)
 		return
 	}
+
+	// programmatically set swagger info
+	docs.SwaggerInfo.Title = "Swagger Example API"
+
 }

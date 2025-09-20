@@ -1,0 +1,223 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "ALemonGO: 开发模式调试",
+      "type": "go",
+      "request": "launch",
+      "mode": "debug",
+      "program": "${workspaceFolder}/main.go",
+      "args": ["debug"],
+      "env": {
+        "CGO_ENABLED": "0"
+      },
+      "console": "integratedTerminal",
+      "showLog": true,
+      "trace": "verbose",
+      "logOutput": "rpc",
+      "stopOnEntry": false,
+      "cwd": "${workspaceFolder}",
+      "preLaunchTask": "Frontend: 构建"
+    },
+    {
+      "name": "ALemonGO: 生产模式调试",
+      "type": "go",
+      "request": "launch",
+      "mode": "debug",
+      "program": "${workspaceFolder}/main.go",
+      "args": [],
+      "env": {
+        "CGO_ENABLED": "0"
+      },
+      "console": "integratedTerminal",
+      "showLog": true,
+      "trace": "verbose",
+      "logOutput": "rpc",
+      "stopOnEntry": false,
+      "cwd": "${workspaceFolder}",
+      "preLaunchTask": "Frontend: 构建"
+    },
+    {
+      "name": "ALemonGO: 测试模式调试",
+      "type": "go",
+      "request": "launch",
+      "mode": "debug",
+      "program": "${workspaceFolder}/main.go",
+      "args": ["test"],
+      "env": {
+        "CGO_ENABLED": "0"
+      },
+      "console": "integratedTerminal",
+      "showLog": true,
+      "trace": "verbose",
+      "logOutput": "rpc",
+      "stopOnEntry": false,
+      "cwd": "${workspaceFolder}",
+      "preLaunchTask": "Frontend: 构建"
+    },
+    {
+      "name": "ALemonGO: 自定义配置调试",
+      "type": "go",
+      "request": "launch",
+      "mode": "debug",
+      "program": "${workspaceFolder}/main.go",
+      "args": ["config", "${workspaceFolder}/work/config.dev.yaml"],
+      "env": {
+        "CGO_ENABLED": "0"
+      },
+      "console": "integratedTerminal",
+      "showLog": true,
+      "trace": "verbose",
+      "logOutput": "rpc",
+      "stopOnEntry": false,
+      "cwd": "${workspaceFolder}",
+      "preLaunchTask": "Frontend: 构建"
+    },
+    {
+      "name": "ALemonGO: 运行测试",
+      "type": "go",
+      "request": "launch",
+      "mode": "test",
+      "program": "${workspaceFolder}",
+      "args": ["-test.v", "-test.race", "-test.coverprofile=coverage.out"],
+      "env": {
+        "CGO_ENABLED": "0"
+      },
+      "console": "integratedTerminal",
+      "showLog": true,
+      "trace": "verbose",
+      "logOutput": "rpc",
+      "stopOnEntry": false,
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "ALemonGO: 运行特定测试",
+      "type": "go",
+      "request": "launch",
+      "mode": "test",
+      "program": "${workspaceFolder}",
+      "args": ["-test.v", "-test.run", "${input:testName}"],
+      "env": {
+        "CGO_ENABLED": "0"
+      },
+      "console": "integratedTerminal",
+      "showLog": true,
+      "trace": "verbose",
+      "logOutput": "rpc",
+      "stopOnEntry": false,
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "ALemonGO: 性能测试",
+      "type": "go",
+      "request": "launch",
+      "mode": "test",
+      "program": "${workspaceFolder}",
+      "args": ["-test.bench=.", "-test.benchmem", "-test.v"],
+      "env": {
+        "CGO_ENABLED": "0"
+      },
+      "console": "integratedTerminal",
+      "showLog": true,
+      "trace": "verbose",
+      "logOutput": "rpc",
+      "stopOnEntry": false,
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "ALemonGO: 附加到进程",
+      "type": "go",
+      "request": "attach",
+      "mode": "local",
+      "processId": "${command:pickProcess}",
+      "showLog": true,
+      "trace": "verbose",
+      "logOutput": "rpc"
+    },
+    {
+      "name": "ALemonGO: 远程调试",
+      "type": "go",
+      "request": "attach",
+      "mode": "remote",
+      "remotePath": "${workspaceFolder}",
+      "port": 2345,
+      "host": "127.0.0.1",
+      "showLog": true,
+      "trace": "verbose",
+      "logOutput": "rpc"
+    },
+    {
+      "name": "ALemonGO: 调试当前文件",
+      "type": "go",
+      "request": "launch",
+      "mode": "debug",
+      "program": "${file}",
+      "env": {
+        "CGO_ENABLED": "0"
+      },
+      "console": "integratedTerminal",
+      "showLog": true,
+      "trace": "verbose",
+      "logOutput": "rpc",
+      "stopOnEntry": false,
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "ALemonGO: 调试包",
+      "type": "go",
+      "request": "launch",
+      "mode": "debug",
+      "program": "${fileDirname}",
+      "env": {
+        "CGO_ENABLED": "0"
+      },
+      "console": "integratedTerminal",
+      "showLog": true,
+      "trace": "verbose",
+      "logOutput": "rpc",
+      "stopOnEntry": false,
+      "cwd": "${workspaceFolder}"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "testName",
+      "description": "输入要运行的测试名称（支持正则表达式）",
+      "default": "Test",
+      "type": "promptString"
+    },
+    {
+      "id": "configFile",
+      "description": "选择配置文件",
+      "type": "pickString",
+      "options": [
+        {
+          "label": "开发配置 (config.dev.yaml)",
+          "value": "work/config.dev.yaml"
+        },
+        {
+          "label": "测试配置 (config.test.yaml)",
+          "value": "work/config.test.yaml"
+        },
+        {
+          "label": "生产配置 (config.yaml)",
+          "value": "work/config.yaml"
+        }
+      ]
+    }
+  ],
+  "compounds": [
+    {
+      "name": "ALemonGO: 完整开发环境",
+      "configurations": ["ALemonGO: 开发模式调试"],
+      "preLaunchTask": "完整开发环境启动",
+      "stopAll": true
+    },
+    {
+      "name": "ALemonGO: 前后端同时调试",
+      "configurations": ["ALemonGO: 开发模式调试"],
+      "preLaunchTask": "Frontend: 开发模式",
+      "stopAll": true
+    }
+  ]
+}
