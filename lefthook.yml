@@ -1,19 +1,4 @@
 pre-commit:
-  parallel: false
-  commands:
-    clean-dsstore:
-      run: find . -name '.DS_Store' -type f -delete
-    yarn-install:
-      run: yarn --cwd frontend install --ignore-engines
-    yarn-format:
-      run: yarn --cwd frontend format
-    yarn-build:
-      run: yarn --cwd frontend build
-    go-build:
-      run: go build
-    check-diff:
-      run: |
-        if ! git diff --exit-code; then
-          echo "❌ 检测到自动生成或格式化后有文件变更，请先 add 这些内容再 commit！"
-          exit 1
-        fi
+  scripts:
+    "commit.sh":
+      runner: bash

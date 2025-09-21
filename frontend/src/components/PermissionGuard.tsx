@@ -20,7 +20,7 @@ const PermissionGuard: React.FC<PermissionGuardProps> = ({
   fallback,
   showError = true
 }) => {
-  const { hasPermission,  permissionDescription } = usePermission()
+  const { hasPermission, permissionDescription } = usePermission()
   const navigate = useNavigate()
 
   // 检查权限
@@ -52,9 +52,7 @@ const PermissionGuard: React.FC<PermissionGuardProps> = ({
               <Button type="primary" onClick={() => navigate('/')}>
                 返回首页
               </Button>
-              <Button onClick={() => navigate(-1)}>
-                返回上页
-              </Button>
+              <Button onClick={() => navigate(-1)}>返回上页</Button>
             </div>
           }
         />

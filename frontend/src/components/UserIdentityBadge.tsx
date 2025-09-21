@@ -1,9 +1,9 @@
 import React from 'react'
 import { Badge, Tooltip } from 'antd'
-import { 
-  CrownOutlined, 
-  SafetyCertificateOutlined, 
-  SettingOutlined, 
+import {
+  CrownOutlined,
+  SafetyCertificateOutlined,
+  SettingOutlined,
   UserOutlined,
   TeamOutlined,
   CodeOutlined,
@@ -28,7 +28,8 @@ const UserIdentityBadge: React.FC<UserIdentityBadgeProps> = ({
   size = 'default',
   className = ''
 }) => {
-  const { userIdentity, permissionDescription, permissionLevel } = usePermission()
+  const { userIdentity, permissionDescription, permissionLevel } =
+    usePermission()
 
   // 根据身份获取对应的图标和颜色
   const getIdentityConfig = () => {
@@ -93,7 +94,8 @@ const UserIdentityBadge: React.FC<UserIdentityBadgeProps> = ({
   }
 
   const config = getIdentityConfig()
-  const sizeClass = size === 'small' ? 'text-xs' : size === 'large' ? 'text-base' : 'text-sm'
+  const sizeClass =
+    size === 'small' ? 'text-xs' : size === 'large' ? 'text-base' : 'text-sm'
 
   return (
     <Tooltip title={`权限级别: ${permissionLevel} | ${permissionDescription}`}>
@@ -121,15 +123,9 @@ const UserIdentityBadge: React.FC<UserIdentityBadgeProps> = ({
             color: config.color
           }}
         >
-          {showIcon && (
-            <span className="flex items-center">
-              {config.icon}
-            </span>
-          )}
+          {showIcon && <span className="flex items-center">{config.icon}</span>}
           {showText && (
-            <span className="font-medium">
-              {permissionDescription}
-            </span>
+            <span className="font-medium">{permissionDescription}</span>
           )}
         </div>
       </Badge>

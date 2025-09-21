@@ -80,5 +80,6 @@ const notificationSlice = createSlice({
   }
 })
 
-export const { setUserInfo, setToken, clearUserState } = notificationSlice.actions
+export const { setUserInfo, setToken, clearUserState } =
+  notificationSlice.actions
 export default notificationSlice.reducer

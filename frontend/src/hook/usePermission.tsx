@@ -1,11 +1,11 @@
 import { useSelector } from 'react-redux'
 import { RootState } from '@/redux'
-import { 
-  hasPermission, 
-  isSuperAdmin, 
-  isAdmin, 
-  isDevOps, 
-  isDeveloper, 
+import {
+  hasPermission,
+  isSuperAdmin,
+  isAdmin,
+  isDevOps,
+  isDeveloper,
   isOperator,
   getUserPermissionDescription,
   getUserPermissionLevel,
@@ -22,21 +22,22 @@ export const usePermission = () => {
 
   return {
     // 基础权限检查
-    hasPermission: (requiredIdentity: string) => hasPermission(userIdentity, requiredIdentity),
-    
+    hasPermission: (requiredIdentity: string) =>
+      hasPermission(userIdentity, requiredIdentity),
+
     // 身份检查
     isSuperAdmin: () => isSuperAdmin(userIdentity),
     isAdmin: () => isAdmin(userIdentity),
     isDevOps: () => isDevOps(userIdentity),
     isDeveloper: () => isDeveloper(userIdentity),
     isOperator: () => isOperator(userIdentity),
-    
+
     // 用户信息
     userIdentity,
     userInfo,
     permissionDescription: getUserPermissionDescription(userIdentity),
     permissionLevel: getUserPermissionLevel(userIdentity),
-    
+
     // 常量
     IDENTITY
   }
@@ -48,7 +49,7 @@ export const usePermission = () => {
  */
 export const usePermissionGuard = (requiredIdentity: string) => {
   const { hasPermission, userIdentity } = usePermission()
-  
+
   return {
     hasAccess: hasPermission(requiredIdentity),
     userIdentity,

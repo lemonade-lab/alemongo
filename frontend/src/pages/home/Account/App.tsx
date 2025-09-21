@@ -26,7 +26,7 @@ import { RootState } from '@/redux'
 const UserTable = () => {
   // 获取当前登录用户信息
   const currentUser = useSelector((state: RootState) => state.me.info)
-  
+
   // 数据
   const [data, setData] = useState<User[]>([])
   const [curData, setCurData] = useState<User[]>([])
@@ -62,23 +62,26 @@ const UserTable = () => {
       message.error('禁止删除自己')
       return
     }
-    
+
     // 检查管理员是否尝试删除超级管理员
     const isSuperAdmin = item.identity === IDENTITY.SUPER_ADMIN
-    const currentUserIsSuperAdmin = currentUser.identity === IDENTITY.SUPER_ADMIN
+    const currentUserIsSuperAdmin =
+      currentUser.identity === IDENTITY.SUPER_ADMIN
     if (isSuperAdmin && !currentUserIsSuperAdmin) {
       message.error('只有超级管理员才能删除超级管理员')
       return
     }
-    
+
     apiUserDelete({
       username: item.username
-    }).then(() => {
-      initData()
-      message.success('用户删除成功')
-    }).catch((error) => {
-      message.error(error.response?.data?.msg || '用户删除失败')
     })
+      .then(() => {
+        initData()
+        message.success('用户删除成功')
+      })
+      .catch(error => {
+        message.error(error.response?.data?.msg || '用户删除失败')
+      })
   }
 
   // 更新身份
@@ -88,37 +91,40 @@ const UserTable = () => {
       message.error('禁止修改自己的身份')
       return
     }
-    
+
     // 检查管理员是否尝试修改超级管理员身份
     const isSuperAdmin = item.identity === IDENTITY.SUPER_ADMIN
-    const currentUserIsSuperAdmin = currentUser.identity === IDENTITY.SUPER_ADMIN
+    const currentUserIsSuperAdmin =
+      currentUser.identity === IDENTITY.SUPER_ADMIN
     if (isSuperAdmin && !currentUserIsSuperAdmin) {
       message.error('只有超级管理员才能修改超级管理员身份')
       return
     }
-    
+
     // 检查管理员是否尝试将用户设置为超级管理员
     if (value === IDENTITY.SUPER_ADMIN && !currentUserIsSuperAdmin) {
       message.error('只有超级管理员才能设置用户为超级管理员')
       return
     }
-    
+
     apiIdentityUpdate({
       username: item.username,
       identity: value
-    }).then(() => {
-      // 针对性替换数据，而不是重新请求数据。
-      setData(prev => {
-        const index = prev.findIndex(i => i.username === item.username)
-        if (index !== -1) {
-          prev[index].identity = value
-        }
-        return [...prev]
-      })
-      message.success('身份修改成功')
-    }).catch((error) => {
-      message.error(error.response?.data?.msg || '身份修改失败')
     })
+      .then(() => {
+        // 针对性替换数据，而不是重新请求数据。
+        setData(prev => {
+          const index = prev.findIndex(i => i.username === item.username)
+          if (index !== -1) {
+            prev[index].identity = value
+          }
+          return [...prev]
+        })
+        message.success('身份修改成功')
+      })
+      .catch(error => {
+        message.error(error.response?.data?.msg || '身份修改失败')
+      })
   }
 
   const [selects, setSelects] = useState<string[]>([])
@@ -171,22 +177,24 @@ const UserTable = () => {
         // 检查是否应该禁用下拉框
         const isCurrentUser = currentUser.username === data.username
         const isSuperAdmin = data.identity === IDENTITY.SUPER_ADMIN
-        const currentUserIsSuperAdmin = currentUser.identity === IDENTITY.SUPER_ADMIN
-        
+        const currentUserIsSuperAdmin =
+          currentUser.identity === IDENTITY.SUPER_ADMIN
+
         // 禁用条件：1. 当前用户自己 2. 管理员尝试修改超级管理员身份
-        const isDisabled = isCurrentUser || (isSuperAdmin && !currentUserIsSuperAdmin)
-        
+        const isDisabled =
+          isCurrentUser || (isSuperAdmin && !currentUserIsSuperAdmin)
+
         let title = ''
         if (isCurrentUser) {
           title = '不能修改自己的身份'
         } else if (isSuperAdmin && !currentUserIsSuperAdmin) {
           title = '只有超级管理员才能修改超级管理员身份'
         }
-        
+
         return (
           <select
             className={`w-full px-3 py-2 text-sm font-medium border rounded-lg transition-all duration-300 ${
-              isDisabled 
+              isDisabled
                 ? 'bg-gray-100 dark:bg-zinc-700 border-gray-200 dark:border-zinc-600 text-gray-400 dark:text-gray-500 cursor-not-allowed'
                 : 'bg-white/70 dark:bg-zinc-800/70 border-gray-300/50 dark:border-zinc-600/50 focus:border-blue-500 dark:focus:border-blue-400'
             }`}
@@ -199,11 +207,12 @@ const UserTable = () => {
           >
             {selects.map(item => {
               // 如果当前用户不是超级管理员，过滤掉超级管理员选项
-              const currentUserIsSuperAdmin = currentUser.identity === IDENTITY.SUPER_ADMIN
+              const currentUserIsSuperAdmin =
+                currentUser.identity === IDENTITY.SUPER_ADMIN
               if (item === IDENTITY.SUPER_ADMIN && !currentUserIsSuperAdmin) {
                 return null
               }
-              
+
               return (
                 <option
                   key={item}
@@ -251,11 +260,13 @@ const UserTable = () => {
         // 检查是否应该禁用删除按钮
         const isCurrentUser = currentUser.username === item.username
         const isSuperAdmin = item.identity === IDENTITY.SUPER_ADMIN
-        const currentUserIsSuperAdmin = currentUser.identity === IDENTITY.SUPER_ADMIN
-        
+        const currentUserIsSuperAdmin =
+          currentUser.identity === IDENTITY.SUPER_ADMIN
+
         // 禁用条件：1. 当前用户自己 2. 管理员尝试删除超级管理员
-        const isDisabled = isCurrentUser || (isSuperAdmin && !currentUserIsSuperAdmin)
-        
+        const isDisabled =
+          isCurrentUser || (isSuperAdmin && !currentUserIsSuperAdmin)
+
         return (
           <div>
             <Popconfirm
@@ -282,15 +293,15 @@ const UserTable = () => {
                 icon={<DeleteOutlined />}
                 disabled={isDisabled}
                 className={`border-0 shadow-md transition-all duration-300 rounded-lg ${
-                  isDisabled 
+                  isDisabled
                     ? 'bg-gray-300 dark:bg-zinc-600 text-gray-500 dark:text-gray-400 cursor-not-allowed'
                     : 'bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700 hover:shadow-lg'
                 }`}
                 title={
-                  isCurrentUser 
-                    ? '不能删除自己' 
-                    : (isSuperAdmin && !currentUserIsSuperAdmin) 
-                      ? '只有超级管理员才能删除超级管理员' 
+                  isCurrentUser
+                    ? '不能删除自己'
+                    : isSuperAdmin && !currentUserIsSuperAdmin
+                      ? '只有超级管理员才能删除超级管理员'
                       : ''
                 }
               >

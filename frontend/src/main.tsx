@@ -10,9 +10,9 @@ import ThemeProvider from './provider/ThemeProvider'
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <Provider store={store}>
-        <ThemeProvider>
-          <RouterProvider router={router} />
-        </ThemeProvider>
+      <ThemeProvider>
+        <RouterProvider router={router} />
+      </ThemeProvider>
     </Provider>
   </StrictMode>
 )

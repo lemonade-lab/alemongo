@@ -219,38 +219,38 @@ const Profile: React.FC = () => {
   }
 
   return (
-    <Box className='gap-6'>
+    <Box className="gap-6">
       {/* 头部信息 */}
-        <Card className="shadow-lg border-0 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
-          <div className="flex flex-col gap-2 md:flex-row items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <Avatar
-                size={64}
-                className="bg-gradient-to-r from-purple-500 to-blue-500"
-                icon={<UserOutlined />}
-              />
-              <div>
-                <div className="flex items-center gap-3 mb-2">
-                  <Title level={3} className="mb-0">
-                    {userInfo?.username || '用户'}
-                  </Title>
-                  <UserIdentityBadge size="small" />
-                </div>
-                <Text type="secondary">管理您的个人设置和安全选项</Text>
+      <Card className="shadow-lg border-0 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
+        <div className="flex flex-col gap-2 md:flex-row items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <Avatar
+              size={64}
+              className="bg-gradient-to-r from-purple-500 to-blue-500"
+              icon={<UserOutlined />}
+            />
+            <div>
+              <div className="flex items-center gap-3 mb-2">
+                <Title level={3} className="mb-0">
+                  {userInfo?.username || '用户'}
+                </Title>
+                <UserIdentityBadge size="small" />
               </div>
-            </div>
-            <div className="flex items-end">
-              <Button type="primary" danger onClick={goLogout}>
-                退出登录
-              </Button>
+              <Text type="secondary">管理您的个人设置和安全选项</Text>
             </div>
           </div>
-        </Card>
+          <div className="flex items-end">
+            <Button type="primary" danger onClick={goLogout}>
+              退出登录
+            </Button>
+          </div>
+        </div>
+      </Card>
 
-        {/* 设置选项卡 */}
-        
-        <Box rootClassName='p-0'>
-          <Card className="shadow-lg border-0 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
+      {/* 设置选项卡 */}
+
+      <Box rootClassName="p-0">
+        <Card className="shadow-lg border-0 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
           <Tabs defaultActiveKey="password" size="large">
             {/* 密码设置 */}
             <TabPane
@@ -466,7 +466,7 @@ const Profile: React.FC = () => {
             )}
           </Tabs>
         </Card>
-        </Box>
+      </Box>
     </Box>
   )
 }
