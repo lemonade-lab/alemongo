@@ -36,7 +36,15 @@ func DeleteUser(username string) error {
 }
 
 func GetUserInfo(username string) (*models.User, error) {
-	if dao.IsSuperAdmin(username) {
+	// 首先尝试从用户列表中获取用户信息
+	userInfo, exists := dao.GetUserByUserName(username)
+	if exists {
+		userInfo.PassWord = "******"
+		return &userInfo, nil
+	}
+
+	// 如果用户列表中不存在，检查是否为临时超级管理员
+	if dao.IsTemporarySuperAdmin() && username == dao.GetAdmin().UserName {
 		userInfo := dao.GetAdmin()
 		userInfo.PassWord = "******"
 
@@ -49,12 +57,7 @@ func GetUserInfo(username string) (*models.User, error) {
 		return userInfo, nil
 	}
 
-	userInfo, exists := dao.GetUserByUserName(username)
-	if !exists {
-		return nil, errors.New("用户不存在")
-	}
-	userInfo.PassWord = "******"
-	return &userInfo, nil
+	return nil, errors.New("用户不存在")
 }
 
 func GetUserList() []models.User {
@@ -62,16 +65,19 @@ func GetUserList() []models.User {
 }
 
 func Login(username, password string) (string, error) {
-	userInfo := &models.User{}
-	if dao.IsSuperAdmin(username) {
-		// 得到超级管理员信息
-		userInfo = dao.GetAdmin()
+	// 首先尝试从用户列表中获取用户信息
+	user, exist := dao.GetUserByUserName(username)
+	var userInfo *models.User
+
+	if exist {
+		userInfo = &user
 	} else {
-		user, exist := dao.GetUserByUserName(username)
-		if !exist {
+		// 检查是否为临时超级管理员
+		if dao.IsTemporarySuperAdmin() && username == dao.GetAdmin().UserName {
+			userInfo = dao.GetAdmin()
+		} else {
 			return "", errors.New("用户不存在")
 		}
-		userInfo = &user
 	}
 
 	// 密码不对
@@ -97,6 +103,21 @@ func Logout(tokenValue string) error {
 }
 
 func ChangePassword(username, oldPassword, newPassword string) error {
+	// 检查是否为临时超级管理员
+	if dao.IsTemporarySuperAdmin() && username == dao.GetAdmin().UserName {
+		// 临时超级管理员修改密码
+		admin := dao.GetAdmin()
+		if oldPassword != admin.PassWord {
+			return errors.New("密码错误")
+		}
+		// 修改密码并永久保存
+		ok := dao.SetAdminPassword(newPassword)
+		if !ok {
+			return errors.New("修改密码失败")
+		}
+		return nil
+	}
+
 	return dao.ChangePassword(username, oldPassword, newPassword)
 }
 
@@ -174,15 +195,13 @@ func GitHubLogin(code string) (string, error) {
 // BindGitHubAccount 绑定 GitHub 账号
 func BindGitHubAccount(username, code string) error {
 	// 1. 验证用户是否存在
-
-	if dao.IsSuperAdmin(username) {
-		// 超级管理员用户存在，继续处理
-		log.Println("超级管理员用户存在")
-	} else {
-		_, exist := dao.GetUserByUserName(username)
-		if !exist {
+	_, exist := dao.GetUserByUserName(username)
+	if !exist {
+		// 检查是否为临时超级管理员
+		if !(dao.IsTemporarySuperAdmin() && username == dao.GetAdmin().UserName) {
 			return errors.New("用户不存在")
 		}
+		log.Println("临时超级管理员用户存在")
 	}
 
 	// 2. 用授权码换取访问令牌

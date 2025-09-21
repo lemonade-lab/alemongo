@@ -3,8 +3,6 @@ package jwt
 import (
 	"alemongo/src/apps/api/requests"
 	"alemongo/src/dao"
-
-	"alemongo/src/models"
 	"alemongo/src/permission"
 	"alemongo/src/settings"
 	"errors"
@@ -82,19 +80,26 @@ func Permission(c *gin.Context, mis int) string {
 	if !exists {
 		return "用户不存在"
 	}
-	var userInfo models.User
-	if dao.IsSuperAdmin(username) {
+
+	// 获取用户信息
+	user, exist := dao.GetUserByUserName(username)
+	if !exist {
+		// 检查是否为临时超级管理员
+		if dao.IsTemporarySuperAdmin() && username == dao.GetAdmin().UserName {
+			// 临时超级管理员 直接通过
+			return ""
+		}
+		return "用户不存在"
+	}
+
+	// 检查是否为超级管理员
+	if user.Identity == permission.IdentitySuperAdmin {
 		// 超级管理员 直接通过
 		return ""
-	} else {
-		user, exist := dao.GetUserByUserName(username)
-		if !exist {
-			return "用户不存在"
-		}
-		userInfo = user
 	}
+
 	// 读取身份
-	identity := userInfo.Identity
+	identity := user.Identity
 	ok := permission.CheckIdentityPermission(identity, mis)
 	if !ok {
 		return "权限不足"

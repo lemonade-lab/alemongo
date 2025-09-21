@@ -166,14 +166,14 @@ func SetAdminPassword(password string) bool {
 
 // 是否是超级管理员
 func IsSuperAdmin(username string) bool {
-	// 检查用户名是否匹配
-	if username == admin.UserName {
+	// 首先检查用户列表中是否存在身份为超级管理员的用户
+	user, exists := GetUserByUserName(username)
+	if exists && user.Identity == permission.IdentitySuperAdmin {
 		return true
 	}
 
-	// 额外检查：如果用户存在于用户列表中且身份为超级管理员
-	user, exists := GetUserByUserName(username)
-	if exists && user.Identity == permission.IdentitySuperAdmin {
+	// 如果用户列表中不存在超级管理员，检查是否为临时超级管理员
+	if IsTemporarySuperAdmin() && username == admin.UserName {
 		return true
 	}
 

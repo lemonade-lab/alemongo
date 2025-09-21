@@ -135,7 +135,7 @@ const Settings = () => {
     return (
       <Box>
         <div className="p-6 flex items-center justify-center min-h-screen">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500"></div>
+          <div className="rounded-full h-8 w-8 border-b-2 border-purple-500"></div>
         </div>
       </Box>
     )
@@ -143,16 +143,10 @@ const Settings = () => {
 
   return (
     <Box>
-      <div className="p-6 flex gap-6 flex-col bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 duration-300 flex-1">
-        <div className="flex flex-1 flex-col gap-8 items-center bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm p-8 rounded-2xl border border-white/20 dark:border-gray-700/20 shadow-2xl duration-300 max-w-4xl mx-auto w-full">
+      <div className="p-6 flex gap-6 flex-col bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900  flex-1">
+        <div className="flex flex-1 flex-col gap-8 items-center bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm p-8 rounded-2xl border border-white/20 dark:border-gray-700/20 shadow-2xl  max-w-4xl mx-auto w-full">
           {/* 头部区域 */}
           <div className="flex flex-col gap-4 items-center text-center">
-            <div className="relative">
-              <div className="w-24 h-24 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full flex items-center justify-center shadow-lg animate-pulse-glow">
-                <SettingOutlined className="text-4xl text-white" />
-              </div>
-              <div className="absolute -top-2 -right-2 w-6 h-6 bg-green-500 rounded-full border-4 border-white dark:border-gray-800 animate-pulse"></div>
-            </div>
             <div>
               <h1 className="text-3xl font-bold gradient-text mb-2">
                 通用设置
@@ -184,11 +178,11 @@ const Settings = () => {
                         tool.data?.installed && (
                           <div
                             key={tool.name}
-                            className="group flex items-center justify-between w-full bg-white/50 dark:bg-gray-700/50 backdrop-blur-sm rounded-xl px-6 py-4 shadow-lg border border-white/20 dark:border-gray-600/20 hover:shadow-xl duration-300 hover:scale-105"
+                            className="group flex items-center justify-between w-full bg-white/50 dark:bg-gray-700/50 backdrop-blur-sm rounded-xl px-6 py-4 shadow-lg border border-white/20 dark:border-gray-600/20 hover:shadow-xl  hover:scale-105"
                           >
                             <div className="flex items-center gap-4">
                               <div
-                                className={`w-12 h-12 bg-gradient-to-r ${tool.color} rounded-lg flex items-center justify-center text-2xl shadow-md group-hover:scale-110 transition-transform duration-300`}
+                                className={`w-12 h-12 bg-gradient-to-r ${tool.color} rounded-lg flex items-center justify-center text-2xl shadow-md group-hover:scale-110 transition-transform `}
                               >
                                 {tool.icon}
                               </div>
@@ -205,7 +199,7 @@ const Settings = () => {
                               <span className="text-lg font-bold gradient-text">
                                 {tool.data.version}
                               </span>
-                              <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                              <div className="w-3 h-3 bg-green-500 rounded-full "></div>
                             </div>
                           </div>
                         )
@@ -231,11 +225,11 @@ const Settings = () => {
                       <button
                         onClick={onResetTemplate}
                         disabled={loading}
-                        className="chatgpt-button bg-gradient-to-r from-red-500 to-pink-500 border-none hover:from-red-600 hover:to-pink-600 disabled:opacity-50 disabled:cursor-not-allowed px-6 py-2 text-white font-semibold rounded-lg duration-200"
+                        className="chatgpt-button bg-gradient-to-r from-red-500 to-pink-500 border-none hover:from-red-600 hover:to-pink-600 disabled:opacity-50 disabled:cursor-not-allowed px-6 py-2 text-white font-semibold rounded-lg"
                       >
                         {loading ? (
                           <div className="flex items-center gap-2">
-                            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full"></div>
                             重置中...
                           </div>
                         ) : (

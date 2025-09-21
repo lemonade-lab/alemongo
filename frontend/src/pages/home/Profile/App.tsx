@@ -63,6 +63,11 @@ const Profile: React.FC = () => {
     }
   }, [emailCount])
 
+  useEffect(()=>{
+    // 每次进来，确保获得的是最新的用户信息
+    updateUserInfo.updateUserInfo()
+  },[])
+
   // 处理密码修改
   const handlePasswordChange = async (values: {
     oldPassword: string
@@ -80,6 +85,8 @@ const Profile: React.FC = () => {
       })
       message.success('密码修改成功')
       passwordForm.resetFields()
+      // 修改密码后，更新一次用户信息
+      updateUserInfo.updateUserInfo()
     } catch (error: unknown) {
       const errorMessage =
         error instanceof Error ? error.message : '密码修改失败'
