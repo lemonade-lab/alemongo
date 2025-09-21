@@ -16,6 +16,132 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/api/v1/bot/addconfig": {
+            "post": {
+                "description": "添加多配置机器人配置",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "机器人"
+                ],
+                "summary": "添加多配置机器人配置",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "机器人名",
+                        "name": "bot_name",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "配置名",
+                        "name": "name",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "配置内容",
+                        "name": "content",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "添加成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.ResponseData"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.ResponseData"
+                        }
+                    },
+                    "500": {
+                        "description": "添加失败",
+                        "schema": {
+                            "$ref": "#/definitions/response.ResponseData"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/bot/create/multi": {
+            "post": {
+                "description": "创建多配置机器人",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "机器人"
+                ],
+                "summary": "创建多配置机器人",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "机器人名",
+                        "name": "name",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "创建成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.ResponseData"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.ResponseData"
+                        }
+                    },
+                    "500": {
+                        "description": "创建失败",
+                        "schema": {
+                            "$ref": "#/definitions/response.ResponseData"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/bot/packages/git/branches": {
             "get": {
                 "description": "获取应用git所有分支",
@@ -26,7 +152,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "应用"
+                    "机器人应用"
                 ],
                 "summary": "获取应用git所有分支",
                 "parameters": [
@@ -101,7 +227,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "应用"
+                    "机器人应用"
                 ],
                 "summary": "获取应用git分支提交记录",
                 "parameters": [
@@ -166,6 +292,62 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.ResponseData"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/bot/start/multi": {
+            "post": {
+                "description": "启动多配置机器人",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "机器人"
+                ],
+                "summary": "启动多配置机器人",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "机器人名",
+                        "name": "name",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "启动成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.ResponseData"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.ResponseData"
+                        }
+                    },
+                    "500": {
+                        "description": "启动失败",
                         "schema": {
                             "$ref": "#/definitions/response.ResponseData"
                         }

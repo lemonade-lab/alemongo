@@ -1,11 +1,15 @@
 package route
 
 import (
+	_ "alemongo/docs"
 	"alemongo/src/apps/api/bot"
 	botconfig "alemongo/src/apps/api/bot/config"
 	botconfigs "alemongo/src/apps/api/bot/configs"
-
 	apiemail "alemongo/src/apps/api/email"
+	"alemongo/src/apps/api/multibots"
+
+	swaggerfiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 
 	botenv "alemongo/src/apps/api/bot/env"
 	botpackage "alemongo/src/apps/api/bot/package"
@@ -22,8 +26,6 @@ import (
 	"alemongo/src/permission"
 
 	"github.com/gin-gonic/gin"
-	swaggerfiles "github.com/swaggo/files"
-	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 // 路由初始化
@@ -53,10 +55,8 @@ func Create(mode string) *gin.Engine {
 
 	// 创建路由
 	r := gin.Default()
-
 	// 实例化app
 	app := Use(r)
-
 	// 接口api
 	api := app.Group("/api")
 	{
@@ -64,7 +64,6 @@ func Create(mode string) *gin.Engine {
 		v1 := api.Group("/v1")
 		{
 			v1.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
-
 			// 公共接口
 			CommonAPI := v1.Group("/common")
 			{
@@ -139,19 +138,19 @@ func Create(mode string) *gin.Engine {
 				SSHAPI.DELETE("", middlewares.PermissionMiddleware(permission.SSHDelete), gitssh.Delete)            // 删除SSH密钥
 				SSHAPI.POST("/authorize", middlewares.PermissionMiddleware(permission.SSHUpdate), gitssh.Authorize) // SSH授权
 			}
-
 			// bot
 			BotAPI := v1.Group("/bot")
 			{
 				// 开始鉴权
 				BotAPI.Use(middlewares.AuthMiddleware())
+
 				// 机器人基础管理接口
-				BotAPI.GET("/list", middlewares.PermissionMiddleware(permission.BotRead), bot.List)                  // 获取机器人列表
-				BotAPI.POST("/info", middlewares.PermissionMiddleware(permission.BotRead), bot.Info)                 // 查询机器人信息
-				BotAPI.POST("/create", middlewares.PermissionMiddleware(permission.BotCreate), bot.Create)           // 创建机器人
-				BotAPI.POST("/botgroup", middlewares.PermissionMiddleware(permission.BotCreate), bot.CreateBotGroup) // 创建群组机器人
-				BotAPI.POST("/copy", middlewares.PermissionMiddleware(permission.BotCreate), bot.Copy)               // 复制机器人
-				BotAPI.DELETE("/info", middlewares.PermissionMiddleware(permission.BotDelete), bot.Delete)           // 删除机器人
+				BotAPI.GET("/list", middlewares.PermissionMiddleware(permission.BotRead), bot.List)        // 获取机器人列表
+				BotAPI.POST("/info", middlewares.PermissionMiddleware(permission.BotRead), bot.Info)       // 查询机器人信息
+				BotAPI.POST("/create", middlewares.PermissionMiddleware(permission.BotCreate), bot.Create) // 创建机器人
+				// BotAPI.POST("/botgroup", middlewares.PermissionMiddleware(permission.BotCreate), bot.CreateBotGroup) // 创建群组机器人
+				BotAPI.POST("/copy", middlewares.PermissionMiddleware(permission.BotCreate), bot.Copy)     // 复制机器人
+				BotAPI.DELETE("/info", middlewares.PermissionMiddleware(permission.BotDelete), bot.Delete) // 删除机器人
 
 				// 机器人运行控制接口
 				BotAPI.POST("/run", middlewares.PermissionMiddleware(permission.BotControl), bot.Run)         // 运行机器人
@@ -224,6 +223,16 @@ func Create(mode string) *gin.Engine {
 					ConfigsAPI.DELETE("", middlewares.PermissionMiddleware(permission.BotConfigDelete), botconfigs.ConfigsDelete) // 删除配置
 				}
 
+			}
+			// MultiBot
+			MultiBotAPI := v1.Group("/multibot")
+			{
+				// 创建多配置机器人
+				MultiBotAPI.POST("/multibot", multibots.CreateMultiConfigBot)
+				// 创建多配置机器人配置
+				MultiBotAPI.POST("/addconfig", multibots.AddBotConfig)
+				// 启动多配置机器人(根据配置文件启动对应的机器人)
+				MultiBotAPI.POST("/start", multibots.StartMultiBot)
 			}
 		}
 	}

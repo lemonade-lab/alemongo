@@ -63,10 +63,27 @@ func GetBotsPath() string {
 	return botsPath
 }
 
+func GetMultiBotsPath() string {
+	resourcesPath := GetResourcesPath()
+	multiBotsPath := filepath.Join(resourcesPath, "multibots")
+	if _, err := os.Stat(multiBotsPath); os.IsNotExist(err) {
+		if err := os.MkdirAll(multiBotsPath, 0755); err != nil {
+			log.Printf("创建多配置机器人目录失败: %v\n", err.Error())
+		}
+	}
+	return multiBotsPath
+}
+
 // 获得指定名机器人的路径
 func GetBotPath(name string) string {
 	botsPath := GetBotsPath()
 	return filepath.Join(botsPath, name)
+}
+
+// 获得指定多配置机器人的路径
+func GetMultiBotPath(name string) string {
+	multiBotsPath := GetMultiBotsPath()
+	return filepath.Join(multiBotsPath, name)
 }
 
 func GetBotTemplatePath() string {
@@ -79,6 +96,12 @@ func GetBotTemplatePath() string {
 func Exists(name string) bool {
 	botPath := GetBotPath(name)
 	_, err := os.Stat(botPath)
+	return !os.IsNotExist(err)
+}
+
+func MultiBotExists(name string) bool {
+	multiBotPath := GetMultiBotPath(name)
+	_, err := os.Stat(multiBotPath)
 	return !os.IsNotExist(err)
 }
 
@@ -101,6 +124,12 @@ func GetBotEnvPath(name string) string {
 func GetBotConfigPath(name string) string {
 	botPath := GetBotPath(name)
 	configPath := filepath.Join(botPath, "alemon.config.yaml")
+	return configPath
+}
+
+func GetMultiBotConfigPath(name string) string {
+	multiBotPath := GetMultiBotPath(name)
+	configPath := filepath.Join(multiBotPath, "configs")
 	return configPath
 }
 
@@ -170,6 +199,44 @@ func GetBotLogByDate(name string, time time.Time) string {
 
 func GetBotLogPath(name string) string {
 	logPath := GetBotLogByDate(name, time.Now())
+	// 判断是否存在，不存在。写入空文件
+	if _, err := os.Stat(logPath); os.IsNotExist(err) {
+		// 得到该文件的目录
+		dir := filepath.Dir(logPath)
+		// 判断目录是否存在
+		if _, err := os.Stat(dir); os.IsNotExist(err) {
+			// 创建目录
+			if err := os.MkdirAll(dir, 0755); err != nil {
+				log.Printf("创建日志目录失败: %v", err)
+				return logPath
+			}
+		}
+		// 创建文件
+		file, err := os.Create(logPath)
+		if err != nil {
+			log.Printf("创建日志文件失败: %v", err)
+			return logPath
+		}
+		file.Close()
+	}
+	return logPath
+}
+
+func GetMultiBotLogsPath(name string) string {
+	multiBotsPath := GetMultiBotPath(name)
+	logPath := filepath.Join(multiBotsPath, "alemonjs", "log")
+	return logPath
+}
+
+func GetMultiBotLogByDate(name, processName string, time time.Time) string {
+	logsPath := GetMultiBotLogsPath(name)
+	today := time.Format("2006-01-02")
+	logPath := filepath.Join(logsPath, processName, today+".log")
+	return logPath
+}
+
+func GetMultiBotLogPath(name, processName string) string {
+	logPath := GetMultiBotLogByDate(name, processName, time.Now())
 	// 判断是否存在，不存在。写入空文件
 	if _, err := os.Stat(logPath); os.IsNotExist(err) {
 		// 得到该文件的目录

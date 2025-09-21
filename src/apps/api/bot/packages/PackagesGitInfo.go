@@ -15,7 +15,7 @@ import (
 
 // @Summary 获取应用git所有分支
 // @Description 获取应用git所有分支
-// @Tags 应用
+// @Tags 机器人应用
 // @Accept json
 // @Produce json
 // @Param name query string true "bot名称"
@@ -96,7 +96,7 @@ func GitBranches(c *gin.Context) {
 
 // @Summary 获取应用git分支提交记录
 // @Description 获取应用git分支提交记录
-// @Tags 应用
+// @Tags 机器人应用
 // @Accept json
 // @Produce json
 // @Param name query string true "bot名称"

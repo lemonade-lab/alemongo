@@ -20,7 +20,6 @@ export const apiLogout = async () => {
     url: '/user/logout',
     method: 'GET'
   }).then(res => {
-    // localStorage 的清除现在由 Redux clearUserState action 统一处理
     return res
   })
 }
