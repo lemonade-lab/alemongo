@@ -20,7 +20,7 @@ const PermissionGuard: React.FC<PermissionGuardProps> = ({
   fallback,
   showError = true
 }) => {
-  const { hasPermission, userIdentity, permissionDescription } = usePermission()
+  const { hasPermission,  permissionDescription } = usePermission()
   const navigate = useNavigate()
 
   // 检查权限

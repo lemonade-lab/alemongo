@@ -18,7 +18,7 @@ import {
  */
 export const usePermission = () => {
   const userInfo = useSelector((state: RootState) => state.me.info)
-  const userIdentity = userInfo.identity
+  const userIdentity: any = userInfo.identity
 
   return {
     // 基础权限检查
