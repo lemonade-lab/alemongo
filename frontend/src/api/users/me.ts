@@ -1,4 +1,4 @@
-import server, { request, TOKEN_KEY } from '../base'
+import server, { request } from '../base'
 
 export const apiLogin = async (data: {
   password: string
@@ -20,7 +20,7 @@ export const apiLogout = async () => {
     url: '/user/logout',
     method: 'GET'
   }).then(res => {
-    localStorage.removeItem(TOKEN_KEY)
+    // localStorage 的清除现在由 Redux clearUserState action 统一处理
     return res
   })
 }

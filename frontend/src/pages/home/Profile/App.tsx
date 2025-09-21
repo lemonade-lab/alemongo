@@ -27,8 +27,9 @@ import {
   apiVerifyEmail,
   apiLogout
 } from '@/api'
-import { useSelector } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
 import { RootState } from '@/redux'
+import { clearUserState } from '@/redux/me'
 import { useNavigate } from 'react-router-dom'
 import { useUserInfoControl } from '@/hook/useUserInfoControl'
 import { usePermission } from '@/hook/usePermission'
@@ -45,6 +46,7 @@ const Profile: React.FC = () => {
   const [emailCount, setEmailCount] = useState(0)
   const storeMe = useSelector((state: RootState) => state.me)
   const { isSuperAdmin } = usePermission()
+  const dispatch = useDispatch()
 
   // 邮箱验证码倒计时
   useEffect(() => {
@@ -202,6 +204,8 @@ const Profile: React.FC = () => {
 
   const goLogout = () => {
     apiLogout().then(() => {
+      // 清除Redux状态
+      dispatch(clearUserState())
       navigate('/login')
     })
   }
