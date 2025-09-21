@@ -106,9 +106,9 @@ func Create(mode string) *gin.Engine {
 				UserAPI.GET("/github/auth-url", user.GetGitHubAuthURL)           // 获取 GitHub 授权 URL
 				UserAPI.GET("/github/config-status", user.GetGitHubConfigStatus) // 获取 GitHub 配置状态
 				UserAPI.POST("/github/login", user.GitHubLogin)                  // GitHub 快捷登录
+				UserAPI.Use(middlewares.AuthMiddleware())                        // 开始鉴权
 				UserAPI.POST("/github/unbind", user.UnbindGitHubAccount)         // GitHub 解绑（需要认证）
 				UserAPI.POST("/github/bind", user.BindGitHubAccount)             // GitHub 绑定（需要认证）
-				UserAPI.Use(middlewares.AuthMiddleware())                        // 开始鉴权
 				UserAPI.GET("/logout", user.Logout)                              // 退出登录
 				UserAPI.GET("/info", user.Info)                                  // 获取用户信息
 				UserAPI.PUT("/password", user.PassWord)                          // 修改密码
