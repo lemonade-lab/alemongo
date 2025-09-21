@@ -23,24 +23,31 @@ export const PERMISSION_LEVEL = {
 } as const
 
 // 权限检查函数
-export const hasPermission = (userIdentity: string, requiredIdentity: string): boolean => {
+export const hasPermission = (
+  userIdentity: string,
+  requiredIdentity: string
+): boolean => {
   // 如果用户身份为空，返回false
   if (!userIdentity) return false
-  
+
   // 如果要求的是超级管理员，只有超级管理员可以访问
   if (requiredIdentity === IDENTITY.SUPER_ADMIN) {
     return userIdentity === IDENTITY.SUPER_ADMIN
   }
-  
+
   // 如果要求的是管理员，管理员和超级管理员都可以访问
   if (requiredIdentity === IDENTITY.ADMIN) {
-    return userIdentity === IDENTITY.ADMIN || userIdentity === IDENTITY.SUPER_ADMIN
+    return (
+      userIdentity === IDENTITY.ADMIN || userIdentity === IDENTITY.SUPER_ADMIN
+    )
   }
-  
+
   // 其他情况按权限层级判断
-  const userLevel = PERMISSION_LEVEL[userIdentity as keyof typeof PERMISSION_LEVEL] || 0
-  const requiredLevel = PERMISSION_LEVEL[requiredIdentity as keyof typeof PERMISSION_LEVEL] || 0
-  
+  const userLevel =
+    PERMISSION_LEVEL[userIdentity as keyof typeof PERMISSION_LEVEL] || 0
+  const requiredLevel =
+    PERMISSION_LEVEL[requiredIdentity as keyof typeof PERMISSION_LEVEL] || 0
+
   return userLevel >= requiredLevel
 }
 
@@ -51,22 +58,39 @@ export const isSuperAdmin = (userIdentity: string): boolean => {
 
 // 检查是否为管理员（包括超级管理员）
 export const isAdmin = (userIdentity: string): boolean => {
-  return userIdentity === IDENTITY.ADMIN || userIdentity === IDENTITY.SUPER_ADMIN
+  return (
+    userIdentity === IDENTITY.ADMIN || userIdentity === IDENTITY.SUPER_ADMIN
+  )
 }
 
 // 检查是否为运维人员（包括管理员和超级管理员）
-export const isDevOps = (userIdentity: "devops" | "super_admin" | "admin"): boolean => {
-  return [IDENTITY.DEVOPS, IDENTITY.ADMIN, IDENTITY.SUPER_ADMIN].includes(userIdentity)
+export const isDevOps = (
+  userIdentity: 'devops' | 'super_admin' | 'admin'
+): boolean => {
+  return [IDENTITY.DEVOPS, IDENTITY.ADMIN, IDENTITY.SUPER_ADMIN].includes(
+    userIdentity
+  )
 }
 
 // 检查是否为开发人员（包括运维、管理员和超级管理员）
-export const isDeveloper = (userIdentity: "devops" | "super_admin" | "admin" | "developer"): boolean => {
-  return [IDENTITY.DEVELOPER, IDENTITY.DEVOPS, IDENTITY.ADMIN, IDENTITY.SUPER_ADMIN].includes(userIdentity)
+export const isDeveloper = (
+  userIdentity: 'devops' | 'super_admin' | 'admin' | 'developer'
+): boolean => {
+  return [
+    IDENTITY.DEVELOPER,
+    IDENTITY.DEVOPS,
+    IDENTITY.ADMIN,
+    IDENTITY.SUPER_ADMIN
+  ].includes(userIdentity)
 }
 
 // 检查是否为运营人员（包括管理员和超级管理员）
-export const isOperator = (userIdentity: "super_admin" | "admin" | "operator"): boolean => {
-  return [IDENTITY.OPERATOR, IDENTITY.ADMIN, IDENTITY.SUPER_ADMIN].includes(userIdentity)
+export const isOperator = (
+  userIdentity: 'super_admin' | 'admin' | 'operator'
+): boolean => {
+  return [IDENTITY.OPERATOR, IDENTITY.ADMIN, IDENTITY.SUPER_ADMIN].includes(
+    userIdentity
+  )
 }
 
 // 获取用户权限描述
@@ -80,7 +104,7 @@ export const getUserPermissionDescription = (userIdentity: string): string => {
     [IDENTITY.MEMBER]: '普通成员',
     [IDENTITY.GUEST]: '访客'
   }
-  
+
   return descriptions[userIdentity as keyof typeof descriptions] || '未知身份'
 }
 

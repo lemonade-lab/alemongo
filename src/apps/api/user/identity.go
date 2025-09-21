@@ -52,10 +52,20 @@ func Identity(ctx *gin.Context) {
 	}
 
 	// 检查当前用户是否为超级管理员
-	currentUserIsSuperAdmin := dao.IsSuperAdmin(currentUser)
+	currentUserInfo, currentUserExists := dao.GetUserByUserName(currentUser)
+	var currentUserIsSuperAdmin bool
+	if currentUserExists {
+		currentUserIsSuperAdmin = currentUserInfo.Identity == permission.IdentitySuperAdmin
+	} else {
+		// 检查是否为临时超级管理员
+		currentUserIsSuperAdmin = dao.IsTemporarySuperAdmin(currentUser)
+	}
+
+	// 检查目标用户是否为超级管理员
+	targetUserIsSuperAdmin := user.Identity == permission.IdentitySuperAdmin
 
 	// 如果目标用户是超级管理员，只有超级管理员才能修改
-	if dao.IsSuperAdmin(username) && !currentUserIsSuperAdmin {
+	if targetUserIsSuperAdmin && !currentUserIsSuperAdmin {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"code": http.StatusBadRequest,
 			"msg":  "只有超级管理员才能修改超级管理员身份",

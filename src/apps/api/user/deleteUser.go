@@ -5,6 +5,7 @@ import (
 	"alemongo/src/apps/api/response"
 	"alemongo/src/dao"
 	"alemongo/src/logic"
+	"alemongo/src/permission"
 
 	"net/http"
 
@@ -29,10 +30,24 @@ func DeleteUserHandler(ctx *gin.Context) {
 	}
 
 	// 检查当前用户是否为超级管理员
-	currentUserIsSuperAdmin := dao.IsSuperAdmin(adminname)
+	currentUserInfo, currentUserExists := dao.GetUserByUserName(adminname)
+	var currentUserIsSuperAdmin bool
+	if currentUserExists {
+		currentUserIsSuperAdmin = currentUserInfo.Identity == permission.IdentitySuperAdmin
+	} else {
+		// 检查是否为临时超级管理员
+		currentUserIsSuperAdmin = dao.IsTemporarySuperAdmin(adminname)
+	}
+
+	// 检查目标用户是否为超级管理员
+	targetUserInfo, targetUserExists := dao.GetUserByUserName(username)
+	var targetUserIsSuperAdmin bool
+	if targetUserExists {
+		targetUserIsSuperAdmin = targetUserInfo.Identity == permission.IdentitySuperAdmin
+	}
 
 	// 如果目标用户是超级管理员，只有超级管理员才能删除
-	if dao.IsSuperAdmin(username) && !currentUserIsSuperAdmin {
+	if targetUserIsSuperAdmin && !currentUserIsSuperAdmin {
 		response.ResponseErrorWithMsg(ctx, http.StatusBadRequest, http.StatusBadRequest, "只有超级管理员才能删除超级管理员")
 		return
 	}

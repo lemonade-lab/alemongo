@@ -9,15 +9,20 @@ import { PropsWithChildren } from 'react'
 const Box = ({
   boxRef,
   children,
+  rootClassName,
   className
 }: PropsWithChildren<{
   boxRef?: React.RefObject<HTMLDivElement>
   className?: string
+  rootClassName?: string
 }>) => {
   return (
     <div
       ref={boxRef}
-      className="flex-1 p-4 h-full w-full flex overflow-auto transition-colors "
+      className={classNames(
+        'flex-1 p-4 h-full w-full flex overflow-auto transition-colors',
+        rootClassName
+      )}
     >
       <div className="flex-1 flex w-[100px]">
         <div className={classNames(className, 'flex-1 flex flex-col')}>

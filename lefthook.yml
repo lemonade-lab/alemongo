@@ -1,0 +1,4 @@
+pre-commit:
+  scripts:
+    "commit.sh":
+      runner: bash

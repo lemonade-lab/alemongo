@@ -119,11 +119,15 @@ const Headings = ({
               >
                 {selects.map(item => {
                   // 如果当前用户不是超级管理员，过滤掉超级管理员选项
-                  const currentUserIsSuperAdmin = currentUserIdentity === IDENTITY.SUPER_ADMIN
-                  if (item === IDENTITY.SUPER_ADMIN && !currentUserIsSuperAdmin) {
+                  const currentUserIsSuperAdmin =
+                    currentUserIdentity === IDENTITY.SUPER_ADMIN
+                  if (
+                    item === IDENTITY.SUPER_ADMIN &&
+                    !currentUserIsSuperAdmin
+                  ) {
                     return null
                   }
-                  
+
                   return (
                     <Select.Option key={item} value={item}>
                       {item}

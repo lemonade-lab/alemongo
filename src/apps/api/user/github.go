@@ -90,7 +90,7 @@ func BindGitHubAccount(ctx *gin.Context) {
 	}
 
 	// 临时超级管理员不能绑定 GitHub 账号
-	if dao.IsSuperAdmin(username.(string)) && dao.IsTemporarySuperAdmin() {
+	if dao.IsTemporarySuperAdmin(username.(string)) {
 		response.ResponseErrorWithMsg(ctx, http.StatusBadRequest, http.StatusBadRequest, "临时超级管理员不能绑定 GitHub 账号，请先修改密码")
 		return
 	}

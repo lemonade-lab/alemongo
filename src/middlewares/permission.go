@@ -28,18 +28,25 @@ func PermissionMiddleware(requiredPermission int) gin.HandlerFunc {
 			return
 		}
 
-		// 检查是否为超级管理员
-		if dao.IsSuperAdmin(usernameStr) {
-			// 超级管理员拥有所有权限
-			c.Next()
-			return
-		}
-
 		// 获取用户信息
 		user, exists := dao.GetUserByUserName(usernameStr)
 		if !exists {
+			// 检查是否为临时超级管理员
+			if dao.IsTemporarySuperAdmin(usernameStr) {
+				// 临时超级管理员拥有所有权限
+				c.Next()
+				return
+			}
+			// 用户不存在
 			response.ResponseErrorWithMsg(c, http.StatusUnauthorized, http.StatusUnauthorized, "用户不存在")
 			c.Abort()
+			return
+		}
+
+		// 检查是否为超级管理员
+		if user.Identity == permission.IdentitySuperAdmin {
+			// 超级管理员拥有所有权限
+			c.Next()
 			return
 		}
 
@@ -72,7 +79,23 @@ func SuperAdminOnlyMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		if !dao.IsSuperAdmin(usernameStr) {
+		// 获取用户信息
+		user, exists := dao.GetUserByUserName(usernameStr)
+		if !exists {
+			// 检查是否为临时超级管理员
+			if dao.IsTemporarySuperAdmin(usernameStr) {
+				// 临时超级管理员可以访问
+				c.Next()
+				return
+			}
+			// 用户不存在
+			response.ResponseErrorWithMsg(c, http.StatusUnauthorized, http.StatusUnauthorized, "用户不存在")
+			c.Abort()
+			return
+		}
+
+		// 检查是否为超级管理员
+		if user.Identity != permission.IdentitySuperAdmin {
 			response.ResponseErrorWithMsg(c, http.StatusForbidden, http.StatusForbidden, "仅超级管理员可访问")
 			c.Abort()
 			return
@@ -99,22 +122,23 @@ func AdminOrSuperAdminMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		// 检查是否为超级管理员
-		if dao.IsSuperAdmin(usernameStr) {
-			c.Next()
-			return
-		}
-
 		// 获取用户信息
 		user, exists := dao.GetUserByUserName(usernameStr)
 		if !exists {
+			// 检查是否为临时超级管理员
+			if dao.IsTemporarySuperAdmin(usernameStr) {
+				// 临时超级管理员可以访问
+				c.Next()
+				return
+			}
+			// 用户不存在
 			response.ResponseErrorWithMsg(c, http.StatusUnauthorized, http.StatusUnauthorized, "用户不存在")
 			c.Abort()
 			return
 		}
 
-		// 检查是否为管理员
-		if user.Identity == permission.IdentityAdmin {
+		// 检查是否为超级管理员或管理员
+		if user.Identity == permission.IdentitySuperAdmin || user.Identity == permission.IdentityAdmin {
 			c.Next()
 			return
 		}

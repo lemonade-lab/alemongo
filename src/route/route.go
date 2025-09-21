@@ -68,9 +68,11 @@ func Create(mode string) *gin.Engine {
 			CommonAPI := v1.Group("/common")
 			{
 				CommonAPI.POST("/receive", receive.POST) // 推送github事件
+				// 一般配置（无需登录）
+				CommonAPI.GET("/config", common.GetGeneralConfig) // 获取一般配置
 				// 开始鉴权
 				CommonAPI.Use(middlewares.AuthMiddleware())
-				CommonAPI.GET("/info", common.Info) // 获取环境信息（无需权限）
+				CommonAPI.GET("/info", common.Info) // 获取环境信息（需要权限）
 			}
 			// settings
 			SettingsAPI := v1.Group("/settings")
