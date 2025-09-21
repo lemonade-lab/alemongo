@@ -83,3 +83,11 @@ export const apiUnbindGitHubAccount = async () => {
     method: 'POST'
   }).then(res => res.data)
 }
+
+// 获取超级管理员状态
+export const apiGetAdminStatus = async () => {
+  return request({
+    url: '/user/admin-status',
+    method: 'GET'
+  }).then(res => res.data)
+}

@@ -33,6 +33,10 @@ type State = {
     github_username: string
     github_avatar: string
     is_github_bound: boolean
+    extra_info?: {
+      is_temporary_super_admin?: boolean
+      [key: string]: unknown
+    }
   }
 }
 
@@ -73,6 +77,7 @@ const notificationSlice = createSlice({
       state.info.github_username = action.payload?.github_username || ''
       state.info.github_avatar = action.payload?.github_avatar || ''
       state.info.is_github_bound = action.payload?.is_github_bound || false
+      state.info.extra_info = action.payload?.extra_info
     }
   }
 })

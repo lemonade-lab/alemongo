@@ -167,8 +167,8 @@ const Headings = ({
                 message: '请输入机器人名称'
               },
               {
-                message: '机器人名称只能包含字母、数字、下划线',
-                pattern: /^[a-zA-Z0-9_]+$/
+                message: '机器人名称只能包含字母、数字、下划线、短横线',
+                pattern: /^[a-zA-Z0-9_-]+$/
               }
             ]}
           >

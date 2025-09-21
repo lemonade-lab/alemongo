@@ -1,10 +1,10 @@
-import server from '../base'
+import { request } from '../base'
 import { Info } from '../types'
 
 export const apiCommonInfo = async (): Promise<{
   data: Info
 }> => {
-  return server({
+  return request({
     url: '/common/info',
     method: 'GET'
   }).then(res => res.data)

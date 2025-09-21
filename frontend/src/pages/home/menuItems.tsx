@@ -11,7 +11,7 @@ export const menuItems = [
     key: '/account',
     icon: <SettingOutlined />,
     label: '账户管理',
-    identity: 'admin'
+    identity: 'admin' // 管理员和超级管理员都可以访问
   },
   { key: '/ssh', icon: <DesktopOutlined />, label: '密钥文件' },
   { key: '/bots', icon: <RobotOutlined />, label: '机器列表' },

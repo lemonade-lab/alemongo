@@ -33,6 +33,50 @@ func InitAdmin() {
 	admin = GenerateAdminAccount()
 }
 
+// 检查是否存在超级管理员
+func HasSuperAdmin() bool {
+	users := GetList()
+	for _, user := range users {
+		if user.Identity == permission.IdentitySuperAdmin {
+			return true
+		}
+	}
+	return false
+}
+
+// 获取超级管理员用户
+func GetSuperAdmin() (models.User, bool) {
+	users := GetList()
+	for _, user := range users {
+		if user.Identity == permission.IdentitySuperAdmin {
+			return user, true
+		}
+	}
+	return models.User{}, false
+}
+
+// 检查是否为临时超级管理员（未保存到文件）
+func IsTemporarySuperAdmin() bool {
+	return !HasSuperAdmin()
+}
+
+// 获取超级管理员状态信息
+func GetSuperAdminStatus() map[string]interface{} {
+	status := map[string]interface{}{
+		"is_temporary":  IsTemporarySuperAdmin(),
+		"username":      admin.UserName,
+		"has_permanent": HasSuperAdmin(),
+	}
+
+	if IsTemporarySuperAdmin() {
+		status["message"] = "当前为临时超级管理员，请修改密码以永久保存账户"
+	} else {
+		status["message"] = "超级管理员账户已永久保存"
+	}
+
+	return status
+}
+
 func GetAdmin() *models.User {
 	adminCpy := *admin
 	return &adminCpy
@@ -51,42 +95,31 @@ func generateRandomPassword(length int) string {
 }
 
 func GenerateAdminAccount() *models.User {
-	userPath, err := paths.GetUserDataPath()
-	if err != nil {
-		return &models.User{}
-	}
-	// 检查用户数据目录是否存在
-	userListPath := path.Join(userPath, "admin.json")
-	if _, err := os.Stat(userListPath); os.IsNotExist(err) {
-		// 生成随机密码
-		password := generateRandomPassword(16)
-		username := permission.DefaultUserName
-		adminUser := &models.User{
-			Identity:                 permission.IdentityAdmin,
-			UserName:                 username,
-			PassWord:                 password,
-			MasterName:               permission.DefaultUserName,
-			Email:                    settings.Conf.SMTP.FromEmail,
-			IsEmailVerified:          true,
-			ReceiveEmailNotification: false,
+	username := permission.DefaultUserName
+
+	// 检查是否已存在超级管理员
+	if HasSuperAdmin() {
+		// 如果存在，从用户列表中获取
+		existingUser, exists := GetUserByUserName(username)
+		if exists && existingUser.Identity == permission.IdentitySuperAdmin {
+			return &existingUser
 		}
-		log.Printf("临时超级管理员账户信息：\n账户: %s\n密码: %s\n", adminUser.UserName, adminUser.PassWord)
-		return adminUser
 	}
-	// 读取文件中存储的admin信息
-	fileData, err := os.ReadFile(userListPath)
-	if err != nil {
-		log.Printf("读取管理员账户文件错误: %v", err)
-		return &models.User{}
+
+	// 如果不存在超级管理员，生成临时超级管理员（不存储到文件）
+	password := generateRandomPassword(16)
+	adminUser := &models.User{
+		Identity:                 permission.IdentitySuperAdmin,
+		UserName:                 username,
+		PassWord:                 password,
+		MasterName:               permission.DefaultUserName,
+		Email:                    settings.Conf.SMTP.FromEmail,
+		IsEmailVerified:          true,
+		ReceiveEmailNotification: false,
 	}
-	// 解析json
-	adminUser := &models.User{}
-	err = json.Unmarshal(fileData, adminUser)
-	if err != nil {
-		// 解析失败
-		log.Printf("读取管理员账户文件错误: %v", err)
-		return &models.User{}
-	}
+
+	log.Printf("临时超级管理员账户信息：\n账户: %s\n密码: %s\n", adminUser.UserName, adminUser.PassWord)
+	log.Printf("请使用此账户登录并修改密码，修改密码后账户将永久保存")
 	return adminUser
 }
 
@@ -96,40 +129,54 @@ func SetAdminPassword(password string) bool {
 	if password == "" {
 		return false
 	}
-	// 保存到文件
-	userPath, err := paths.GetUserDataPath()
-	if err != nil {
-		log.Printf("获取用户数据目录失败: %v", err)
-		return false
+
+	// 检查超级管理员是否已存在于用户列表中
+	if HasSuperAdmin() {
+		// 如果已存在，直接更新密码
+		success := SetUserByUserName(admin.UserName, password)
+		if success {
+			// 更新内存中的密码
+			admin.PassWord = password
+		}
+		return success
+	} else {
+		// 如果不存在，创建新的超级管理员用户并保存到列表
+		adminUser := &models.User{
+			Identity:                 permission.IdentitySuperAdmin,
+			UserName:                 admin.UserName,
+			PassWord:                 password,
+			MasterName:               permission.DefaultUserName,
+			Email:                    settings.Conf.SMTP.FromEmail,
+			IsEmailVerified:          true,
+			ReceiveEmailNotification: false,
+		}
+
+		err := CreateUser(adminUser)
+		if err != nil {
+			log.Printf("保存超级管理员到用户列表失败: %v", err)
+			return false
+		}
+
+		// 更新内存中的密码
+		admin.PassWord = password
+		log.Printf("超级管理员账户已永久保存到用户列表")
+		return true
 	}
-	userListPath := path.Join(userPath, "admin.json")
-	fileData, err := json.Marshal(models.User{
-		Identity:   permission.IdentityAdmin,
-		UserName:   admin.UserName,
-		PassWord:   password,
-		MasterName: permission.DefaultUserName,
-	})
-	if err != nil {
-		log.Printf("序列化管理员账户信息失败: %v", err)
-		return false
-	}
-	err = os.WriteFile(userListPath, fileData, 0644)
-	if err != nil {
-		log.Printf("写入管理员账户信息失败: %v", err)
-		return false
-	}
-	// 设置密码
-	admin.PassWord = password
-	return true
 }
 
 // 是否是超级管理员
 func IsSuperAdmin(username string) bool {
-	// 如果用户名是lemonade。返回true
+	// 检查用户名是否匹配
 	if username == admin.UserName {
 		return true
 	}
-	// 否则返回false
+
+	// 额外检查：如果用户存在于用户列表中且身份为超级管理员
+	user, exists := GetUserByUserName(username)
+	if exists && user.Identity == permission.IdentitySuperAdmin {
+		return true
+	}
+
 	return false
 }
 

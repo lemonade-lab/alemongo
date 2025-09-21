@@ -13,4 +13,6 @@ type User struct {
 	GitHubUsername string `form:"github_username" json:"github_username"`
 	GitHubAvatar   string `form:"github_avatar" json:"github_avatar"`
 	IsGitHubBound  bool   `form:"is_github_bound" json:"is_github_bound"`
+	// 额外信息字段
+	ExtraInfo map[string]interface{} `form:"extra_info" json:"extra_info,omitempty"`
 }

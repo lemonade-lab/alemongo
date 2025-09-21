@@ -5,6 +5,7 @@ import { useSelector } from 'react-redux'
 import { RootState } from '@/redux'
 import { ReactNode } from 'react'
 import classNames from 'classnames'
+import { hasPermission } from '@/utils/permission'
 
 // 菜单项类型定义
 interface MenuItemType {
@@ -196,12 +197,11 @@ const SiderMenu = ({
   }, [location])
 
   const storeMe = useSelector((state: RootState) => state.me)
-  // 过滤得到 item
+  // 过滤得到 item - 使用新的权限判断逻辑
   const curMenuItems = menuItems.filter(item => {
     if (item?.identity) {
-      if (item?.identity !== storeMe.info.identity) {
-        return false
-      }
+      // 使用权限工具函数进行判断
+      return hasPermission(storeMe.info.identity, item.identity)
     }
     return true
   })
