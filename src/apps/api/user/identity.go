@@ -1,10 +1,10 @@
 package user
 
 import (
+	"alemongo/src/apps/api/requests"
 	"alemongo/src/apps/api/response"
 	"alemongo/src/dao"
 	"alemongo/src/permission"
-	"alemongo/src/pkgs/jwt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -22,31 +22,53 @@ func Identity(ctx *gin.Context) {
 		response.ResponseErrorWithMsg(ctx, http.StatusBadRequest, http.StatusBadRequest, "参数错误")
 		return
 	}
-	// 用户更新权限
-	message := jwt.Permission(ctx, permission.UserUpdate)
-	if message != "" {
-		ctx.JSON(200, gin.H{
-			"code": 200,
-			"msg":  message,
-			"data": nil,
-		})
-		ctx.Abort()
+	username := ctx.PostForm("username")
+
+	// 获取当前登录用户
+	currentUser, exists := requests.GetUserName(ctx)
+	if !exists {
+		response.ResponseErrorWithMsg(ctx, http.StatusBadRequest, http.StatusBadRequest, "获取当前用户失败")
 		return
 	}
-	username := ctx.PostForm("username")
-	if dao.IsSuperAdmin(username) {
+
+	// 禁止用户修改自己的身份
+	if currentUser == username {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"code": http.StatusBadRequest,
-			"msg":  "禁止修改超级账户",
+			"msg":  "禁止修改自己的身份",
 			"data": nil,
 		})
 		return
 	}
+
 	user, exist := dao.GetUserByUserName(username)
 	if !exist {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"code": http.StatusBadRequest,
 			"msg":  "用户不存在",
+			"data": nil,
+		})
+		return
+	}
+
+	// 检查当前用户是否为超级管理员
+	currentUserIsSuperAdmin := dao.IsSuperAdmin(currentUser)
+
+	// 如果目标用户是超级管理员，只有超级管理员才能修改
+	if dao.IsSuperAdmin(username) && !currentUserIsSuperAdmin {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"code": http.StatusBadRequest,
+			"msg":  "只有超级管理员才能修改超级管理员身份",
+			"data": nil,
+		})
+		return
+	}
+
+	// 如果要将用户设置为超级管理员，只有超级管理员才能操作
+	if identity == permission.IdentitySuperAdmin && !currentUserIsSuperAdmin {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"code": http.StatusBadRequest,
+			"msg":  "只有超级管理员才能设置用户为超级管理员",
 			"data": nil,
 		})
 		return

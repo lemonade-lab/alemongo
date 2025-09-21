@@ -1,15 +1,16 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import {
   apiBotPackagesGitBranches,
   apiBotPackagesGitCommits,
   apiBotPackagesGitSwitch,
+  apiBotPackagesGitFetch,
+  apiBotPackagesPull,
   BotPackagesGitBranches,
   BotPackagesGitCommits,
   BotPackagesGitBranchCommitsInfo
 } from '@/api'
 import {
   Button,
-  Card,
   message,
   Modal,
   Pagination,
@@ -23,11 +24,12 @@ import {
 } from 'antd'
 import {
   BranchesOutlined,
-  CodeOutlined,
   SwapOutlined,
   ClockCircleOutlined,
   UserOutlined,
-  ExclamationCircleOutlined
+  ExclamationCircleOutlined,
+  ReloadOutlined,
+  DownloadOutlined
 } from '@ant-design/icons'
 import { getBotName, getGitPackageName } from '../../core'
 import Box from '@/commom/layout/Box'
@@ -55,6 +57,8 @@ const GitManager = () => {
   const [isLoadingBranches, setIsLoadingBranches] = useState(false)
   const [isLoadingCommits, setIsLoadingCommits] = useState(false)
   const [isSwitching, setIsSwitching] = useState(false)
+  const [isFetching, setIsFetching] = useState(false)
+  const [isPulling, setIsPulling] = useState(false)
   const [switchModalVisible, setSwitchModalVisible] = useState(false)
   const [selectedCommit, setSelectedCommit] =
     useState<BotPackagesGitBranchCommitsInfo | null>(null)
@@ -63,47 +67,104 @@ const GitManager = () => {
   const appName = getGitPackageName()
 
   // 获取分支列表
-  const loadBranches = async (page = 1, pageSize = 10) => {
+  const loadBranches = useCallback(
+    async (page = 1, pageSize = 10) => {
+      if (!botName || !appName) return
+
+      setIsLoadingBranches(true)
+      try {
+        const data = await apiBotPackagesGitBranches({
+          name: botName,
+          app_name: appName,
+          page,
+          page_size: pageSize
+        })
+        setBranches(data)
+        // 如果还没有选择分支，选择第一个
+        if (!selectedBranch && data.branches.length > 0) {
+          setSelectedBranch(data.branches[0])
+        }
+      } catch {
+        message.error('获取分支列表失败')
+      } finally {
+        setIsLoadingBranches(false)
+      }
+    },
+    [botName, appName, selectedBranch]
+  )
+
+  // 获取提交记录
+  const loadCommits = useCallback(
+    async (branchName: string, page = 1, pageSize = 10) => {
+      if (!botName || !appName || !branchName) return
+
+      setIsLoadingCommits(true)
+      try {
+        const data = await apiBotPackagesGitCommits({
+          name: botName,
+          app_name: appName,
+          branch_name: branchName,
+          page,
+          page_size: pageSize
+        })
+        setCommits(data)
+      } catch {
+        message.error('获取提交记录失败')
+      } finally {
+        setIsLoadingCommits(false)
+      }
+    },
+    [botName, appName]
+  )
+
+  // 从远程获取最新分支信息
+  const handleFetch = async () => {
     if (!botName || !appName) return
 
-    setIsLoadingBranches(true)
+    setIsFetching(true)
     try {
-      const data = await apiBotPackagesGitBranches({
+      const result = await apiBotPackagesGitFetch({
         name: botName,
-        app_name: appName,
-        page,
-        page_size: pageSize
+        app_name: appName
       })
-      setBranches(data)
-      // 如果还没有选择分支，选择第一个
-      if (!selectedBranch && data.branches.length > 0) {
-        setSelectedBranch(data.branches[0])
-      }
-    } catch (error) {
-      message.error('获取分支列表失败')
+      message.success(result.message)
+      // 使用fetch返回的分支列表更新状态
+      setBranches(prev => ({
+        ...prev,
+        branches: result.branches,
+        total: result.branches.length
+      }))
+    } catch {
+      message.error('从远程获取分支信息失败')
     } finally {
-      setIsLoadingBranches(false)
+      setIsFetching(false)
     }
   }
 
-  // 获取提交记录
-  const loadCommits = async (branchName: string, page = 1, pageSize = 10) => {
-    if (!botName || !appName || !branchName) return
+  // 拉取当前分支的最新代码
+  const handlePull = async () => {
+    if (!botName || !appName || !selectedBranch) {
+      message.error('请先选择分支')
+      return
+    }
 
-    setIsLoadingCommits(true)
+    setIsPulling(true)
     try {
-      const data = await apiBotPackagesGitCommits({
+      await apiBotPackagesPull({
         name: botName,
-        app_name: appName,
-        branch_name: branchName,
-        page,
-        page_size: pageSize
+        repo_name: appName,
+        branch_name: selectedBranch
       })
-      setCommits(data)
-    } catch (error) {
-      message.error('获取提交记录失败')
+      message.success('拉取成功')
+      // 重新加载分支列表和提交记录
+      loadBranches()
+      if (selectedBranch) {
+        loadCommits(selectedBranch)
+      }
+    } catch {
+      message.error('拉取失败')
     } finally {
-      setIsLoadingCommits(false)
+      setIsPulling(false)
     }
   }
 
@@ -125,7 +186,7 @@ const GitManager = () => {
       message.success('切换成功')
       setSwitchModalVisible(false)
       setSelectedCommit(null)
-    } catch (error) {
+    } catch {
       message.error('切换失败')
     } finally {
       setIsSwitching(false)
@@ -147,14 +208,14 @@ const GitManager = () => {
   // 初始化
   useEffect(() => {
     loadBranches()
-  }, [])
+  }, [loadBranches])
 
   // 当选择分支后加载提交记录
   useEffect(() => {
     if (selectedBranch) {
       loadCommits(selectedBranch)
     }
-  }, [selectedBranch])
+  }, [selectedBranch, loadCommits])
 
   // 提交记录表格列定义
   const commitColumns = [
@@ -206,7 +267,7 @@ const GitManager = () => {
       title: '操作',
       key: 'action',
       width: 100,
-      render: (_: any, record: BotPackagesGitBranchCommitsInfo) => (
+      render: (_: unknown, record: BotPackagesGitBranchCommitsInfo) => (
         <Button
           type="primary"
           size="small"
@@ -226,75 +287,86 @@ const GitManager = () => {
   return (
     <Box>
       <div className="flex-1 gap-6 flex flex-col bg-gradient-to-br from-white/90 to-gray-50/90 dark:from-zinc-900/90 dark:to-zinc-800/90 backdrop-blur-sm rounded-xl p-6  border border-gray-200/50 dark:border-zinc-700/50 transition-all duration-300">
-        <Space>
-          <BranchesOutlined className="text-blue-500" />
+        <div className="flex items-center justify-between">
           <Space>
-            <Text strong>当前分支：</Text>
-            <Select
-              value={selectedBranch}
-              onChange={handleBranchChange}
-              placeholder="选择分支"
-              style={{ width: 200 }}
-              loading={isLoadingBranches}
-              className="min-w-[200px]"
-            >
-              {branches.branches.map(branch => (
-                <Option key={branch} value={branch}>
-                  <Space>
-                    <BranchesOutlined />
-                    {branch}
-                  </Space>
-                </Option>
-              ))}
-            </Select>
+            <BranchesOutlined className="text-blue-500" />
+            <Space>
+              <Text strong>当前分支：</Text>
+              <Select
+                value={selectedBranch}
+                onChange={handleBranchChange}
+                placeholder="选择分支"
+                style={{ width: 150 }}
+                loading={isLoadingBranches}
+              >
+                {branches.branches.map(branch => (
+                  <Option key={branch} value={branch}>
+                    <Space>
+                      <BranchesOutlined />
+                      <span>{branch}</span>
+                    </Space>
+                  </Option>
+                ))}
+              </Select>
+              <Button
+                type="primary"
+                icon={<ReloadOutlined />}
+                loading={isFetching}
+                onClick={handleFetch}
+                className="bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-600 hover:to-blue-700 border-0"
+              >
+                从远程获取
+              </Button>
+            </Space>
           </Space>
-        </Space>
+
+          <Button
+            type="primary"
+            icon={<DownloadOutlined />}
+            loading={isPulling}
+            onClick={handlePull}
+            disabled={!selectedBranch}
+            className="bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 border-0"
+          >
+            拉取代码
+          </Button>
+        </div>
 
         {/* 提交记录 */}
         {selectedBranch && (
-          <Card
-            title={
-              <Space>
-                <CodeOutlined className="text-green-500" />
-                <span>提交记录 - {selectedBranch}</span>
-              </Space>
-            }
-            className=" border-0 bg-white/70 dark:bg-zinc-800/70 backdrop-blur-sm"
-          >
-            <Spin spinning={isLoadingCommits}>
-              {commits.commits.length > 0 ? (
-                <>
-                  <Table
-                    columns={commitColumns}
-                    dataSource={commits.commits}
-                    rowKey="hash"
-                    pagination={false}
-                    size="small"
-                    className="mb-4"
-                  />
-                  {commits.total > commits.page_size && (
-                    <div className="flex justify-center">
-                      <Pagination
-                        current={commits.page}
-                        total={commits.total}
-                        pageSize={commits.page_size}
-                        onChange={(page, pageSize) =>
-                          loadCommits(selectedBranch, page, pageSize)
-                        }
-                        showSizeChanger
-                        showQuickJumper
-                        showTotal={(total, range) =>
-                          `第 ${range[0]}-${range[1]} 条，共 ${total} 条`
-                        }
-                      />
-                    </div>
-                  )}
-                </>
-              ) : (
-                <Empty description="暂无提交记录" />
-              )}
-            </Spin>
-          </Card>
+          <Spin spinning={isLoadingCommits}>
+            {commits.commits.length > 0 ? (
+              <>
+                <Table
+                  columns={commitColumns}
+                  dataSource={commits.commits}
+                  rowKey="hash"
+                  pagination={false}
+                  size="small"
+                  className="mb-4"
+                />
+                {commits.total > commits.page_size && (
+                  <div className="flex justify-center">
+                    <Pagination
+                      current={commits.page}
+                      total={commits.total}
+                      pageSize={commits.page_size}
+                      onChange={(page, pageSize) =>
+                        loadCommits(selectedBranch, page, pageSize)
+                      }
+                      showSizeChanger
+                      showQuickJumper
+                      showTotal={(total, range) =>
+                        `第 ${range[0]}-${range[1]} 条，共 ${total} 条`
+                      }
+                    />
+                  </div>
+                )}
+              </>
+            ) : (
+              <Empty description="暂无提交记录" />
+            )}
+          </Spin>
         )}
       </div>
 

@@ -7,24 +7,15 @@ import (
 	"alemongo/src/logic"
 	"alemongo/src/models"
 	"alemongo/src/permission"
-	"github.com/gin-gonic/gin"
-	"go.uber.org/zap"
 	"log"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
 // CreateHandler 创建用户的路由处理函数
 func CreateUserHandler(ctx *gin.Context) {
-	// 只有管理员才可以创建新用户
-	adminname, exists := requests.GetUserName(ctx)
-	if !exists {
-		response.ResponseErrorWithMsg(ctx, http.StatusBadRequest, http.StatusBadRequest, "错误请求")
-		return
-	}
-	if !dao.IsSuperAdmin(adminname) {
-		response.ResponseErrorWithMsg(ctx, http.StatusBadRequest, http.StatusBadRequest, "权限不足")
-		return
-	}
 	// 获取参数，并进行校验
 	user := new(models.User)
 	if err := ctx.ShouldBind(user); err != nil {
@@ -37,6 +28,22 @@ func CreateUserHandler(ctx *gin.Context) {
 	existIdentity := permission.ExistIdentity(user.Identity)
 	if !existIdentity {
 		response.ResponseErrorWithMsg(ctx, http.StatusBadRequest, http.StatusBadRequest, "参数错误")
+		return
+	}
+
+	// 获取当前登录用户
+	currentUser, exists := requests.GetUserName(ctx)
+	if !exists {
+		response.ResponseErrorWithMsg(ctx, http.StatusBadRequest, http.StatusBadRequest, "获取当前用户失败")
+		return
+	}
+
+	// 检查当前用户是否为超级管理员
+	currentUserIsSuperAdmin := dao.IsSuperAdmin(currentUser)
+
+	// 如果要将用户设置为超级管理员，只有超级管理员才能操作
+	if user.Identity == permission.IdentitySuperAdmin && !currentUserIsSuperAdmin {
+		response.ResponseErrorWithMsg(ctx, http.StatusBadRequest, http.StatusBadRequest, "只有超级管理员才能创建超级管理员")
 		return
 	}
 

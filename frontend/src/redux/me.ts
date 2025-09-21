@@ -33,6 +33,10 @@ type State = {
     github_username: string
     github_avatar: string
     is_github_bound: boolean
+    extra_info?: {
+      is_temporary_super_admin?: boolean
+      [key: string]: unknown
+    }
   }
 }
 
@@ -73,9 +77,27 @@ const notificationSlice = createSlice({
       state.info.github_username = action.payload?.github_username || ''
       state.info.github_avatar = action.payload?.github_avatar || ''
       state.info.is_github_bound = action.payload?.is_github_bound || false
+      state.info.extra_info = action.payload?.extra_info
+    },
+    clearUserState(state) {
+      localStorage.removeItem(TOKEN_KEY)
+      state.token = ''
+      state.login = false
+      state.info = {
+        email: '',
+        is_email_verified: false,
+        username: '',
+        password: '',
+        identity: '',
+        mastername: '',
+        github_id: 0,
+        github_username: '',
+        github_avatar: '',
+        is_github_bound: false
+      }
     }
   }
 })
 
-export const { setUserInfo, setToken } = notificationSlice.actions
+export const { setUserInfo, setToken, clearUserState } = notificationSlice.actions
 export default notificationSlice.reducer

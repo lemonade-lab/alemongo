@@ -18,6 +18,7 @@ import (
 	"time"
 
 	"github.com/go-git/go-git/v5"
+	gitconfig "github.com/go-git/go-git/v5/config"
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/go-git/go-git/v5/plumbing/object"
 
@@ -355,8 +356,58 @@ func PackagesGitCheckout(name, repo_url, isForce, branch_name, commitHash string
 	return nil
 }
 
-// todo 优化完 PackagesClone 后，直接调用本地的 git 信息获取，速度更快
-func PackageGitBranches(repo_url string) ([]string, error) {
+// PackageGitBranchesLocal 从本地仓库获取分支信息（包含本地和远程分支）
+func PackageGitBranchesLocal(repoPath string) ([]string, error) {
+	repo, err := git.PlainOpen(repoPath)
+	if err != nil {
+		return nil, fmt.Errorf("打开本地仓库失败: %w", err)
+	}
+
+	var branches []string
+	refs, err := repo.References()
+	if err != nil {
+		return nil, err
+	}
+
+	// 一次性遍历所有引用，避免迭代器被消耗的问题
+	err = refs.ForEach(func(ref *plumbing.Reference) error {
+		if ref.Name().IsBranch() {
+			// 添加本地分支
+			branches = append(branches, ref.Name().Short())
+		} else if ref.Name().IsRemote() {
+			// 获取完整的远程分支引用名称
+			remoteRefName := ref.Name().String()
+			// 只处理 origin 远程分支
+			if strings.HasPrefix(remoteRefName, "refs/remotes/origin/") {
+				// 提取分支名（移除 refs/remotes/origin/ 前缀）
+				branchName := strings.TrimPrefix(remoteRefName, "refs/remotes/origin/")
+				// 跳过 HEAD 引用
+				if branchName != "HEAD" {
+					// 避免重复添加相同的分支名
+					found := false
+					for _, existingBranch := range branches {
+						if existingBranch == branchName {
+							found = true
+							break
+						}
+					}
+					if !found {
+						branches = append(branches, branchName)
+					}
+				}
+			}
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return branches, nil
+}
+
+// PackageGitBranchesRemote 从远程仓库获取分支信息（用于fetch操作）
+func PackageGitBranchesRemote(repo_url string) ([]string, error) {
 	tmpPath, err := os.MkdirTemp("", "git-clone")
 	if err != nil {
 		return nil, err
@@ -407,6 +458,196 @@ func PackageGitBranches(repo_url string) ([]string, error) {
 		return nil, err
 	}
 	return branches, nil
+}
+
+// PackageGitFetch 从远程获取最新分支信息到本地
+func PackageGitFetch(repoPath string) error {
+	repo, err := git.PlainOpen(repoPath)
+	if err != nil {
+		return fmt.Errorf("打开本地仓库失败: %w", err)
+	}
+
+	// 获取远程仓库信息
+	remotes, err := repo.Remotes()
+	if err != nil {
+		return fmt.Errorf("获取远程仓库信息失败: %w", err)
+	}
+
+	if len(remotes) == 0 {
+		return fmt.Errorf("没有找到远程仓库")
+	}
+
+	// 查找 origin 远程仓库，如果没有则使用第一个
+	var remote *git.Remote
+	for _, r := range remotes {
+		if r.Config().Name == "origin" {
+			remote = r
+			break
+		}
+	}
+	if remote == nil {
+		remote = remotes[0]
+	}
+
+	// 修改远程配置以获取所有分支
+	cfg, err := repo.Config()
+	if err != nil {
+		return fmt.Errorf("获取仓库配置失败: %w", err)
+	}
+
+	// 更新origin的fetch配置以获取所有分支
+	cfg.Remotes["origin"].Fetch = []gitconfig.RefSpec{"+refs/heads/*:refs/remotes/origin/*"}
+
+	// 保存配置
+	err = repo.SetConfig(cfg)
+	if err != nil {
+		return fmt.Errorf("更新仓库配置失败: %w", err)
+	}
+
+	// 重新获取远程仓库信息
+	remotes, err = repo.Remotes()
+	if err != nil {
+		return fmt.Errorf("重新获取远程仓库信息失败: %w", err)
+	}
+
+	// 重新查找 origin 远程仓库
+	for _, r := range remotes {
+		if r.Config().Name == "origin" {
+			remote = r
+			break
+		}
+	}
+
+	// 检查是否是SSH URL并执行fetch
+	var fetchErr error
+	if strings.Contains(remote.Config().URLs[0], "git@") {
+		auth, err := utils.GetSSHAuth()
+		if err != nil {
+			return fmt.Errorf("获取SSH认证失败: %w", err)
+		}
+		fetchErr = remote.Fetch(&git.FetchOptions{
+			Auth:     auth,
+			RefSpecs: []gitconfig.RefSpec{"+refs/heads/*:refs/remotes/origin/*"},
+			Force:    true, // 强制更新所有分支引用
+		})
+	} else {
+		fetchErr = remote.Fetch(&git.FetchOptions{
+			RefSpecs: []gitconfig.RefSpec{"+refs/heads/*:refs/remotes/origin/*"},
+			Force:    true, // 强制更新所有分支引用
+		})
+	}
+
+	if fetchErr != nil && fetchErr != git.NoErrAlreadyUpToDate {
+		return fmt.Errorf("从远程获取分支失败: %w", fetchErr)
+	}
+
+	return nil
+}
+
+// PackageGitBranches 获取分支信息，优先使用本地，如果本地没有则从远程获取
+func PackageGitBranches(repo_url string) ([]string, error) {
+	// 首先尝试从本地仓库获取
+	// 这里需要根据repo_url找到对应的本地仓库路径
+	// 由于当前函数只接收repo_url，我们需要修改调用方式
+	// 暂时保持原有逻辑，但添加注释说明需要优化
+	tmpPath, err := os.MkdirTemp("", "git-clone")
+	if err != nil {
+		return nil, err
+	}
+	defer os.RemoveAll(tmpPath)
+
+	var repo *git.Repository
+	// 克隆仓库
+	if strings.Contains(repo_url, "git@") {
+		auth, err := utils.GetSSHAuth()
+		if err != nil {
+			return nil, err
+		}
+		repo, err = git.PlainClone(tmpPath, false, &git.CloneOptions{
+			URL:  repo_url,
+			Auth: auth,
+		})
+		if err != nil {
+			return nil, fmt.Errorf("克隆SSH仓库失败: %w", err)
+		}
+	} else if strings.Contains(repo_url, "https") {
+		repo, err = git.PlainClone(tmpPath, false, &git.CloneOptions{
+			URL: repo_url,
+		})
+		if err != nil {
+			return nil, fmt.Errorf("克隆HTTPS仓库失败: %w", err)
+		}
+	} else {
+		return nil, fmt.Errorf("不支持的仓库URL格式: %s", repo_url)
+	}
+
+	if repo == nil {
+		return nil, fmt.Errorf("仓库克隆失败")
+	}
+
+	var branches []string
+	refs, err := repo.References()
+	if err != nil {
+		return nil, err
+	}
+	err = refs.ForEach(func(ref *plumbing.Reference) error {
+		if ref.Name().IsRemote() {
+			branches = append(branches, ref.Name().Short())
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return branches, nil
+}
+
+// PackageGitCommitsLocal 从本地仓库获取提交记录
+func PackageGitCommitsLocal(repoPath, branch_name string) ([]models.BotPackagesGitBranchCommitsInfo, error) {
+	repo, err := git.PlainOpen(repoPath)
+	if err != nil {
+		return nil, fmt.Errorf("打开本地仓库失败: %w", err)
+	}
+
+	// 获取指定分支的引用
+	branch_name = strings.TrimPrefix(branch_name, "origin/")
+	var branchRef *plumbing.Reference
+
+	// 先尝试本地分支
+	branchRef, err = repo.Reference(plumbing.NewBranchReferenceName(branch_name), true)
+	if err != nil {
+		// 如果本地分支不存在，尝试远程分支
+		branchRef, err = repo.Reference(plumbing.NewRemoteReferenceName("origin", branch_name), true)
+		if err != nil {
+			return nil, fmt.Errorf("找不到分支 %s: %w", branch_name, err)
+		}
+	}
+
+	// 验证分支引用的哈希值
+	if branchRef.Hash().IsZero() {
+		return nil, fmt.Errorf("分支 %s 的哈希值无效", branch_name)
+	}
+
+	// 获取提交历史
+	commitIter, err := repo.Log(&git.LogOptions{From: branchRef.Hash()})
+	if err != nil {
+		return nil, fmt.Errorf("获取提交历史失败: %w", err)
+	}
+
+	var commits []models.BotPackagesGitBranchCommitsInfo
+	err = commitIter.ForEach(func(commit *object.Commit) error {
+		commits = append(commits, models.BotPackagesGitBranchCommitsInfo{
+			Hash:    commit.Hash.String(),
+			Message: commit.Message,
+			Author:  commit.Author.Name,
+			Date:    commit.Author.When.Format(time.RFC3339),
+		})
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return commits, nil
 }
 
 func PackageGitCommits(repo_url, branch_name string) ([]models.BotPackagesGitBranchCommitsInfo, error) {

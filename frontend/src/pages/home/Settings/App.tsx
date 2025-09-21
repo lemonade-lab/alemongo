@@ -7,6 +7,7 @@ import { message, Form, Input, InputNumber, Button, Tabs } from 'antd'
 import { useState, useEffect } from 'react'
 import { RootState } from '@/redux'
 import { useSelector } from 'react-redux'
+import { usePermission } from '@/hook/usePermission'
 
 const { TabPane } = Tabs
 
@@ -21,6 +22,7 @@ const Settings = () => {
   const [initialEmailLoading, setInitialEmailLoading] = useState(true)
 
   const userInfo = useSelector((state: RootState) => state.me.info)
+  const { isSuperAdmin } = usePermission()
 
   const tools = [
     {
@@ -62,7 +64,7 @@ const Settings = () => {
 
   // 获取邮箱配置
   useEffect(() => {
-    if (userInfo.username === 'lemonade') {
+    if (isSuperAdmin()) {
       apiGetConfigEmail()
         .then(res => {
           emailForm.setFieldsValue({
@@ -246,7 +248,7 @@ const Settings = () => {
               </TabPane>
 
               {/* 邮箱服务配置 */}
-              {userInfo.username === 'lemonade' && (
+              {isSuperAdmin() && (
                 <TabPane
                   tab={
                     <div className="flex items-center gap-2">

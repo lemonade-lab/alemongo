@@ -1,12 +1,13 @@
 package route
 
 import (
+	_ "alemongo/docs"
 	"alemongo/src/apps/api/bot"
 	botconfig "alemongo/src/apps/api/bot/config"
 	botconfigs "alemongo/src/apps/api/bot/configs"
 	apiemail "alemongo/src/apps/api/email"
 	"alemongo/src/apps/api/multibots"
-	_ "alemongo/docs"
+
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 
@@ -22,6 +23,8 @@ import (
 	"alemongo/src/apps/api/user"
 	"alemongo/src/logger"
 	"alemongo/src/middlewares"
+	"alemongo/src/permission"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -41,17 +44,17 @@ func Use(r *gin.Engine) *gin.Engine {
 func Create(mode string) *gin.Engine {
 	// 根据 mode 设置 发布模式/开发模式
 
-	if mode == gin.DebugMode {
+	switch mode {
+	case gin.DebugMode:
 		gin.SetMode(gin.DebugMode)
-	} else if mode == gin.TestMode {
+	case gin.TestMode:
 		gin.SetMode(gin.TestMode)
-	} else {
+	default:
 		gin.SetMode(gin.ReleaseMode)
 	}
 
 	// 创建路由
 	r := gin.Default()
-	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	// 实例化app
 	app := Use(r)
 	// 接口api
@@ -60,25 +63,24 @@ func Create(mode string) *gin.Engine {
 		// 接口 v
 		v1 := api.Group("/v1")
 		{
-			ReceiveAPI := v1.Group("/receive")
-			{
-				//
-				ReceiveAPI.POST("/", receive.POST)
-			}
+			v1.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
+			// 公共接口
 			CommonAPI := v1.Group("/common")
 			{
-				// 获取环境信息
-				CommonAPI.GET("/info", common.Info)
+				CommonAPI.POST("/receive", receive.POST) // 推送github事件
+				// 开始鉴权
+				CommonAPI.Use(middlewares.AuthMiddleware())
+				CommonAPI.GET("/info", common.Info) // 获取环境信息（无需权限）
 			}
 			// settings
 			SettingsAPI := v1.Group("/settings")
 			{
-				// 开机自启
-				SettingsAPI.GET("/powerboot", settings.PowerBoot)
-				// 获取开机自启动状态
-				SettingsAPI.GET("/powerboot/status", settings.GetAutoStartStatus)
-				// 重置基础机器人模板
-				SettingsAPI.POST("/template/reset", settings.ResetTemplate)
+				// 开始鉴权
+				SettingsAPI.Use(middlewares.AuthMiddleware())
+				// 系统设置管理接口
+				SettingsAPI.GET("/powerboot", middlewares.PermissionMiddleware(permission.SystemSettingsManage), settings.PowerBoot)             // 开机自启设置
+				SettingsAPI.GET("/powerboot/status", middlewares.PermissionMiddleware(permission.SystemConfigRead), settings.GetAutoStartStatus) // 获取开机自启状态
+				SettingsAPI.POST("/template/reset", middlewares.PermissionMiddleware(permission.SystemSettingsManage), settings.ResetTemplate)   // 重置基础机器人模板
 			}
 
 			// config api
@@ -86,136 +88,139 @@ func Create(mode string) *gin.Engine {
 			{
 				// 开始鉴权
 				ConfigAPI.Use(middlewares.AuthMiddleware())
+				// 邮箱配置管理
 				EmailAPI := ConfigAPI.Group("/email")
 				{
-					// 获取配置
-					EmailAPI.GET("", apiemail.GetEmail)
-					// 更改邮箱配置
-					EmailAPI.PUT("", apiemail.UpdateEmail)
+					EmailAPI.GET("", middlewares.PermissionMiddleware(permission.SystemConfigRead), apiemail.GetEmail)      // 获取邮箱配置
+					EmailAPI.PUT("", middlewares.PermissionMiddleware(permission.SystemConfigUpdate), apiemail.UpdateEmail) // 更新邮箱配置
 				}
-
 			}
 
 			// user api
 			UserAPI := v1.Group("/user")
 			{
+				// 无需权限的接口
 				UserAPI.POST("/login", user.Login)                               // 登录
 				UserAPI.GET("/github/auth-url", user.GetGitHubAuthURL)           // 获取 GitHub 授权 URL
 				UserAPI.GET("/github/config-status", user.GetGitHubConfigStatus) // 获取 GitHub 配置状态
 				UserAPI.POST("/github/login", user.GitHubLogin)                  // GitHub 快捷登录
-				UserAPI.POST("/github/unbind", user.UnbindGitHubAccount)         // GitHub 解绑（需要认证）
-				UserAPI.POST("/github/bind", user.BindGitHubAccount)             // GitHub 绑定（需要认证）
-				UserAPI.Use(middlewares.AuthMiddleware())                        // 开始鉴权
-				UserAPI.GET("/logout", user.Logout)                              // 退出登录
-				UserAPI.GET("/info", user.Info)                                  // 获取用户信息
-				UserAPI.PUT("/password", user.PassWord)                          // 修改密码
-				UserAPI.GET("/list", user.List)                                  // 列表
-				UserAPI.POST("/create", user.CreateUserHandler)                  // 添加
-				UserAPI.DELETE("/delete", user.DeleteUserHandler)                // 删除
-				UserAPI.PUT("/identity", user.Identity)                          // 修改身份
-				UserAPI.GET("/identity/list", user.IdentityList)                 // 身份列表
-				UserAPI.POST("/bind_email", user.BindEmailHandler)               // 绑定邮箱
-				UserAPI.POST("/verify_email", user.VerifyEmailHandler)           // 验证邮箱
+
+				// 需要认证的接口
+				UserAPI.Use(middlewares.AuthMiddleware())                // 开始鉴权
+				UserAPI.POST("/github/unbind", user.UnbindGitHubAccount) // GitHub 解绑（需要认证）
+				UserAPI.POST("/github/bind", user.BindGitHubAccount)     // GitHub 绑定（需要认证）
+				UserAPI.GET("/logout", user.Logout)                      // 退出登录
+				UserAPI.GET("/info", user.Info)                          // 获取用户信息
+				UserAPI.PUT("/password", user.PassWord)                  // 修改密码
+				UserAPI.POST("/bind_email", user.BindEmailHandler)       // 绑定邮箱
+				UserAPI.POST("/verify_email", user.VerifyEmailHandler)   // 验证邮箱
+
+				// 需要用户管理权限的接口
+				UserAPI.GET("/list", middlewares.PermissionMiddleware(permission.UserRead), user.List)                   // 用户列表
+				UserAPI.GET("/identity/list", middlewares.PermissionMiddleware(permission.UserRead), user.IdentityList)  // 身份列表
+				UserAPI.PUT("/identity", middlewares.PermissionMiddleware(permission.UserUpdate), user.Identity)         // 修改身份
+				UserAPI.GET("/admin-status", middlewares.PermissionMiddleware(permission.UserRead), user.GetAdminStatus) // 获取超级管理员状态
+
+				// 仅超级管理员可访问的接口
+				UserAPI.POST("/create", middlewares.PermissionMiddleware(permission.UserCreate), user.CreateUserHandler)   // 创建用户
+				UserAPI.DELETE("/delete", middlewares.PermissionMiddleware(permission.UserDelete), user.DeleteUserHandler) // 删除用户
 			}
 			// ssh
 			SSHAPI := v1.Group("/ssh")
 			{
 				// 开始鉴权
 				SSHAPI.Use(middlewares.AuthMiddleware())
-				// 列表
-				SSHAPI.GET("/list", gitssh.List)
-				// 创建
-				SSHAPI.POST("", gitssh.GenerateSSH)
-				// 删除
-				SSHAPI.DELETE("", gitssh.Delete)
-				// 更新
-				SSHAPI.PUT("", gitssh.Update)
-				// 读取
-				SSHAPI.GET("", gitssh.Read)
-				// 授权地址
-				SSHAPI.POST("/authorize", gitssh.Authorize)
+				// SSH密钥管理接口
+				SSHAPI.GET("/list", middlewares.PermissionMiddleware(permission.SSHRead), gitssh.List)              // SSH密钥列表
+				SSHAPI.GET("", middlewares.PermissionMiddleware(permission.SSHRead), gitssh.Read)                   // 读取SSH密钥
+				SSHAPI.POST("", middlewares.PermissionMiddleware(permission.SSHCreate), gitssh.GenerateSSH)         // 创建SSH密钥
+				SSHAPI.PUT("", middlewares.PermissionMiddleware(permission.SSHUpdate), gitssh.Update)               // 更新SSH密钥
+				SSHAPI.DELETE("", middlewares.PermissionMiddleware(permission.SSHDelete), gitssh.Delete)            // 删除SSH密钥
+				SSHAPI.POST("/authorize", middlewares.PermissionMiddleware(permission.SSHUpdate), gitssh.Authorize) // SSH授权
 			}
 			// bot
 			BotAPI := v1.Group("/bot")
 			{
 				// 开始鉴权
 				BotAPI.Use(middlewares.AuthMiddleware())
-				// 获取机器人列表
-				BotAPI.GET("/list", bot.List)
-				// 查询
-				BotAPI.POST("/info", bot.Info)
-				// 创建
-				BotAPI.POST("/create", bot.Create)
-				// 删除
-				BotAPI.DELETE("/info", bot.Delete)
-				// 运行
-				BotAPI.POST("/run", bot.Run)
-				// 停止
-				BotAPI.POST("/stop", bot.Stop)
-				// 重启
-				BotAPI.POST("/restart", bot.Restart)
-				// 复制机器人
-				BotAPI.POST("/copy", bot.Copy)
-				// logs
-				BotAPI.POST("/log", bot.Log)
-				BotAPI.POST("/log-online", bot.LogOnline)
-				// 删除logs
-				BotAPI.DELETE("/log", bot.LogDelete)
 
+				// 机器人基础管理接口
+				BotAPI.GET("/list", middlewares.PermissionMiddleware(permission.BotRead), bot.List)        // 获取机器人列表
+				BotAPI.POST("/info", middlewares.PermissionMiddleware(permission.BotRead), bot.Info)       // 查询机器人信息
+				BotAPI.POST("/create", middlewares.PermissionMiddleware(permission.BotCreate), bot.Create) // 创建机器人
+				// BotAPI.POST("/botgroup", middlewares.PermissionMiddleware(permission.BotCreate), bot.CreateBotGroup) // 创建群组机器人
+				BotAPI.POST("/copy", middlewares.PermissionMiddleware(permission.BotCreate), bot.Copy)     // 复制机器人
+				BotAPI.DELETE("/info", middlewares.PermissionMiddleware(permission.BotDelete), bot.Delete) // 删除机器人
+
+				// 机器人运行控制接口
+				BotAPI.POST("/run", middlewares.PermissionMiddleware(permission.BotControl), bot.Run)         // 运行机器人
+				BotAPI.POST("/stop", middlewares.PermissionMiddleware(permission.BotControl), bot.Stop)       // 停止机器人
+				BotAPI.POST("/restart", middlewares.PermissionMiddleware(permission.BotControl), bot.Restart) // 重启机器人
+
+				// 机器人日志管理接口
+				BotAPI.POST("/log", middlewares.PermissionMiddleware(permission.BotLogManage), bot.Log)              // 获取机器人日志
+				BotAPI.POST("/log-online", middlewares.PermissionMiddleware(permission.BotLogManage), bot.LogOnline) // 获取在线日志
+				BotAPI.DELETE("/log", middlewares.PermissionMiddleware(permission.BotLogManage), bot.LogDelete)      // 删除日志
+
+				// 机器人环境变量管理
 				EnvAPI := BotAPI.Group("/env")
 				{
-					EnvAPI.POST("", botenv.Read)
-					EnvAPI.PUT("", botenv.Update)
+					EnvAPI.POST("", middlewares.PermissionMiddleware(permission.BotConfigRead), botenv.Read)    // 读取环境变量
+					EnvAPI.PUT("", middlewares.PermissionMiddleware(permission.BotConfigUpdate), botenv.Update) // 更新环境变量
 				}
 
+				// 机器人包管理
 				PackageAPI := BotAPI.Group("/package")
 				{
-					// 获取包信息
-					PackageAPI.POST("", botpackage.Package)
-
-					// 更新包信息
-					PackageAPI.PUT("", botpackage.PackageUpdate)
+					PackageAPI.POST("", middlewares.PermissionMiddleware(permission.BotConfigRead), botpackage.Package)        // 获取包信息
+					PackageAPI.PUT("", middlewares.PermissionMiddleware(permission.BotConfigUpdate), botpackage.PackageUpdate) // 更新包信息
 				}
 
+				// Yarn包管理
 				YarnAPI := BotAPI.Group("/yarn")
 				{
-					YarnAPI.POST("/install", botwarehouse.YarnInstall)
-					YarnAPI.POST("/add", botwarehouse.YarnAdd)
-					YarnAPI.POST("/remove", botwarehouse.YarnRemove)
+					YarnAPI.POST("/install", middlewares.PermissionMiddleware(permission.BotPackageManage), botwarehouse.YarnInstall) // 安装依赖
+					YarnAPI.POST("/add", middlewares.PermissionMiddleware(permission.BotPackageManage), botwarehouse.YarnAdd)         // 添加依赖
+					YarnAPI.POST("/remove", middlewares.PermissionMiddleware(permission.BotPackageManage), botwarehouse.YarnRemove)   // 移除依赖
 				}
 
+				// 机器人应用管理
 				PackagesAPI := BotAPI.Group("/packages")
 				{
-					PackagesAPI.POST("", botpackages.PackagesInfo)
-					PackagesAPI.DELETE("", botpackages.PackagesDelete)
-					PackagesAPI.PUT("/pkg", botpackages.PackagesUpdate)
-					PackagesAPI.POST("/clone", botpackages.PackagesClone)
-					PackagesAPI.POST("/list", botpackages.PackagesList)
-					PackagesAPI.POST("/pull", botpackages.PackagesPull)
+					PackagesAPI.POST("", middlewares.PermissionMiddleware(permission.BotConfigRead), botpackages.PackagesInfo)          // 获取应用信息
+					PackagesAPI.POST("/list", middlewares.PermissionMiddleware(permission.BotConfigRead), botpackages.PackagesList)     // 应用列表
+					PackagesAPI.POST("/clone", middlewares.PermissionMiddleware(permission.BotConfigCreate), botpackages.PackagesClone) // 克隆应用
+					PackagesAPI.PUT("/pkg", middlewares.PermissionMiddleware(permission.BotConfigUpdate), botpackages.PackagesUpdate)   // 更新应用
+					PackagesAPI.DELETE("", middlewares.PermissionMiddleware(permission.BotConfigDelete), botpackages.PackagesDelete)    // 删除应用
+
+					// Git操作相关
+					PackagesAPI.POST("/pull", middlewares.PermissionMiddleware(permission.BotGitManage), botpackages.PackagesPull)      // 拉取应用
+					PackagesAPI.GET("/gitbranches", middlewares.PermissionMiddleware(permission.BotGitManage), botpackages.GitBranches) // 获取Git分支
+					PackagesAPI.GET("/gitcommits", middlewares.PermissionMiddleware(permission.BotGitManage), botpackages.GitCommits)   // 获取Git提交记录
+					PackagesAPI.POST("/switch", middlewares.PermissionMiddleware(permission.BotGitManage), botpackages.PackagesSwitch)  // 切换分支/提交
+					PackagesAPI.POST("/gitfetch", middlewares.PermissionMiddleware(permission.BotGitManage), botpackages.GitFetch)      // 获取最新分支信息
+
+					// 强制更新
 					PackagesPullAPI := PackagesAPI.Group("/pull")
 					{
-						PackagesPullAPI.POST("/force", botpackages.PackegesForcedUpdate)
+						PackagesPullAPI.POST("/force", middlewares.PermissionMiddleware(permission.BotGitManage), botpackages.PackegesForcedUpdate) // 强制更新
 					}
-					// 返回包的git branches 信息
-					PackagesAPI.GET("/gitbranches", botpackages.GitBranches)
-					// 返回包的git branch 对应的所有 commit 记录
-					PackagesAPI.GET("/gitcommits", botpackages.GitCommits)
-					// 切换当前包到指定的branch/commit
-					PackagesAPI.POST("/switch", botpackages.PackagesSwitch)
 				}
 
+				// 机器人配置文件管理
 				ConfigAPI := BotAPI.Group("/config")
 				{
-					ConfigAPI.POST("", botconfig.ConfigData)
-					ConfigAPI.PUT("", botconfig.ConfigUpdate)
+					ConfigAPI.POST("", middlewares.PermissionMiddleware(permission.BotConfigRead), botconfig.ConfigData)    // 获取配置数据
+					ConfigAPI.PUT("", middlewares.PermissionMiddleware(permission.BotConfigUpdate), botconfig.ConfigUpdate) // 更新配置
 				}
 
+				// 机器人配置列表管理
 				ConfigsAPI := BotAPI.Group("/configs")
 				{
-					ConfigsAPI.GET("", botconfigs.ConfigsList)
-					ConfigsAPI.POST("", botconfigs.ConfigsData)
-					ConfigsAPI.PUT("", botconfigs.ConfigsUpdate)
-					ConfigsAPI.DELETE("", botconfigs.ConfigsDelete)
+					ConfigsAPI.GET("", middlewares.PermissionMiddleware(permission.BotConfigRead), botconfigs.ConfigsList)        // 配置列表
+					ConfigsAPI.POST("", middlewares.PermissionMiddleware(permission.BotConfigCreate), botconfigs.ConfigsData)     // 创建配置
+					ConfigsAPI.PUT("", middlewares.PermissionMiddleware(permission.BotConfigUpdate), botconfigs.ConfigsUpdate)    // 更新配置
+					ConfigsAPI.DELETE("", middlewares.PermissionMiddleware(permission.BotConfigDelete), botconfigs.ConfigsDelete) // 删除配置
 				}
 
 			}

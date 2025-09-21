@@ -3,6 +3,7 @@ import { apiUserCreate } from '@/api/users/admin'
 import { Button, message, Modal } from 'antd'
 import { Form, Input, Select } from 'antd'
 import { UserAddOutlined } from '@ant-design/icons'
+import { IDENTITY } from '@/utils/permission'
 
 /**
  *
@@ -11,10 +12,12 @@ import { UserAddOutlined } from '@ant-design/icons'
  */
 const Headings = ({
   onUpdate = () => {},
-  selects = []
+  selects = [],
+  currentUserIdentity = ''
 }: {
   onUpdate: () => void
   selects: string[]
+  currentUserIdentity?: string
 }) => {
   const [visible, setVisible] = useState(false)
   const onCreateAccount = () => {
@@ -114,11 +117,19 @@ const Headings = ({
                 placeholder="请选择用户身份"
                 className="bg-white/70 dark:bg-zinc-800/70"
               >
-                {selects.map(item => (
-                  <Select.Option key={item} value={item}>
-                    {item}
-                  </Select.Option>
-                ))}
+                {selects.map(item => {
+                  // 如果当前用户不是超级管理员，过滤掉超级管理员选项
+                  const currentUserIsSuperAdmin = currentUserIdentity === IDENTITY.SUPER_ADMIN
+                  if (item === IDENTITY.SUPER_ADMIN && !currentUserIsSuperAdmin) {
+                    return null
+                  }
+                  
+                  return (
+                    <Select.Option key={item} value={item}>
+                      {item}
+                    </Select.Option>
+                  )
+                })}
               </Select>
             </Form.Item>
             <Form.Item

@@ -1,4 +1,4 @@
-import server, { request, TOKEN_KEY } from '../base'
+import server, { request } from '../base'
 
 export const apiLogin = async (data: {
   password: string
@@ -20,7 +20,6 @@ export const apiLogout = async () => {
     url: '/user/logout',
     method: 'GET'
   }).then(res => {
-    localStorage.removeItem(TOKEN_KEY)
     return res
   })
 }
@@ -81,5 +80,13 @@ export const apiUnbindGitHubAccount = async () => {
   return request({
     url: '/user/github/unbind',
     method: 'POST'
+  }).then(res => res.data)
+}
+
+// 获取超级管理员状态
+export const apiGetAdminStatus = async () => {
+  return request({
+    url: '/user/admin-status',
+    method: 'GET'
   }).then(res => res.data)
 }

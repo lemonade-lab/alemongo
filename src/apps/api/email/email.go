@@ -1,9 +1,7 @@
 package apiemail
 
 import (
-	"alemongo/src/apps/api/requests"
 	"alemongo/src/apps/api/response"
-	"alemongo/src/dao"
 	"alemongo/src/logic"
 	"alemongo/src/models"
 	"net/http"
@@ -13,15 +11,6 @@ import (
 )
 
 func UpdateEmail(ctx *gin.Context) {
-	adminname, exists := requests.GetUserName(ctx)
-	if !exists {
-		response.ResponseErrorWithMsg(ctx, http.StatusBadRequest, http.StatusBadRequest, "错误请求")
-		return
-	}
-	if !dao.IsSuperAdmin(adminname) {
-		response.ResponseErrorWithMsg(ctx, http.StatusBadRequest, http.StatusBadRequest, "权限不足")
-		return
-	}
 	var emailConfig models.EmailConfig
 	if err := ctx.ShouldBind(&emailConfig); err != nil {
 		response.ResponseErrorWithMsg(ctx, http.StatusBadRequest, http.StatusBadRequest, "参数有误")
@@ -36,15 +25,6 @@ func UpdateEmail(ctx *gin.Context) {
 }
 
 func GetEmail(ctx *gin.Context) {
-	adminname, exists := requests.GetUserName(ctx)
-	if !exists {
-		response.ResponseErrorWithMsg(ctx, http.StatusBadRequest, http.StatusBadRequest, "错误请求")
-		return
-	}
-	if !dao.IsSuperAdmin(adminname) {
-		response.ResponseErrorWithMsg(ctx, http.StatusBadRequest, http.StatusBadRequest, "权限不足")
-		return
-	}
 	emailConfig, err := logic.GetEmailConfig()
 	if err != nil {
 		zap.L().Error(err.Error())

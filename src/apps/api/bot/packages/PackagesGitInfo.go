@@ -7,6 +7,7 @@ import (
 	config "alemongo/src/paths"
 	"fmt"
 	"net/http"
+	"os"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -48,16 +49,18 @@ func GitBranches(c *gin.Context) {
 		response.ResponseErrorWithMsg(c, http.StatusBadRequest, http.StatusBadRequest, "bot "+botName+" not exists")
 		return
 	}
-	data, err := GetPackageInfo(botName, appName)
-	if err != nil {
+
+	// 检查应用是否存在
+	packagePath := config.GetBotPackagesPathByName(botName, appName)
+	if _, err := os.Stat(packagePath); os.IsNotExist(err) {
 		response.ResponseErrorWithMsg(c, http.StatusBadRequest, http.StatusBadRequest, "应用不存在")
 		return
 	}
 
-	packagePath := data["git"].(map[string]string)["repo"]
-	branches, err := logic.PackageGitBranches(packagePath)
+	// 只从本地仓库获取分支信息
+	branches, err := logic.PackageGitBranchesLocal(packagePath)
 	if err != nil {
-		response.ResponseErrorWithMsg(c, http.StatusBadRequest, http.StatusBadRequest, fmt.Sprintf("获取git分支失败: %v", err))
+		response.ResponseErrorWithMsg(c, http.StatusBadRequest, http.StatusBadRequest, fmt.Sprintf("获取本地git分支失败: %v", err))
 		return
 	}
 	total := len(branches)
@@ -168,4 +171,54 @@ func GitCommits(c *gin.Context) {
 		TotalPage: totalPages,
 	}
 	response.ResponseSuccess(c, commitsInfo)
+}
+
+// @Summary 从远程获取最新分支信息
+// @Description 从远程获取最新分支信息到本地仓库
+// @Tags 应用
+// @Accept json
+// @Produce json
+// @Param name query string true "bot名称"
+// @Param app_name query string true "应用名称"
+// @Success 200 {object} response.ResponseData "成功"
+// @Failure 400 {object} response.ResponseData "参数错误"
+// @Failure 500 {object} response.ResponseData "内部错误"
+// @Router /api/v1/bot/packages/git/fetch [post]
+func GitFetch(c *gin.Context) {
+	botName := c.Query("name")
+	appName := c.Query("app_name")
+
+	if botName == "" || appName == "" {
+		response.ResponseErrorWithMsg(c, http.StatusBadRequest, http.StatusBadRequest, "bot name or app name is empty")
+		return
+	}
+	if !config.Exists(botName) {
+		response.ResponseErrorWithMsg(c, http.StatusBadRequest, http.StatusBadRequest, "bot "+botName+" not exists")
+		return
+	}
+
+	// 检查应用是否存在
+	packagePath := config.GetBotPackagesPathByName(botName, appName)
+	if _, err := os.Stat(packagePath); os.IsNotExist(err) {
+		response.ResponseErrorWithMsg(c, http.StatusBadRequest, http.StatusBadRequest, "应用不存在")
+		return
+	}
+
+	err := logic.PackageGitFetch(packagePath)
+	if err != nil {
+		response.ResponseErrorWithMsg(c, http.StatusBadRequest, http.StatusBadRequest, fmt.Sprintf("从远程获取分支失败: %v", err))
+		return
+	}
+
+	// 获取更新后的本地分支列表
+	branches, err := logic.PackageGitBranchesLocal(packagePath)
+	if err != nil {
+		response.ResponseErrorWithMsg(c, http.StatusBadRequest, http.StatusBadRequest, fmt.Sprintf("获取更新后的本地分支失败: %v", err))
+		return
+	}
+
+	response.ResponseSuccess(c, gin.H{
+		"message":  "成功从远程获取最新分支信息",
+		"branches": branches,
+	})
 }

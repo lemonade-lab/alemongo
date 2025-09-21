@@ -39,6 +39,13 @@ func GetUserInfo(username string) (*models.User, error) {
 	if dao.IsSuperAdmin(username) {
 		userInfo := dao.GetAdmin()
 		userInfo.PassWord = "******"
+
+		// 为超级管理员添加状态信息
+		if userInfo.ExtraInfo == nil {
+			userInfo.ExtraInfo = make(map[string]interface{})
+		}
+		userInfo.ExtraInfo["is_temporary_super_admin"] = dao.IsTemporarySuperAdmin()
+
 		return userInfo, nil
 	}
 

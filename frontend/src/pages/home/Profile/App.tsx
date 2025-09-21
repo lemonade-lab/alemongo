@@ -27,10 +27,13 @@ import {
   apiVerifyEmail,
   apiLogout
 } from '@/api'
-import { useSelector } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
 import { RootState } from '@/redux'
+import { clearUserState } from '@/redux/me'
 import { useNavigate } from 'react-router-dom'
 import { useUserInfoControl } from '@/hook/useUserInfoControl'
+import { usePermission } from '@/hook/usePermission'
+import UserIdentityBadge from '@/components/UserIdentityBadge'
 
 const { Title, Text } = Typography
 const { TabPane } = Tabs
@@ -42,6 +45,8 @@ const Profile: React.FC = () => {
   const [emailForm] = Form.useForm()
   const [emailCount, setEmailCount] = useState(0)
   const storeMe = useSelector((state: RootState) => state.me)
+  const { isSuperAdmin } = usePermission()
+  const dispatch = useDispatch()
 
   // 邮箱验证码倒计时
   useEffect(() => {
@@ -199,6 +204,8 @@ const Profile: React.FC = () => {
 
   const goLogout = () => {
     apiLogout().then(() => {
+      // 清除Redux状态
+      dispatch(clearUserState())
       navigate('/login')
     })
   }
@@ -216,9 +223,12 @@ const Profile: React.FC = () => {
                 icon={<UserOutlined />}
               />
               <div>
-                <Title level={3} className="mb-1">
-                  {userInfo?.username || '用户'}
-                </Title>
+                <div className="flex items-center gap-3 mb-2">
+                  <Title level={3} className="mb-0">
+                    {userInfo?.username || '用户'}
+                  </Title>
+                  <UserIdentityBadge size="small" />
+                </div>
                 <Text type="secondary">管理您的个人设置和安全选项</Text>
               </div>
             </div>
@@ -376,7 +386,7 @@ const Profile: React.FC = () => {
             </TabPane>
 
             {/* GitHub 设置 */}
-            {userInfo.username !== 'lemonade' && (
+            {!(isSuperAdmin() && userInfo?.extra_info?.is_temporary_super_admin) && (
               <TabPane
                 tab={
                   <div className="flex items-center gap-2">
