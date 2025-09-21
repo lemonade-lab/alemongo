@@ -96,7 +96,6 @@ definitions:
     - 1017
     - 1018
     - 1019
-    format: int64
     type: integer
     x-enum-varnames:
     - CodeSuccess
@@ -136,6 +135,84 @@ info:
   title: 这里写标题
   version: 0.0.1
 paths:
+  /api/v1/bot/addconfig:
+    post:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: 添加多配置机器人配置
+      parameters:
+      - description: 机器人名
+        in: formData
+        name: bot_name
+        required: true
+        type: string
+      - description: 配置名
+        in: formData
+        name: name
+        required: true
+        type: string
+      - description: 配置内容
+        in: formData
+        name: content
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 添加成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.ResponseData'
+            - properties:
+                data:
+                  type: string
+              type: object
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/response.ResponseData'
+        "500":
+          description: 添加失败
+          schema:
+            $ref: '#/definitions/response.ResponseData'
+      summary: 添加多配置机器人配置
+      tags:
+      - 机器人
+  /api/v1/bot/create/multi:
+    post:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: 创建多配置机器人
+      parameters:
+      - description: 机器人名
+        in: formData
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 创建成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.ResponseData'
+            - properties:
+                data:
+                  type: string
+              type: object
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/response.ResponseData'
+        "500":
+          description: 创建失败
+          schema:
+            $ref: '#/definitions/response.ResponseData'
+      summary: 创建多配置机器人
+      tags:
+      - 机器人
   /api/v1/bot/packages/git/branches:
     get:
       consumes:
@@ -235,6 +312,40 @@ paths:
       summary: 获取应用git分支提交记录
       tags:
       - 应用
+  /api/v1/bot/start/multi:
+    post:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: 启动多配置机器人
+      parameters:
+      - description: 机器人名
+        in: formData
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 启动成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.ResponseData'
+            - properties:
+                data:
+                  type: string
+              type: object
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/response.ResponseData'
+        "500":
+          description: 启动失败
+          schema:
+            $ref: '#/definitions/response.ResponseData'
+      summary: 启动多配置机器人
+      tags:
+      - 机器人
   /api/v1/packages/switch:
     post:
       consumes:

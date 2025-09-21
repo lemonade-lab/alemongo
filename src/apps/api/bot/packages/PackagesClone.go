@@ -21,8 +21,7 @@ import (
 
 var ExpAppCode = 2001
 
-// todo 优化成直接下载全部仓库，再切换到对应分支
-// 创建机器人
+// 创建机器人应用
 func PackagesClone(ctx *gin.Context) {
 	name := ctx.PostForm("name")
 	repoURL := ctx.PostForm("repo_url")

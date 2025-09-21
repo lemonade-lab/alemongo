@@ -4,8 +4,8 @@ import (
 	"alemongo/src/apps/api/bot"
 	botconfig "alemongo/src/apps/api/bot/config"
 	botconfigs "alemongo/src/apps/api/bot/configs"
-
 	apiemail "alemongo/src/apps/api/email"
+	"alemongo/src/apps/api/multibots"
 
 	botenv "alemongo/src/apps/api/bot/env"
 	botpackage "alemongo/src/apps/api/bot/package"
@@ -23,6 +23,7 @@ import (
 	"github.com/gin-gonic/gin"
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
+	_ "alemongo/docs"
 )
 
 // 路由初始化
@@ -51,7 +52,6 @@ func Create(mode string) *gin.Engine {
 
 	// 创建路由
 	r := gin.Default()
-
 	// 实例化app
 	app := Use(r)
 
@@ -62,7 +62,6 @@ func Create(mode string) *gin.Engine {
 		v1 := api.Group("/v1")
 		{
 			v1.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
-
 			ReceiveAPI := v1.Group("/receive")
 			{
 				//
@@ -138,7 +137,6 @@ func Create(mode string) *gin.Engine {
 				// 授权地址
 				SSHAPI.POST("/authorize", gitssh.Authorize)
 			}
-
 			// bot
 			BotAPI := v1.Group("/bot")
 			{
@@ -150,8 +148,6 @@ func Create(mode string) *gin.Engine {
 				BotAPI.POST("/info", bot.Info)
 				// 创建
 				BotAPI.POST("/create", bot.Create)
-				// 创建群组机器人
-				BotAPI.POST("/botgroup", bot.CreateBotGroup)
 				// 删除
 				BotAPI.DELETE("/info", bot.Delete)
 				// 运行
@@ -224,6 +220,16 @@ func Create(mode string) *gin.Engine {
 					ConfigsAPI.DELETE("", botconfigs.ConfigsDelete)
 				}
 
+			}
+			// MultiBot
+			MultiBotAPI := v1.Group("/multibot")
+			{
+				// 创建多配置机器人
+				MultiBotAPI.POST("/multibot", multibots.CreateMultiConfigBot)
+				// 创建多配置机器人配置
+				MultiBotAPI.POST("/addconfig", multibots.AddBotConfig)
+				// 启动多配置机器人(根据配置文件启动对应的机器人)
+				MultiBotAPI.POST("/start", multibots.StartMultiBot)
 			}
 		}
 	}

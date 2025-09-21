@@ -38,6 +38,16 @@ func CreateBot(name string) (string, response.ResCode) {
 	return dao.CreateBot(name, targetPath, resourcesPath)
 }
 
+func CreateMultiBot(name string) (string, response.ResCode) {
+	resourcesPath := config.GetResourcesPath()
+	targetPath := config.GetMultiBotPath(name)
+	if _, err := os.Stat(targetPath); err == nil {
+		log.Println("多配置机器人目录已存在: ", targetPath)
+		return "", response.RobotAlreadyExist
+	}
+	return dao.CreateMultiBot(name, targetPath, resourcesPath)
+}
+
 // CopyDir 复制目录下的所有文件到目标目录
 func CopyDir(src, dest string) error {
 	err := clearFloder(dest)

@@ -8,6 +8,7 @@ import (
 	"errors"
 	"log"
 	"os"
+	"path/filepath"
 
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
@@ -26,6 +27,24 @@ func CreateBot(name, targetPath, resourcesPath string) (string, response.ResCode
 	// 复制文件 /resources/template 复制到 /resources/bots/{name}
 	if err := copy.Copy(templatePath, targetPath); err != nil {
 		log.Println("复制模板文件失败:", err)
+		return "", response.RobotCreateFailed
+	}
+	return targetPath, response.CodeSuccess
+}
+
+func CreateMultiBot(name, targetPath, resourcesPath string) (string, response.ResCode) {
+	if err := os.MkdirAll(targetPath, 0755); err != nil {
+		log.Println("创建多配置目录失败: ", err)
+		return "", response.RobotCreateFailed
+	}
+
+	templatePath := config.GetBotTemplatePath()
+	if err := copy.Copy(templatePath, targetPath); err != nil {
+		log.Println("复制模板文件失败:", err)
+		return "", response.RobotCreateFailed
+	}
+	if err := os.Mkdir(filepath.Join(targetPath, "configs"), 0755); err != nil {
+		log.Println("创建配置文件目录失败")
 		return "", response.RobotCreateFailed
 	}
 	return targetPath, response.CodeSuccess
