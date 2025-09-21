@@ -96,6 +96,7 @@ definitions:
     - 1017
     - 1018
     - 1019
+    format: int64
     type: integer
     x-enum-varnames:
     - CodeSuccess
@@ -259,7 +260,7 @@ paths:
             $ref: '#/definitions/response.ResponseData'
       summary: 获取应用git所有分支
       tags:
-      - 应用
+      - 机器人应用
   /api/v1/bot/packages/git/commits:
     get:
       consumes:
@@ -311,7 +312,7 @@ paths:
             $ref: '#/definitions/response.ResponseData'
       summary: 获取应用git分支提交记录
       tags:
-      - 应用
+      - 机器人应用
   /api/v1/bot/start/multi:
     post:
       consumes:

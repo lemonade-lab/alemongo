@@ -152,7 +152,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "应用"
+                    "机器人应用"
                 ],
                 "summary": "获取应用git所有分支",
                 "parameters": [
@@ -227,7 +227,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "应用"
+                    "机器人应用"
                 ],
                 "summary": "获取应用git分支提交记录",
                 "parameters": [
@@ -886,6 +886,7 @@ const docTemplate = `{
         },
         "response.ResCode": {
             "type": "integer",
+            "format": "int64",
             "enum": [
                 1000,
                 1001,

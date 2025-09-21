@@ -6,6 +6,9 @@ import (
 	botconfigs "alemongo/src/apps/api/bot/configs"
 	apiemail "alemongo/src/apps/api/email"
 	"alemongo/src/apps/api/multibots"
+	_ "alemongo/docs"
+	swaggerfiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 
 	botenv "alemongo/src/apps/api/bot/env"
 	botpackage "alemongo/src/apps/api/bot/package"
@@ -19,11 +22,7 @@ import (
 	"alemongo/src/apps/api/user"
 	"alemongo/src/logger"
 	"alemongo/src/middlewares"
-
 	"github.com/gin-gonic/gin"
-	swaggerfiles "github.com/swaggo/files"
-	ginSwagger "github.com/swaggo/gin-swagger"
-	_ "alemongo/docs"
 )
 
 // 路由初始化
@@ -52,16 +51,15 @@ func Create(mode string) *gin.Engine {
 
 	// 创建路由
 	r := gin.Default()
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	// 实例化app
 	app := Use(r)
-
 	// 接口api
 	api := app.Group("/api")
 	{
 		// 接口 v
 		v1 := api.Group("/v1")
 		{
-			v1.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 			ReceiveAPI := v1.Group("/receive")
 			{
 				//
