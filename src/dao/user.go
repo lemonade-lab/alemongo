@@ -56,19 +56,20 @@ func GetSuperAdmin() (models.User, bool) {
 }
 
 // 检查是否为临时超级管理员（未保存到文件）
-func IsTemporarySuperAdmin() bool {
-	return !HasSuperAdmin()
+func IsTemporarySuperAdmin(username string) bool {
+	// 不是超级管理。但 usrname 是 admin.UserName 视为临时超级管理员
+	return !HasSuperAdmin() && username == admin.UserName
 }
 
 // 获取超级管理员状态信息
-func GetSuperAdminStatus() map[string]interface{} {
+func GetSuperAdminStatus(username string) map[string]interface{} {
 	status := map[string]interface{}{
-		"is_temporary":  IsTemporarySuperAdmin(),
-		"username":      admin.UserName,
+		"is_temporary":  IsTemporarySuperAdmin(username),
+		"username":      username,
 		"has_permanent": HasSuperAdmin(),
 	}
 
-	if IsTemporarySuperAdmin() {
+	if IsTemporarySuperAdmin(username) {
 		status["message"] = "当前为临时超级管理员，请修改密码以永久保存账户"
 	} else {
 		status["message"] = "超级管理员账户已永久保存"
@@ -159,7 +160,6 @@ func SetAdminPassword(password string) bool {
 
 		// 更新内存中的密码
 		admin.PassWord = password
-		log.Printf("超级管理员账户已永久保存到用户列表")
 		return true
 	}
 }
@@ -173,7 +173,7 @@ func IsSuperAdmin(username string) bool {
 	}
 
 	// 如果用户列表中不存在超级管理员，检查是否为临时超级管理员
-	if IsTemporarySuperAdmin() && username == admin.UserName {
+	if IsTemporarySuperAdmin(username) {
 		return true
 	}
 
@@ -425,31 +425,20 @@ func RecordLoginFailure(username string) {
 	loginFailures.Store(username, data)
 }
 
-func ChangePassword(username, oldPassword, newPassword string) error {
-	// 是否是超级管理员
-	if IsSuperAdmin(username) {
-		admin := GetAdmin()
-		if oldPassword != admin.PassWord {
-			return errors.New("密码错误")
-		}
-		// 修改密码
-		ok := SetAdminPassword(newPassword)
-		if !ok {
-			return errors.New("修改密码失败")
-		}
-	} else {
-		user, exist := GetUserByUserName(username)
-		if !exist {
-			return errors.New("用户不存在")
-		}
-		if oldPassword != user.PassWord {
-			return errors.New("密码错误")
-		}
-		// 修改密码
-		ok := SetUserByUserName(username, newPassword)
-		if !ok {
-			return errors.New("修改密码失败")
-		}
+func ChangeUserPassword(username, oldPassword, newPassword string) error {
+
+	user, exist := GetUserByUserName(username)
+
+	if !exist {
+		return errors.New("用户不存在")
+	}
+	if oldPassword != user.PassWord {
+		return errors.New("密码错误")
+	}
+	// 修改密码
+	ok := SetUserByUserName(username, newPassword)
+	if !ok {
+		return errors.New("修改密码失败")
 	}
 	return nil
 }

@@ -32,7 +32,7 @@ func PermissionMiddleware(requiredPermission int) gin.HandlerFunc {
 		user, exists := dao.GetUserByUserName(usernameStr)
 		if !exists {
 			// 检查是否为临时超级管理员
-			if dao.IsTemporarySuperAdmin() && usernameStr == dao.GetAdmin().UserName {
+			if dao.IsTemporarySuperAdmin(usernameStr) {
 				// 临时超级管理员拥有所有权限
 				c.Next()
 				return
@@ -83,7 +83,7 @@ func SuperAdminOnlyMiddleware() gin.HandlerFunc {
 		user, exists := dao.GetUserByUserName(usernameStr)
 		if !exists {
 			// 检查是否为临时超级管理员
-			if dao.IsTemporarySuperAdmin() && usernameStr == dao.GetAdmin().UserName {
+			if dao.IsTemporarySuperAdmin(usernameStr) {
 				// 临时超级管理员可以访问
 				c.Next()
 				return
@@ -126,7 +126,7 @@ func AdminOrSuperAdminMiddleware() gin.HandlerFunc {
 		user, exists := dao.GetUserByUserName(usernameStr)
 		if !exists {
 			// 检查是否为临时超级管理员
-			if dao.IsTemporarySuperAdmin() && usernameStr == dao.GetAdmin().UserName {
+			if dao.IsTemporarySuperAdmin(usernameStr) {
 				// 临时超级管理员可以访问
 				c.Next()
 				return

@@ -36,7 +36,7 @@ func DeleteUserHandler(ctx *gin.Context) {
 		currentUserIsSuperAdmin = currentUserInfo.Identity == permission.IdentitySuperAdmin
 	} else {
 		// 检查是否为临时超级管理员
-		currentUserIsSuperAdmin = dao.IsTemporarySuperAdmin() && adminname == dao.GetAdmin().UserName
+		currentUserIsSuperAdmin = dao.IsTemporarySuperAdmin(adminname)
 	}
 
 	// 检查目标用户是否为超级管理员

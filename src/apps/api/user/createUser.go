@@ -45,7 +45,7 @@ func CreateUserHandler(ctx *gin.Context) {
 		currentUserIsSuperAdmin = currentUserInfo.Identity == permission.IdentitySuperAdmin
 	} else {
 		// 检查是否为临时超级管理员
-		currentUserIsSuperAdmin = dao.IsTemporarySuperAdmin() && currentUser == dao.GetAdmin().UserName
+		currentUserIsSuperAdmin = dao.IsTemporarySuperAdmin(currentUser)
 	}
 
 	// 如果要将用户设置为超级管理员，只有超级管理员才能操作

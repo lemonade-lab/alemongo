@@ -10,7 +10,6 @@ import (
 	"alemongo/src/utils"
 	"errors"
 	"fmt"
-	"log"
 	"math/rand"
 )
 
@@ -44,7 +43,7 @@ func GetUserInfo(username string) (*models.User, error) {
 	}
 
 	// 如果用户列表中不存在，检查是否为临时超级管理员
-	if dao.IsTemporarySuperAdmin() && username == dao.GetAdmin().UserName {
+	if dao.IsTemporarySuperAdmin(username) {
 		userInfo := dao.GetAdmin()
 		userInfo.PassWord = "******"
 
@@ -52,7 +51,7 @@ func GetUserInfo(username string) (*models.User, error) {
 		if userInfo.ExtraInfo == nil {
 			userInfo.ExtraInfo = make(map[string]interface{})
 		}
-		userInfo.ExtraInfo["is_temporary_super_admin"] = dao.IsTemporarySuperAdmin()
+		userInfo.ExtraInfo["is_temporary_super_admin"] = true
 
 		return userInfo, nil
 	}
@@ -73,7 +72,7 @@ func Login(username, password string) (string, error) {
 		userInfo = &user
 	} else {
 		// 检查是否为临时超级管理员
-		if dao.IsTemporarySuperAdmin() && username == dao.GetAdmin().UserName {
+		if dao.IsTemporarySuperAdmin(username) {
 			userInfo = dao.GetAdmin()
 		} else {
 			return "", errors.New("用户不存在")
@@ -104,7 +103,7 @@ func Logout(tokenValue string) error {
 
 func ChangePassword(username, oldPassword, newPassword string) error {
 	// 检查是否为临时超级管理员
-	if dao.IsTemporarySuperAdmin() && username == dao.GetAdmin().UserName {
+	if dao.IsTemporarySuperAdmin(username) {
 		// 临时超级管理员修改密码
 		admin := dao.GetAdmin()
 		if oldPassword != admin.PassWord {
@@ -118,7 +117,7 @@ func ChangePassword(username, oldPassword, newPassword string) error {
 		return nil
 	}
 
-	return dao.ChangePassword(username, oldPassword, newPassword)
+	return dao.ChangeUserPassword(username, oldPassword, newPassword)
 }
 
 func BindEmail(bind_email string) error {
@@ -198,10 +197,9 @@ func BindGitHubAccount(username, code string) error {
 	_, exist := dao.GetUserByUserName(username)
 	if !exist {
 		// 检查是否为临时超级管理员
-		if !(dao.IsTemporarySuperAdmin() && username == dao.GetAdmin().UserName) {
+		if !(dao.IsTemporarySuperAdmin(username)) {
 			return errors.New("用户不存在")
 		}
-		log.Println("临时超级管理员用户存在")
 	}
 
 	// 2. 用授权码换取访问令牌

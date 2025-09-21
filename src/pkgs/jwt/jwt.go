@@ -85,7 +85,7 @@ func Permission(c *gin.Context, mis int) string {
 	user, exist := dao.GetUserByUserName(username)
 	if !exist {
 		// 检查是否为临时超级管理员
-		if dao.IsTemporarySuperAdmin() && username == dao.GetAdmin().UserName {
+		if dao.IsTemporarySuperAdmin(username) {
 			// 临时超级管理员 直接通过
 			return ""
 		}

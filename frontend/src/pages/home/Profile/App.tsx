@@ -34,6 +34,7 @@ import { useNavigate } from 'react-router-dom'
 import { useUserInfoControl } from '@/hook/useUserInfoControl'
 import { usePermission } from '@/hook/usePermission'
 import UserIdentityBadge from '@/components/UserIdentityBadge'
+import { Box } from '@/commom'
 
 const { Title, Text } = Typography
 const { TabPane } = Tabs
@@ -63,10 +64,10 @@ const Profile: React.FC = () => {
     }
   }, [emailCount])
 
-  useEffect(()=>{
+  useEffect(() => {
     // 每次进来，确保获得的是最新的用户信息
     updateUserInfo.updateUserInfo()
-  },[])
+  }, [])
 
   // 处理密码修改
   const handlePasswordChange = async (values: {
@@ -218,11 +219,10 @@ const Profile: React.FC = () => {
   }
 
   return (
-    <div className="p-6 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 min-h-screen">
-      <div className="max-w-4xl mx-auto">
-        {/* 头部信息 */}
-        <Card className="mb-6 shadow-lg border-0 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
-          <div className="flex items-center justify-between">
+    <Box className='gap-6'>
+      {/* 头部信息 */}
+        <Card className="shadow-lg border-0 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
+          <div className="flex flex-col gap-2 md:flex-row items-center justify-between">
             <div className="flex items-center space-x-4">
               <Avatar
                 size={64}
@@ -239,14 +239,18 @@ const Profile: React.FC = () => {
                 <Text type="secondary">管理您的个人设置和安全选项</Text>
               </div>
             </div>
-            <Button type="primary" danger onClick={goLogout}>
-              退出登录
-            </Button>
+            <div className="flex items-end">
+              <Button type="primary" danger onClick={goLogout}>
+                退出登录
+              </Button>
+            </div>
           </div>
         </Card>
 
         {/* 设置选项卡 */}
-        <Card className="shadow-lg border-0 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
+        
+        <Box rootClassName='p-0'>
+          <Card className="shadow-lg border-0 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
           <Tabs defaultActiveKey="password" size="large">
             {/* 密码设置 */}
             <TabPane
@@ -393,7 +397,9 @@ const Profile: React.FC = () => {
             </TabPane>
 
             {/* GitHub 设置 */}
-            {!(isSuperAdmin() && userInfo?.extra_info?.is_temporary_super_admin) && (
+            {!(
+              isSuperAdmin() && userInfo?.extra_info?.is_temporary_super_admin
+            ) && (
               <TabPane
                 tab={
                   <div className="flex items-center gap-2">
@@ -460,8 +466,8 @@ const Profile: React.FC = () => {
             )}
           </Tabs>
         </Card>
-      </div>
-    </div>
+        </Box>
+    </Box>
   )
 }
 

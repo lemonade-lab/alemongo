@@ -3,6 +3,7 @@ package user
 import (
 	"alemongo/src/apps/api/response"
 	"alemongo/src/dao"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
@@ -17,6 +18,12 @@ import (
 // @Failure 401 {object} response.ResponseData "未授权"
 // @Router /user/admin-status [get]
 func GetAdminStatus(ctx *gin.Context) {
-	status := dao.GetSuperAdminStatus()
+	username, exists := ctx.Get("username")
+	if !exists {
+		response.ResponseErrorWithMsg(ctx, http.StatusUnauthorized, http.StatusUnauthorized, "未找到用户信息")
+		return
+	}
+
+	status := dao.GetSuperAdminStatus(username.(string))
 	response.ResponseSuccess(ctx, status)
 }
