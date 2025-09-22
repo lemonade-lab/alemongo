@@ -1,0 +1,337 @@
+/* 终端容器样式 */
+.terminal-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  /* 玻璃拟态，与首页 chatgpt-card 对齐 */
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.terminal-container.fullscreen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9999;
+  border-radius: 0;
+}
+
+/* 终端工具栏 */
+.terminal-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 16px;
+  /* 半透明渐变头部，与首页移动端 navbar 接近 */
+  background: linear-gradient(
+    90deg,
+    rgba(99, 102, 241, 0.1) 0%,
+    rgba(124, 58, 237, 0.1) 100%
+  );
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  min-height: 44px;
+}
+
+.terminal-toolbar-left {
+  display: flex;
+  align-items: center;
+}
+
+.terminal-toolbar-right {
+  display: flex;
+  align-items: center;
+}
+
+/* 连接状态 */
+.connection-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.connection-status.connected {
+  background: rgba(34, 197, 94, 0.2);
+}
+
+.connection-status.disconnected {
+  background: rgba(239, 68, 68, 0.2);
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #6b7280;
+}
+
+.connection-status.connected .status-dot {
+  background: #22c55e;
+  animation: pulse 2s infinite;
+}
+
+.connection-status.disconnected .status-dot {
+  background: #ef4444;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* 搜索栏 */
+.terminal-search {
+  display: flex;
+  align-items: center;
+  padding: 8px 16px;
+  background: transparent;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  gap: 8px;
+}
+
+.search-input {
+  flex: 1;
+  padding: 6px 12px;
+  background: #1e1e1e;
+  border: 1px solid #404040;
+  border-radius: 4px;
+  color: #d4d4d4;
+  font-size: 14px;
+  outline: none;
+}
+
+.search-input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+.search-input::placeholder {
+  color: #6b7280;
+}
+
+/* 终端内容区域 */
+.terminal-content {
+  flex: 1;
+  padding: 8px;
+  /* 背景透明，让 chatgpt-card 显示 */
+  background: transparent;
+  overflow: hidden;
+}
+
+/* xterm.js 样式覆盖 */
+.terminal-content .xterm {
+  height: 100%;
+  width: 100%;
+}
+
+.terminal-content .xterm-viewport {
+  background: transparent !important;
+}
+
+.terminal-content .xterm-screen {
+  background: transparent !important;
+}
+
+/* 终端设置 */
+.terminal-settings {
+  padding: 16px 0;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .terminal-toolbar {
+    padding: 6px 12px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .terminal-toolbar-right {
+    flex-wrap: wrap;
+  }
+
+  .terminal-search {
+    padding: 6px 12px;
+  }
+
+  .terminal-content {
+    padding: 4px;
+  }
+}
+
+/* 暗色主题适配 */
+/* 暗色主题适配，与 chatgpt-card 的暗色一致 */
+.dark .terminal-container {
+  background: rgba(17, 24, 39, 0.95);
+  border: 1px solid rgba(75, 85, 99, 0.2);
+}
+
+.dark .terminal-toolbar {
+  background: linear-gradient(
+    90deg,
+    rgba(99, 102, 241, 0.08) 0%,
+    rgba(124, 58, 237, 0.08) 100%
+  );
+  border-bottom-color: rgba(75, 85, 99, 0.2);
+}
+
+.dark .terminal-search {
+  background: transparent;
+  border-bottom-color: rgba(75, 85, 99, 0.2);
+}
+
+.dark .terminal-content {
+  background: transparent;
+}
+
+.dark .search-input {
+  background: rgba(17, 24, 39, 0.1);
+  border-color: rgba(75, 85, 99, 0.2);
+  color: #e5e5e5;
+}
+
+.dark .search-input:focus {
+  border-color: #667eea;
+}
+
+/* 亮色主题适配 */
+/* 亮色主题：细边与浅背景 */
+.light .terminal-container {
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(229, 231, 235, 0.8);
+}
+
+.light .terminal-toolbar {
+  background: linear-gradient(
+    90deg,
+    rgba(102, 126, 234, 0.08) 0%,
+    rgba(118, 75, 162, 0.08) 100%
+  );
+  border-bottom-color: rgba(229, 231, 235, 0.8);
+}
+
+.light .terminal-search {
+  background: transparent;
+  border-bottom-color: rgba(229, 231, 235, 0.8);
+}
+
+.light .terminal-content {
+  background: transparent;
+}
+
+.light .search-input {
+  background: rgba(255, 255, 255, 0.6);
+  border-color: rgba(209, 213, 219, 0.8);
+  color: #374151;
+}
+
+.light .search-input:focus {
+  border-color: #667eea;
+}
+
+/* 按钮样式调整 */
+/* 工具栏按钮对齐首页风格 */
+.terminal-toolbar .ant-btn {
+  color: #374151;
+  border-color: transparent;
+  background: transparent;
+}
+
+.terminal-toolbar .ant-btn:hover {
+  color: #111827;
+  background: rgba(0, 0, 0, 0.05);
+  border-color: transparent;
+}
+
+.dark .terminal-toolbar .ant-btn {
+  color: #d4d4d4;
+}
+
+.dark .terminal-toolbar .ant-btn:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.light .terminal-toolbar .ant-btn {
+  color: #6b7280;
+}
+
+.light .terminal-toolbar .ant-btn:hover {
+  color: #374151;
+  background: rgba(0, 0, 0, 0.05);
+}
+
+/* 滚动条样式 */
+.terminal-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.terminal-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.terminal-content::-webkit-scrollbar-thumb {
+  background: #555;
+  border-radius: 4px;
+}
+
+.terminal-content::-webkit-scrollbar-thumb:hover {
+  background: #777;
+}
+
+/* 动画效果 */
+.terminal-container {
+  transition: all 0.3s ease;
+}
+
+.terminal-toolbar {
+  transition: background-color 0.3s ease;
+}
+
+/* 加载状态 */
+.terminal-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  color: #6b7280;
+}
+
+/* 错误状态 */
+.terminal-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  color: #ef4444;
+  text-align: center;
+  padding: 20px;
+}
+
+.terminal-error .error-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.terminal-error .error-message {
+  font-size: 16px;
+  margin-bottom: 8px;
+}
+
+.terminal-error .error-detail {
+  font-size: 14px;
+  color: #6b7280;
+}

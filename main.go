@@ -277,8 +277,10 @@ func main() {
 	// 初始化go-cache
 	utils.InitCache()
 
-	// 注册服务
-	autoregister.RegisterIfNeeded(settings.ServiceName, settings.ServiceDescription)
+	// 注册服务 - 仅在非开发模式下注册
+	if !isDev {
+		autoregister.RegisterIfNeeded(settings.ServiceName, settings.ServiceDescription)
+	}
 
 	err = app.Run(":" + settings.Conf.Server.Port)
 	if err != nil {

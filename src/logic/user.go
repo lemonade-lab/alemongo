@@ -246,3 +246,13 @@ func GetGitHubConfigStatus() map[string]interface{} {
 	}
 	return config
 }
+
+// EditGitHubConfig 编辑GitHub配置
+func EditGitHubConfig(cfg models.GitHubConfig) error {
+	return dao.EditGitHubConfig(cfg)
+}
+
+// GetGitHubConfig 获取GitHub配置
+func GetGitHubConfig() (*models.GitHubConfig, error) {
+	return dao.GetGitHubConfig()
+}

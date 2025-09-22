@@ -5,8 +5,11 @@ import (
 	"alemongo/src/apps/api/bot"
 	botconfig "alemongo/src/apps/api/bot/config"
 	botconfigs "alemongo/src/apps/api/bot/configs"
+	apiconfig "alemongo/src/apps/api/config"
 	apiemail "alemongo/src/apps/api/email"
 	"alemongo/src/apps/api/multibots"
+	"alemongo/src/apps/api/portMonitor"
+	"alemongo/src/apps/api/terminal"
 
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
@@ -72,7 +75,8 @@ func Create(mode string) *gin.Engine {
 				CommonAPI.GET("/config", common.GetGeneralConfig) // 获取一般配置
 				// 开始鉴权
 				CommonAPI.Use(middlewares.AuthMiddleware())
-				CommonAPI.GET("/info", common.Info) // 获取环境信息（需要权限）
+				CommonAPI.GET("/info", common.Info)                                                                             // 获取环境信息（需要权限）
+				CommonAPI.GET("/monitor", middlewares.PermissionMiddleware(permission.SystemConfigRead), common.GetSystemStats) // 获取系统监控信息（需要权限）
 			}
 			// settings
 			SettingsAPI := v1.Group("/settings")
@@ -95,6 +99,14 @@ func Create(mode string) *gin.Engine {
 				{
 					EmailAPI.GET("", middlewares.PermissionMiddleware(permission.SystemConfigRead), apiemail.GetEmail)      // 获取邮箱配置
 					EmailAPI.PUT("", middlewares.PermissionMiddleware(permission.SystemConfigUpdate), apiemail.UpdateEmail) // 更新邮箱配置
+				}
+
+				// GitHub配置管理
+				GitHubAPI := ConfigAPI.Group("/github")
+				{
+					GitHubAPI.GET("", middlewares.PermissionMiddleware(permission.SystemConfigRead), apiconfig.GetGitHubConfig)      // 获取GitHub配置
+					GitHubAPI.PUT("", middlewares.PermissionMiddleware(permission.SystemConfigUpdate), apiconfig.UpdateGitHubConfig) // 更新GitHub配置
+					GitHubAPI.GET("/status", apiconfig.GetGitHubConfigStatus)                                                        // 获取GitHub配置状态（无需权限）
 				}
 			}
 
@@ -163,6 +175,9 @@ func Create(mode string) *gin.Engine {
 				BotAPI.POST("/log", middlewares.PermissionMiddleware(permission.BotLogManage), bot.Log)              // 获取机器人日志
 				BotAPI.POST("/log-online", middlewares.PermissionMiddleware(permission.BotLogManage), bot.LogOnline) // 获取在线日志
 				BotAPI.DELETE("/log", middlewares.PermissionMiddleware(permission.BotLogManage), bot.LogDelete)      // 删除日志
+
+				// 进程端口信息接口
+				BotAPI.GET("/process/:pid/ports", middlewares.PermissionMiddleware(permission.BotRead), bot.GetProcessPorts) // 获取进程端口信息
 
 				// 机器人环境变量管理
 				EnvAPI := BotAPI.Group("/env")
@@ -235,6 +250,24 @@ func Create(mode string) *gin.Engine {
 				MultiBotAPI.POST("/addconfig", multibots.AddBotConfig)
 				// 启动多配置机器人(根据配置文件启动对应的机器人)
 				MultiBotAPI.POST("/start", multibots.StartMultiBot)
+			}
+
+			// Terminal - 仅超级管理员可使用
+			TerminalAPI := v1.Group("/terminal")
+			{
+				TerminalAPI.GET("/ws", terminal.HandleWebSocket)              // WebSocket终端连接 - 使用 subprotocol 鉴权
+				TerminalAPI.Use(middlewares.AuthMiddleware())                 // 开始鉴权
+				TerminalAPI.GET("/sessions", terminal.GetSessions)            // 获取活跃会话列表 - 需要 HTTP 鉴权
+				TerminalAPI.DELETE("/sessions/:id", terminal.CloseSessionAPI) // 关闭指定会话 - 需要 HTTP 鉴权
+			}
+
+			// Port Monitor - 端口监控
+			PortMonitorAPI := v1.Group("/port-monitor")
+			{
+				PortMonitorAPI.Use(middlewares.AuthMiddleware())                                                                              // 开始鉴权
+				PortMonitorAPI.GET("/ports", middlewares.PermissionMiddleware(permission.SystemConfigRead), portMonitor.GetAllPorts)          // 获取所有端口信息
+				PortMonitorAPI.GET("/ports/:port", middlewares.PermissionMiddleware(permission.SystemConfigRead), portMonitor.GetPortsByPort) // 根据端口号获取端口信息
+				PortMonitorAPI.GET("/process", middlewares.PermissionMiddleware(permission.SystemConfigRead), portMonitor.GetPortsByProcess)  // 根据进程名获取端口信息
 			}
 		}
 	}

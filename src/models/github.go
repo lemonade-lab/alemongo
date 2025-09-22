@@ -28,3 +28,10 @@ type GitHubOAuthRequest struct {
 type GitHubBindRequest struct {
 	Code string `form:"code" json:"code" binding:"required"`
 }
+
+// GitHubConfig GitHub OAuth 配置
+type GitHubConfig struct {
+	ClientID     string `form:"client_id" json:"client_id"`         // GitHub OAuth Client ID
+	ClientSecret string `form:"client_secret" json:"client_secret"` // GitHub OAuth Client Secret
+	RedirectURL  string `form:"redirect_url" json:"redirect_url"`   // 回调URL
+}

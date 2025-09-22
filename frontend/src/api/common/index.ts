@@ -32,3 +32,35 @@ export const apiCommonInfo = async (): Promise<{
     method: 'GET'
   }).then(res => res.data)
 }
+
+// 系统监控信息类型
+export interface SystemStats {
+  cpu: {
+    usage: number
+    count: number
+    model: string
+    load_avg: number[]
+  }
+  memory: {
+    total: number
+    used: number
+    free: number
+    available: number
+    usage: number
+  }
+  disk: {
+    total: number
+    used: number
+    free: number
+    usage: number
+  }
+  uptime: string
+}
+
+// 获取系统监控信息
+export const apiGetSystemStats = async (): Promise<SystemStats> => {
+  return request({
+    url: '/common/monitor',
+    method: 'GET'
+  }).then(res => res.data)
+}

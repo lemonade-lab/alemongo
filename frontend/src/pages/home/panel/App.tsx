@@ -10,6 +10,7 @@ const Panel = () => {
   const info = bot.info
   const navigate = useNavigate()
   const location = useLocation()
+
   // 判断是否是显示 在线日志
   const isOnlineLog = useMemo(() => {
     // 不是日志页面 或者 当前是日志页面

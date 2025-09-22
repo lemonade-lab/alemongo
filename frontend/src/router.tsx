@@ -33,6 +33,9 @@ const AppsNodeJS = lazy(() => import('./pages/home/Apps/NodeJS/App'))
 const GitPackage = lazy(() => import('./pages/home/panel/packages/package/App'))
 const GitManager = lazy(() => import('./pages/home/panel/packages/git/App'))
 const Env = lazy(() => import('./pages/home/panel/env/App'))
+const SystemTerminal = lazy(() => import('./pages/SystemTerminal/App'))
+const PortMonitor = lazy(() => import('./pages/home/PortMonitor/App'))
+const About = lazy(() => import('./pages/home/About/App'))
 
 const router = createBrowserRouter([
   {
@@ -267,6 +270,30 @@ const router = createBrowserRouter([
             element: (
               <WithSuspense>
                 <ConfigEdit />
+              </WithSuspense>
+            )
+          },
+          {
+            path: 'system-terminal',
+            element: (
+              <WithSuspense>
+                <SystemTerminal />
+              </WithSuspense>
+            )
+          },
+          {
+            path: 'port-monitor',
+            element: (
+              <WithSuspense>
+                <PortMonitor />
+              </WithSuspense>
+            )
+          },
+          {
+            path: 'about',
+            element: (
+              <WithSuspense>
+                <About />
               </WithSuspense>
             )
           }

@@ -332,14 +332,10 @@ const UserTable = () => {
             <Table
               pagination={false}
               columns={columns}
+              rowKey="username"
               dataSource={curData}
               direction="ltr"
               virtual
-              // {
-              //   {
-              //     'virtual'
-              //   }
-              // }
               className="[&_.ant-table-thead_.ant-table-cell]:bg-gradient-to-r [&_.ant-table-thead_.ant-table-cell]:from-blue-50/80 [&_.ant-table-thead_.ant-table-cell]:to-purple-50/80 [&_.ant-table-thead_.ant-table-cell]:dark:from-blue-900/30 [&_.ant-table-thead_.ant-table-cell]:dark:to-purple-900/30 [&_.ant-table-thead_.ant-table-cell]:backdrop-blur-sm [&_.ant-table-thead_.ant-table-cell]:border-b [&_.ant-table-thead_.ant-table-cell]:border-blue-200/30 [&_.ant-table-thead_.ant-table-cell]:dark:border-blue-700/30 [&_.ant-table-tbody_.ant-table-cell]:border-b [&_.ant-table-tbody_.ant-table-cell]:border-gray-200/20 [&_.ant-table-tbody_.ant-table-cell]:dark:border-gray-700/20 [&_.ant-table-tbody_.ant-table-row]:hover:bg-gradient-to-r [&_.ant-table-tbody_.ant-table-row]:hover:from-blue-50/50 [&_.ant-table-tbody_.ant-table-row]:hover:to-purple-50/50 [&_.ant-table-tbody_.ant-table-row]:dark:hover:from-blue-900/20 [&_.ant-table-tbody_.ant-table-row]:dark:hover:to-purple-900/20 [&_.ant-table-tbody_.ant-table-row]:transition-all [&_.ant-table-tbody_.ant-table-row]:duration-300"
               rowClassName={() =>
                 'hover:bg-gradient-to-r hover:from-blue-50/50 hover:to-purple-50/50 dark:hover:from-blue-900/20 dark:hover:to-purple-900/20 transition-all duration-300'

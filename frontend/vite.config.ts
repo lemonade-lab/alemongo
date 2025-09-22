@@ -31,8 +31,8 @@ export default defineConfig({
     proxy: {
       '/api': {
         target: 'http://localhost:17187',
-        changeOrigin: true
-        // rewrite: path => path.replace(/^\/api/, '')
+        changeOrigin: true,
+        ws: true // 支持 WebSocket 代理
       }
     }
   },

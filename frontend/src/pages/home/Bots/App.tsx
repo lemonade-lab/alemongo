@@ -21,6 +21,7 @@ import {
   BotInfo
 } from '@/api'
 import Pagination from '@/components/Pagination'
+import ProcessPortModal from '@/components/ProcessPortModal'
 import Headings from './Headings'
 import './index.scss'
 import { DownOutlined, ExclamationCircleOutlined } from '@ant-design/icons'
@@ -48,6 +49,13 @@ const Home = () => {
 
   // 依赖加载loading状态
   const [loadingNames, setLoadingNames] = useState<string[]>([])
+
+  // 端口信息弹窗状态
+  const [portModalVisible, setPortModalVisible] = useState(false)
+  const [selectedBot, setSelectedBot] = useState<{
+    name: string
+    pid: number
+  } | null>(null)
 
   useEffect(() => {
     if (!common.info.start_at) return
@@ -79,6 +87,16 @@ const Home = () => {
       }
       poll()
     })
+  }
+
+  // 处理PID点击
+  const handlePidClick = (bot: BotInfo) => {
+    if (bot.pid && bot.pid > 0) {
+      setSelectedBot({ name: bot.name, pid: bot.pid })
+      setPortModalVisible(true)
+    } else {
+      message.warning('该机器人未运行，无法查看端口信息')
+    }
   }
 
   useEffect(() => {
@@ -246,7 +264,10 @@ const Home = () => {
 
                           {/* 详细信息 */}
                           <div className="space-y-3 mb-6">
-                            <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                            <div
+                              className="flex items-center text-sm text-gray-600 dark:text-gray-400"
+                              onClick={e => e.stopPropagation()}
+                            >
                               <svg
                                 className="w-4 h-4 mr-2"
                                 fill="none"
@@ -260,7 +281,18 @@ const Home = () => {
                                   d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
                                 />
                               </svg>
-                              PID: {bot.pid || '-'}
+                              PID:
+                              {bot.pid && bot.pid > 0 ? (
+                                <button
+                                  onClick={() => handlePidClick(bot)}
+                                  className="ml-1 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline cursor-pointer transition-colors"
+                                  title="点击查看端口信息"
+                                >
+                                  {bot.pid}
+                                </button>
+                              ) : (
+                                <span className="ml-1">-</span>
+                              )}
                             </div>
                             <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
                               <svg
@@ -384,6 +416,19 @@ const Home = () => {
           </section>
         )}
       </Spin>
+
+      {/* 端口信息弹窗 */}
+      {selectedBot && (
+        <ProcessPortModal
+          visible={portModalVisible}
+          pid={selectedBot.pid}
+          botName={selectedBot.name}
+          onClose={() => {
+            setPortModalVisible(false)
+            setSelectedBot(null)
+          }}
+        />
+      )}
     </Box>
   )
 }

@@ -558,6 +558,55 @@ func GetUserByGitHubID(githubID int64) (models.User, bool) {
 	return models.User{}, false
 }
 
+// EditGitHubConfig 编辑GitHub配置
+func EditGitHubConfig(cfg models.GitHubConfig) error {
+	if cfg.ClientID == "" {
+		cfg.ClientID = settings.Conf.GitHub.ClientID
+	} else {
+		settings.Conf.GitHub.ClientID = cfg.ClientID
+	}
+	if cfg.ClientSecret == "" {
+		cfg.ClientSecret = settings.Conf.GitHub.ClientSecret
+	} else {
+		settings.Conf.GitHub.ClientSecret = cfg.ClientSecret
+	}
+	if cfg.RedirectURL == "" {
+		cfg.RedirectURL = settings.Conf.GitHub.RedirectURL
+	} else {
+		settings.Conf.GitHub.RedirectURL = cfg.RedirectURL
+	}
+
+	file, err := os.OpenFile("config.yaml", os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0644)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	updatedConfig, err := yaml.Marshal(&settings.Conf)
+	log.Println(string(updatedConfig))
+	if err != nil {
+		return err
+	}
+
+	err = os.WriteFile("config.yaml", updatedConfig, os.ModePerm)
+	if err != nil {
+		return err
+	}
+	log.Println("写入GitHub配置文件成功")
+
+	return nil
+}
+
+// GetGitHubConfig 获取GitHub配置
+func GetGitHubConfig() (*models.GitHubConfig, error) {
+	githubConfig := &models.GitHubConfig{
+		ClientID:     settings.Conf.GitHub.ClientID,
+		ClientSecret: settings.Conf.GitHub.ClientSecret,
+		RedirectURL:  settings.Conf.GitHub.RedirectURL,
+	}
+	return githubConfig, nil
+}
+
 // 检查 GitHub ID 是否已被绑定
 func IsGitHubIDBound(githubID int64) bool {
 	_, exists := GetUserByGitHubID(githubID)
