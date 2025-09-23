@@ -2,16 +2,6 @@
 
 阿柠檬WEB面板
 
-## 前提环境
-
-`Git` 、 `NodeJS >= 20`、`Google Chrome`
-
-> [Linux 环境安装脚本](https://github.com/lemonade-lab/visible)
-
-## 安装
-
-[点击releases最新版](https://github.com/lemonade-lab/alemongo/releases)
-
 ## 配置文件
 
 > 根目录下，创建`./work/config.yaml`文件 (默认)
@@ -33,13 +23,7 @@ log:
   filename: "alemongo_logs"  # 整体项目日志所在文件夹
 ```
 
-- 自定义配置路径
-
-```sh
---config ./work/config.test.yaml
-```
-
-> 超级临时账户会在启动时打印，直到密码更改。
+> 超级管理(临时密码)会在启动时打印，直到密码更改。
 
 - 工作目录
 
@@ -53,21 +37,19 @@ log:
 
 [package.json](./resources/template/package.json)
 
-## 操作指南
+## 部署
 
-[linux](./READMES/linux.md)
-
-[macos](./READMES/maxos.md)
-
-[windows](./READMES/windows.md)
-
-## Docker 部署
+- docker
 
 > 推荐使用 docker 进行快速部署
 
 [README_DCOKER](./READMES/README_DCOKER.md)
 
-## Github 快捷登录
+- system
+
+[README_DCOKER](./READMES/README_INSTALL.md)
+
+## 快捷登录
 
 [README_GITHUB_OAUTH](./READMES/README_GITHUB_OAUTH.md)
 

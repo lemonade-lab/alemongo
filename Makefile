@@ -32,15 +32,15 @@ install: ## 安装依赖
 	go mod download
 
 # 前端相关命令
-frontend-install: ## 安装前端依赖
+feinstall: ## 安装前端依赖
 	@echo "安装前端依赖..."
 	cd frontend && yarn install --ignore-engines
 
-frontend-build: ## 构建前端
+febuild: ## 构建前端
 	@echo "构建前端..."
 	cd frontend && yarn build
 
-frontend-dev: ## 启动前端开发服务器
+fedev: ## 启动前端开发服务器
 	@echo "启动前端开发服务器..."
 	cd frontend && yarn dev
 
@@ -74,16 +74,6 @@ clean: ## 清理构建文件
 	go clean
 	rm -f alemongo
 	cd frontend && rm -rf dist
-
-# 完整开发环境设置
-setup: install frontend-install ## 设置完整开发环境
-	@echo "开发环境设置完成!"
-
-# 启动完整开发环境
-start-dev: frontend-dev dev ## 同时启动前后端开发服务器
-
-# 构建完整项目
-build-all: frontend-build build ## 构建前后端项目
 
 # 数据库相关
 db-start: ## 启动数据库
