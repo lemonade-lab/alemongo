@@ -22,7 +22,7 @@ git checkout for/dev-XXX-XX/1 # 切换到待PR分支
 - 前置指令
 
 ```sh
-npm install yarn@1.19.1 -g
+npm install yarn -g
 yarn --cwd frontend install --ignore-engines
 yarn --cwd frontend build
 ```

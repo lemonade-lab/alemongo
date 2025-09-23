@@ -7,7 +7,7 @@
     "@alemonjs/qq-bot": "^2.1.0-alpha.19",
     "@alemonjs/onebot": "^2.1.0-alpha.11",
     "alemonjs": "^2.1.0-alpha.51",
-    "jsxp": "^1.2.2"
+    "jsxp": "^1.2.3"
   },
   "devDependencies": {
     "npm": "^11",

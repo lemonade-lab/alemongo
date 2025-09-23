@@ -18,8 +18,8 @@
 
 ## 操作指南
 
-[linux](./linux.md)
+[linux](./system/linux.md)
 
-[macos](./maxos.md)
+[macos](./system/maxos.md)
 
-[windows](./windows.md)
+[windows](./system/windows.md)
