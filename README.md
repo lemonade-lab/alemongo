@@ -45,9 +45,9 @@ log:
 
 [README_DCOKER](./READMES/README_DCOKER.md)
 
-- system
+- 为指定系统安装指定版本
 
-[README_DCOKER](./READMES/README_INSTALL.md)
+[README_INSTALL](./READMES/README_INSTALL.md)
 
 ## 快捷登录
 
