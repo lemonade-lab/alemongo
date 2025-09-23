@@ -56,7 +56,8 @@ func RunMultiBot(name string) (string, error) {
 			continue
 		}
 		ext := path.Ext(configFile.Name())
-		if ext != ".yaml" || ext != ".yml" {
+		// 仅处理 .yaml 或 .yml，其它后缀跳过
+		if ext != ".yaml" && ext != ".yml" {
 			continue
 		}
 		configName := configFile.Name()[:len(configFile.Name())-len(ext)]

@@ -23,7 +23,6 @@ const SettingsTabs: React.FC<SettingsTabsProps> = ({ className = '' }) => {
   return (
     <div className={`w-full ${className}`}>
       <Tabs defaultActiveKey="system" size="large">
-        {/* 系统信息 */}
         <TabPane
           tab={
             <div className="flex items-center gap-2">

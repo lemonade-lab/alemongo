@@ -9,6 +9,7 @@ import (
 	apiemail "alemongo/src/apps/api/email"
 	"alemongo/src/apps/api/multibots"
 	"alemongo/src/apps/api/portMonitor"
+	apisystem "alemongo/src/apps/api/system"
 	"alemongo/src/apps/api/terminal"
 
 	swaggerfiles "github.com/swaggo/files"
@@ -77,6 +78,25 @@ func Create(mode string) *gin.Engine {
 				CommonAPI.Use(middlewares.AuthMiddleware())
 				CommonAPI.GET("/info", common.Info)                                                                             // 获取环境信息（需要权限）
 				CommonAPI.GET("/monitor", middlewares.PermissionMiddleware(permission.SystemConfigRead), common.GetSystemStats) // 获取系统监控信息（需要权限）
+			}
+
+			// system
+			SystemAPI := v1.Group("/system")
+			{
+				// 开始鉴权
+				SystemAPI.Use(middlewares.AuthMiddleware())
+				// 仅查看：检测依赖
+				SystemAPI.GET("/deps/check", middlewares.PermissionMiddleware(permission.SystemConfigRead), apisystem.CheckDependencies)
+				// 生成安装计划（默认仅预览，不执行）
+				SystemAPI.POST("/deps/install", middlewares.PermissionMiddleware(permission.SystemSettingsManage), apisystem.PlanInstall)
+				// 防火墙：状态与计划
+				SystemAPI.GET("/firewall/status", middlewares.PermissionMiddleware(permission.SystemConfigRead), apisystem.GetFirewallStatus)
+				SystemAPI.POST("/firewall/plan", middlewares.PermissionMiddleware(permission.SystemSettingsManage), apisystem.PlanFirewall)
+				// 任务中心：查看
+				SystemAPI.GET("/tasks", middlewares.PermissionMiddleware(permission.SystemConfigRead), apisystem.ListTasks)
+				SystemAPI.GET("/tasks/:id", middlewares.PermissionMiddleware(permission.SystemConfigRead), apisystem.GetTask)
+				// 任务中心：控制
+				SystemAPI.POST("/tasks/:id/cancel", middlewares.PermissionMiddleware(permission.SystemSettingsManage), apisystem.CancelTask)
 			}
 			// settings
 			SettingsAPI := v1.Group("/settings")

@@ -30,6 +30,10 @@ const PackagesMessage = lazy(
 )
 const Apps = lazy(() => import('./pages/home/Apps/App'))
 const AppsNodeJS = lazy(() => import('./pages/home/Apps/NodeJS/App'))
+const AppsGit = lazy(() => import('./pages/home/Apps/Git/App'))
+const AppsFirewall = lazy(() => import('./pages/home/Apps/Firewall/App'))
+const AppsManage = lazy(() => import('./pages/home/Apps/Manage/App'))
+const TasksPage = lazy(() => import('./pages/home/Tasks/App'))
 const GitPackage = lazy(() => import('./pages/home/panel/packages/package/App'))
 const GitManager = lazy(() => import('./pages/home/panel/packages/git/App'))
 const Env = lazy(() => import('./pages/home/panel/env/App'))
@@ -87,10 +91,50 @@ const router = createBrowserRouter([
             )
           },
           {
+            path: 'apps/manage',
+            element: (
+              <WithSuspense>
+                <AppsManage />
+              </WithSuspense>
+            )
+          },
+          {
             path: 'apps/nodejs',
             element: (
               <WithSuspense>
                 <AppsNodeJS />
+              </WithSuspense>
+            )
+          },
+          {
+            path: 'apps/nvm',
+            element: (
+              <WithSuspense>
+                <AppsNodeJS />
+              </WithSuspense>
+            )
+          },
+          {
+            path: 'apps/git',
+            element: (
+              <WithSuspense>
+                <AppsGit />
+              </WithSuspense>
+            )
+          },
+          {
+            path: 'apps/firewall',
+            element: (
+              <WithSuspense>
+                <AppsFirewall />
+              </WithSuspense>
+            )
+          },
+          {
+            path: 'tasks',
+            element: (
+              <WithSuspense>
+                <TasksPage />
               </WithSuspense>
             )
           },

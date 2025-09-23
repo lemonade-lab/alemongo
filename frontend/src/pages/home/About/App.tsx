@@ -43,52 +43,6 @@ const About: React.FC = () => {
     fetchSystemStats()
   }, [])
 
-  //   const app = {
-  //     name: 'Alemongo',
-  //     version: common.info.base?.version || '未知',
-  //     buildTime: common.info.base?.build_time || '未知',
-  //     description: '机器人管理平台',
-  //     icon: '🤖',
-  //     color: 'from-blue-500 to-cyan-500'
-  //   }
-
-  // 工具信息
-  const tools = [
-    {
-      name: 'IP地址',
-      data: {
-        installed: true,
-        version: common.info.location || 'N/A'
-      },
-      icon: '🌐',
-      color: 'from-blue-500 to-cyan-500'
-    },
-    {
-      name: 'NodeJS',
-      data: common.info.node,
-      icon: '🟢',
-      color: 'from-green-500 to-emerald-500'
-    },
-    {
-      name: 'NVM',
-      data: common.info.nvm,
-      icon: '📦',
-      color: 'from-purple-500 to-pink-500'
-    },
-    {
-      name: 'Git',
-      data: common.info.git,
-      icon: '🔧',
-      color: 'from-orange-500 to-red-500'
-    },
-    {
-      name: 'Browser',
-      data: common.info.browser,
-      icon: '🌍',
-      color: 'from-indigo-500 to-blue-500'
-    }
-  ]
-
   return (
     <Box>
       {/* 系统监控信息 */}
@@ -196,73 +150,6 @@ const About: React.FC = () => {
             </div>
           )}
         </Spin>
-      </Card>
-
-      {/* 环境工具信息 */}
-      <Card title="🔧 环境工具">
-        <div className="flex flex-col gap-4">
-          {tools.map(
-            tool =>
-              tool.data?.installed && (
-                <div
-                  key={tool.name}
-                  className="group flex items-center justify-between w-full bg-white/50 dark:bg-gray-700/50 backdrop-blur-sm rounded-xl px-6 py-4 shadow-lg border border-white/20 dark:border-gray-600/20 hover:shadow-xl hover:scale-105 transition-all"
-                >
-                  <div className="flex items-center gap-4">
-                    <div
-                      className={`w-12 h-12 bg-gradient-to-r ${tool.color} rounded-lg flex items-center justify-center text-2xl shadow-md group-hover:scale-110 transition-transform`}
-                    >
-                      {tool.icon}
-                    </div>
-                    <div>
-                      <span className="text-lg font-semibold text-gray-800 dark:text-gray-200">
-                        {tool.name}
-                      </span>
-                      <div className="text-sm text-gray-500 dark:text-gray-400">
-                        已安装
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-lg font-bold gradient-text">
-                      {tool.data.version}
-                    </span>
-                    <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                  </div>
-                </div>
-              )
-          )}
-        </div>
-      </Card>
-
-      {/* 系统信息 */}
-      <Card className="mt-6" title="ℹ️ 系统信息">
-        <Row gutter={[16, 16]}>
-          <Col xs={24} sm={12} md={8}>
-            <div className="text-center p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-              <div className="text-2xl font-bold text-gray-800 dark:text-gray-200">
-                {navigator.platform || '未知'}
-              </div>
-              <div className="text-sm text-gray-500">操作系统</div>
-            </div>
-          </Col>
-          <Col xs={24} sm={12} md={8}>
-            <div className="text-center p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-              <div className="text-2xl font-bold text-gray-800 dark:text-gray-200">
-                {navigator.userAgent.split(' ').pop() || '未知'}
-              </div>
-              <div className="text-sm text-gray-500">浏览器</div>
-            </div>
-          </Col>
-          <Col xs={24} sm={12} md={8}>
-            <div className="text-center p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-              <div className="text-2xl font-bold text-gray-800 dark:text-gray-200">
-                {navigator.language || '未知'}
-              </div>
-              <div className="text-sm text-gray-500">语言</div>
-            </div>
-          </Col>
-        </Row>
       </Card>
     </Box>
   )

@@ -13,7 +13,7 @@ export const QQ_TEMPLATE_KEY = 'alemongo:qq:template'
 const getContentType = (method: string) => {
   if (method === 'DELETE') return 'multipart/form-data'
   return method === 'GET'
-    ? 'application/jison'
+    ? 'application/json'
     : 'application/x-www-form-urlencoded'
 }
 

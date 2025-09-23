@@ -2,8 +2,8 @@ import React from 'react'
 import Box from '@/commom/layout/Box'
 import { useNavigate } from 'react-router-dom'
 import { BorderOutlined } from '@ant-design/icons'
-import { message } from 'antd'
 import classNames from 'classnames'
+// 首页仅作为导航入口，具体检测/安装在各自应用页面实现
 
 /**
  * Chat风格的应用列表页面
@@ -13,6 +13,44 @@ const Apps: React.FC = () => {
   const navigate = useNavigate()
 
   const closeApps = [
+    {
+      name: '应用管理',
+      icon: (
+        <div className="w-20 h-20 flex items-center justify-center">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+            className="w-14 h-14 text-purple-600 dark:text-purple-400"
+          >
+            <path d="M4 5a2 2 0 012-2h3a2 2 0 012 2v3a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm9 0a2 2 0 012-2h3a2 2 0 012 2v3a2 2 0 01-2 2h-3a2 2 0 01-2-2V5zM4 16a2 2 0 012-2h3a2 2 0 012 2v3a2 2 0 01-2 2H6a2 2 0 01-2-2v-3zm9 0a2 2 0 012-2h3a2 2 0 012 2v3a2 2 0 01-2 2h-3a2 2 0 01-2-2v-3z" />
+          </svg>
+        </div>
+      ),
+      onClick: () => navigate('/apps/manage'),
+      open: true,
+      description: 'NVM / Node / Git 统一管理',
+      color: 'from-purple-500 to-indigo-500'
+    },
+    {
+      name: '任务中心',
+      icon: (
+        <div className="w-20 h-20 flex items-center justify-center">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+            className="w-14 h-14 text-blue-600 dark:text-blue-400"
+          >
+            <path d="M9 2a1 1 0 00-1 1v1H6.5A2.5 2.5 0 004 6.5V19a3 3 0 003 3h10a3 3 0 003-3V6.5A2.5 2.5 0 0017.5 4H16V3a1 1 0 10-2 0v1h-4V3a1 1 0 00-1-1zM6 8h12v11a1 1 0 01-1 1H7a1 1 0 01-1-1V8zm3.707 4.293a1 1 0 010 1.414l-1.586 1.586a1 1 0 01-1.414 0l-.586-.586a1 1 0 111.414-1.414l.293.293 1.086-1.086a1 1 0 011.414 0zM13 12h5v2h-5v-2z" />
+          </svg>
+        </div>
+      ),
+      onClick: () => navigate('/tasks'),
+      open: true,
+      description: '查看任务列表与日志',
+      color: 'from-blue-500 to-cyan-500'
+    },
     {
       name: 'ALmeonB',
       icon: (
@@ -40,78 +78,16 @@ const Apps: React.FC = () => {
       color: 'from-green-500 to-blue-500'
     },
     {
-      name: 'Kook MD',
-      icon: (
-        <img
-          className="w-20 h-20 object-contain transition-transform duration-200 group-hover:scale-110"
-          src="https://developer.kookapp.cn/img/kooklogo.png"
-        />
-      ),
-      onClick: () => {
-        window.open(
-          'https://www.kookapp.cn/tools/message-builder.html#/card',
-          '_blank'
-        )
-      },
-      open: true,
-      description: 'Kook消息构建器',
-      color: 'from-orange-500 to-red-500'
-    },
-    {
-      name: 'NodeJS',
-      icon: (
-        <img
-          className="w-20 h-20 object-contain transition-transform duration-200 group-hover:scale-110"
-          src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAEhklEQVR4AbWXNbDkRhCG/x49NB4z5snlkZk5MjMzM23k7CA2MzPzhs58eXLM9PjpSZr+XaWZamtqZTjq2qnWLEx/9f89q5HgCOPaT859QD1fnMk5Ukz5ztd3/fYGjiAOG+DGz887rSJfoMdp6gnvielJBYjNvnKXf3fPzxuPC8Cd35+3qqi4zntcph5QBVQJ9URZEEVOiANc5t4Ql3W+uOmHzccE4MHPL5s1MVQ8QPJB9Zyl3goHiDjPJzUsKKhBJJMXv7jpl85RAdz20wU3CvECiVVWNAWw7EuimGEN4JxAXK3IZoHrfHbTz28cFsC9v190WlnxBZCnKQEweE0raDmMilANVmhFiJNgx995Y79ml3/QYoskcv9+2awC5TpV3ggKyFhUQ/ZqEClIzL5CDSFCuBQiKJPJG1mWdT64ykDgEOOiV057oEC1CcCNAgFBhFeQFSBCarAzzaEIQAZoyxreo+LGqqr+vOLts17oARgfK9dPTpSzEMIKCQSAtDqWEtFgSQANiKBksAmUWeP7/IunvXjarASAAuzcOgUQIGi1SIYMsaJtrUMabC27aoCgxsEwpic9yhkCg0gBxAFFqTiwfwYCgdWRaANCtpVSoSDBJ4MmAEYINqyamlBQlD0WUFiPfXtzeE9bSGA4EUrAf9tGAcYKKwllaNJ8WusMiPQAwJHISK+KgwfzdHkSFoT93JpQwiRim20aty5jL+RTPumb1AKJLwccODADVaI92NA9wrCJKzbRRiPO5BosARO7EgvgCELhqdi7L09XtpBEGBooTAFTCoCvghJF6Rm9B9sUQEZSNLwjwMGRHFWZLJle2/++9HwqzWYk6r9oKoPCQLsCcARcABEXZN61qeipKjahFUm2TGJDzApQyGBZqkAKkCkgFDpCJvsxNe7rkYakOUAklITNLUSdEIycZBuAQAhkBAoH0fDR/l0FBP8Syb8lkUpMgAEHKkE/K94DoKG4Ai7vN5mmJxQTo20qMNmGBAOIKSIQhLuQhbcWkB4AurALJB8AK0l82rejQG9Isi1tRTZ7hDZP3hIAQykAxDHINNFnsoYIt9iDe8pklWQ7SUMVkbRdxVYyFeiUbdsQMjrY9DCJkf0V1MeFicb3JPLQVDEEg7I1gy3eoRdgYmAEU/3JPaAZ6omRA2Wyu8AWSwgw0Tsm0j53PhMAIwmA23tiB4KRdCulMXbAoyw1qdl2LkjPEOklHEbg8VD3oW5dK0OMzb9u/mP1mas/JDhbIGvQE3aqwfCJGUjEQbtWElQJcxtivxPIBuS4vPtct9vGZnHaS6etguBzkq0gC5YPYGDQxYOqHc/juZDw4fTczF1W6HSfssL4F4AE5EaCLwBYhUYMDjvMXzoAOymrFTKICLS5KvnQr592vzjCBxMDeZHCB0DMigdWzFvaX6ugPlUgQoxoiQ0Dla7/Inp9pACpLcCLBG8AgKETMsxZ1Jc+qITrL6T0D31xV/dYPJq1g1D4OYg1s+b31SA1gLLrPTpf3PRL9zg+Haf9kQ3IC3MX9s1SsPPJtb+sxxHEX3WUaVLftBigAAAAAElFTkSuQmCC"
-        />
-      ),
-      onClick: () => {
-        message.warning('功能正在开发中，敬请期待！')
-      },
-      open: false,
-      description: 'Node.js环境管理',
-      color: 'from-green-600 to-green-400'
-    },
-    {
       name: '防火墙',
       icon: (
         <div className="flex-1 flex justify-center text-3xl text-indigo-600 dark:text-indigo-400 transition-transform duration-200 group-hover:scale-110">
-          <BorderOutlined />
+          <BorderOutlined size={80} className="size-20" />
         </div>
       ),
-      onClick: () => {
-        message.warning('防火墙功能正在开发中，敬请期待！')
-      },
-      description: '系统防火墙管理',
+      onClick: () => navigate('/apps/firewall'),
+      open: true,
+      description: 'macOS PF',
       color: 'from-red-500 to-orange-500'
-    },
-    {
-      name: 'NVM',
-      icon: (
-        <img
-          className="w-20 h-20 object-contain transition-transform duration-200 group-hover:scale-110"
-          src="https://avatars.githubusercontent.com/u/49963700?s=200&v=4"
-        />
-      ),
-      onClick: () => {
-        message.warning('NVM 功能正在开发中，敬请期待！')
-      },
-      description: 'Node版本管理器',
-      color: 'from-yellow-500 to-orange-500'
-    },
-    {
-      name: 'Git',
-      icon: (
-        <img
-          className="w-20 h-20 object-contain transition-transform duration-200 group-hover:scale-110"
-          src="https://git-scm.com/images/logo@2x.png"
-        />
-      ),
-      onClick: () => {
-        message.warning('Git 功能正在开发中，敬请期待！')
-      },
-      description: 'Git版本控制',
-      color: 'from-orange-600 to-red-600'
     }
   ]
 
@@ -125,6 +101,8 @@ const Apps: React.FC = () => {
             管理和访问各种工具和服务
           </p>
         </div>
+
+        {/* 常用应用管理入口：卡片导航到具体 App 页面 */}
 
         {/* 应用网格 */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">

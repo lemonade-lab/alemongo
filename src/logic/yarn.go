@@ -2,8 +2,7 @@ package logic
 
 import (
 	"alemongo/src/logger"
-	"alemongo/src/paths"
-	config "alemongo/src/paths"
+	paths "alemongo/src/paths"
 	"alemongo/src/settings"
 	"alemongo/src/utils"
 	"fmt"
@@ -48,7 +47,7 @@ func Add(name string, args []string) (string, error) {
 	cmd := utils.Command("node", append([]string{cliDir}, curArgs...)...)
 
 	// 设置工作目录为机器人的路径
-	cmd.Dir = config.GetBotPath(name)
+	cmd.Dir = paths.GetBotPath(name)
 
 	var l = new(zapcore.Level)
 	if err := l.UnmarshalText([]byte(settings.Conf.Log.Level)); err != nil {
@@ -97,7 +96,7 @@ func Install(name string) (string, error) {
 	// yanr install
 	cmd := utils.Command("node", cliDir, "install", "--ignore-engines")
 	// 设置工作目录为机器人的路径
-	cmd.Dir = config.GetBotPath(name)
+	cmd.Dir = paths.GetBotPath(name)
 	// cmd.Stdout = os.Stdout
 	// cmd.Stderr = os.Stderr
 	var l = new(zapcore.Level)
@@ -160,7 +159,7 @@ func Remove(name string, names []string) (string, error) {
 	cmd := utils.Command("node", append([]string{cliDir}, args...)...)
 
 	// 设置工作目录为机器人的路径
-	cmd.Dir = config.GetBotPath(name)
+	cmd.Dir = paths.GetBotPath(name)
 
 	var l = new(zapcore.Level)
 	if err := l.UnmarshalText([]byte(settings.Conf.Log.Level)); err != nil {

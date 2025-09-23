@@ -25,7 +25,7 @@ RUN echo "deb http://mirrors.aliyun.com/debian bookworm main contrib non-free no
   && echo "deb http://mirrors.aliyun.com/debian bookworm-updates main contrib non-free non-free-firmware" >> /etc/apt/sources.list \
   && echo "deb http://mirrors.aliyun.com/debian-security bookworm-security main contrib non-free non-free-firmware" >> /etc/apt/sources.list \
   && apt-get update \
-  && apt-get install -y --fix-missing chromium fonts-noto-cjk fonts-noto-color-emoji \
+  && apt-get install -y --fix-missing chromium fonts-noto-cjk fonts-noto-color-emoji lsof \
   && rm -rf /var/lib/apt/lists/*  \
   && mkdir -p ~/.ssh \
   && chmod 700 ~/.ssh \

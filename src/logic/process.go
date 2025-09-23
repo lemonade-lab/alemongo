@@ -2,10 +2,12 @@ package logic
 
 import (
 	"alemongo/src/models"
+	"context"
 	"os/exec"
 	"runtime"
 	"strconv"
 	"strings"
+	"time"
 )
 
 // GetProcessPorts 获取进程占用的端口信息
@@ -20,14 +22,31 @@ func GetProcessPorts(pid int) (*models.ProcessPortInfo, error) {
 
 	var cmd *exec.Cmd
 	pidStr := strconv.Itoa(pid)
+	// 为外部命令增加超时，防止偶发性挂起
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
 
 	switch runtime.GOOS {
 	case "windows":
 		// Windows使用netstat命令
-		cmd = exec.Command("netstat", "-ano")
+		if _, err := exec.LookPath("netstat"); err != nil {
+			return &models.ProcessPortInfo{
+				PID:   pid,
+				Ports: []models.PortInfo{},
+				Error: "netstat 未安装或不可用，无法查询进程端口",
+			}, nil
+		}
+		cmd = exec.CommandContext(ctx, "netstat", "-ano")
 	case "darwin", "linux":
 		// macOS/Linux使用lsof命令
-		cmd = exec.Command("lsof", "-Pan", "-p", pidStr, "-i")
+		if _, err := exec.LookPath("lsof"); err != nil {
+			return &models.ProcessPortInfo{
+				PID:   pid,
+				Ports: []models.PortInfo{},
+				Error: "lsof 未安装或不可用，请先安装 lsof 后重试（容器中已包含；若自建环境请安装）",
+			}, nil
+		}
+		cmd = exec.CommandContext(ctx, "lsof", "-Pan", "-p", pidStr, "-i")
 	default:
 		return &models.ProcessPortInfo{
 			PID:   pid,
@@ -38,6 +57,13 @@ func GetProcessPorts(pid int) (*models.ProcessPortInfo, error) {
 
 	output, err := cmd.Output()
 	if err != nil {
+		if ctx.Err() == context.DeadlineExceeded {
+			return &models.ProcessPortInfo{
+				PID:   pid,
+				Ports: []models.PortInfo{},
+				Error: "查询进程端口超时，请稍后重试",
+			}, nil
+		}
 		return &models.ProcessPortInfo{
 			PID:   pid,
 			Ports: []models.PortInfo{},
@@ -78,6 +104,7 @@ func parsePortOutput(output, osType, pidStr string) []models.PortInfo {
 					portInfo.Local = fields[1]
 					portInfo.Remote = fields[2]
 					portInfo.State = fields[3]
+					portInfo.PID = pidStr
 					ports = append(ports, portInfo)
 				}
 			}
@@ -91,6 +118,17 @@ func parsePortOutput(output, osType, pidStr string) []models.PortInfo {
 				if fields[1] == pidStr {
 					// 解析NAME字段，格式如: *:8080 (LISTEN) 或 localhost:8080->localhost:12345 (ESTABLISHED)
 					nameField := strings.Join(fields[8:], " ")
+					// 协议优先从 NAME 中提取（更可靠，区分 TCP/UDP）
+					proto := ""
+					if strings.Contains(nameField, "UDP6") {
+						proto = "UDP6"
+					} else if strings.Contains(nameField, "UDP") {
+						proto = "UDP"
+					} else if strings.Contains(nameField, "TCP6") {
+						proto = "TCP6"
+					} else if strings.Contains(nameField, "TCP") {
+						proto = "TCP"
+					}
 					if strings.Contains(nameField, "->") {
 						// 有远程连接的格式
 						parts := strings.Split(nameField, "->")
@@ -122,13 +160,16 @@ func parsePortOutput(output, osType, pidStr string) []models.PortInfo {
 					}
 
 					// 确定协议类型
-					if strings.Contains(fields[4], "IPv4") {
-						portInfo.Protocol = "TCP"
+					if proto != "" {
+						portInfo.Protocol = proto
+					} else if strings.Contains(fields[4], "IPv4") {
+						portInfo.Protocol = "TCP" // 回退，通常为 TCP/UDP 的网络条目
 					} else if strings.Contains(fields[4], "IPv6") {
 						portInfo.Protocol = "TCP6"
 					} else {
 						portInfo.Protocol = "UNKNOWN"
 					}
+					portInfo.PID = pidStr
 
 					ports = append(ports, portInfo)
 				}
