@@ -62,7 +62,9 @@ swagger: ## 生成Swagger文档
 # Docker相关
 docker-build: ## 构建Docker镜像
 	@echo "构建Docker镜像..."
-	docker build -t alemongo .
+	VERSION=$$(git describe --tags --abbrev=0 2>/dev/null || git rev-parse --short HEAD 2>/dev/null || echo "0.0.1"); \
+	echo "Using VERSION=$${VERSION}"; \
+	docker build --build-arg VERSION=$${VERSION} -t alemongo:$${VERSION} -t alemongo:latest .
 
 docker-run: ## 运行Docker容器
 	@echo "运行Docker容器..."

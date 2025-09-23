@@ -11,7 +11,8 @@ COPY go.mod go.sum main.go ./
 # 打包 go 支持多架构
 ARG TARGETOS
 ARG TARGETARCH
-ARG VERSION
+# 若外部未传入，使用默认版本号，避免 -ldflags 将 Version 置为空
+ARG VERSION=0.0.1
 RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -ldflags "-X main.Version=${VERSION} -X main.BuildTime=$(date +%s) -s -w" -o alemongo .  
 
 # 最终运行阶段

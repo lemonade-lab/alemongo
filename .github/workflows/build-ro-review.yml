@@ -47,7 +47,9 @@ jobs:
 
       - name: 构建 Docker 镜像
         run: |
-          docker build -t alemongo:latest .
+          VERSION=$(git describe --tags --abbrev=0 2>/dev/null || git rev-parse --short HEAD 2>/dev/null || echo "0.0.1")
+          echo "Using VERSION=$VERSION"
+          docker build --build-arg VERSION=$VERSION -t alemongo:latest -t alemongo:$VERSION .
 
       - name: 保存 Docker 镜像
         run: |

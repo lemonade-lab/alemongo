@@ -63,20 +63,35 @@ jobs:
           docker buildx create --name gobuilder --config ./buildkitd.toml --use --driver-opt network=host
           docker buildx inspect --bootstrap
           
-          VERSION="${{ github.event.inputs.version || 'latest' }}"
+          # 版本优先使用输入；若为 latest 或未提供，则回退到最近 tag，否则使用短 SHA
+          INPUT_VER="${{ github.event.inputs.version }}"
+          if [ -z "$INPUT_VER" ] || [ "$INPUT_VER" = "latest" ]; then
+            TAG_VER=$(git describe --tags --abbrev=0 2>/dev/null || true)
+            if [ -n "$TAG_VER" ]; then
+              VERSION="$TAG_VER"
+            else
+              VERSION=$(git rev-parse --short HEAD)
+            fi
+          else
+            VERSION="$INPUT_VER"
+          fi
+
           REGISTRY="${{ github.event.inputs.name || 'docker.io' }}"
           
           # 设置完整的镜像名称
           if [ "$REGISTRY" = "docker.io" ]; then
-            IMAGE_NAME="ningmengchongshui/alemongo:${VERSION}"
+            IMAGE_BASE="ningmengchongshui/alemongo"
           else
-            IMAGE_NAME="${REGISTRY}/ningmengchongshui/alemongo:${VERSION}"
+            IMAGE_BASE="${REGISTRY}/ningmengchongshui/alemongo"
           fi
-          
-          echo "构建镜像: $IMAGE_NAME"
+          IMAGE_LATEST="$IMAGE_BASE:latest"
+          IMAGE_VERSION="$IMAGE_BASE:${VERSION}"
+          echo "构建镜像: $IMAGE_VERSION 和 $IMAGE_LATEST (双标签)"
 
           # 构建并推送镜像
           docker buildx build \
             --platform linux/amd64,linux/arm64 \
-            -t "$IMAGE_NAME" \
+            --build-arg VERSION="$VERSION" \
+            -t "$IMAGE_VERSION" \
+            -t "$IMAGE_LATEST" \
             --push .
