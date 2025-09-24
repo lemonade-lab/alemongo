@@ -122,7 +122,7 @@ const Configs = () => {
 
   return (
     <Box>
-      <div className="sm:p-6">
+      <div className="">
         <div className="flex gap-6 flex-col transition-colors">
           {/* 顶部操作栏 */}
           <div className="flex justify-end gap-3">

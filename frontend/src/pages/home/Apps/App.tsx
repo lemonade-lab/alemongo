@@ -29,7 +29,7 @@ const Apps: React.FC = () => {
       ),
       onClick: () => navigate('/apps/manage'),
       open: true,
-      description: 'NVM / Node / Git 统一管理',
+      description: '基本依赖应用',
       color: 'from-purple-500 to-indigo-500'
     },
     {
@@ -93,7 +93,7 @@ const Apps: React.FC = () => {
 
   return (
     <Box>
-      <div className="sm:p-6">
+      <div className="">
         {/* 页面标题 */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold gradient-text mb-2">应用中心</h1>

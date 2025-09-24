@@ -163,7 +163,10 @@ func GetOrCreateBotLogger(botName string, level zapcore.Level) (*RobotLoggerWith
 }
 
 func DeleteBotLogger(botName string, level zapcore.Level) {
-	if _, ok := botLogger.Load(botName); ok {
+	if v, ok := botLogger.Load(botName); ok {
+		if rlr, ok2 := v.(*RobotLoggerWithRotate); ok2 && rlr != nil {
+			_ = rlr.Close()
+		}
 		botLogger.Delete(botName)
 	}
 }
@@ -206,9 +209,8 @@ func NewRobotLogger(botName string, level zapcore.Level) (*RobotLoggerWithRotate
 	robotEncoder := getEncoder()
 	robotCore := zapcore.NewCore(robotEncoder, robotWS, level)
 
-	botLogger := zap.L().WithOptions(zap.WrapCore(func(existing zapcore.Core) zapcore.Core {
-		return zapcore.NewTee(existing, robotCore)
-	}))
+	// 仅将机器人日志写入专属文件，不再 Tee 到系统主日志
+	botLogger := zap.New(robotCore, zap.AddCaller())
 
 	return &RobotLoggerWithRotate{
 		Logger:     botLogger,

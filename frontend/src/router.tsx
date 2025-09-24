@@ -11,12 +11,12 @@ const Bots = lazy(() => import('./pages/home/Bots/App'))
 const ButtonTemplate = lazy(
   () => import('./pages/home/Apps/QQBotButtonTemplate/App')
 )
-const Logs = lazy(() => import('./pages/home/panel/Logs'))
+const Logs = lazy(() => import('./pages/home/panel/LogsOnline/App'))
 const OneBot = lazy(() => import('./pages/home/Apps/OneBot/App'))
 const Settings = lazy(() => import('./pages/home/Settings/App'))
 const Package = lazy(() => import('./pages/home/panel/package/App'))
 const Config = lazy(() => import('./pages/home/panel/Conifg/App'))
-const XtermDate = lazy(() => import('./pages/home/panel/xterm-date/App'))
+const XtermDate = lazy(() => import('./pages/home/panel/LogsControl/App'))
 const Response = lazy(() => import('./pages/home/panel/response/App'))
 const Packages = lazy(() => import('./pages/home/panel/packages/App'))
 const Account = lazy(() => import('./pages/home/Account/App'))
@@ -40,6 +40,7 @@ const Env = lazy(() => import('./pages/home/panel/env/App'))
 const SystemTerminal = lazy(() => import('./pages/SystemTerminal/App'))
 const PortMonitor = lazy(() => import('./pages/home/PortMonitor/App'))
 const About = lazy(() => import('./pages/home/About/App'))
+const SystemLogs = lazy(() => import('./pages/home/SystemLogs/App'))
 
 const router = createBrowserRouter([
   {
@@ -330,6 +331,14 @@ const router = createBrowserRouter([
             element: (
               <WithSuspense>
                 <PortMonitor />
+              </WithSuspense>
+            )
+          },
+          {
+            path: 'system-logs',
+            element: (
+              <WithSuspense>
+                <SystemLogs />
               </WithSuspense>
             )
           },

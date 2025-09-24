@@ -20,12 +20,17 @@ const Box = ({
     <div
       ref={boxRef}
       className={classNames(
-        'flex-1 p-4 h-full w-full flex overflow-auto transition-colors',
-        rootClassName
+        rootClassName,
+        'flex-1 p-4 h-full w-full flex overflow-auto transition-colors min-w-0 max-w-full'
       )}
     >
-      <div className="flex-1 flex w-[100px]">
-        <div className={classNames(className, 'flex-1 flex flex-col')}>
+      <div className="flex-1 flex w-full min-w-0 max-w-full">
+        <div
+          className={classNames(
+            className,
+            'flex-1 flex flex-col min-w-0 max-w-full'
+          )}
+        >
           {children}
         </div>
       </div>

@@ -217,7 +217,7 @@ const AppsManage: React.FC = () => {
 
   return (
     <Box>
-      <div className="w-full h-full flex sm:p-6 gap-4 flex-col bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900  duration-300">
+      <div className="w-full h-full flex gap-4 flex-col bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900  duration-300">
         {/* 页面标题 */}
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold gradient-text">应用管理</h1>

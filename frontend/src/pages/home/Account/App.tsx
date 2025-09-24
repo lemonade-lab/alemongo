@@ -316,7 +316,7 @@ const UserTable = () => {
 
   return (
     <Box>
-      <div className="sm:p-6  gap-2 flex-1 flex flex-col h-full bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-all duration-300">
+      <div className="gap-2 flex-1 flex flex-col h-full bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-all duration-300">
         {/* 头部区域 */}
         <Headings
           selects={selects}

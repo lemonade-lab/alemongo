@@ -249,7 +249,7 @@ const Profile: React.FC = () => {
 
       {/* 设置选项卡 */}
 
-      <Box rootClassName="p-0">
+      <Box rootClassName="p-[0!important]">
         <Card className="shadow-lg border-0 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
           <Tabs defaultActiveKey="password" size="large">
             {/* 密码设置 */}

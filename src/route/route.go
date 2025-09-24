@@ -83,8 +83,14 @@ func Create(mode string) *gin.Engine {
 			// system
 			SystemAPI := v1.Group("/system")
 			{
+				// WebSocket 日志流 (使用 subprotocol 鉴权)
+				SystemAPI.GET("/log/ws", apisystem.SystemLogWS)
 				// 开始鉴权
 				SystemAPI.Use(middlewares.AuthMiddleware())
+				// 系统日志
+				SystemAPI.POST("/log", middlewares.PermissionMiddleware(permission.SystemConfigRead), apisystem.Log)
+				SystemAPI.POST("/log-online", middlewares.PermissionMiddleware(permission.SystemConfigRead), apisystem.LogOnline)
+				SystemAPI.GET("/log/download", middlewares.PermissionMiddleware(permission.SystemConfigRead), apisystem.LogDownload)
 				// 仅查看：检测依赖
 				SystemAPI.GET("/deps/check", middlewares.PermissionMiddleware(permission.SystemConfigRead), apisystem.CheckDependencies)
 				// 生成安装计划（默认仅预览，不执行）
@@ -175,6 +181,8 @@ func Create(mode string) *gin.Engine {
 			// bot
 			BotAPI := v1.Group("/bot")
 			{
+				// WebSocket 日志流 (使用 subprotocol 鉴权)
+				BotAPI.GET("/log/ws", apisystem.BotLogWS)
 				// 开始鉴权
 				BotAPI.Use(middlewares.AuthMiddleware())
 
@@ -192,9 +200,10 @@ func Create(mode string) *gin.Engine {
 				BotAPI.POST("/restart", middlewares.PermissionMiddleware(permission.BotControl), bot.Restart) // 重启机器人
 
 				// 机器人日志管理接口
-				BotAPI.POST("/log", middlewares.PermissionMiddleware(permission.BotLogManage), bot.Log)              // 获取机器人日志
-				BotAPI.POST("/log-online", middlewares.PermissionMiddleware(permission.BotLogManage), bot.LogOnline) // 获取在线日志
-				BotAPI.DELETE("/log", middlewares.PermissionMiddleware(permission.BotLogManage), bot.LogDelete)      // 删除日志
+				BotAPI.POST("/log", middlewares.PermissionMiddleware(permission.BotLogManage), bot.Log)                 // 获取机器人日志
+				BotAPI.POST("/log-online", middlewares.PermissionMiddleware(permission.BotLogManage), bot.LogOnline)    // 获取在线日志
+				BotAPI.DELETE("/log", middlewares.PermissionMiddleware(permission.BotLogManage), bot.LogDelete)         // 删除日志
+				BotAPI.GET("/log/download", middlewares.PermissionMiddleware(permission.BotLogManage), bot.LogDownload) // 下载整日日志
 
 				// 进程端口信息接口
 				BotAPI.GET("/process/:pid/ports", middlewares.PermissionMiddleware(permission.BotRead), bot.GetProcessPorts) // 获取进程端口信息

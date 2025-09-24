@@ -6,7 +6,8 @@ import {
   SettingOutlined,
   ConsoleSqlOutlined,
   MonitorOutlined,
-  InfoCircleOutlined
+  InfoCircleOutlined,
+  AppstoreAddOutlined
 } from '@ant-design/icons'
 
 // eslint-disable-next-line react-refresh/only-export-components
@@ -23,7 +24,7 @@ const TaskIcon = () => (
 
 export const menuItems = [
   { key: '/', icon: <AppstoreOutlined />, label: '应用中心' },
-  { key: '/apps/manage', icon: <AppstoreOutlined />, label: '应用管理' },
+  { key: '/apps/manage', icon: <AppstoreAddOutlined />, label: '应用管理' },
   { key: '/tasks', icon: <TaskIcon />, label: '任务中心' },
   { key: '/bots', icon: <RobotOutlined />, label: '机器列表' },
   { key: '/configs', icon: <FileTextOutlined />, label: '配置管理' },
@@ -50,6 +51,12 @@ export const menuItems = [
     icon: <MonitorOutlined />,
     label: '端口监控',
     identity: 'admin' // 管理员和超级管理员都可以访问
+  },
+  {
+    key: '/system-logs',
+    icon: <FileTextOutlined />,
+    label: '系统日志',
+    identity: 'admin'
   },
   {
     key: '/about',

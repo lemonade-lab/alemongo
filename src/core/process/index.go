@@ -95,6 +95,15 @@ func (pm *ProcessManager) RemoveProcess(name string) {
 		delete(pm.Processes, name)
 		// 删除持久化配置
 		RemoveProcessConfig(name)
+		// 释放对应机器人日志资源（如果有）
+		// 注意：按当前设计，机器人名称与进程名称一致
+		var l = new(zapcore.Level)
+		if err := l.UnmarshalText([]byte(settings.Conf.Log.Level)); err == nil {
+			logger.DeleteBotLogger(name, *l)
+		} else {
+			// 兜底关闭
+			logger.DeleteBotLogger(name, zapcore.InfoLevel)
+		}
 	}
 }
 
