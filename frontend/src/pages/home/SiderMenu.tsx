@@ -47,8 +47,7 @@ const MenuItem = ({
       onTouchStart={() => setIsPressed(true)}
       onTouchEnd={() => setIsPressed(false)}
       className={`
-        relative group cursor-pointer  duration-500 ease-out touch-optimized
-        ${isCollapsed ? 'w-12 h-12 mx-auto mb-3' : 'w-full h-12 mb-2 pr-8'}
+        ${isCollapsed ? 'h-10 mx-auto mb-3' : 'h-10 mb-2'}
         ${
           isSelected
             ? 'bg-gradient-to-r from-purple-500/40 to-blue-500/40 border border-purple-400/60 shadow-lg shadow-purple-500/20 animate-selected-pulse'
@@ -65,14 +64,6 @@ const MenuItem = ({
       }}
       title={isCollapsed ? item.label : undefined}
     >
-      {/* 选中状态的光晕效果 */}
-      {isSelected && (
-        <>
-          <div className="absolute inset-0 bg-gradient-to-r from-purple-500/30 to-blue-500/30 rounded-xl animate-pulse"></div>
-          <div className="absolute inset-0 bg-gradient-to-r from-purple-400/20 to-blue-400/20 rounded-xl animate-ping"></div>
-        </>
-      )}
-
       {/* 悬停时的光效 */}
       <div
         className={`
@@ -149,7 +140,7 @@ const CustomMenu = ({
     <div className="flex flex-col h-full">
       {/* 菜单标题 */}
       {!collapsed && (
-        <div className="mb-6 px-4">
+        <div className="mb-2 px-4">
           <h2 className="text-white/80 text-sm font-medium uppercase tracking-wider mobile-text-xs">
             ALEMONGO
           </h2>
@@ -157,7 +148,7 @@ const CustomMenu = ({
         </div>
       )}
       {/* 菜单项 */}
-      <div className="flex-1 mobile-scroll">
+      <div className="flex-1 mobile-scroll overflow-y-auto px-2">
         {items.map((item, index) => (
           <MenuItem
             key={item.key}

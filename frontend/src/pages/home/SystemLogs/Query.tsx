@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Button, DatePicker, DatePickerProps, message } from 'antd'
 import dayjs from 'dayjs'
 import Box from '@/commom/layout/Box'
@@ -78,13 +78,8 @@ const Query = () => {
     }
   }
 
-  const countText = useMemo(
-    () => `共 ${total} 条，当前页 ${data.length} 条`,
-    [total, data.length]
-  )
-
   return (
-    <Box>
+    <Box rootClassName="p-[0!important]">
       <div className="h-full flex flex-col gap-2 justify-between">
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div className="flex items-center gap-3 flex-wrap">
@@ -214,9 +209,6 @@ const Query = () => {
               page={pageInfo.page}
               onPageChange={page => setPageInfo({ ...pageInfo, page })}
             />
-            <div className="mt-2 text-right text-sm text-gray-600 dark:text-gray-400">
-              {countText}
-            </div>
           </div>
         </div>
       </div>

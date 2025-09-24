@@ -41,12 +41,6 @@ export const menuItems = [
     identity: 'admin' // 管理员和超级管理员都可以访问
   },
   {
-    key: '/system-terminal',
-    icon: <ConsoleSqlOutlined />,
-    label: '系统终端',
-    identity: 'super_admin' // 仅超级管理员可访问
-  },
-  {
     key: '/port-monitor',
     icon: <MonitorOutlined />,
     label: '端口监控',
@@ -57,6 +51,18 @@ export const menuItems = [
     icon: <FileTextOutlined />,
     label: '系统日志',
     identity: 'admin'
+  },
+  {
+    key: '/system-terminal',
+    icon: <ConsoleSqlOutlined />,
+    label: '系统终端',
+    identity: 'super_admin' // 仅超级管理员可访问
+  },
+  {
+    key: '/sftp',
+    icon: <FileTextOutlined />,
+    label: '文件管理',
+    identity: 'super_admin'
   },
   {
     key: '/about',

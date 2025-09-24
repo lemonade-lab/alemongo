@@ -99,7 +99,7 @@ const Online = () => {
   const renderData = useMemo(() => data.slice(-200), [data])
 
   return (
-    <Box boxRef={logRef}>
+    <Box rootClassName="p-[0!important]" boxRef={logRef}>
       <div className="flex items-center justify-between mb-2 flex-wrap gap-3">
         {/* 左侧：状态指示器 */}
         <div className="flex items-center gap-3">

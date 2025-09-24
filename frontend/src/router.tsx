@@ -41,6 +41,7 @@ const SystemTerminal = lazy(() => import('./pages/SystemTerminal/App'))
 const PortMonitor = lazy(() => import('./pages/home/PortMonitor/App'))
 const About = lazy(() => import('./pages/home/About/App'))
 const SystemLogs = lazy(() => import('./pages/home/SystemLogs/App'))
+const SFTP = lazy(() => import('./pages/home/SFTP/App'))
 
 const router = createBrowserRouter([
   {
@@ -339,6 +340,14 @@ const router = createBrowserRouter([
             element: (
               <WithSuspense>
                 <SystemLogs />
+              </WithSuspense>
+            )
+          },
+          {
+            path: 'sftp',
+            element: (
+              <WithSuspense>
+                <SFTP />
               </WithSuspense>
             )
           },

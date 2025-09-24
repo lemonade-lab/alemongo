@@ -9,12 +9,14 @@ const FileEdit = ({
   name,
   value,
   onSave,
-  disableName = false
+  disableName = false,
+  language = 'plaintext'
 }: {
   name?: string
   value: string
   onSave: (name: string, value: string) => void
   disableName?: boolean
+  language?: string
 }) => {
   const [fileData, setFileData] = useState<string>(value || '')
   const [inputValue, setInputValue] = useState<string>(name || '')
@@ -32,7 +34,7 @@ const FileEdit = ({
   }
 
   // 获取MonacoEditor稳定配置
-  const monacoConfig = createMonacoChineseConfig('plaintext', theme)
+  const monacoConfig = createMonacoChineseConfig(language, theme)
 
   const handleSave = () => {
     if (!inputValue) {
@@ -89,7 +91,7 @@ const FileEdit = ({
                 handleSave()
               }}
               value={fileData}
-              language="plaintext"
+              language={language}
               width="100%"
               height="100%"
               theme={theme}

@@ -9,6 +9,7 @@ import (
 	apiemail "alemongo/src/apps/api/email"
 	"alemongo/src/apps/api/multibots"
 	"alemongo/src/apps/api/portMonitor"
+	sftp "alemongo/src/apps/api/sftp"
 	apisystem "alemongo/src/apps/api/system"
 	"alemongo/src/apps/api/terminal"
 
@@ -288,6 +289,26 @@ func Create(mode string) *gin.Engine {
 				TerminalAPI.Use(middlewares.AuthMiddleware())                 // 开始鉴权
 				TerminalAPI.GET("/sessions", terminal.GetSessions)            // 获取活跃会话列表 - 需要 HTTP 鉴权
 				TerminalAPI.DELETE("/sessions/:id", terminal.CloseSessionAPI) // 关闭指定会话 - 需要 HTTP 鉴权
+			}
+
+			// SFTP-like 文件管理（限制在 work/ 根目录）
+			SFTPAPI := v1.Group("/sftp")
+			{
+				// 查询需读取权限，写入需系统设置管理权限
+				SFTPAPI.Use(middlewares.AuthMiddleware())
+				SFTPAPI.GET("/info", middlewares.PermissionMiddleware(permission.SystemConfigRead), sftp.Info)                     // 基础信息
+				SFTPAPI.GET("/list", middlewares.PermissionMiddleware(permission.SystemConfigRead), sftp.List)                     // 列目录/文件
+				SFTPAPI.GET("/read", middlewares.PermissionMiddleware(permission.SystemConfigRead), sftp.Read)                     // 读取小文件文本
+				SFTPAPI.GET("/download", middlewares.PermissionMiddleware(permission.SystemConfigRead), sftp.Download)             // 下载文件
+				SFTPAPI.GET("/zip", middlewares.PermissionMiddleware(permission.SystemConfigRead), sftp.Zip)                       // 单个路径zip下载
+				SFTPAPI.POST("/zip-batch", middlewares.PermissionMiddleware(permission.SystemConfigRead), sftp.ZipBatch)           // 批量zip下载
+				SFTPAPI.POST("/upload", middlewares.PermissionMiddleware(permission.SystemSettingsManage), sftp.Upload)            // 上传文件
+				SFTPAPI.POST("/write", middlewares.PermissionMiddleware(permission.SystemSettingsManage), sftp.Write)              // 写入文本文件
+				SFTPAPI.POST("/mkdir", middlewares.PermissionMiddleware(permission.SystemSettingsManage), sftp.Mkdir)              // 新建目录
+				SFTPAPI.POST("/rename", middlewares.PermissionMiddleware(permission.SystemSettingsManage), sftp.Rename)            // 重命名/移动
+				SFTPAPI.POST("/copy", middlewares.PermissionMiddleware(permission.SystemSettingsManage), sftp.Copy)                // 复制
+				SFTPAPI.DELETE("/delete", middlewares.PermissionMiddleware(permission.SystemSettingsManage), sftp.Delete)          // 删除
+				SFTPAPI.POST("/delete-batch", middlewares.PermissionMiddleware(permission.SystemSettingsManage), sftp.DeleteBatch) // 批量删除
 			}
 
 			// Port Monitor - 端口监控
