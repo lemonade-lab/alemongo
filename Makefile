@@ -106,7 +106,7 @@ service-status: ## 查看系统服务状态
 # 日志相关
 logs: ## 查看应用日志
 	@echo "查看应用日志..."
-	tail -f alemongo_logs/$(shell date +%Y-%m-%d).log
+	tail -f work/logs/$(shell date +%Y-%m-%d).log
 
 # 配置相关
 config-example: ## 复制配置示例文件

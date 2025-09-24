@@ -94,7 +94,7 @@ func fillDefaults() {
 		Conf.Log.Level = "info"
 	}
 	if Conf.Log.Filename == "" {
-		Conf.Log.Filename = "alemongo_logs"
+		Conf.Log.Filename = "work/logs"
 	}
 	if Conf.SMTP == nil {
 		Conf.SMTP = &SMTPConfig{}

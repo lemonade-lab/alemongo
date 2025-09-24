@@ -177,13 +177,15 @@ func (mp *ManagedProcess) Start() error {
 	for key, value := range mp.Config.Env {
 		mp.Cmd.Env = append(mp.Cmd.Env, fmt.Sprintf("%s=%s", key, value))
 	}
+	// 把标准输出和错误都重定向到日志文件
 	mp.Cmd.Stdout = botLoggerWriter.Writer(logger.WriterOption{
-		DetectLevel: true,
+		// 识别日志等级有bug，先关闭
+		DetectLevel: false,
 		StripDate:   true,
 		StripLevel:  true,
 	})
 	mp.Cmd.Stderr = botLoggerWriter.Writer(logger.WriterOption{
-		DetectLevel: true,
+		DetectLevel: false,
 		StripDate:   true,
 		StripLevel:  true,
 	})

@@ -20,7 +20,7 @@ server:
 # 日志
 log:
   level: "info" # 日志级别 ["info", "debug", ...]
-  filename: "alemongo_logs"  # 整体项目日志所在文件夹
+  filename: "work/logs"  # 整体项目日志所在文件夹
 ```
 
 > 超级管理(临时密码)会在启动时打印，直到密码更改。
