@@ -6,11 +6,9 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
-	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 )
@@ -42,7 +40,7 @@ func Init() error {
 		if err := os.MkdirAll(filepath.Dir(path), 0755); err != nil {
 			return err
 		}
-		dial = sqlite.Open(path)
+		dial = sqliteDialector(path) // 通过 build tag 选择 cgo 或 pure go 实现
 	case "mysql":
 		if dbc.DSN == "" {
 			return errors.New("database.dsn is required for mysql")
@@ -63,7 +61,7 @@ func Init() error {
 		if dbc.Driver != "sqlite" && dbc.Driver != "sqlite3" {
 			fallbackPath := "work/data/alemongo.db"
 			_ = os.MkdirAll(filepath.Dir(fallbackPath), 0755)
-			if fb, e2 := gorm.Open(sqlite.Open(fallbackPath), &gorm.Config{Logger: logger.Default.LogMode(logger.Warn)}); e2 == nil {
+			if fb, e2 := gorm.Open(sqliteDialector(fallbackPath), &gorm.Config{Logger: logger.Default.LogMode(logger.Warn)}); e2 == nil {
 				globalDB = fb
 				return nil
 			}
@@ -76,6 +74,4 @@ func Init() error {
 
 // Helper to allow calling default filler from here without import cycle risk
 // (implemented in settings via an exported small wrapper)
-func isSameHost(a, b string) bool {
-	return strings.EqualFold(strings.TrimSpace(a), strings.TrimSpace(b))
-}
+// (reserved helper removed: previous isSameHost was unused)
