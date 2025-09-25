@@ -6,26 +6,11 @@ import {
   SettingOutlined,
   ConsoleSqlOutlined,
   MonitorOutlined,
-  InfoCircleOutlined,
-  AppstoreAddOutlined
+  InfoCircleOutlined
 } from '@ant-design/icons'
-
-// eslint-disable-next-line react-refresh/only-export-components
-const TaskIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 24 24"
-    fill="currentColor"
-    className="w-4 h-4"
-  >
-    <path d="M12 2a10 10 0 100 20 10 10 0 000-20zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
-  </svg>
-)
 
 export const menuItems = [
   { key: '/', icon: <AppstoreOutlined />, label: '应用中心' },
-  { key: '/apps/manage', icon: <AppstoreAddOutlined />, label: '应用管理' },
-  { key: '/tasks', icon: <TaskIcon />, label: '任务中心' },
   { key: '/bots', icon: <RobotOutlined />, label: '机器列表' },
   { key: '/configs', icon: <FileTextOutlined />, label: '配置管理' },
   {

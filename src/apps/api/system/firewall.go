@@ -1,11 +1,16 @@
 package system
 
 import (
+	"alemongo/src/apps/api/requests"
 	"alemongo/src/apps/api/response"
 	"alemongo/src/core/tasks"
+	"alemongo/src/dao"
+	"alemongo/src/dao/db"
 	"alemongo/src/logic"
 	"alemongo/src/models"
+	fw "alemongo/src/pkgs/firewall"
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -52,6 +57,38 @@ func PlanFirewall(c *gin.Context) {
 		resp.Executed = true
 		resp.TaskID = t.ID
 		resp.Message = "防火墙任务已创建，前往任务中心查看"
+
+		// 执行阶段持久化 / 删除标记
+		actionLower := strings.ToLower(req.Action)
+		if actionLower == "allow" || actionLower == "block" {
+			if resp.Fingerprint != "" && !resp.AlreadyExists {
+				proto := fw.NormalizeProtocol(req.Protocol)
+				comment := fw.SanitizeComment(req.Comment)
+				rec := &db.FirewallRuleDO{
+					Fingerprint:    resp.Fingerprint,
+					Action:         actionLower,
+					Backend:        resp.Backend,
+					Port:           req.Port,
+					Protocol:       proto,
+					Comment:        comment,
+					RawSpec:        req.Action + " " + proto + " " + comment,
+					NormalizedSpec: actionLower + ":" + resp.Backend + ":" + proto + ":" + comment,
+				}
+				_ = dao.CreateFirewallRuleActive(rec)
+			}
+		} else if actionLower == "remove" {
+			// remove: 需要指纹
+			if req.Fingerprint == "" && resp.Fingerprint == "" {
+				resp.Message = "未提供指纹，无法删除"
+			} else {
+				fp := req.Fingerprint
+				if fp == "" {
+					fp = resp.Fingerprint
+				}
+				user, _ := requests.GetUserName(c)
+				_ = dao.MarkFirewallRuleRemoved(fp, user)
+			}
+		}
 	}
 
 	response.ResponseSuccess(c, resp)

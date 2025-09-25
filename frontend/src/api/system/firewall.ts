@@ -2,11 +2,15 @@ import { request } from '../base'
 
 export type FirewallStatusResponse = {
   os: string
-  pfctlInstalled: boolean
-  pfEnabled: boolean
-  info: string
-  rulesPreview: string
+  pfctlInstalled?: boolean
+  pfEnabled?: boolean
+  info?: string
+  rulesPreview?: string
   error?: string
+  supported: boolean
+  backend?: string
+  unsupportedReason?: string
+  nextActions?: string[]
 }
 
 export const apiFirewallStatus = async (): Promise<FirewallStatusResponse> => {
@@ -20,12 +24,20 @@ export const apiFirewallStatus = async (): Promise<FirewallStatusResponse> => {
 }
 
 export type FirewallPlanRequest = {
-  action: 'enable' | 'disable' | 'reload' | 'allow' | 'block'
+  action:
+    | 'enable'
+    | 'disable'
+    | 'reload'
+    | 'allow'
+    | 'block'
+    | 'list'
+    | 'remove'
   port?: number
   protocol?: 'tcp' | 'udp'
   comment?: string
   execute?: boolean
   commandsOverride?: string[]
+  fingerprint?: string
 }
 
 export type FirewallPlanResponse = {
@@ -34,6 +46,13 @@ export type FirewallPlanResponse = {
   executed: boolean
   message: string
   taskId?: string
+  supported?: boolean
+  backend?: string
+  unsupportedReason?: string
+  nextActions?: string[]
+  executionErrors?: string[]
+  fingerprint?: string
+  alreadyExists?: boolean
 }
 
 export const apiFirewallPlan = async (

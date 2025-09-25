@@ -14,6 +14,32 @@ const Apps: React.FC = () => {
 
   const closeApps = [
     {
+      name: 'ALmeonB',
+      icon: (
+        <img
+          className="w-20 h-20 object-contain transition-transform duration-200 group-hover:scale-110"
+          src="https://alemonjs.com/img/alemon.png"
+        />
+      ),
+      onClick: () => navigate('/bots'),
+      open: true,
+      description: '机器人管理平台',
+      color: 'from-purple-500 to-blue-500'
+    },
+    {
+      name: 'QQ MD',
+      icon: (
+        <img
+          className="w-20 h-20 object-contain transition-transform duration-200 group-hover:scale-110"
+          src="https://qq-web.cdn-go.cn/im.qq.com_new/863ecfe8/img/qq9logo.2a076d03.png"
+        />
+      ),
+      onClick: () => navigate('/apps/qqbot-button-template'),
+      open: true,
+      description: 'QQ机器人按钮模板',
+      color: 'from-green-500 to-blue-500'
+    },
+    {
       name: '应用管理',
       icon: (
         <div className="w-20 h-20 flex items-center justify-center">
@@ -50,32 +76,6 @@ const Apps: React.FC = () => {
       open: true,
       description: '查看任务列表与日志',
       color: 'from-blue-500 to-cyan-500'
-    },
-    {
-      name: 'ALmeonB',
-      icon: (
-        <img
-          className="w-20 h-20 object-contain transition-transform duration-200 group-hover:scale-110"
-          src="https://alemonjs.com/img/alemon.png"
-        />
-      ),
-      onClick: () => navigate('/bots'),
-      open: true,
-      description: '机器人管理平台',
-      color: 'from-purple-500 to-blue-500'
-    },
-    {
-      name: 'QQ MD',
-      icon: (
-        <img
-          className="w-20 h-20 object-contain transition-transform duration-200 group-hover:scale-110"
-          src="https://qq-web.cdn-go.cn/im.qq.com_new/863ecfe8/img/qq9logo.2a076d03.png"
-        />
-      ),
-      onClick: () => navigate('/apps/qqbot-button-template'),
-      open: true,
-      description: 'QQ机器人按钮模板',
-      color: 'from-green-500 to-blue-500'
     },
     {
       name: '防火墙',

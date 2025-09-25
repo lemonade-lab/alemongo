@@ -29,7 +29,6 @@ const PackagesMessage = lazy(
   () => import('./pages/home/panel/packages/message/App')
 )
 const Apps = lazy(() => import('./pages/home/Apps/App'))
-const AppsNodeJS = lazy(() => import('./pages/home/Apps/NodeJS/App'))
 const AppsGit = lazy(() => import('./pages/home/Apps/Git/App'))
 const AppsFirewall = lazy(() => import('./pages/home/Apps/Firewall/App'))
 const AppsManage = lazy(() => import('./pages/home/Apps/Manage/App'))
@@ -97,22 +96,6 @@ const router = createBrowserRouter([
             element: (
               <WithSuspense>
                 <AppsManage />
-              </WithSuspense>
-            )
-          },
-          {
-            path: 'apps/nodejs',
-            element: (
-              <WithSuspense>
-                <AppsNodeJS />
-              </WithSuspense>
-            )
-          },
-          {
-            path: 'apps/nvm',
-            element: (
-              <WithSuspense>
-                <AppsNodeJS />
               </WithSuspense>
             )
           },
