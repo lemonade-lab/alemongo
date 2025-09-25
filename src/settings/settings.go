@@ -17,12 +17,13 @@ const (
 var Conf = new(AppConfig)
 
 type AppConfig struct {
-	Name   string        `mapstructure:"name" yaml:"name"`
-	Mode   string        `mapstructure:"mode" yaml:"mode"`
-	Server *ServerConfig `mapstructure:"server" yaml:"server"`
-	Log    *LogConfig    `mapstructure:"log" yaml:"log"`
-	SMTP   *SMTPConfig   `mapstructure:"smtp" yaml:"smtp"`
-	GitHub *GitHubConfig `mapstructure:"github" yaml:"github"`
+	Name   string          `mapstructure:"name" yaml:"name"`
+	Mode   string          `mapstructure:"mode" yaml:"mode"`
+	Server *ServerConfig   `mapstructure:"server" yaml:"server"`
+	Log    *LogConfig      `mapstructure:"log" yaml:"log"`
+	SMTP   *SMTPConfig     `mapstructure:"smtp" yaml:"smtp"`
+	GitHub *GitHubConfig   `mapstructure:"github" yaml:"github"`
+	DB     *DatabaseConfig `mapstructure:"database" yaml:"database"`
 }
 
 type ServerConfig struct {
@@ -56,6 +57,16 @@ type GitHubConfig struct {
 	ClientID     string `mapstructure:"client_id" yaml:"client_id"`
 	ClientSecret string `mapstructure:"client_secret" yaml:"client_secret"`
 	RedirectURL  string `mapstructure:"redirect_url" yaml:"redirect_url"`
+}
+
+// Database 配置
+// driver: sqlite | mysql | postgres
+// sqlite 使用 path 字段；mysql/postgres 使用 dsn
+type DatabaseConfig struct {
+	Driver      string `mapstructure:"driver" yaml:"driver"`
+	DSN         string `mapstructure:"dsn" yaml:"dsn"`
+	SQLitePath  string `mapstructure:"sqlite_path" yaml:"sqlite_path"`
+	AutoMigrate bool   `mapstructure:"auto_migrate" yaml:"auto_migrate"`
 }
 
 // 补全所有字段默认值
@@ -128,6 +139,27 @@ func fillDefaults() {
 	}
 	if Conf.GitHub.RedirectURL == "" {
 		Conf.GitHub.RedirectURL = ""
+	}
+	if Conf.DB == nil {
+		Conf.DB = &DatabaseConfig{}
+	}
+	if Conf.DB.Driver == "" {
+		Conf.DB.Driver = "sqlite"
+	}
+	if Conf.DB.SQLitePath == "" {
+		Conf.DB.SQLitePath = "work/data/alemongo.db"
+	}
+	// DSN 可选，由使用方配置（mysql/postgres 必填）
+	// 默认开启自动迁移
+	if !Conf.DB.AutoMigrate {
+		Conf.DB.AutoMigrate = true
+	}
+}
+
+// FillDefaultsIfNeeded 供外部在极早期调用确保默认 DB/sqlite 就绪
+func FillDefaultsIfNeeded() {
+	if Conf == nil || Conf.DB == nil || Conf.DB.Driver == "" {
+		fillDefaults()
 	}
 }
 

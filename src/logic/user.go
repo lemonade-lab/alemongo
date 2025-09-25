@@ -6,6 +6,7 @@ import (
 	"alemongo/src/pkgs/email"
 	"alemongo/src/pkgs/github"
 	"alemongo/src/pkgs/jwt"
+	passwordpkg "alemongo/src/pkgs/password"
 	"alemongo/src/settings"
 	"alemongo/src/utils"
 	"errors"
@@ -35,14 +36,14 @@ func DeleteUser(username string) error {
 }
 
 func GetUserInfo(username string) (*models.User, error) {
-	// 首先尝试从用户列表中获取用户信息
+	// 直接从数据库查询（已移除历史 JSON 存储）
 	userInfo, exists := dao.GetUserByUserName(username)
 	if exists {
 		userInfo.PassWord = "******"
 		return &userInfo, nil
 	}
 
-	// 如果用户列表中不存在，检查是否为临时超级管理员
+	// 数据库不存在时，仅可能为临时超级管理员
 	if dao.IsTemporarySuperAdmin(username) {
 		userInfo := dao.GetAdmin()
 		userInfo.PassWord = "******"
@@ -63,8 +64,8 @@ func GetUserList() []models.User {
 	return dao.GetList()
 }
 
-func Login(username, password string) (string, error) {
-	// 首先尝试从用户列表中获取用户信息
+func Login(username, plainPwd string) (string, error) {
+	// 从数据库获取用户信息（或临时超级管理员）
 	user, exist := dao.GetUserByUserName(username)
 	var userInfo *models.User
 
@@ -79,11 +80,13 @@ func Login(username, password string) (string, error) {
 		}
 	}
 
-	// 密码不对
-	if password != userInfo.PassWord {
-		//log.Printf("password: %s\n userinfo password: %s\n", password, userInfo.PassWord)
+	// 密码校验（兼容明文与哈希，首次使用明文将透明升级为哈希）
+	if match, hashed := passwordpkg.Compare(userInfo.PassWord, plainPwd); !match {
 		dao.RecordLoginFailure(username)
 		return "", errors.New("密码错误")
+	} else if !hashed {
+		// 登录成功但存储为明文 -> 透明升级为哈希
+		_ = dao.ChangeUserPassword(username, plainPwd, plainPwd)
 	}
 
 	// 登录成功，清除失败记录

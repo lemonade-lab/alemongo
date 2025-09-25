@@ -4,15 +4,83 @@ import {
   BellOutlined,
   AppstoreOutlined
 } from '@ant-design/icons'
-import { FloatButton, Drawer } from 'antd'
-import { useState } from 'react'
+import { FloatButton, Drawer, Badge } from 'antd'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import useTheme from '@/hook/useTheme'
+import NotificationDrawer from '@/components/NotificationDrawer'
+import { fetchUnreadCount } from '@/api'
+import { createAuthedWS } from '@/api/ws'
 
 const FloatButtons = () => {
   const navigate = useNavigate()
   const { dark, setDark } = useTheme()
   const [open, setOpen] = useState(false)
+  const [unread, setUnread] = useState(0)
+  const [refreshSignal, setRefreshSignal] = useState(0)
+  const wsRef = useRef<WebSocket | null>(null)
+
+  useEffect(() => {
+    // 初始一次
+    fetchUnreadCount()
+      .then(r => setUnread(r.unread))
+      .catch(() => {})
+    let heartbeatId: number | null = null
+    const connect = () => {
+      const ws = createAuthedWS('/notifications/ws')
+      wsRef.current = ws
+      ws.onopen = () => {
+        const ping = () => {
+          if (ws.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify({ type: 'ping' }))
+          }
+        }
+        heartbeatId = window.setInterval(ping, 25000)
+      }
+      ws.onmessage = ev => {
+        try {
+          const data = JSON.parse(ev.data)
+          switch (data.type) {
+            case 'unread':
+              if (typeof data.unread === 'number') setUnread(data.unread)
+              break
+            case 'new':
+              setUnread(u => u + 1)
+              setRefreshSignal(s => s + 1)
+              break
+            case 'read':
+            case 'delete':
+              setRefreshSignal(s => s + 1)
+              break
+            case 'read_all':
+              setRefreshSignal(s => s + 1)
+              break
+            default:
+              break
+          }
+        } catch {
+          // 忽略 JSON 解析错误
+        }
+      }
+      ws.onclose = () => {
+        if (heartbeatId !== null) {
+          window.clearInterval(heartbeatId)
+          heartbeatId = null
+        }
+        setTimeout(() => {
+          if (wsRef.current === ws) connect()
+        }, 3000)
+      }
+      ws.onerror = () => {
+        ws.close()
+      }
+    }
+    connect()
+    return () => {
+      if (heartbeatId !== null) window.clearInterval(heartbeatId)
+      wsRef.current?.close()
+    }
+  }, [])
 
   return (
     <>
@@ -65,7 +133,16 @@ const FloatButtons = () => {
 
         {/* 通知按钮 */}
         <FloatButton
-          icon={<BellOutlined />}
+          icon={
+            <Badge
+              count={unread}
+              size="small"
+              overflowCount={99}
+              offset={[0, 4]}
+            >
+              <BellOutlined />
+            </Badge>
+          }
           // tooltip="通知"
           onClick={() => setOpen(true)}
         />
@@ -105,28 +182,11 @@ const FloatButtons = () => {
         className="dark:[&>.ant-drawer-content]:bg-zinc-900/95 dark:[&>.ant-drawer-header]:bg-zinc-900/95 backdrop-blur-xl"
         width="80%"
       >
-        <div className="mb-4">
-          <div
-            className="flex items-center bg-gradient-to-r from-yellow-100/50 to-orange-100/50 dark:from-yellow-900/30 dark:to-orange-900/30 border-l-4 border-yellow-500 text-yellow-700 dark:text-yellow-200 px-4 py-3 rounded-lg backdrop-blur-sm"
-            role="alert"
-          >
-            <svg
-              className="w-4 h-4 mr-2 text-yellow-600 dark:text-yellow-300"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M13 16h-1v-4h-1m1-4h.01"
-              ></path>
-            </svg>
-            <span className="font-medium text-sm">系统通知：</span>
-            <span className="ml-2 text-sm">待更新</span>
-          </div>
-        </div>
+        <NotificationDrawer
+          open={open}
+          onClose={() => setOpen(false)}
+          refreshSignal={refreshSignal}
+        />
       </Drawer>
     </>
   )

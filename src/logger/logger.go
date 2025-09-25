@@ -273,6 +273,10 @@ func GinLogger() gin.HandlerFunc {
 		c.Next()
 
 		cost := time.Since(start)
+		// 静态资源日志过滤：命中常见前端静态文件扩展且状态<400时跳过
+		if shouldSkipAccessLog(path, c.Writer.Status()) {
+			return
+		}
 		lg.Info(path,
 			zap.Int("status", c.Writer.Status()),
 			zap.String("method", c.Request.Method),
@@ -284,6 +288,37 @@ func GinLogger() gin.HandlerFunc {
 			zap.Duration("cost", cost),
 		)
 	}
+}
+
+// shouldSkipAccessLog 判断是否跳过静态资源访问日志
+func shouldSkipAccessLog(p string, status int) bool {
+	if status >= 400 { // 错误请求仍记录
+		return false
+	}
+	// 直接路径匹配
+	if p == "/favicon.ico" {
+		return true
+	}
+	// 常见静态目录前缀
+	if strings.HasPrefix(p, "/assets/") || strings.HasPrefix(p, "/static/") {
+		return true
+	}
+	// 扩展名判断
+	lastDot := strings.LastIndex(p, ".")
+	if lastDot == -1 {
+		return false
+	}
+	ext := strings.ToLower(p[lastDot+1:])
+	if ext == "" {
+		return false
+	}
+	staticExt := map[string]struct{}{
+		"js": {}, "mjs": {}, "css": {}, "map": {}, "ico": {}, "png": {}, "jpg": {}, "jpeg": {},
+		"gif": {}, "svg": {}, "webp": {}, "woff": {}, "woff2": {}, "ttf": {}, "eot": {}, "otf": {},
+		"txt": {}, "json": {}, "avif": {}, "bmp": {}, "wasm": {},
+	}
+	_, ok := staticExt[ext]
+	return ok
 }
 
 // GinRecovery recover掉项目可能出现的panic，并使用zap记录相关日志

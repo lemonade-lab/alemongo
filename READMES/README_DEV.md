@@ -34,6 +34,19 @@ go run main.go dev
 yarn --cwd frontend dev
 ```
 
+### 数据库配置 (开发环境)
+
+开发模式下如未设置 `db` 段落，系统将自动使用内置 sqlite (`work/data/alemongo.db`)。如需测试 MySQL/PostgreSQL：
+
+```yaml
+db:
+	driver: mysql # 或 postgres
+	dsn: user:pass@tcp(127.0.0.1:3306)/alemongo?charset=utf8mb4&parseTime=True&loc=Local
+	auto_migrate: true
+```
+
+切回 sqlite 只需删除或注释 `db` 段落或设置 `driver: sqlite`。
+
 ### 提交PR
 
 ```sh

@@ -23,6 +23,7 @@ import (
 
 	"alemongo/src/apps/api/common"
 	"alemongo/src/apps/api/gitssh"
+	"alemongo/src/apps/api/notification"
 	"alemongo/src/apps/api/receive"
 	"alemongo/src/apps/api/settings"
 	"alemongo/src/apps/api/user"
@@ -165,6 +166,20 @@ func Create(mode string) *gin.Engine {
 				// 仅超级管理员可访问的接口
 				UserAPI.POST("/create", middlewares.PermissionMiddleware(permission.UserCreate), user.CreateUserHandler)   // 创建用户
 				UserAPI.DELETE("/delete", middlewares.PermissionMiddleware(permission.UserDelete), user.DeleteUserHandler) // 删除用户
+			}
+			// notifications
+			NotificationAPI := v1.Group("/notifications")
+			{
+				// WebSocket 实时通知 (使用 subprotocol 鉴权) —— 放在 HTTP AuthMiddleware 之前，避免要求 Authorization 头
+				NotificationAPI.GET("/ws", notification.NotificationWS)
+				// 剩余 HTTP 接口需要 Bearer 认证
+				NotificationAPI.Use(middlewares.AuthMiddleware())
+				NotificationAPI.GET("", notification.ListNotifications) // ?status=&page=&page_size=
+				NotificationAPI.GET("/unread-count", notification.UnreadCount)
+				NotificationAPI.POST("/create", middlewares.PermissionMiddleware(permission.SystemSettingsManage), notification.CreateNotification)
+				NotificationAPI.PATCH(":id/read", notification.MarkRead)
+				NotificationAPI.PATCH("/read-all", notification.MarkAllRead)
+				NotificationAPI.DELETE("/:id", notification.DeleteNotification)
 			}
 			// ssh
 			SSHAPI := v1.Group("/ssh")

@@ -5,6 +5,7 @@ import (
 	"alemongo/src/core/autoregister"
 	"alemongo/src/core/process"
 	"alemongo/src/dao"
+	"alemongo/src/dao/db"
 	"alemongo/src/files"
 	"alemongo/src/logger"
 	"alemongo/src/pkgs/email"
@@ -225,6 +226,24 @@ func main() {
 	if err := settings.Init(configFilePath); err != nil {
 		log.Printf("load config failed, err:%v\n", err)
 		return
+	}
+
+	// 初始化数据库（必需）
+	if err := db.Init(); err != nil {
+		log.Fatalf("database init failed (SQL 为必需存储): %v", err)
+		return
+	}
+	if settings.Conf.DB != nil && settings.Conf.DB.AutoMigrate {
+		if err := db.AutoMigrate(); err != nil {
+			log.Fatalf("auto migrate failed: %v", err)
+			return
+		}
+		// 执行一次密码批量迁移（将旧明文密码哈希化）
+		if total, updated, failed, err := dao.MigratePlaintextPasswords(); err != nil {
+			log.Printf("password migrate error: %v", err)
+		} else {
+			log.Printf("password migrate done: scanned=%d updated=%d failed=%d", total, updated, failed)
+		}
 	}
 
 	// 打印当前工作目录

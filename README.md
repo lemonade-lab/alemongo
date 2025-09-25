@@ -21,6 +21,13 @@ server:
 log:
   level: "info" # 日志级别 ["info", "debug", ...]
   filename: "work/logs"  # 整体项目日志所在文件夹
+
+# 数据库 (vNext: 已完全使用 SQL, 默认内置 sqlite)
+db:
+  driver: "sqlite"          # 可选: sqlite | mysql | postgres (未配置时自动回退 sqlite)
+  dsn: ""                   # mysql/postgres 连接串, sqlite 可留空
+  sqlite_path: "work/data/alemongo.db" # sqlite 数据文件路径，未配置则使用默认
+  auto_migrate: true         # 启动时自动执行 GORM AutoMigrate
 ```
 
 > 超级管理(临时密码)会在启动时打印，直到密码更改。

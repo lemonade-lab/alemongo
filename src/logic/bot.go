@@ -14,6 +14,7 @@ import (
 	"log"
 	"os"
 	"path"
+	"regexp"
 	"strings"
 	"time"
 
@@ -25,7 +26,33 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
+// 机器人名称校验规则：
+// 1. 长度 1-64
+// 2. 允许: 字母数字 . _ -
+// 3. 不允许以 '.' 开头
+// 4. 不允许出现 '..'
+var botNameRegexp = regexp.MustCompile(`^[a-zA-Z0-9][a-zA-Z0-9._-]{0,63}$`)
+
+func validateBotName(name string) response.ResCode {
+	if name == "" {
+		return response.RobotNameIsEmpty
+	}
+	if len(name) > 64 {
+		return response.RobotNameTooLong
+	}
+	if !botNameRegexp.MatchString(name) {
+		return response.RobotNameInvalid
+	}
+	if strings.Contains(name, "..") { // 额外阻止连续点
+		return response.RobotNameInvalid
+	}
+	return response.CodeSuccess
+}
+
 func CreateBot(name string) (string, response.ResCode) {
+	if code := validateBotName(name); code != response.CodeSuccess {
+		return "", code
+	}
 	// 资源路径
 	resourcesPath := config.GetResourcesPath()
 	// 目标路径
@@ -40,6 +67,9 @@ func CreateBot(name string) (string, response.ResCode) {
 }
 
 func CreateMultiBot(name string) (string, response.ResCode) {
+	if code := validateBotName(name); code != response.CodeSuccess {
+		return "", code
+	}
 	resourcesPath := config.GetResourcesPath()
 	targetPath := config.GetMultiBotPath(name)
 	if _, err := os.Stat(targetPath); err == nil {
