@@ -325,7 +325,7 @@ const PortMonitor: React.FC = () => {
               <Select
                 value={searchType}
                 onChange={setSearchType}
-                style={{ width: 120 }}
+                style={{ minWidth: 120 }}
               >
                 <Option value="all">全部</Option>
                 <Option value="port">端口号</Option>
@@ -385,7 +385,7 @@ const PortMonitor: React.FC = () => {
               <Select
                 value={protocolFilter}
                 onChange={setProtocolFilter}
-                style={{ width: 100 }}
+                style={{ minWidth: 100 }}
                 placeholder="协议"
                 size="small"
               >
@@ -400,7 +400,7 @@ const PortMonitor: React.FC = () => {
               <Select
                 value={stateFilter}
                 onChange={setStateFilter}
-                style={{ width: 100 }}
+                style={{ minWidth: 100 }}
                 placeholder="状态"
                 size="small"
               >

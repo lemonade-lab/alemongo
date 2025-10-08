@@ -282,7 +282,7 @@ const AppsManage: React.FC = () => {
           <div className="mb-2 flex items-center gap-2">
             <span className="text-sm text-gray-600">NVM 版本（可选）：</span>
             <Input
-              style={{ width: 220 }}
+              style={{ minWidth: 220 }}
               placeholder="如 v0.40.3"
               value={nvmVersion}
               onChange={e => setNvmVersion(e.target.value || undefined)}
@@ -347,7 +347,7 @@ const AppsManage: React.FC = () => {
               Node.js 版本（可选）：
             </span>
             <Input
-              style={{ width: 220 }}
+              style={{ minWidth: 220 }}
               placeholder="如 22"
               value={nodeVersion}
               onChange={e => setNodeVersion(e.target.value || undefined)}

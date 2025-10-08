@@ -250,7 +250,7 @@ const Apps: React.FC = () => {
               <div className="flex items-center gap-2">
                 <span className="text-sm text-gray-600">指纹：</span>
                 <Input
-                  style={{ width: 360 }}
+                  style={{ minWidth: 360 }}
                   placeholder="请输入要删除的规则 fingerprint"
                   value={fingerprintInput}
                   onChange={e => setFingerprintInput(e.target.value.trim())}
@@ -264,7 +264,7 @@ const Apps: React.FC = () => {
               <div className="flex items-center gap-2">
                 <span className="text-sm text-gray-600">端口：</span>
                 <Input
-                  style={{ width: 120 }}
+                  style={{ minWidth: 120 }}
                   type="number"
                   placeholder="如 8080"
                   value={port}
@@ -287,7 +287,7 @@ const Apps: React.FC = () => {
             <div className="flex items-center gap-2">
               <span className="text-sm text-gray-600">备注：</span>
               <Input
-                style={{ width: 360 }}
+                style={{ minWidth: 360 }}
                 placeholder="可选，如 本机服务端口"
                 value={comment}
                 onChange={e => setComment(e.target.value)}

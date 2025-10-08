@@ -288,6 +288,7 @@ const GitManager = () => {
     <Box>
       <div className="flex-1 gap-6 flex flex-col bg-gradient-to-br from-white/90 to-gray-50/90 dark:from-zinc-900/90 dark:to-zinc-800/90 backdrop-blur-sm rounded-xl p-6  border border-gray-200/50 dark:border-zinc-700/50 transition-all duration-300">
         <div className="flex items-center justify-between">
+          <div></div>
           <Space>
             <BranchesOutlined className="text-blue-500" />
             <Space>
@@ -296,7 +297,6 @@ const GitManager = () => {
                 value={selectedBranch}
                 onChange={handleBranchChange}
                 placeholder="选择分支"
-                style={{ width: 150 }}
                 loading={isLoadingBranches}
               >
                 {branches.branches.map(branch => (
@@ -317,19 +317,18 @@ const GitManager = () => {
               >
                 从远程获取
               </Button>
+              <Button
+                type="primary"
+                icon={<DownloadOutlined />}
+                loading={isPulling}
+                onClick={handlePull}
+                disabled={!selectedBranch}
+                className="bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 border-0"
+              >
+                拉取代码
+              </Button>
             </Space>
           </Space>
-
-          <Button
-            type="primary"
-            icon={<DownloadOutlined />}
-            loading={isPulling}
-            onClick={handlePull}
-            disabled={!selectedBranch}
-            className="bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 border-0"
-          >
-            拉取代码
-          </Button>
         </div>
 
         {/* 提交记录 */}
