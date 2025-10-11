@@ -6,13 +6,19 @@ import {
   SettingOutlined,
   ConsoleSqlOutlined,
   MonitorOutlined,
-  InfoCircleOutlined
+  InfoCircleOutlined,
+  CodeOutlined
 } from '@ant-design/icons'
 
 export const menuItems = [
   { key: '/', icon: <AppstoreOutlined />, label: '应用中心' },
   { key: '/bots', icon: <RobotOutlined />, label: '机器列表' },
   { key: '/configs', icon: <FileTextOutlined />, label: '配置管理' },
+  {
+    key: '/pipeline',
+    icon: <CodeOutlined />,
+    label: '流水线'
+  },
   {
     key: '/ssh',
     icon: <DesktopOutlined />,

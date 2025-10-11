@@ -41,6 +41,10 @@ const PortMonitor = lazy(() => import('./pages/home/PortMonitor/App'))
 const About = lazy(() => import('./pages/home/About/App'))
 const SystemLogs = lazy(() => import('./pages/home/SystemLogs/App'))
 const SFTP = lazy(() => import('./pages/home/SFTP/App'))
+const Pipeline = lazy(() => import('./pages/home/Pipeline/App'))
+const PipelineCreate = lazy(() => import('./pages/home/Pipeline/Create'))
+const PipelineDetail = lazy(() => import('./pages/home/Pipeline/Detail'))
+const PipelineExecution = lazy(() => import('./pages/home/Pipeline/Execution'))
 
 const router = createBrowserRouter([
   {
@@ -339,6 +343,46 @@ const router = createBrowserRouter([
             element: (
               <WithSuspense>
                 <About />
+              </WithSuspense>
+            )
+          },
+          {
+            path: 'pipeline',
+            element: (
+              <WithSuspense>
+                <Pipeline />
+              </WithSuspense>
+            )
+          },
+          {
+            path: 'pipeline/create',
+            element: (
+              <WithSuspense>
+                <PipelineCreate />
+              </WithSuspense>
+            )
+          },
+          {
+            path: 'pipeline/:id',
+            element: (
+              <WithSuspense>
+                <PipelineDetail />
+              </WithSuspense>
+            )
+          },
+          {
+            path: 'pipeline/:id/edit',
+            element: (
+              <WithSuspense>
+                <PipelineCreate />
+              </WithSuspense>
+            )
+          },
+          {
+            path: 'pipeline/:pipelineId/execution/:id',
+            element: (
+              <WithSuspense>
+                <PipelineExecution />
               </WithSuspense>
             )
           }

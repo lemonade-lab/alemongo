@@ -6,6 +6,7 @@ import (
 	config "alemongo/src/paths"
 	"alemongo/src/utils"
 	"errors"
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -68,45 +69,57 @@ func PackageDelete(packagePath string) error {
 func PackageForcedUpdate(repoPath, branch_name string, botLogger *logger.RobotLoggerWriter) error {
 	repo, err := git.PlainOpen(repoPath)
 	if err != nil {
-		return errors.New("打开仓库失败")
-	}
-	auth, err := utils.GetSSHAuth()
-	if err != nil {
-		return errors.New("获取SSH认证失败")
+		return fmt.Errorf("打开仓库失败: %w", err)
 	}
 
-	err = repo.Fetch(&git.FetchOptions{
+	// 确保远程存在并 fetch 最新
+	auth, _ := utils.GetSSHAuth()
+	fetchOpts := &git.FetchOptions{
 		RemoteName: "origin",
-		Auth:       auth,
 		Progress: botLogger.Writer(logger.WriterOption{
 			DetectLevel: true,
 			StripDate:   true,
 			StripLevel:  true,
 		}),
 		Force: true,
-	})
-	if err != nil && err != git.NoErrAlreadyUpToDate {
-		log.Println(err)
-		return errors.New("Fetch失败")
 	}
+	if auth != nil {
+		fetchOpts.Auth = auth
+	}
+	_ = repo.Fetch(fetchOpts)
 
 	worktree, err := repo.Worktree()
 	if err != nil {
 		return errors.New("获取工作区失败")
 	}
-	refName := plumbing.NewRemoteReferenceName("origin", branch_name)
-	ref, err := repo.Reference(refName, true)
+
+	// 优先定位远程分支引用
+	remoteRefName := plumbing.NewRemoteReferenceName("origin", branch_name)
+	remoteRef, err := repo.Reference(remoteRefName, true)
 	if err != nil {
-		return errors.New("未找到远程分支")
+		return fmt.Errorf("未找到远程分支 origin/%s", branch_name)
 	}
 
-	err = worktree.Reset(&git.ResetOptions{
-		Commit: ref.Hash(),
-		Mode:   git.HardReset,
-	})
-
+	// 尝试切换到本地分支，不存在则创建
+	localRefName := plumbing.NewBranchReferenceName(branch_name)
+	// 检查本地分支是否存在
+	_, err = repo.Reference(localRefName, true)
 	if err != nil {
-		return errors.New("reset失败")
+		// 创建本地分支并指向远程提交
+		if err := repo.Storer.SetReference(plumbing.NewHashReference(localRefName, remoteRef.Hash())); err != nil {
+			return fmt.Errorf("创建本地分支失败: %w", err)
+		}
 	}
+
+	// checkout 到本地分支
+	if err := worktree.Checkout(&git.CheckoutOptions{Branch: localRefName, Force: true}); err != nil {
+		return fmt.Errorf("切换分支失败: %w", err)
+	}
+
+	// 重置到远程最新提交（相当于 pull --hard）
+	if err := worktree.Reset(&git.ResetOptions{Commit: remoteRef.Hash(), Mode: git.HardReset}); err != nil {
+		return fmt.Errorf("reset失败: %w", err)
+	}
+
 	return nil
 }

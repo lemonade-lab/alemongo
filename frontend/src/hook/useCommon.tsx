@@ -4,7 +4,6 @@ import { setInfo } from '@/redux/info'
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 let status = false
 
 export const useCommon = () => {

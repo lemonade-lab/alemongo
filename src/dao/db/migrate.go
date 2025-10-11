@@ -5,5 +5,5 @@ func AutoMigrate() error {
 	if Get() == nil {
 		return nil
 	}
-	return Get().AutoMigrate(&UserDO{}, &SettingDO{}, &NotificationDO{}, &FirewallRuleDO{})
+	return Get().AutoMigrate(&UserDO{}, &SettingDO{}, &NotificationDO{}, &FirewallRuleDO{}, &PipelineDO{}, &PipelineExecutionDO{}, &PipelineStepDO{})
 }

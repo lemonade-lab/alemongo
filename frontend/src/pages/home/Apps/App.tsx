@@ -88,6 +88,25 @@ const Apps: React.FC = () => {
       open: true,
       description: 'macOS PF',
       color: 'from-red-500 to-orange-500'
+    },
+    {
+      name: '流水线',
+      icon: (
+        <div className="w-20 h-20 flex items-center justify-center">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+            className="w-14 h-14 text-blue-600 dark:text-blue-400"
+          >
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+          </svg>
+        </div>
+      ),
+      onClick: () => navigate('/pipeline'),
+      open: true,
+      description: '管理和监控自动化部署流水线',
+      color: 'from-blue-500 to-purple-500'
     }
   ]
 

@@ -8,6 +8,7 @@ import (
 	apiconfig "alemongo/src/apps/api/config"
 	apiemail "alemongo/src/apps/api/email"
 	"alemongo/src/apps/api/multibots"
+	"alemongo/src/apps/api/pipeline"
 	"alemongo/src/apps/api/portMonitor"
 	sftp "alemongo/src/apps/api/sftp"
 	apisystem "alemongo/src/apps/api/system"
@@ -24,7 +25,6 @@ import (
 	"alemongo/src/apps/api/common"
 	"alemongo/src/apps/api/gitssh"
 	"alemongo/src/apps/api/notification"
-	"alemongo/src/apps/api/receive"
 	"alemongo/src/apps/api/settings"
 	"alemongo/src/apps/api/user"
 	"alemongo/src/logger"
@@ -73,7 +73,6 @@ func Create(mode string) *gin.Engine {
 			// 公共接口
 			CommonAPI := v1.Group("/common")
 			{
-				CommonAPI.POST("/receive", receive.POST) // 推送github事件
 				// 一般配置（无需登录）
 				CommonAPI.GET("/config", common.GetGeneralConfig) // 获取一般配置
 				// 开始鉴权
@@ -334,6 +333,39 @@ func Create(mode string) *gin.Engine {
 				PortMonitorAPI.GET("/ports/:port", middlewares.PermissionMiddleware(permission.SystemConfigRead), portMonitor.GetPortsByPort) // 根据端口号获取端口信息
 				PortMonitorAPI.GET("/process", middlewares.PermissionMiddleware(permission.SystemConfigRead), portMonitor.GetPortsByProcess)  // 根据进程名获取端口信息
 			}
+
+			// Pipeline - 流水线管理
+			PipelineAPI := v1.Group("/pipeline")
+			{
+				// Webhook端点（无需鉴权）
+				PipelineAPI.POST("/webhook", pipeline.WebhookHandler)  // GitHub Webhook接收
+				PipelineAPI.GET("/webhook/test", pipeline.WebhookTest) // Webhook测试端点
+
+				// 开始鉴权
+				PipelineAPI.Use(middlewares.AuthMiddleware())
+
+				// 流水线管理
+				PipelineAPI.POST("", middlewares.PermissionMiddleware(permission.SystemSettingsManage), pipeline.CreatePipeline)              // 创建流水线
+				PipelineAPI.GET("", middlewares.PermissionMiddleware(permission.SystemConfigRead), pipeline.GetPipelines)                     // 获取流水线列表
+				PipelineAPI.GET("/:id", middlewares.PermissionMiddleware(permission.SystemConfigRead), pipeline.GetPipeline)                  // 获取流水线详情
+				PipelineAPI.PUT("/:id", middlewares.PermissionMiddleware(permission.SystemSettingsManage), pipeline.UpdatePipeline)           // 更新流水线
+				PipelineAPI.DELETE("/:id", middlewares.PermissionMiddleware(permission.SystemSettingsManage), pipeline.DeletePipeline)        // 删除流水线
+				PipelineAPI.POST("/:id/trigger", middlewares.PermissionMiddleware(permission.SystemSettingsManage), pipeline.TriggerPipeline) // 手动触发流水线
+
+				// 流水线执行记录
+				PipelineAPI.GET("/:id/executions", middlewares.PermissionMiddleware(permission.SystemConfigRead), pipeline.GetPipelineExecutions) // 获取执行记录列表
+
+				// 生成Webhook密钥
+				PipelineAPI.POST("/generate-secret", middlewares.PermissionMiddleware(permission.SystemSettingsManage), pipeline.GenerateWebhookSecret) // 生成Webhook密钥
+			}
+
+			// Pipeline Execution - 流水线执行记录详情
+			PipelineExecutionAPI := v1.Group("/pipeline-execution")
+			{
+				PipelineExecutionAPI.Use(middlewares.AuthMiddleware())
+				PipelineExecutionAPI.GET("/:id", middlewares.PermissionMiddleware(permission.SystemConfigRead), pipeline.GetPipelineExecution) // 获取执行记录详情
+			}
+
 		}
 	}
 
