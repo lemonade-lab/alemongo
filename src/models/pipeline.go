@@ -78,9 +78,10 @@ type WebhookPayload struct {
 	Ref        string `json:"ref"`
 	Action     string `json:"action"` // 事件动作 (opened, closed, created, etc.)
 	Repository struct {
-		FullName string `json:"full_name"`
-		CloneURL string `json:"clone_url"`
-		SSHURL   string `json:"ssh_url"`
+		FullName      string `json:"full_name"`
+		CloneURL      string `json:"clone_url"`
+		SSHURL        string `json:"ssh_url"`
+		DefaultBranch string `json:"default_branch"` // 默认分支
 	} `json:"repository"`
 
 	// Push事件字段

@@ -127,7 +127,7 @@ const PipelineCreatePage: React.FC = () => {
         )
         if (updateAppSteps.length > 0) {
           const firstBotName = updateAppSteps[0].config.bot_name
-          if (firstBotName) {
+          if (firstBotName && typeof firstBotName === 'string') {
             loadPackages(firstBotName)
           }
         }
@@ -234,7 +234,11 @@ const PipelineCreatePage: React.FC = () => {
     setSteps(newSteps)
   }
 
-  const updateStepConfig = (index: number, key: string, value: string) => {
+  const updateStepConfig = (
+    index: number,
+    key: string,
+    value: string | boolean
+  ) => {
     const newSteps = [...steps]
     newSteps[index].config = { ...newSteps[index].config, [key]: value }
     setSteps(newSteps)
@@ -251,7 +255,7 @@ const PipelineCreatePage: React.FC = () => {
                   机器人名称 <span className="text-red-500">*</span>
                 </label>
                 <Select
-                  value={step.config.bot_name || ''}
+                  value={String(step.config.bot_name || '')}
                   onChange={(value: string) => {
                     updateStepConfig(index, 'bot_name', value)
                     updateStepConfig(index, 'app_name', '') // 清空应用选择
@@ -279,7 +283,7 @@ const PipelineCreatePage: React.FC = () => {
                   应用名称 <span className="text-red-500">*</span>
                 </label>
                 <Select
-                  value={step.config.app_name || ''}
+                  value={String(step.config.app_name || '')}
                   onChange={(value: string) =>
                     updateStepConfig(index, 'app_name', value)
                   }
@@ -305,30 +309,74 @@ const PipelineCreatePage: React.FC = () => {
         )
       case 'restart_bot':
         return (
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              机器人名称 <span className="text-red-500">*</span>
-            </label>
-            <Select
-              value={step.config.bot_name || ''}
-              onChange={(value: string) =>
-                updateStepConfig(index, 'bot_name', value)
-              }
-              placeholder="请选择机器人"
-              showSearch
-              filterOption={(input, option) =>
-                String(option?.children || '')
-                  .toLowerCase()
-                  .includes(input.toLowerCase())
-              }
-            >
-              {bots.map(bot => (
-                <Option key={bot.name} value={bot.name}>
-                  {bot.name} {bot.status === 1 ? '(运行中)' : '(已停止)'}
-                </Option>
-              ))}
-            </Select>
-          </div>
+          <Row gutter={16}>
+            <Col span={12}>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  机器人名称 <span className="text-red-500">*</span>
+                </label>
+                <Select
+                  value={String(step.config.bot_name || '')}
+                  onChange={(value: string) =>
+                    updateStepConfig(index, 'bot_name', value)
+                  }
+                  placeholder="请选择机器人"
+                  showSearch
+                  filterOption={(input, option) =>
+                    String(option?.children || '')
+                      .toLowerCase()
+                      .includes(input.toLowerCase())
+                  }
+                >
+                  {bots.map(bot => (
+                    <Option key={bot.name} value={bot.name}>
+                      {bot.name} {bot.status === 1 ? '(运行中)' : '(已停止)'}
+                    </Option>
+                  ))}
+                </Select>
+              </div>
+            </Col>
+            <Col span={12}>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  操作类型{' '}
+                  <Tooltip title="restart: 重启(未运行则启动); start: 仅启动; stop: 仅停止">
+                    <QuestionCircleOutlined className="text-gray-400" />
+                  </Tooltip>
+                </label>
+                <Select
+                  value={String(step.config.action || 'restart')}
+                  onChange={(value: string) =>
+                    updateStepConfig(index, 'action', value)
+                  }
+                  placeholder="请选择操作类型"
+                >
+                  <Option value="restart">重启 (Restart)</Option>
+                  <Option value="start">启动 (Start)</Option>
+                  <Option value="stop">停止 (Stop)</Option>
+                </Select>
+              </div>
+            </Col>
+            {step.config.action === 'stop' && (
+              <Col span={24}>
+                <div className="mb-4">
+                  <label className="flex items-center text-sm font-medium text-gray-700">
+                    <Switch
+                      checked={Boolean(step.config.auto_start)}
+                      onChange={(checked: boolean) =>
+                        updateStepConfig(index, 'auto_start', checked)
+                      }
+                      className="mr-2"
+                    />
+                    停止后自动启动{' '}
+                    <Tooltip title="停止后等待2秒自动重新启动(相当于强制重启)">
+                      <QuestionCircleOutlined className="ml-1 text-gray-400" />
+                    </Tooltip>
+                  </label>
+                </div>
+              </Col>
+            )}
+          </Row>
         )
       case 'custom_command':
         return (
@@ -339,7 +387,7 @@ const PipelineCreatePage: React.FC = () => {
                   命令 <span className="text-red-500">*</span>
                 </label>
                 <Input
-                  value={step.config.command || ''}
+                  value={String(step.config.command || '')}
                   onChange={e =>
                     updateStepConfig(index, 'command', e.target.value)
                   }
@@ -353,7 +401,7 @@ const PipelineCreatePage: React.FC = () => {
                   工作目录
                 </label>
                 <Input
-                  value={step.config.working_dir || '/tmp'}
+                  value={String(step.config.working_dir || '/tmp')}
                   onChange={e =>
                     updateStepConfig(index, 'working_dir', e.target.value)
                   }

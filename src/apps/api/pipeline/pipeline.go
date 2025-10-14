@@ -306,9 +306,10 @@ func TriggerPipeline(ctx *gin.Context) {
 	payload := &models.WebhookPayload{
 		Ref: "refs/heads/" + branch,
 		Repository: struct {
-			FullName string `json:"full_name"`
-			CloneURL string `json:"clone_url"`
-			SSHURL   string `json:"ssh_url"`
+			FullName      string `json:"full_name"`
+			CloneURL      string `json:"clone_url"`
+			SSHURL        string `json:"ssh_url"`
+			DefaultBranch string `json:"default_branch"`
 		}{
 			FullName: func() string {
 				if pl != nil {
@@ -316,8 +317,9 @@ func TriggerPipeline(ctx *gin.Context) {
 				}
 				return ""
 			}(),
-			CloneURL: "",
-			SSHURL:   "",
+			CloneURL:      "",
+			SSHURL:        "",
+			DefaultBranch: branch, // 使用触发时指定的分支作为默认分支
 		},
 		HeadCommit: struct {
 			ID      string `json:"id"`

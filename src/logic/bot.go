@@ -278,14 +278,16 @@ func PackegForcedUpdate(name, repo_name, branch_name string, botLogger *logger.R
 	}
 
 	repoPath := config.GetBotPackagesPathByName(name, repo_name)
+	log.Printf("检查应用目录: %s", repoPath)
 
 	if _, err := os.Stat(repoPath); os.IsNotExist(err) {
-		return errors.New("仓库不存在")
+		return fmt.Errorf("应用目录不存在: %s", repoPath)
 	}
 	gitPath := config.GetBotPackagesGitPathByName(name, repo_name)
+	log.Printf("检查 .git 目录: %s", gitPath)
 
 	if _, err := os.Stat(gitPath); os.IsNotExist(err) {
-		return errors.New("仓库不存在")
+		return fmt.Errorf(".git 目录不存在: %s (该应用可能不是通过 git clone 安装的)", gitPath)
 	}
 
 	return dao.PackageForcedUpdate(repoPath, branch_name, botLogger)

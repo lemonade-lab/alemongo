@@ -163,22 +163,37 @@ func ExecutePipeline(pipelineID uint, payload *models.WebhookPayload, triggeredB
 	}
 
 	// 预创建步骤记录（便于前端立即展示进度与占位）
+	log.Printf("流水线 %d 共有 %d 个步骤", pipelineID, len(pipeline.Config.Steps))
 	if len(pipeline.Config.Steps) > 0 {
 		for i, step := range pipeline.Config.Steps {
-			_ = dao.CreatePipelineStepExecution(&models.PipelineStepExecution{
+			stepExec := &models.PipelineStepExecution{
 				ExecutionID: execution.ID,
 				StepName:    step.Name,
 				StepType:    step.Type,
 				Status:      "pending",
 				Config:      step.Config,
 				Order:       i + 1,
-			})
+			}
+			if err := dao.CreatePipelineStepExecution(stepExec); err != nil {
+				log.Printf("创建步骤 %d (%s) 失败: %v", i+1, step.Name, err)
+			} else {
+				log.Printf("成功创建步骤 %d (%s), ID: %d", i+1, step.Name, stepExec.ID)
+			}
 		}
 		// 写入一条初始日志，方便用户看到执行已开始排队
-		_ = dao.UpdatePipelineExecution(execution.ID, map[string]interface{}{
+		if err := dao.UpdatePipelineExecution(execution.ID, map[string]interface{}{
 			"logs": "流水线已排队，准备执行步骤...",
-		})
+		}); err != nil {
+			log.Printf("更新初始日志失败: %v", err)
+		}
 	}
+
+	// 立即将状态改为 running，让前端看到"执行中"状态
+	now := time.Now()
+	_ = dao.UpdatePipelineExecution(execution.ID, map[string]interface{}{
+		"status":     "running",
+		"started_at": &now,
+	})
 
 	// 重新查询完整的执行记录（包括 steps）以便返回给前端
 	fullExecution, err := dao.GetPipelineExecution(execution.ID)
@@ -187,6 +202,7 @@ func ExecutePipeline(pipelineID uint, payload *models.WebhookPayload, triggeredB
 		// 即使获取失败，也继续执行，只是前端可能看不到初始状态
 	} else {
 		execution = fullExecution
+		log.Printf("成功获取完整执行记录 %d, 包含 %d 个步骤", execution.ID, len(execution.Steps))
 	}
 
 	// 异步执行流水线
@@ -215,12 +231,14 @@ func ExecutePipeline(pipelineID uint, payload *models.WebhookPayload, triggeredB
 
 // executePipelineSteps 执行流水线步骤
 func executePipelineSteps(execution *models.PipelineExecution, pipeline *models.Pipeline, payload *models.WebhookPayload) error {
-	// 更新执行状态为运行中
-	now := time.Now()
-	dao.UpdatePipelineExecution(execution.ID, map[string]interface{}{
-		"status":     "running",
-		"started_at": &now,
-	})
+	// 注意: 状态已在 ExecutePipeline 中更新为 running，此处无需重复更新
+	// 这里保留注释是为了说明状态管理的设计
+
+	log.Printf("开始执行流水线步骤, 执行ID: %d, 流水线ID: %d", execution.ID, pipeline.ID)
+	log.Printf("流水线配置中的步骤数量: %d", len(pipeline.Config.Steps))
+	if len(pipeline.Config.Steps) == 0 {
+		log.Printf("警告: 流水线配置中没有步骤!")
+	}
 
 	var logs []string
 	var hasError bool
@@ -228,6 +246,7 @@ func executePipelineSteps(execution *models.PipelineExecution, pipeline *models.
 
 	// 执行每个步骤
 	for i, step := range pipeline.Config.Steps {
+		log.Printf("准备执行步骤 %d/%d: %s (类型: %s)", i+1, len(pipeline.Config.Steps), step.Name, step.Type)
 		// 根据 when 条件判断是否应该执行此步骤
 		shouldExecute := true
 		switch step.When {
@@ -286,11 +305,16 @@ func executePipelineSteps(execution *models.PipelineExecution, pipeline *models.
 			hasError = true
 			lastStepFailed = true
 			logs = append(logs, fmt.Sprintf("步骤执行失败: %v", err))
+			stepLogs = append(stepLogs, fmt.Sprintf("步骤执行失败: %v", err))
 		} else {
 			stepExecution.Status = "success"
 			lastStepFailed = false
 			logs = append(logs, "步骤执行成功")
+			stepLogs = append(stepLogs, "步骤执行成功")
 		}
+
+		// 将执行日志赋值给 stepExecution (关键修复: 之前忘记赋值了)
+		stepExecution.Logs = strings.Join(stepLogs, "\n")
 
 		// 更新步骤执行记录
 		finishedAt := time.Now()
@@ -426,16 +450,91 @@ func executeRestartBotStep(stepExecution *models.PipelineStepExecution, pipeline
 		return logs, errors.New("bot_name 参数无效")
 	}
 
-	logs = append(logs, fmt.Sprintf("开始重启机器人 %s", botName))
-
-	// 执行机器人重启
-	msg, err := Restart(botName)
-	if err != nil {
-		logs = append(logs, fmt.Sprintf("机器人重启失败: %s", msg))
-		return logs, err
+	// 获取操作类型: restart(重启), stop(停止), start(启动), 默认为 restart
+	action, _ := stepExecution.Config["action"].(string)
+	if action == "" {
+		action = "restart"
 	}
 
-	logs = append(logs, "机器人重启成功")
+	// 获取 auto_start 参数: 停止后是否自动启动, 默认为 false
+	autoStart := false
+	if autoStartVal, ok := stepExecution.Config["auto_start"].(bool); ok {
+		autoStart = autoStartVal
+	}
+
+	logs = append(logs, fmt.Sprintf("执行操作: %s (机器人: %s)", action, botName))
+
+	var msg string
+	var err error
+
+	switch action {
+	case "start":
+		// 启动机器人
+		if IsRunning(botName) {
+			logs = append(logs, "机器人已经在运行")
+			return logs, nil
+		}
+		msg, err = Run(botName)
+		if err != nil {
+			logs = append(logs, fmt.Sprintf("启动失败: %s", msg))
+			return logs, err
+		}
+		logs = append(logs, "机器人启动成功")
+
+	case "stop":
+		// 停止机器人
+		if !IsRunning(botName) {
+			logs = append(logs, "机器人未在运行")
+			return logs, nil
+		}
+		msg, err = Stop(botName)
+		if err != nil {
+			logs = append(logs, fmt.Sprintf("停止失败: %s", msg))
+			return logs, err
+		}
+		logs = append(logs, "机器人停止成功")
+
+		// 如果设置了 auto_start, 等待 2 秒后自动启动
+		if autoStart {
+			logs = append(logs, "等待 2 秒后自动启动...")
+			time.Sleep(2 * time.Second)
+			msg, err = Run(botName)
+			if err != nil {
+				logs = append(logs, fmt.Sprintf("自动启动失败: %s", msg))
+				return logs, err
+			}
+			logs = append(logs, "机器人自动启动成功")
+		}
+
+	case "restart":
+		// 重启机器人
+		isRunning := IsRunning(botName)
+		logs = append(logs, fmt.Sprintf("当前状态: %v", map[bool]string{true: "运行中", false: "未运行"}[isRunning]))
+
+		if isRunning {
+			// 如果正在运行, 使用 Restart 函数
+			msg, err = Restart(botName)
+			if err != nil {
+				logs = append(logs, fmt.Sprintf("重启失败: %s", msg))
+				return logs, err
+			}
+			logs = append(logs, "机器人重启成功")
+		} else {
+			// 如果未运行, 直接启动
+			logs = append(logs, "机器人未运行, 将直接启动")
+			msg, err = Run(botName)
+			if err != nil {
+				logs = append(logs, fmt.Sprintf("启动失败: %s", msg))
+				return logs, err
+			}
+			logs = append(logs, "机器人启动成功")
+		}
+
+	default:
+		logs = append(logs, fmt.Sprintf("不支持的操作: %s", action))
+		return logs, fmt.Errorf("不支持的操作: %s (支持: start, stop, restart)", action)
+	}
+
 	return logs, nil
 }
 
@@ -501,6 +600,12 @@ func TriggerPipelineByWebhook(payload *models.WebhookPayload, eventType string) 
 	// 解析仓库信息
 	repository := payload.Repository.FullName
 
+	// 获取默认分支（优先使用 payload 中的值，其次使用 "main"）
+	defaultBranch := payload.Repository.DefaultBranch
+	if defaultBranch == "" {
+		defaultBranch = "main" // 回退到 main
+	}
+
 	// 根据事件类型提取分支信息
 	var branch string
 	var triggeredBy string
@@ -519,7 +624,7 @@ func TriggerPipelineByWebhook(payload *models.WebhookPayload, eventType string) 
 
 	case "issues", "issue_comment":
 		// Issues事件通常不涉及特定分支，使用默认分支
-		branch = "main" // 或者从仓库信息中获取默认分支
+		branch = defaultBranch
 		triggeredBy = payload.Sender.Login
 		if triggeredBy == "" && eventType == "issues" {
 			triggeredBy = payload.Issue.User.Login
@@ -529,7 +634,7 @@ func TriggerPipelineByWebhook(payload *models.WebhookPayload, eventType string) 
 
 	case "release":
 		// Release事件通常基于标签，但我们可以使用默认分支
-		branch = "main"
+		branch = defaultBranch
 		triggeredBy = payload.Release.Author.Login
 
 	case "create", "delete":
@@ -538,7 +643,7 @@ func TriggerPipelineByWebhook(payload *models.WebhookPayload, eventType string) 
 			branch = payload.Ref
 		} else {
 			// 标签创建/删除，使用默认分支
-			branch = "main"
+			branch = defaultBranch
 		}
 		triggeredBy = payload.Sender.Login
 
@@ -548,12 +653,15 @@ func TriggerPipelineByWebhook(payload *models.WebhookPayload, eventType string) 
 
 	case "schedule":
 		// 定时任务，使用默认分支
-		branch = "main"
+		branch = defaultBranch
 		triggeredBy = "system"
 
 	default:
 		// 默认处理
 		branch = strings.TrimPrefix(payload.Ref, "refs/heads/")
+		if branch == "" {
+			branch = defaultBranch
+		}
 		triggeredBy = payload.Sender.Login
 		if triggeredBy == "" {
 			triggeredBy = "unknown"

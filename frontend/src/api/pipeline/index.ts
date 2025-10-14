@@ -4,7 +4,7 @@ import { request } from '../base'
 export interface PipelineStep {
   name: string
   type: 'update_app' | 'restart_bot' | 'custom_command'
-  config: Record<string, string>
+  config: Record<string, string | boolean>
   when: 'always' | 'on_success' | 'on_failure'
 }
 
@@ -38,7 +38,7 @@ export interface PipelineStepExecution {
   step_name: string
   step_type: string
   status: 'pending' | 'running' | 'success' | 'failed' | 'skipped'
-  config: Record<string, string>
+  config: Record<string, string | boolean>
   started_at?: string
   finished_at?: string
   logs: string

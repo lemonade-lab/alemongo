@@ -6,6 +6,7 @@ import {
   apiTriggerPipeline,
   Pipeline
 } from '@/api/pipeline'
+import { getAllCachedBranchesForRepository } from '@/utils/branchCache'
 import {
   Button,
   Card,
@@ -18,7 +19,7 @@ import {
   Avatar,
   Tooltip,
   Modal,
-  Input
+  Select
 } from 'antd'
 import {
   PlusOutlined,
@@ -30,16 +31,24 @@ import {
   SettingOutlined,
   BranchesOutlined,
   CodeOutlined,
-  KeyOutlined
+  KeyOutlined,
+  QuestionCircleOutlined
 } from '@ant-design/icons'
 import { useNavigate } from 'react-router-dom'
 
 const { Title, Text } = Typography
+const { Option } = Select
 
 const PipelinePage: React.FC = () => {
   const [loading, setLoading] = useState(false)
   const [pipelines, setPipelines] = useState<Pipeline[]>([])
   const [triggering, setTriggering] = useState<number | null>(null)
+  const [triggerModalVisible, setTriggerModalVisible] = useState(false)
+  const [selectedPipeline, setSelectedPipeline] = useState<Pipeline | null>(
+    null
+  )
+  const [branches, setBranches] = useState<string[]>([])
+  const [selectedBranch, setSelectedBranch] = useState<string>('')
   const navigate = useNavigate()
 
   const refresh = useCallback(async () => {
@@ -71,31 +80,33 @@ const PipelinePage: React.FC = () => {
   }
 
   const handleTrigger = async (id: number) => {
-    let branchInput = ''
+    // 找到对应的流水线
+    const pipeline = pipelines.find(p => p.id === id)
+    if (!pipeline) return
 
-    Modal.confirm({
-      title: '触发流水线',
-      content: (
-        <div className="py-4">
-          <div className="mb-2 text-gray-600">
-            输入要执行的分支（留空使用默认分支）
-          </div>
-          <Input
-            placeholder="例如: main"
-            onChange={e => {
-              branchInput = e.target.value
-            }}
-            onPressEnter={() => {
-              Modal.destroyAll()
-              executeTrigger(id, branchInput)
-            }}
-          />
-        </div>
-      ),
-      okText: '触发',
-      cancelText: '取消',
-      onOk: () => executeTrigger(id, branchInput)
-    })
+    setSelectedPipeline(pipeline)
+    setSelectedBranch(pipeline.branch) // 默认使用流水线配置的分支
+    setTriggerModalVisible(true)
+
+    // 使用统一的缓存工具从所有缓存中加载分支列表
+    const cachedBranches = getAllCachedBranchesForRepository(
+      pipeline.repository
+    )
+    setBranches(cachedBranches)
+  }
+
+  const executeTriggerWithModal = async () => {
+    if (!selectedPipeline) return
+
+    setTriggerModalVisible(false)
+    await executeTrigger(selectedPipeline.id, selectedBranch)
+  }
+
+  const handleModalCancel = () => {
+    setTriggerModalVisible(false)
+    setSelectedPipeline(null)
+    setSelectedBranch('')
+    setBranches([])
   }
 
   const executeTrigger = async (id: number, branch: string) => {
@@ -270,6 +281,75 @@ const PipelinePage: React.FC = () => {
           ))}
         </div>
       )}
+
+      {/* 触发流水线Modal */}
+      <Modal
+        title="触发流水线"
+        open={triggerModalVisible}
+        onOk={executeTriggerWithModal}
+        onCancel={handleModalCancel}
+        confirmLoading={triggering !== null}
+        okText="触发"
+        cancelText="取消"
+      >
+        <div className="space-y-4 py-4">
+          <div>
+            <div className="mb-2">
+              <Text strong>流水线:</Text> <Text>{selectedPipeline?.name}</Text>
+            </div>
+            <div className="mb-2">
+              <Text strong>仓库:</Text>{' '}
+              <Text code>{selectedPipeline?.repository}</Text>
+            </div>
+          </div>
+
+          <div>
+            <div className="mb-2 flex items-center justify-between">
+              <Text strong>选择分支:</Text>
+              <Tooltip title="手动输入或从列表中选择">
+                <QuestionCircleOutlined className="text-gray-400" />
+              </Tooltip>
+            </div>
+            <Select
+              value={selectedBranch || undefined}
+              onChange={(value: string) => setSelectedBranch(value)}
+              placeholder={`默认: ${selectedPipeline?.branch}`}
+              showSearch
+              allowClear
+              style={{ width: '100%' }}
+              dropdownRender={menu => (
+                <>
+                  {menu}
+                  {branches.length === 0 && (
+                    <div className="p-2 text-center text-gray-400 text-sm border-t">
+                      暂无缓存分支,请手动输入
+                    </div>
+                  )}
+                </>
+              )}
+              notFoundContent={
+                <div className="text-center py-2 text-gray-400">
+                  暂无分支列表
+                </div>
+              }
+            >
+              {branches.map(branch => (
+                <Option key={branch} value={branch}>
+                  <Space>
+                    <BranchesOutlined />
+                    {branch}
+                  </Space>
+                </Option>
+              ))}
+            </Select>
+
+            <div className="mt-2 text-xs text-gray-500">
+              留空则使用流水线配置的默认分支:{' '}
+              <Text code>{selectedPipeline?.branch}</Text>
+            </div>
+          </div>
+        </div>
+      </Modal>
     </Box>
   )
 }

@@ -53,9 +53,9 @@ type PipelineStepDO struct {
 	Config      string     `gorm:"type:text"`                          // 步骤配置JSON
 	StartedAt   *time.Time // 开始时间
 	FinishedAt  *time.Time // 结束时间
-	Logs        string     `gorm:"type:text"`                                                      // 步骤日志
-	ErrorMsg    string     `gorm:"type:text"`                                                      // 错误信息
-	Order       int        `gorm:"column:step_order;not null;default:0;index:idx_execution_order"` // 执行顺序 (复合索引)
+	Logs        string     `gorm:"type:text"`                                                 // 步骤日志
+	ErrorMsg    string     `gorm:"type:text"`                                                 // 错误信息
+	Order       int        `gorm:"column:order;not null;default:0;index:idx_execution_order"` // 执行顺序 (复合索引)
 }
 
 func (PipelineStepDO) TableName() string { return "pipeline_steps" }

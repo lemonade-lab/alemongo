@@ -428,7 +428,7 @@ func GetPipelineStepExecutions(executionID uint) ([]models.PipelineStepExecution
 	}
 
 	var stepDOs []db.PipelineStepDO
-	if err := db.Get().Where("execution_id = ?", executionID).Order("step_order ASC").Find(&stepDOs).Error; err != nil {
+	if err := db.Get().Where("execution_id = ?", executionID).Order("`order` ASC").Find(&stepDOs).Error; err != nil {
 		return nil, err
 	}
 
@@ -466,7 +466,7 @@ func GetPipelineStepExecutionByOrder(executionID uint, order int) (*models.Pipel
 	}
 
 	var stepDO db.PipelineStepDO
-	if err := db.Get().Where("execution_id = ? AND step_order = ?", executionID, order).First(&stepDO).Error; err != nil {
+	if err := db.Get().Where("execution_id = ? AND `order` = ?", executionID, order).First(&stepDO).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
 		}
