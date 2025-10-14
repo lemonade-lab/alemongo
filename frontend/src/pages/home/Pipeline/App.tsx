@@ -306,13 +306,17 @@ const PipelinePage: React.FC = () => {
           <div>
             <div className="mb-2 flex items-center justify-between">
               <Text strong>选择分支:</Text>
-              <Tooltip title="手动输入或从列表中选择">
+              <Tooltip title="可以手动输入分支名或从列表中选择">
                 <QuestionCircleOutlined className="text-gray-400" />
               </Tooltip>
             </div>
             <Select
-              value={selectedBranch || undefined}
-              onChange={(value: string) => setSelectedBranch(value)}
+              mode="tags"
+              maxCount={1}
+              value={selectedBranch ? [selectedBranch] : undefined}
+              onChange={(values: string[]) =>
+                setSelectedBranch(values[0] || '')
+              }
               placeholder={`默认: ${selectedPipeline?.branch}`}
               showSearch
               allowClear
@@ -322,16 +326,17 @@ const PipelinePage: React.FC = () => {
                   {menu}
                   {branches.length === 0 && (
                     <div className="p-2 text-center text-gray-400 text-sm border-t">
-                      暂无缓存分支,请手动输入
+                      暂无缓存分支，可直接输入分支名
                     </div>
                   )}
                 </>
               )}
               notFoundContent={
                 <div className="text-center py-2 text-gray-400">
-                  暂无分支列表
+                  输入后按 Enter 确认
                 </div>
               }
+              tokenSeparators={[',']}
             >
               {branches.map(branch => (
                 <Option key={branch} value={branch}>

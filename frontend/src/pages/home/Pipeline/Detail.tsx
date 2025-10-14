@@ -3,7 +3,6 @@ import Box from '@/commom/layout/Box'
 import {
   apiGetPipeline,
   apiGetPipelineExecutions,
-  apiTriggerPipeline,
   Pipeline,
   PipelineExecution
 } from '@/api/pipeline'
@@ -21,12 +20,9 @@ import {
   Timeline,
   Row,
   Col,
-  Statistic,
-  Modal,
-  Input
+  Statistic
 } from 'antd'
 import {
-  PlayCircleOutlined,
   ReloadOutlined,
   EditOutlined,
   ArrowLeftOutlined,
@@ -45,9 +41,6 @@ const { Text } = Typography
 const PipelineDetailPage: React.FC = () => {
   const [pipeline, setPipeline] = useState<Pipeline | null>(null)
   const [executions, setExecutions] = useState<PipelineExecution[]>([])
-  const [triggering, setTriggering] = useState(false)
-  const [manualOpen, setManualOpen] = useState(false)
-  const [manualBranch, setManualBranch] = useState('')
   const navigate = useNavigate()
   const { id } = useParams<{ id: string }>()
 
@@ -77,26 +70,6 @@ const PipelineDetailPage: React.FC = () => {
     loadPipeline()
     loadExecutions()
   }, [loadPipeline, loadExecutions])
-
-  const handleTrigger = async () => {
-    if (!id) return
-    setTriggering(true)
-    try {
-      const exec = await apiTriggerPipeline(parseInt(id), {
-        branch: manualBranch || undefined
-      })
-      message.success('流水线已触发')
-      // 刷新列表并跳转到执行详情
-      loadExecutions()
-      navigate(`/pipeline/${id}/execution/${exec.id}`)
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : '触发失败'
-      message.error(msg)
-    } finally {
-      setTriggering(false)
-      setManualOpen(false)
-    }
-  }
 
   const latestExecRunning = useMemo(() => {
     if (!executions.length) return false
@@ -211,14 +184,6 @@ const PipelineDetailPage: React.FC = () => {
                   onClick={() => navigate(`/pipeline/${id}/edit`)}
                 >
                   编辑
-                </Button>
-                <Button
-                  type="primary"
-                  icon={<PlayCircleOutlined />}
-                  loading={triggering}
-                  onClick={() => setManualOpen(true)}
-                >
-                  手动触发
                 </Button>
                 {latestExecRunning && (
                   <Tag color="blue" icon={<ReloadOutlined spin />}>
@@ -369,24 +334,6 @@ const PipelineDetailPage: React.FC = () => {
           </Card>
         </Col>
       </Row>
-
-      <Modal
-        title="手动触发流水线"
-        open={manualOpen}
-        onOk={handleTrigger}
-        confirmLoading={triggering}
-        onCancel={() => setManualOpen(false)}
-      >
-        <Space direction="vertical" style={{ width: '100%' }}>
-          <Input
-            placeholder={`分支（默认 ${pipeline.branch}）`}
-            value={manualBranch}
-            onChange={e => setManualBranch(e.target.value)}
-            allowClear
-          />
-          <Text type="secondary">留空则使用流水线配置分支</Text>
-        </Space>
-      </Modal>
     </Box>
   )
 }

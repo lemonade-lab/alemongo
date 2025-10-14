@@ -86,7 +86,16 @@ func PackageForcedUpdate(repoPath, branch_name string, botLogger *logger.RobotLo
 	if auth != nil {
 		fetchOpts.Auth = auth
 	}
-	_ = repo.Fetch(fetchOpts)
+
+	log.Printf("[PackageForcedUpdate] 开始 fetch 远程分支...")
+	fetchErr := repo.Fetch(fetchOpts)
+	if fetchErr != nil && fetchErr != git.NoErrAlreadyUpToDate {
+		log.Printf("[PackageForcedUpdate] fetch 警告: %v (可能不影响后续操作)", fetchErr)
+	} else if fetchErr == git.NoErrAlreadyUpToDate {
+		log.Printf("[PackageForcedUpdate] 远程已是最新")
+	} else {
+		log.Printf("[PackageForcedUpdate] fetch 成功")
+	}
 
 	worktree, err := repo.Worktree()
 	if err != nil {
@@ -95,10 +104,21 @@ func PackageForcedUpdate(repoPath, branch_name string, botLogger *logger.RobotLo
 
 	// 优先定位远程分支引用
 	remoteRefName := plumbing.NewRemoteReferenceName("origin", branch_name)
+	log.Printf("[PackageForcedUpdate] 查找远程分支: %s", remoteRefName)
+
 	remoteRef, err := repo.Reference(remoteRefName, true)
 	if err != nil {
+		// 尝试列出所有远程分支来帮助调试
+		refs, _ := repo.References()
+		log.Printf("[PackageForcedUpdate] 未找到分支 %s，列出所有引用:", remoteRefName)
+		_ = refs.ForEach(func(ref *plumbing.Reference) error {
+			log.Printf("  - %s", ref.Name())
+			return nil
+		})
 		return fmt.Errorf("未找到远程分支 origin/%s", branch_name)
 	}
+
+	log.Printf("[PackageForcedUpdate] 找到远程分支: %s (commit: %s)", remoteRefName, remoteRef.Hash().String()[:7])
 
 	// 尝试切换到本地分支，不存在则创建
 	localRefName := plumbing.NewBranchReferenceName(branch_name)
@@ -106,20 +126,26 @@ func PackageForcedUpdate(repoPath, branch_name string, botLogger *logger.RobotLo
 	_, err = repo.Reference(localRefName, true)
 	if err != nil {
 		// 创建本地分支并指向远程提交
+		log.Printf("[PackageForcedUpdate] 本地分支不存在，创建: %s", localRefName)
 		if err := repo.Storer.SetReference(plumbing.NewHashReference(localRefName, remoteRef.Hash())); err != nil {
 			return fmt.Errorf("创建本地分支失败: %w", err)
 		}
+	} else {
+		log.Printf("[PackageForcedUpdate] 本地分支已存在: %s", localRefName)
 	}
 
 	// checkout 到本地分支
+	log.Printf("[PackageForcedUpdate] 切换到分支: %s", localRefName)
 	if err := worktree.Checkout(&git.CheckoutOptions{Branch: localRefName, Force: true}); err != nil {
 		return fmt.Errorf("切换分支失败: %w", err)
 	}
 
 	// 重置到远程最新提交（相当于 pull --hard）
+	log.Printf("[PackageForcedUpdate] 重置到远程最新提交: %s", remoteRef.Hash().String()[:7])
 	if err := worktree.Reset(&git.ResetOptions{Commit: remoteRef.Hash(), Mode: git.HardReset}); err != nil {
 		return fmt.Errorf("reset失败: %w", err)
 	}
 
+	log.Printf("[PackageForcedUpdate] 更新完成")
 	return nil
 }
