@@ -16,7 +16,9 @@ import {
   Popconfirm,
   Badge,
   Avatar,
-  Tooltip
+  Tooltip,
+  Modal,
+  Input
 } from 'antd'
 import {
   PlusOutlined,
@@ -69,12 +71,42 @@ const PipelinePage: React.FC = () => {
   }
 
   const handleTrigger = async (id: number) => {
+    let branchInput = ''
+
+    Modal.confirm({
+      title: '触发流水线',
+      content: (
+        <div className="py-4">
+          <div className="mb-2 text-gray-600">
+            输入要执行的分支（留空使用默认分支）
+          </div>
+          <Input
+            placeholder="例如: main"
+            onChange={e => {
+              branchInput = e.target.value
+            }}
+            onPressEnter={() => {
+              Modal.destroyAll()
+              executeTrigger(id, branchInput)
+            }}
+          />
+        </div>
+      ),
+      okText: '触发',
+      cancelText: '取消',
+      onOk: () => executeTrigger(id, branchInput)
+    })
+  }
+
+  const executeTrigger = async (id: number, branch: string) => {
     setTriggering(id)
     try {
-      const branch =
-        window.prompt('输入要执行的分支（留空使用默认）', '') || undefined
-      await apiTriggerPipeline(id, branch ? { branch } : undefined)
+      const exec = await apiTriggerPipeline(id, branch ? { branch } : undefined)
       message.success('流水线已触发')
+      // 跳转到执行详情页查看日志
+      if (exec && exec.id) {
+        navigate(`/pipeline/${id}/execution/${exec.id}`)
+      }
     } catch (e) {
       const msg = e instanceof Error ? e.message : '触发失败'
       message.error(msg)

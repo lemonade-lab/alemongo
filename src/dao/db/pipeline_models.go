@@ -46,16 +46,16 @@ type PipelineStepDO struct {
 	CreatedAt time.Time
 	UpdatedAt time.Time
 
-	ExecutionID uint       `gorm:"not null;index"`         // 执行记录ID
-	StepName    string     `gorm:"size:128;not null"`      // 步骤名称
-	StepType    string     `gorm:"size:32;not null"`       // 步骤类型 (update_app, restart_bot, custom_command)
-	Status      string     `gorm:"size:16;not null;index"` // 步骤状态 (pending, running, success, failed, skipped)
-	Config      string     `gorm:"type:text"`              // 步骤配置JSON
+	ExecutionID uint       `gorm:"not null;index:idx_execution_order"` // 执行记录ID (复合索引)
+	StepName    string     `gorm:"size:128;not null"`                  // 步骤名称
+	StepType    string     `gorm:"size:32;not null"`                   // 步骤类型 (update_app, restart_bot, custom_command)
+	Status      string     `gorm:"size:16;not null;index"`             // 步骤状态 (pending, running, success, failed, skipped)
+	Config      string     `gorm:"type:text"`                          // 步骤配置JSON
 	StartedAt   *time.Time // 开始时间
 	FinishedAt  *time.Time // 结束时间
-	Logs        string     `gorm:"type:text"`                            // 步骤日志
-	ErrorMsg    string     `gorm:"type:text"`                            // 错误信息
-	Order       int        `gorm:"column:step_order;not null;default:0"` // 执行顺序
+	Logs        string     `gorm:"type:text"`                                                      // 步骤日志
+	ErrorMsg    string     `gorm:"type:text"`                                                      // 错误信息
+	Order       int        `gorm:"column:step_order;not null;default:0;index:idx_execution_order"` // 执行顺序 (复合索引)
 }
 
 func (PipelineStepDO) TableName() string { return "pipeline_steps" }

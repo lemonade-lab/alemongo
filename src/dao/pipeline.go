@@ -225,6 +225,43 @@ func GetPipelinesByRepository(repository, branch, eventType string) ([]models.Pi
 	return pipelines, nil
 }
 
+// GetPipelinesByRepositoryOnly 仅根据仓库名获取所有激活的流水线(用于 webhook 密钥查询)
+func GetPipelinesByRepositoryOnly(repository string) ([]models.Pipeline, error) {
+	if db.Get() == nil {
+		return nil, errors.New("数据库未初始化")
+	}
+
+	var pipelineDOs []db.PipelineDO
+	// 只根据仓库名和激活状态查询,不限制 branch 和 eventType
+	if err := db.Get().Where("repository = ? AND is_active = ?", repository, true).Find(&pipelineDOs).Error; err != nil {
+		return nil, err
+	}
+
+	pipelines := make([]models.Pipeline, len(pipelineDOs))
+	for i, pipelineDO := range pipelineDOs {
+		pipeline := models.Pipeline{
+			ID:          pipelineDO.ID,
+			Name:        pipelineDO.Name,
+			Description: pipelineDO.Description,
+			Repository:  pipelineDO.Repository,
+			Branch:      pipelineDO.Branch,
+			EventType:   pipelineDO.EventType,
+			IsActive:    pipelineDO.IsActive,
+			CreatedBy:   pipelineDO.CreatedBy,
+			CreatedAt:   pipelineDO.CreatedAt,
+			UpdatedAt:   pipelineDO.UpdatedAt,
+		}
+
+		if err := json.Unmarshal([]byte(pipelineDO.Config), &pipeline.Config); err != nil {
+			return nil, err
+		}
+
+		pipelines[i] = pipeline
+	}
+
+	return pipelines, nil
+}
+
 // CreatePipelineExecution 创建流水线执行记录
 func CreatePipelineExecution(execution *models.PipelineExecution) error {
 	if db.Get() == nil {

@@ -4,8 +4,9 @@ import (
 	"alemongo/src/apps/api/response"
 	"alemongo/src/logic"
 	config "alemongo/src/paths"
-	"github.com/gin-gonic/gin"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 // @Summary 切换机器人应用分支
@@ -13,23 +14,19 @@ import (
 // @Tags 机器人应用
 // @Accept x-www-form-urlencoded
 // @Produce json
-// @Param name formData string true "机器人名称"
+// @Param name formData string true "bot名称"
 // @Param app_name formData string true "应用名称"
 // @Param branch_name formData string true "分支名称"
-// @Param commit_hash formData string true "提交哈希值"
+// @Param commit_hash formData string true "提交哈希"
 // @Success 200 {object} response.ResponseData{msg=string} "切换成功"
 // @Failure 400 {object} response.ResponseData{msg=string} "参数错误或应用不存在"
 // @Failure 500 {object} response.ResponseData{msg=string} "切换分支失败"
-// @Router /api/v1/packages/switch [post]
+// @Router /api/v1/bot/packages/switch [post]
 func PackagesSwitch(c *gin.Context) {
 	botName := c.PostForm("name")
 	appName := c.PostForm("app_name")
 	branchName := c.PostForm("branch_name")
 	commitHash := c.PostForm("commit_hash")
-	if botName == "" || appName == "" || branchName == "" || commitHash == "" {
-		response.ResponseErrorWithMsg(c, http.StatusBadRequest, http.StatusBadRequest, "参数错误")
-		return
-	}
 
 	if !config.Exists(botName) {
 		response.ResponseErrorWithMsg(c, http.StatusBadRequest, http.StatusBadRequest, "机器人不存在")

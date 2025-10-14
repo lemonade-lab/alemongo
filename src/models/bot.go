@@ -37,3 +37,10 @@ type BotPackagesGitBranches struct {
 	PageSize  int      `json:"page_size"`
 	TotalPage int      `json:"total_page"`
 }
+
+type BotPackagesGitStatus struct {
+	CurrentBranch string              `json:"current_branch"`
+	IsClean       bool                `json:"is_clean"`
+	ModifiedFiles int                 `json:"modified_files"`
+	Files         []map[string]string `json:"files"`
+}

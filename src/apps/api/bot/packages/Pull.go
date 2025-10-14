@@ -3,7 +3,6 @@ package botpackages
 import (
 	"alemongo/src/apps/api/response"
 	"alemongo/src/logger"
-	"alemongo/src/paths"
 	config "alemongo/src/paths"
 	"alemongo/src/settings"
 	"alemongo/src/utils"
@@ -20,8 +19,8 @@ import (
 	"github.com/go-git/go-git/v5/plumbing"
 )
 
-// 创建机器人
 func Pull(ctx *gin.Context, isForce bool) {
+	// 从 PostForm 获取参数
 	name := ctx.PostForm("name")
 	repo_name := ctx.PostForm("repo_name")
 	branchName := ctx.PostForm("branch_name")
@@ -53,7 +52,7 @@ func Pull(ctx *gin.Context, isForce bool) {
 	}
 
 	// 获取路径
-	repoPath := paths.GetBotPackagesPathByName(name, repo_name)
+	repoPath := config.GetBotPackagesPathByName(name, repo_name)
 
 	if _, err := os.Stat(repoPath); os.IsNotExist(err) {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
@@ -64,7 +63,7 @@ func Pull(ctx *gin.Context, isForce bool) {
 		return
 	}
 
-	gitPath := paths.GetBotPackagesGitPathByName(name, repo_name)
+	gitPath := config.GetBotPackagesGitPathByName(name, repo_name)
 	if _, err := os.Stat(gitPath); os.IsNotExist(err) {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"code": http.StatusInternalServerError,

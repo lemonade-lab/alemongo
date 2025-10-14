@@ -118,15 +118,15 @@ func verifyWebhookSignature(payload []byte, signature, repository string) bool {
 	// 获取仓库的webhook密钥
 	secret, err := getWebhookSecret(repository)
 	if err != nil {
-		// 如果获取密钥失败，记录日志但不阻止处理
+		// 如果获取密钥失败，拒绝请求(安全第一)
 		fmt.Printf("获取webhook密钥失败: repository=%s, error=%v\n", repository, err)
-		return true // 允许继续处理，但记录警告
+		return false // ✅ 修复: 拒绝未验证的请求
 	}
 
 	if secret == "" {
-		// 如果没有配置密钥，记录警告但允许继续
-		fmt.Printf("警告: 仓库 %s 未配置webhook密钥\n", repository)
-		return true
+		// 如果没有配置密钥,拒绝请求(安全第一)
+		fmt.Printf("警告: 仓库 %s 未配置webhook密钥,拒绝请求\n", repository)
+		return false // ✅ 修复: 拒绝未验证的请求
 	}
 
 	return verifySignature(payload, signature, secret)
@@ -134,8 +134,8 @@ func verifyWebhookSignature(payload []byte, signature, repository string) bool {
 
 // getWebhookSecret 获取仓库的webhook密钥
 func getWebhookSecret(repository string) (string, error) {
-	// 从流水线配置中获取webhook密钥
-	pipelines, err := dao.GetPipelinesByRepository(repository, "", "")
+	// 从数据库直接查询该仓库的所有激活流水线,不需要匹配 branch 和 eventType
+	pipelines, err := dao.GetPipelinesByRepositoryOnly(repository)
 	if err != nil {
 		return "", fmt.Errorf("获取流水线失败: %w", err)
 	}

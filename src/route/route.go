@@ -255,11 +255,23 @@ func Create(mode string) *gin.Engine {
 					PackagesAPI.DELETE("", middlewares.PermissionMiddleware(permission.BotConfigDelete), botpackages.PackagesDelete)    // 删除应用
 
 					// Git操作相关
-					PackagesAPI.POST("/pull", middlewares.PermissionMiddleware(permission.BotGitManage), botpackages.PackagesPull)      // 拉取应用
-					PackagesAPI.GET("/gitbranches", middlewares.PermissionMiddleware(permission.BotGitManage), botpackages.GitBranches) // 获取Git分支
-					PackagesAPI.GET("/gitcommits", middlewares.PermissionMiddleware(permission.BotGitManage), botpackages.GitCommits)   // 获取Git提交记录
-					PackagesAPI.POST("/switch", middlewares.PermissionMiddleware(permission.BotGitManage), botpackages.PackagesSwitch)  // 切换分支/提交
-					PackagesAPI.POST("/gitfetch", middlewares.PermissionMiddleware(permission.BotGitManage), botpackages.GitFetch)      // 获取最新分支信息
+					PackagesAPI.POST("/pull", middlewares.PermissionMiddleware(permission.BotGitManage), botpackages.PackagesPull)     // 拉取应用
+					PackagesAPI.POST("/switch", middlewares.PermissionMiddleware(permission.BotGitManage), botpackages.PackagesSwitch) // 切换分支/提交
+
+					// Git分支和提交查询
+					PackagesAPI.GET("/git/branches", middlewares.PermissionMiddleware(permission.BotGitManage), botpackages.GitBranches) // 获取Git分支（远程）
+					PackagesAPI.GET("/git/commits", middlewares.PermissionMiddleware(permission.BotGitManage), botpackages.GitCommits)   // 获取Git提交记录（远程）
+					PackagesAPI.GET("/git/fetch", middlewares.PermissionMiddleware(permission.BotGitManage), botpackages.GitFetch)       // 获取最新分支信息（含远程分析）
+
+					// Git本地操作（快速版本）
+					PackagesAPI.GET("/git/branches/local", middlewares.PermissionMiddleware(permission.BotGitManage), botpackages.GitBranchesLocal) // 获取本地分支（快速）
+					PackagesAPI.GET("/git/commits/local", middlewares.PermissionMiddleware(permission.BotGitManage), botpackages.GitCommitsLocal)   // 获取本地提交记录（快速）
+					PackagesAPI.GET("/git/status", middlewares.PermissionMiddleware(permission.BotGitManage), botpackages.GitStatus)                // 获取Git状态
+					PackagesAPI.POST("/git/checkout", middlewares.PermissionMiddleware(permission.BotGitManage), botpackages.GitCheckout)           // 本地分支切换
+					PackagesAPI.POST("/git/discard", middlewares.PermissionMiddleware(permission.BotGitManage), botpackages.GitDiscardChanges)      // 放弃工作区修改
+					PackagesAPI.POST("/git/cleanup", middlewares.PermissionMiddleware(permission.BotGitManage), botpackages.GitCleanup)             // Git仓库清理
+					PackagesAPI.GET("/git/diagnose", middlewares.PermissionMiddleware(permission.BotGitManage), botpackages.GitDiagnose)            // Git仓库诊断
+					PackagesAPI.POST("/git/unshallow", middlewares.PermissionMiddleware(permission.BotGitManage), botpackages.GitUnshallow)         // 取消浅克隆限制
 
 					// 强制更新
 					PackagesPullAPI := PackagesAPI.Group("/pull")

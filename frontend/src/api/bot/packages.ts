@@ -157,6 +157,16 @@ export type BotPackagesGitCommits = {
   total_page: number
 }
 
+export type BotPackagesGitStatus = {
+  current_branch: string
+  is_clean: boolean
+  modified_files: number
+  files: Array<{
+    file: string
+    status: string
+  }>
+}
+
 export type BotPackagesGitBranches = {
   branches: string[]
   total: number
@@ -174,7 +184,7 @@ export const apiBotPackagesGitBranches = async (data: {
 }): Promise<BotPackagesGitBranches> => {
   return new Promise((resolve, reject) => {
     request({
-      url: '/bot/packages/gitbranches',
+      url: '/bot/packages/git/branches',
       method: 'GET',
       params: data
     })
@@ -194,7 +204,7 @@ export const apiBotPackagesGitCommits = async (data: {
 }): Promise<BotPackagesGitCommits> => {
   return new Promise((resolve, reject) => {
     request({
-      url: '/bot/packages/gitcommits',
+      url: '/bot/packages/git/commits',
       method: 'GET',
       params: data
     })
@@ -224,17 +234,155 @@ export const apiBotPackagesGitSwitch = async (data: {
 }
 
 // 从远程获取最新分支信息
+export type GitRemoteAnalysis = {
+  message: string
+  branches: string[]
+  remote_branches: string[]
+  added_branches: string[]
+  deleted_branches: string[]
+  current_branch: string
+  is_shallow: boolean
+  ahead: number
+  behind: number
+}
+
 export const apiBotPackagesGitFetch = async (data: {
   name: string
   app_name: string
-}): Promise<{ message: string; branches: string[] }> => {
+}): Promise<GitRemoteAnalysis> => {
   return new Promise((resolve, reject) => {
     request({
-      url: '/bot/packages/gitfetch',
-      method: 'POST',
+      url: '/bot/packages/git/fetch',
+      method: 'GET',
       params: data
     })
-      .then(res => res.data) // 获取data字段内的内容
+      .then(res => res.data)
+      .then(resolve)
+      .catch(reject)
+  })
+}
+
+// 获取本地分支列表（快速版本）
+export const apiBotPackagesGitBranchesLocal = async (data: {
+  name: string
+  app_name: string
+  page?: number
+  page_size?: number
+}): Promise<BotPackagesGitBranches> => {
+  return new Promise((resolve, reject) => {
+    request({
+      url: '/bot/packages/git/branches/local',
+      method: 'GET',
+      params: data
+    })
+      .then(res => res.data)
+      .then(resolve)
+      .catch(reject)
+  })
+}
+
+// 获取本地提交记录（快速版本）
+export const apiBotPackagesGitCommitsLocal = async (data: {
+  name: string
+  app_name: string
+  branch_name: string
+  page?: number
+  page_size?: number
+}): Promise<BotPackagesGitCommits> => {
+  return new Promise((resolve, reject) => {
+    request({
+      url: '/bot/packages/git/commits/local',
+      method: 'GET',
+      params: data
+    })
+      .then(res => res.data)
+      .then(resolve)
+      .catch(reject)
+  })
+}
+
+// 获取Git状态
+export const apiBotPackagesGitStatus = async (data: {
+  name: string
+  app_name: string
+}): Promise<BotPackagesGitStatus> => {
+  return new Promise((resolve, reject) => {
+    request({
+      url: '/bot/packages/git/status',
+      method: 'GET',
+      params: data
+    })
+      .then(res => res.data)
+      .then(resolve)
+      .catch(reject)
+  })
+}
+
+// 本地分支切换
+export const apiBotPackagesGitCheckout = async (data: {
+  name: string
+  app_name: string
+  branch_name: string
+  force?: boolean
+}): Promise<null> => {
+  return new Promise((resolve, reject) => {
+    request({
+      url: '/bot/packages/git/checkout',
+      method: 'POST',
+      data
+    })
+      .then(res => res.data)
+      .then(resolve)
+      .catch(reject)
+  })
+}
+
+// 放弃工作区修改
+export const apiBotPackagesGitDiscard = async (data: {
+  name: string
+  app_name: string
+}): Promise<null> => {
+  return new Promise((resolve, reject) => {
+    request({
+      url: '/bot/packages/git/discard',
+      method: 'POST',
+      data
+    })
+      .then(res => res.data)
+      .then(resolve)
+      .catch(reject)
+  })
+}
+
+// Git仓库清理
+export const apiBotPackagesGitCleanup = async (data: {
+  name: string
+  app_name: string
+}): Promise<null> => {
+  return new Promise((resolve, reject) => {
+    request({
+      url: '/bot/packages/git/cleanup',
+      method: 'POST',
+      data
+    })
+      .then(res => res.data)
+      .then(resolve)
+      .catch(reject)
+  })
+}
+
+// 取消浅克隆限制
+export const apiBotPackagesGitUnshallow = async (data: {
+  name: string
+  app_name: string
+}): Promise<null> => {
+  return new Promise((resolve, reject) => {
+    request({
+      url: '/bot/packages/git/unshallow',
+      method: 'POST',
+      data
+    })
+      .then(res => res.data)
       .then(resolve)
       .catch(reject)
   })

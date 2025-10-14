@@ -9,6 +9,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"os"
 	"os/exec"
 	"strings"
 	"time"
@@ -80,6 +81,11 @@ func validatePipelineConfig(config *models.PipelineConfig) error {
 		}
 		if step.Type == "" {
 			return fmt.Errorf("步骤 %d 的类型不能为空", i+1)
+		}
+
+		// 验证 when 字段
+		if step.When != "" && step.When != "always" && step.When != "on_success" && step.When != "on_failure" {
+			return fmt.Errorf("步骤 %d (%s) 包含无效的执行条件: %s (仅支持 always, on_success, on_failure)", i+1, step.Name, step.When)
 		}
 
 		// 验证步骤类型
@@ -174,8 +180,31 @@ func ExecutePipeline(pipelineID uint, payload *models.WebhookPayload, triggeredB
 		})
 	}
 
+	// 重新查询完整的执行记录（包括 steps）以便返回给前端
+	fullExecution, err := dao.GetPipelineExecution(execution.ID)
+	if err != nil {
+		log.Printf("警告: 获取完整执行记录失败: %v", err)
+		// 即使获取失败，也继续执行，只是前端可能看不到初始状态
+	} else {
+		execution = fullExecution
+	}
+
 	// 异步执行流水线
 	go func() {
+		defer func() {
+			if r := recover(); r != nil {
+				log.Printf("流水线执行发生 panic: %v", r)
+				// 更新执行记录为失败状态
+				finishedAt := time.Now()
+				dao.UpdatePipelineExecution(execution.ID, map[string]interface{}{
+					"status":      "failed",
+					"finished_at": &finishedAt,
+					"error_msg":   fmt.Sprintf("流水线执行发生 panic: %v", r),
+					"logs":        fmt.Sprintf("流水线执行发生严重错误: %v", r),
+				})
+			}
+		}()
+
 		if err := executePipelineSteps(execution, pipeline, payload); err != nil {
 			log.Printf("流水线执行失败: %v", err)
 		}
@@ -195,9 +224,23 @@ func executePipelineSteps(execution *models.PipelineExecution, pipeline *models.
 
 	var logs []string
 	var hasError bool
+	var lastStepFailed bool
 
 	// 执行每个步骤
 	for i, step := range pipeline.Config.Steps {
+		// 根据 when 条件判断是否应该执行此步骤
+		shouldExecute := true
+		switch step.When {
+		case "always":
+			shouldExecute = true
+		case "on_success":
+			shouldExecute = !lastStepFailed
+		case "on_failure":
+			shouldExecute = lastStepFailed
+		default:
+			shouldExecute = true // 默认总是执行
+		}
+
 		// 尝试复用预创建的步骤记录
 		stepExecution, _ := dao.GetPipelineStepExecutionByOrder(execution.ID, i+1)
 		if stepExecution == nil {
@@ -215,6 +258,19 @@ func executePipelineSteps(execution *models.PipelineExecution, pipeline *models.
 			}
 		}
 
+		// 如果不应该执行,标记为跳过
+		if !shouldExecute {
+			stepExecution.Status = "skipped"
+			logs = append(logs, fmt.Sprintf("=== 步骤 %d: %s ===", i+1, step.Name))
+			logs = append(logs, fmt.Sprintf("跳过步骤 (条件: %s)", step.When))
+
+			dao.UpdatePipelineStepExecution(stepExecution.ID, map[string]interface{}{
+				"status": "skipped",
+				"logs":   fmt.Sprintf("跳过步骤 (条件: %s)", step.When),
+			})
+			continue
+		}
+
 		// 执行步骤
 		stepLogs, err := executeStep(stepExecution, pipeline, payload)
 		if len(stepLogs) == 0 {
@@ -228,9 +284,11 @@ func executePipelineSteps(execution *models.PipelineExecution, pipeline *models.
 			stepExecution.Status = "failed"
 			stepExecution.ErrorMsg = err.Error()
 			hasError = true
+			lastStepFailed = true
 			logs = append(logs, fmt.Sprintf("步骤执行失败: %v", err))
 		} else {
 			stepExecution.Status = "success"
+			lastStepFailed = false
 			logs = append(logs, "步骤执行成功")
 		}
 
@@ -242,11 +300,6 @@ func executePipelineSteps(execution *models.PipelineExecution, pipeline *models.
 			"error_msg":   stepExecution.ErrorMsg,
 			"finished_at": &finishedAt,
 		})
-
-		// 如果步骤失败且配置为失败时停止，则停止执行
-		if hasError && step.When == "on_failure" {
-			break
-		}
 	}
 
 	// 更新执行记录
@@ -297,13 +350,17 @@ func executeStep(stepExecution *models.PipelineStepExecution, pipeline *models.P
 func executeUpdateAppStep(stepExecution *models.PipelineStepExecution, pipeline *models.Pipeline, payload *models.WebhookPayload) ([]string, error) {
 	var logs []string
 
+	logs = append(logs, fmt.Sprintf("步骤配置: %+v", stepExecution.Config))
+
 	botName, ok := stepExecution.Config["bot_name"].(string)
 	if !ok {
+		logs = append(logs, fmt.Sprintf("bot_name 参数类型错误或不存在, 当前值: %v, 类型: %T", stepExecution.Config["bot_name"], stepExecution.Config["bot_name"]))
 		return logs, errors.New("bot_name 参数无效")
 	}
 
 	appName, ok := stepExecution.Config["app_name"].(string)
 	if !ok {
+		logs = append(logs, fmt.Sprintf("app_name 参数类型错误或不存在, 当前值: %v, 类型: %T", stepExecution.Config["app_name"], stepExecution.Config["app_name"]))
 		return logs, errors.New("app_name 参数无效")
 	}
 
@@ -361,8 +418,11 @@ func executeUpdateAppStep(stepExecution *models.PipelineStepExecution, pipeline 
 func executeRestartBotStep(stepExecution *models.PipelineStepExecution, pipeline *models.Pipeline, payload *models.WebhookPayload) ([]string, error) {
 	var logs []string
 
+	logs = append(logs, fmt.Sprintf("步骤配置: %+v", stepExecution.Config))
+
 	botName, ok := stepExecution.Config["bot_name"].(string)
 	if !ok {
+		logs = append(logs, fmt.Sprintf("bot_name 参数类型错误或不存在, 当前值: %v, 类型: %T", stepExecution.Config["bot_name"], stepExecution.Config["bot_name"]))
 		return logs, errors.New("bot_name 参数无效")
 	}
 
@@ -383,8 +443,11 @@ func executeRestartBotStep(stepExecution *models.PipelineStepExecution, pipeline
 func executeCustomCommandStep(stepExecution *models.PipelineStepExecution, pipeline *models.Pipeline, payload *models.WebhookPayload) ([]string, error) {
 	var logs []string
 
+	logs = append(logs, fmt.Sprintf("步骤配置: %+v", stepExecution.Config))
+
 	command, ok := stepExecution.Config["command"].(string)
 	if !ok {
+		logs = append(logs, fmt.Sprintf("command 参数类型错误或不存在, 当前值: %v, 类型: %T", stepExecution.Config["command"], stepExecution.Config["command"]))
 		return logs, errors.New("command 参数无效")
 	}
 
@@ -403,8 +466,8 @@ func executeCustomCommandStep(stepExecution *models.PipelineStepExecution, pipel
 	cmd := exec.CommandContext(ctx, "sh", "-c", command)
 	cmd.Dir = workingDir
 
-	// 设置环境变量
-	cmd.Env = append(cmd.Env,
+	// 设置环境变量 (继承父进程环境变量)
+	cmd.Env = append(os.Environ(),
 		fmt.Sprintf("PIPELINE_REPO=%s", pipeline.Repository),
 		fmt.Sprintf("PIPELINE_BRANCH=%s", pipeline.Branch),
 		fmt.Sprintf("PIPELINE_COMMIT=%s", payload.HeadCommit.ID),
