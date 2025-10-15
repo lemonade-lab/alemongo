@@ -66,56 +66,79 @@ func PackageDelete(packagePath string) error {
 	return nil
 }
 
-func PackageForcedUpdate(repoPath, branch_name string, botLogger *logger.RobotLoggerWriter) error {
+func PackageForcedUpdate(repoPath, branch_name string, botLogger *logger.RobotLoggerWriter, autoFetch bool) error {
 	repo, err := git.PlainOpen(repoPath)
 	if err != nil {
 		return fmt.Errorf("打开仓库失败: %w", err)
 	}
 
-	// 确保远程存在并 fetch 最新
-	auth, _ := utils.GetSSHAuth()
-	fetchOpts := &git.FetchOptions{
-		RemoteName: "origin",
-		Progress: botLogger.Writer(logger.WriterOption{
-			DetectLevel: true,
-			StripDate:   true,
-			StripLevel:  true,
-		}),
-		Force: true,
-	}
-	if auth != nil {
-		fetchOpts.Auth = auth
-	}
+	// 优先检查本地是否已有该分支的信息
+	remoteRefName := plumbing.NewRemoteReferenceName("origin", branch_name)
+	log.Printf("[PackageForcedUpdate] 查找远程分支: %s", remoteRefName)
 
-	log.Printf("[PackageForcedUpdate] 开始 fetch 远程分支...")
-	fetchErr := repo.Fetch(fetchOpts)
-	if fetchErr != nil && fetchErr != git.NoErrAlreadyUpToDate {
-		log.Printf("[PackageForcedUpdate] fetch 警告: %v (可能不影响后续操作)", fetchErr)
-	} else if fetchErr == git.NoErrAlreadyUpToDate {
-		log.Printf("[PackageForcedUpdate] 远程已是最新")
-	} else {
-		log.Printf("[PackageForcedUpdate] fetch 成功")
+	remoteRef, err := repo.Reference(remoteRefName, true)
+	needFetch := err != nil // 如果找不到远程分支引用，标记需要 fetch
+
+	// 如果需要 fetch（找不到分支或启用了 autoFetch）
+	if needFetch || autoFetch {
+		// 如果禁用了 auto_fetch 但需要 fetch（找不到分支），直接返回错误
+		if !autoFetch && needFetch {
+			log.Printf("[PackageForcedUpdate] 未找到远程分支 %s (auto_fetch 已禁用)", remoteRefName)
+			return fmt.Errorf("未找到远程分支 origin/%s，请启用自动获取远程分支或手动执行 git fetch", branch_name)
+		}
+
+		// 确保远程存在并 fetch 最新
+		auth, _ := utils.GetSSHAuth()
+		fetchOpts := &git.FetchOptions{
+			RemoteName: "origin",
+			Progress: botLogger.Writer(logger.WriterOption{
+				DetectLevel: true,
+				StripDate:   true,
+				StripLevel:  true,
+			}),
+			Force: true,
+		}
+		if auth != nil {
+			fetchOpts.Auth = auth
+		}
+
+		if needFetch {
+			log.Printf("[PackageForcedUpdate] 本地找不到远程分支引用，开始 fetch...")
+		} else {
+			log.Printf("[PackageForcedUpdate] 开始 fetch 远程分支...")
+		}
+
+		fetchErr := repo.Fetch(fetchOpts)
+		if fetchErr != nil && fetchErr != git.NoErrAlreadyUpToDate {
+			if needFetch {
+				// 如果是因为找不到分支而 fetch，fetch 失败则返回错误
+				return fmt.Errorf("fetch 远程分支失败: %w (建议检查网络连接和仓库权限)", fetchErr)
+			}
+			// 如果不是因为找不到分支，只是警告
+			log.Printf("[PackageForcedUpdate] fetch 警告: %v (可能不影响后续操作)", fetchErr)
+		} else if fetchErr == git.NoErrAlreadyUpToDate {
+			log.Printf("[PackageForcedUpdate] 远程已是最新")
+		} else {
+			log.Printf("[PackageForcedUpdate] fetch 成功")
+		}
+
+		// fetch 之后重新获取远程分支引用
+		remoteRef, err = repo.Reference(remoteRefName, true)
+		if err != nil {
+			// 尝试列出所有远程分支来帮助调试
+			refs, _ := repo.References()
+			log.Printf("[PackageForcedUpdate] fetch 后仍未找到分支 %s，列出所有引用:", remoteRefName)
+			_ = refs.ForEach(func(ref *plumbing.Reference) error {
+				log.Printf("  - %s", ref.Name())
+				return nil
+			})
+			return fmt.Errorf("未找到远程分支 origin/%s (已尝试 fetch)", branch_name)
+		}
 	}
 
 	worktree, err := repo.Worktree()
 	if err != nil {
 		return errors.New("获取工作区失败")
-	}
-
-	// 优先定位远程分支引用
-	remoteRefName := plumbing.NewRemoteReferenceName("origin", branch_name)
-	log.Printf("[PackageForcedUpdate] 查找远程分支: %s", remoteRefName)
-
-	remoteRef, err := repo.Reference(remoteRefName, true)
-	if err != nil {
-		// 尝试列出所有远程分支来帮助调试
-		refs, _ := repo.References()
-		log.Printf("[PackageForcedUpdate] 未找到分支 %s，列出所有引用:", remoteRefName)
-		_ = refs.ForEach(func(ref *plumbing.Reference) error {
-			log.Printf("  - %s", ref.Name())
-			return nil
-		})
-		return fmt.Errorf("未找到远程分支 origin/%s", branch_name)
 	}
 
 	log.Printf("[PackageForcedUpdate] 找到远程分支: %s (commit: %s)", remoteRefName, remoteRef.Hash().String()[:7])

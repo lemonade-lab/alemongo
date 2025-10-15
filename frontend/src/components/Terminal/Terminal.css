@@ -128,21 +128,64 @@
   padding: 8px;
   /* 背景透明，让 chatgpt-card 显示 */
   background: transparent;
-  overflow: hidden;
+  /* 修复：支持水平和垂直滚动，避免长命令显示空白 */
+  overflow: auto;
+  /* 确保内容不被隐藏 */
+  position: relative;
+  /* 关键修复：确保有最小宽度和高度 */
+  min-width: 0;
+  min-height: 0;
+  /* 确保内容能够正常布局 */
+  width: 100%;
+  height: 100%;
 }
 
 /* xterm.js 样式覆盖 */
 .terminal-content .xterm {
-  height: 100%;
-  width: 100%;
+  /* 关键修复：确保终端占满容器 */
+  height: 100% !important;
+  width: 100% !important;
+  padding: 0;
+  margin: 0;
 }
 
 .terminal-content .xterm-viewport {
   background: transparent !important;
+  /* 修复：确保视口支持垂直滚动 */
+  overflow-y: scroll !important;
+  /* 关键：隐藏水平滚动条，依赖自动换行 */
+  overflow-x: hidden !important;
 }
 
 .terminal-content .xterm-screen {
   background: transparent !important;
+  /* 关键修复：确保屏幕宽度填满视口 */
+  width: 100% !important;
+}
+
+/* 关键修复：确保 xterm 的 canvas 正确渲染 */
+.terminal-content .xterm-text-layer,
+.terminal-content .xterm-selection-layer,
+.terminal-content .xterm-link-layer,
+.terminal-content .xterm-cursor-layer {
+  /* 确保各层都有正确的尺寸 */
+  width: 100% !important;
+}
+
+/* 修复：确保 xterm 的辅助元素（如 textarea）正常工作 */
+.terminal-content .xterm-helper-textarea {
+  /* xterm 使用隐藏的 textarea 来处理输入 */
+  position: absolute !important;
+  opacity: 0;
+  left: -9999em;
+  top: 0;
+  width: 0;
+  height: 0;
+  z-index: -10;
+  /** Prevent wrapping so the IME appears against the textarea at the correct position */
+  white-space: nowrap;
+  overflow: hidden;
+  resize: none;
 }
 
 /* 终端设置 */
@@ -276,6 +319,7 @@
 /* 滚动条样式 */
 .terminal-content::-webkit-scrollbar {
   width: 8px;
+  height: 8px; /* 添加水平滚动条高度 */
 }
 
 .terminal-content::-webkit-scrollbar-track {
@@ -288,6 +332,24 @@
 }
 
 .terminal-content::-webkit-scrollbar-thumb:hover {
+  background: #777;
+}
+
+/* xterm viewport 滚动条样式 */
+.terminal-content .xterm-viewport::-webkit-scrollbar {
+  width: 8px;
+}
+
+.terminal-content .xterm-viewport::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.terminal-content .xterm-viewport::-webkit-scrollbar-thumb {
+  background: #555;
+  border-radius: 4px;
+}
+
+.terminal-content .xterm-viewport::-webkit-scrollbar-thumb:hover {
   background: #777;
 }
 

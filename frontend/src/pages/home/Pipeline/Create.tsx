@@ -248,64 +248,85 @@ const PipelineCreatePage: React.FC = () => {
     switch (step.type) {
       case 'update_app':
         return (
-          <Row gutter={16}>
-            <Col span={12}>
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  机器人名称 <span className="text-red-500">*</span>
-                </label>
-                <Select
-                  value={String(step.config.bot_name || '')}
-                  onChange={(value: string) => {
-                    updateStepConfig(index, 'bot_name', value)
-                    updateStepConfig(index, 'app_name', '') // 清空应用选择
-                    loadPackages(value)
-                  }}
-                  placeholder="请选择机器人"
-                  showSearch
-                  filterOption={(input, option) =>
-                    String(option?.children || '')
-                      .toLowerCase()
-                      .includes(input.toLowerCase())
-                  }
-                >
-                  {bots.map(bot => (
-                    <Option key={bot.name} value={bot.name}>
-                      {bot.name} {bot.status === 1 ? '(运行中)' : '(已停止)'}
-                    </Option>
-                  ))}
-                </Select>
-              </div>
-            </Col>
-            <Col span={12}>
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  应用名称 <span className="text-red-500">*</span>
-                </label>
-                <Select
-                  value={String(step.config.app_name || '')}
-                  onChange={(value: string) =>
-                    updateStepConfig(index, 'app_name', value)
-                  }
-                  placeholder="请选择应用"
-                  loading={loadingPackages}
-                  disabled={!step.config.bot_name}
-                  showSearch
-                  filterOption={(input, option) =>
-                    String(option?.children || '')
-                      .toLowerCase()
-                      .includes(input.toLowerCase())
-                  }
-                >
-                  {packages.map(pkg => (
-                    <Option key={pkg.name} value={pkg.name}>
-                      {pkg.name} {pkg.status === 1 ? '(已安装)' : '(未安装)'}
-                    </Option>
-                  ))}
-                </Select>
-              </div>
-            </Col>
-          </Row>
+          <>
+            <Row gutter={16}>
+              <Col span={12}>
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    机器人名称 <span className="text-red-500">*</span>
+                  </label>
+                  <Select
+                    value={String(step.config.bot_name || '')}
+                    onChange={(value: string) => {
+                      updateStepConfig(index, 'bot_name', value)
+                      updateStepConfig(index, 'app_name', '') // 清空应用选择
+                      loadPackages(value)
+                    }}
+                    placeholder="请选择机器人"
+                    showSearch
+                    filterOption={(input, option) =>
+                      String(option?.children || '')
+                        .toLowerCase()
+                        .includes(input.toLowerCase())
+                    }
+                  >
+                    {bots.map(bot => (
+                      <Option key={bot.name} value={bot.name}>
+                        {bot.name} {bot.status === 1 ? '(运行中)' : '(已停止)'}
+                      </Option>
+                    ))}
+                  </Select>
+                </div>
+              </Col>
+              <Col span={12}>
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    应用名称 <span className="text-red-500">*</span>
+                  </label>
+                  <Select
+                    value={String(step.config.app_name || '')}
+                    onChange={(value: string) =>
+                      updateStepConfig(index, 'app_name', value)
+                    }
+                    placeholder="请选择应用"
+                    loading={loadingPackages}
+                    disabled={!step.config.bot_name}
+                    showSearch
+                    filterOption={(input, option) =>
+                      String(option?.children || '')
+                        .toLowerCase()
+                        .includes(input.toLowerCase())
+                    }
+                  >
+                    {packages.map(pkg => (
+                      <Option key={pkg.name} value={pkg.name}>
+                        {pkg.name} {pkg.status === 1 ? '(已安装)' : '(未安装)'}
+                      </Option>
+                    ))}
+                  </Select>
+                </div>
+              </Col>
+            </Row>
+            <Row gutter={16}>
+              <Col span={24}>
+                <div className="mb-4">
+                  <label className="flex items-center text-sm font-medium text-gray-700">
+                    <Switch
+                      checked={Boolean(step.config.auto_fetch ?? true)}
+                      onChange={(checked: boolean) =>
+                        updateStepConfig(index, 'auto_fetch', checked)
+                      }
+                      className="mr-2"
+                    />
+                    自动获取远程分支{' '}
+                    <Tooltip title="启用后，如果本地找不到目标分支，会自动执行 git fetch 获取最新的远程分支信息，确保能切换到正确的分支。建议保持启用。">
+                      <QuestionCircleOutlined className="ml-1 text-gray-400" />
+                    </Tooltip>
+                  </label>
+                </div>
+              </Col>
+            </Row>
+          </>
         )
       case 'restart_bot':
         return (

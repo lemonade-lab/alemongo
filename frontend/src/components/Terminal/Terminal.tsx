@@ -158,7 +158,10 @@ const Terminal: React.FC<TerminalProps> = ({ className = '' }) => {
       allowTransparency: true,
       allowProposedApi: true,
       // 启用右键菜单
-      rightClickSelectsWord: true
+      rightClickSelectsWord: true,
+      // 不设置固定cols/rows，让FitAddon自动计算
+      windowsMode: false,
+      convertEol: false
     })
 
     // 添加插件
@@ -171,12 +174,40 @@ const Terminal: React.FC<TerminalProps> = ({ className = '' }) => {
     xterm.loadAddon(webLinksAddon)
 
     xterm.open(terminalRef.current)
-    fitAddon.fit()
 
     // 保存引用
     xtermRef.current = xterm
     fitAddonRef.current = fitAddon
     searchAddonRef.current = searchAddon
+
+    // 关键修复：立即fit并等待WebSocket连接后发送尺寸
+    // 使用多次fit确保尺寸计算准确
+    setTimeout(() => {
+      fitAddon.fit()
+    }, 0)
+
+    setTimeout(() => {
+      fitAddon.fit()
+    }, 50)
+
+    setTimeout(() => {
+      fitAddon.fit()
+      // fit完成后，如果WebSocket已连接，立即发送resize消息
+      if (
+        wsRef.current &&
+        wsRef.current.readyState === WebSocket.OPEN &&
+        xtermRef.current
+      ) {
+        const msg: TerminalMessage = {
+          type: 'resize',
+          data: '',
+          cols: xtermRef.current.cols,
+          rows: xtermRef.current.rows
+        }
+        console.log('初始化后发送终端尺寸:', msg)
+        sendMessage(JSON.stringify(msg))
+      }
+    }, 100)
 
     // 处理用户输入
     xterm.onData(data => {
@@ -222,28 +253,52 @@ const Terminal: React.FC<TerminalProps> = ({ className = '' }) => {
       }
     })
 
-    // 处理终端大小变化
+    // 处理终端大小变化 - xterm内部尺寸变化时触发
     xterm.onResize(size => {
+      console.log('终端尺寸变化:', size)
       const msg: TerminalMessage = {
         type: 'resize',
         data: '',
         cols: size.cols,
         rows: size.rows
       }
-      sendMessage(JSON.stringify(msg))
+      // 立即发送给后端，确保PTY尺寸同步
+      if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+        try {
+          wsRef.current.send(JSON.stringify(msg))
+        } catch (error) {
+          console.error('发送resize消息失败:', error)
+        }
+      } else {
+        // 如果WebSocket未连接，加入队列
+        sendMessage(JSON.stringify(msg))
+      }
     })
 
-    // 处理窗口大小变化
+    // 处理窗口大小变化 - 浏览器窗口resize时触发
+    let resizeTimeout: NodeJS.Timeout | null = null
     const handleResize = () => {
-      if (fitAddonRef.current) {
-        fitAddonRef.current.fit()
+      // 防抖：避免频繁调用
+      if (resizeTimeout) {
+        clearTimeout(resizeTimeout)
       }
+
+      resizeTimeout = setTimeout(() => {
+        if (fitAddonRef.current) {
+          console.log('窗口大小变化，重新fit')
+          fitAddonRef.current.fit()
+          // fit()会触发xterm.onResize，自动发送resize消息到后端
+        }
+      }, 100) // 100ms 防抖
     }
 
     window.addEventListener('resize', handleResize)
 
     return () => {
       window.removeEventListener('resize', handleResize)
+      if (resizeTimeout) {
+        clearTimeout(resizeTimeout)
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isDark])
@@ -277,31 +332,67 @@ const Terminal: React.FC<TerminalProps> = ({ className = '' }) => {
         console.log('WebSocket连接成功')
         setIsConnected(true)
         setIsConnecting(false)
+
+        // 关键修复：连接成功后立即发送终端尺寸到后端
+        // 必须在接收任何输出之前完成，确保后端PTY尺寸与前端xterm一致
+        setTimeout(() => {
+          if (
+            xtermRef.current &&
+            wsRef.current?.readyState === WebSocket.OPEN
+          ) {
+            const msg: TerminalMessage = {
+              type: 'resize',
+              data: '',
+              cols: xtermRef.current.cols,
+              rows: xtermRef.current.rows
+            }
+            console.log('WebSocket连接后发送终端尺寸:', msg)
+            try {
+              wsRef.current.send(JSON.stringify(msg))
+              console.log('终端尺寸发送成功')
+            } catch (error) {
+              console.error('发送初始尺寸失败:', error)
+            }
+          }
+        }, 50) // 稍微延迟，确保连接完全建立
       }
 
       ws.onmessage = event => {
         try {
           const msg: TerminalMessage = JSON.parse(event.data)
-          console.log('收到WebSocket消息:', msg)
+          // 减少日志输出，避免控制台刷屏
+          if (msg.type !== 'output') {
+            console.log('收到WebSocket消息:', msg.type)
+          }
 
           switch (msg.type) {
             case 'session':
               setSessionId(msg.data)
+              console.log('终端会话ID:', msg.data)
               break
             case 'output':
-              if (xtermRef.current) {
-                xtermRef.current.write(msg.data)
+              if (xtermRef.current && msg.data) {
+                // 关键修复：直接写入，不做任何处理
+                // xterm.js 会自动处理ANSI转义序列和换行
+                try {
+                  xtermRef.current.write(msg.data)
+                } catch (error) {
+                  console.error('写入终端数据失败:', error)
+                }
               }
               break
             case 'error':
+              console.error('终端错误:', msg.data)
               message.error(`终端错误: ${msg.data}`)
               break
             case 'pong':
-              // 心跳响应
+              // 心跳响应，不需要处理
               break
+            default:
+              console.warn('未知消息类型:', msg.type)
           }
         } catch (error) {
-          console.error('解析WebSocket消息失败:', error)
+          console.error('解析WebSocket消息失败:', error, event.data)
         }
       }
 
@@ -393,8 +484,27 @@ const Terminal: React.FC<TerminalProps> = ({ className = '' }) => {
   const clearTerminal = useCallback(() => {
     if (xtermRef.current) {
       xtermRef.current.clear()
+      // 可选：向后端发送 Ctrl+L 来清屏
+      const msg: TerminalMessage = {
+        type: 'input',
+        data: '\x0c' // Ctrl+L
+      }
+      sendMessage(JSON.stringify(msg))
     }
-  }, [])
+  }, [sendMessage])
+
+  // 重置终端（更彻底的清理）
+  const resetTerminal = useCallback(() => {
+    if (xtermRef.current) {
+      xtermRef.current.reset()
+      // 向后端发送 reset 命令
+      const msg: TerminalMessage = {
+        type: 'input',
+        data: 'reset\r' // 执行 reset 命令
+      }
+      sendMessage(JSON.stringify(msg))
+    }
+  }, [sendMessage])
 
   // 初始化
   useEffect(() => {
@@ -589,7 +699,10 @@ const Terminal: React.FC<TerminalProps> = ({ className = '' }) => {
         <div className="terminal-settings">
           <Space direction="vertical" style={{ width: '100%' }}>
             <Button onClick={clearTerminal} block>
-              清空终端
+              清空终端 (Ctrl+L)
+            </Button>
+            <Button onClick={resetTerminal} block type="primary">
+              重置终端 (执行 reset 命令)
             </Button>
             <Button onClick={reconnect} block loading={isConnecting}>
               重新连接

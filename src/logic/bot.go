@@ -263,7 +263,7 @@ func PackageDelete(name, app_name string) error {
 	return dao.PackageDelete(packagePath)
 }
 
-func PackegForcedUpdate(name, repo_name, branch_name string, botLogger *logger.RobotLoggerWriter) error {
+func PackegForcedUpdate(name, repo_name, branch_name string, botLogger *logger.RobotLoggerWriter, autoFetch bool) error {
 	if name == "" {
 		return errors.New("机器人名不能为空")
 	}
@@ -290,7 +290,7 @@ func PackegForcedUpdate(name, repo_name, branch_name string, botLogger *logger.R
 		return fmt.Errorf(".git 目录不存在: %s (该应用可能不是通过 git clone 安装的)", gitPath)
 	}
 
-	return dao.PackageForcedUpdate(repoPath, branch_name, botLogger)
+	return dao.PackageForcedUpdate(repoPath, branch_name, botLogger, autoFetch)
 }
 
 func PackagesGitCheckout(name, repo_url, isForce, branch_name, commitHash string) error {

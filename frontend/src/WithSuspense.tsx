@@ -15,7 +15,7 @@ class ErrorBoundary extends Component<
     return { hasError: true, error }
   }
 
-  componentDidCatch(error: Error, errorInfo: any) {
+  componentDidCatch(error: Error, errorInfo) {
     console.error('动态导入错误:', error)
     console.error('错误信息:', errorInfo)
   }
@@ -41,10 +41,35 @@ class ErrorBoundary extends Component<
             {this.state.error && (
               <details className="mt-4 text-left">
                 <summary className="cursor-pointer text-sm text-gray-500">
-                  查看错误详情
+                  查看错误详情{' '}
+                  <button
+                    className="ml-2 px-2 py-1 text-xs bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 rounded transition-colors"
+                    onClick={e => {
+                      e.preventDefault()
+                      e.stopPropagation()
+                      navigator.clipboard
+                        .writeText(
+                          `错误信息:\n${this.state.error?.message}\n\n堆栈信息:\n${this.state.error?.stack || '无'}`
+                        )
+                        .then(() => {
+                          alert('错误信息已复制到剪贴板')
+                        })
+                        .catch(() => {
+                          alert('复制失败，请手动复制')
+                        })
+                    }}
+                  >
+                    复制信息
+                  </button>
                 </summary>
                 <pre className="mt-2 p-2 bg-gray-100 dark:bg-gray-800 rounded text-xs overflow-auto">
                   {this.state.error.message}
+                  {this.state.error.stack && (
+                    <>
+                      {'\n\n堆栈信息:\n'}
+                      {this.state.error.stack}
+                    </>
+                  )}
                 </pre>
               </details>
             )}

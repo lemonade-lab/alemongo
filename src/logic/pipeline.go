@@ -427,8 +427,15 @@ func executeUpdateAppStep(stepExecution *models.PipelineStepExecution, pipeline 
 
 	logs = append(logs, fmt.Sprintf("切换到分支: %s 并拉取最新代码", eventBranch))
 
+	// 获取 auto_fetch 配置，默认为 true
+	autoFetch := true
+	if autoFetchVal, ok := stepExecution.Config["auto_fetch"].(bool); ok {
+		autoFetch = autoFetchVal
+	}
+	logs = append(logs, fmt.Sprintf("自动获取远程分支: %v", autoFetch))
+
 	// 执行应用更新（checkout 到事件分支并 pull）
-	err = PackegForcedUpdate(botName, appName, eventBranch, botLoggerWriter)
+	err = PackegForcedUpdate(botName, appName, eventBranch, botLoggerWriter, autoFetch)
 	if err != nil {
 		logs = append(logs, fmt.Sprintf("应用更新失败: %v", err))
 		return logs, err
