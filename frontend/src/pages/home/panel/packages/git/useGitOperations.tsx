@@ -16,8 +16,8 @@ import {
   BotPackagesGitBranches,
   BotPackagesGitBranchCommitsInfo
 } from '@/api'
-import type { GitManagerState, GitManagerAction } from '../types'
-import { showConfirmModal } from '../components/ConfirmModal'
+import type { GitManagerState, GitManagerAction } from './types'
+import { showConfirmModal } from './ConfirmModal'
 
 interface UseGitOperationsProps {
   botName: string

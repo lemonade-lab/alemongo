@@ -1,6 +1,6 @@
 import { Modal } from 'antd'
 import { ExclamationCircleOutlined } from '@ant-design/icons'
-import type { ConfirmModalConfig } from '../types'
+import type { ConfirmModalConfig } from './types'
 
 /**
  * 通用确认对话框

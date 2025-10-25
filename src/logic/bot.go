@@ -651,7 +651,30 @@ func PackageGitCommitsLocal(repoPath, branch_name string) ([]models.BotPackagesG
 		// 如果本地分支不存在，尝试远程分支
 		branchRef, err = repo.Reference(plumbing.NewRemoteReferenceName("origin", branch_name), true)
 		if err != nil {
-			return nil, fmt.Errorf("找不到分支 %s: %w", branch_name, err)
+			// 如果远程分支也找不到，尝试 fetch 更新远程分支信息
+			log.Printf("[PackageGitCommitsLocal] 本地找不到分支 %s，尝试 fetch 更新远程分支信息", branch_name)
+
+			auth, _ := utils.GetSSHAuth()
+			fetchOpts := &git.FetchOptions{
+				RemoteName: "origin",
+				Force:      true,
+			}
+			if auth != nil {
+				fetchOpts.Auth = auth
+			}
+
+			fetchErr := repo.Fetch(fetchOpts)
+			if fetchErr != nil && fetchErr != git.NoErrAlreadyUpToDate {
+				log.Printf("[PackageGitCommitsLocal] fetch 失败: %v", fetchErr)
+				return nil, fmt.Errorf("找不到分支 %s，且 fetch 远程分支失败: %w", branch_name, fetchErr)
+			}
+
+			// fetch 后重新尝试获取远程分支引用
+			branchRef, err = repo.Reference(plumbing.NewRemoteReferenceName("origin", branch_name), true)
+			if err != nil {
+				return nil, fmt.Errorf("找不到分支 %s (已尝试 fetch): %w", branch_name, err)
+			}
+			log.Printf("[PackageGitCommitsLocal] fetch 成功，找到远程分支 %s", branch_name)
 		}
 	}
 
@@ -660,10 +683,51 @@ func PackageGitCommitsLocal(repoPath, branch_name string) ([]models.BotPackagesG
 		return nil, fmt.Errorf("分支 %s 的哈希值无效", branch_name)
 	}
 
+	log.Printf("[PackageGitCommitsLocal] 尝试获取分支 %s 的提交历史，哈希: %s", branch_name, branchRef.Hash().String()[:7])
+
 	// 获取提交历史
 	commitIter, err := repo.Log(&git.LogOptions{From: branchRef.Hash()})
 	if err != nil {
-		return nil, fmt.Errorf("获取提交历史失败: %w", err)
+		// 如果获取提交历史失败（可能是 object not found），尝试 fetch 并重试
+		if strings.Contains(err.Error(), "object not found") || strings.Contains(err.Error(), "object does not exist") {
+			log.Printf("[PackageGitCommitsLocal] 提交对象不存在，尝试 fetch 更新")
+
+			auth, _ := utils.GetSSHAuth()
+			fetchOpts := &git.FetchOptions{
+				RemoteName: "origin",
+				Force:      true,
+			}
+			if auth != nil {
+				fetchOpts.Auth = auth
+			}
+
+			fetchErr := repo.Fetch(fetchOpts)
+			if fetchErr != nil && fetchErr != git.NoErrAlreadyUpToDate {
+				log.Printf("[PackageGitCommitsLocal] fetch 失败: %v", fetchErr)
+				return nil, fmt.Errorf("获取提交历史失败: %w (fetch 也失败: %v)", err, fetchErr)
+			}
+
+			// fetch 后重新获取分支引用
+			log.Printf("[PackageGitCommitsLocal] fetch 完成，重新获取分支引用")
+			branchRef, err = repo.Reference(plumbing.NewRemoteReferenceName("origin", branch_name), true)
+			if err != nil {
+				// 如果远程分支获取失败，尝试本地分支
+				branchRef, err = repo.Reference(plumbing.NewBranchReferenceName(branch_name), true)
+				if err != nil {
+					return nil, fmt.Errorf("fetch 后仍无法找到分支 %s: %w", branch_name, err)
+				}
+			}
+
+			// 重新尝试获取提交历史
+			log.Printf("[PackageGitCommitsLocal] 使用新的分支引用重试，哈希: %s", branchRef.Hash().String()[:7])
+			commitIter, err = repo.Log(&git.LogOptions{From: branchRef.Hash()})
+			if err != nil {
+				return nil, fmt.Errorf("fetch 后获取提交历史仍然失败: %w", err)
+			}
+			log.Printf("[PackageGitCommitsLocal] fetch 后成功获取提交历史")
+		} else {
+			return nil, fmt.Errorf("获取提交历史失败: %w", err)
+		}
 	}
 
 	var commits []models.BotPackagesGitBranchCommitsInfo
