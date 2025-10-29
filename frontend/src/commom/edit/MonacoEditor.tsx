@@ -1,15 +1,15 @@
-import MonacoEditorReact, { EditorProps } from '@monaco-editor/react'
+import MonacoEditorReact, { EditorProps, loader } from '@monaco-editor/react'
+import * as monaco from 'monaco-editor'
 import { createMonacoChineseConfig } from './monacoI18n'
 import { useEffect } from 'react'
-
 const MonacoEditor = (
   props: EditorProps & {
-    disabled: boolean
+    disabled?: boolean
     onSave: () => void
   }
 ) => {
   const {
-    disabled,
+    disabled = false,
     onSave,
     value,
     language,
@@ -21,7 +21,10 @@ const MonacoEditor = (
   } = props
 
   // 获取MonacoEditor稳定配置
-  const monacoConfig = createMonacoChineseConfig(language, theme)
+  const monacoConfig = createMonacoChineseConfig(
+    language ?? 'text',
+    theme ?? ''
+  )
 
   // 添加全局快捷键处理
   useEffect(() => {
@@ -43,9 +46,15 @@ const MonacoEditor = (
       document.removeEventListener('keydown', handleKeyDown)
     }
   }, [disabled, onSave, value, language, width, height, onChange, theme])
-
+  const onLoad = () => {
+    loader.config({ monaco })
+  }
+  useEffect(() => {
+    onLoad()
+  }, [])
   return (
     <MonacoEditorReact
+      loading={<div></div>}
       value={value}
       language={language}
       width={width}

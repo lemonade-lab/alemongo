@@ -2,7 +2,6 @@ import { defineConfig } from 'vite'
 import { fileURLToPath, URL } from 'url'
 import react from '@vitejs/plugin-react-swc'
 import viteCompression from 'vite-plugin-compression'
-import { VitePWA } from 'vite-plugin-pwa'
 
 // https://vite.dev/config/
 const NODE_ENV = process.env.NODE_ENV === 'development'
@@ -11,11 +10,7 @@ export default defineConfig({
   plugins: [
     react(),
     viteCompression({ algorithm: 'gzip', ext: '.gz' }),
-    viteCompression({ algorithm: 'brotliCompress', ext: '.br' }),
-    VitePWA({
-      registerType: 'autoUpdate',
-      outDir: outDir
-    })
+    viteCompression({ algorithm: 'brotliCompress', ext: '.br' })
   ],
   resolve: {
     alias: [

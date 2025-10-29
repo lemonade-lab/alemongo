@@ -37,9 +37,6 @@ export const baseOptions: EditorProps['options'] = {
   // 括号匹配
   bracketPairColorization: { enabled: true },
 
-  // 自动保存
-  autoSave: 'off',
-
   // 只读模式
   readOnly: false,
 
@@ -77,12 +74,12 @@ export const createMonacoChineseConfig = (
     },
     onMount: (editor, monaco) => {
       // 设置编辑器语言
-      monaco.editor.setModelLanguage(editor.getModel(), language)
+      const model = editor.getModel()
+      if (model) monaco.editor.setModelLanguage(model, language)
 
       // 配置编辑器选项
       editor.updateOptions({
         ...baseOptions,
-        language,
         theme: theme === 'vs-dark' ? 'vs-dark' : 'vs'
       })
 
