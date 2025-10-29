@@ -3,13 +3,13 @@ package gitssh
 import (
 	"alemongo/src/apps/api/response"
 	"alemongo/src/paths"
+	"alemongo/src/utils"
 	"context"
 	"fmt"
 	"log"
 	"net"
 	"net/http"
 	"os"
-	"os/exec"
 	"regexp"
 	"strconv"
 	"strings"
@@ -112,7 +112,7 @@ func addHostToKnownHosts(hostname string) error {
 	defer cancel()
 
 	// 添加更多密钥类型支持
-	cmd := exec.CommandContext(ctx, "ssh-keyscan", hostname)
+	cmd := utils.CommandContext(ctx, "ssh-keyscan", hostname)
 	output, err := cmd.Output()
 	if err != nil {
 		if ctx.Err() == context.DeadlineExceeded {
@@ -201,7 +201,7 @@ func checkHashedKnownHost(knownHostsPath, hostname string) bool {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	cmd := exec.CommandContext(ctx, "ssh-keygen", "-F", hostname, "-f", knownHostsPath)
+	cmd := utils.CommandContext(ctx, "ssh-keygen", "-F", hostname, "-f", knownHostsPath)
 	err := cmd.Run()
 	return err == nil
 }

@@ -3,6 +3,7 @@
 package firewall
 
 import (
+	"alemongo/src/utils"
 	"bytes"
 	"fmt"
 	"os/exec"
@@ -114,7 +115,7 @@ func runCapture(args []string) (string, error) {
 	if len(args) == 0 {
 		return "", fmt.Errorf("no command")
 	}
-	cmd := exec.Command(args[0], args[1:]...)
+	cmd := utils.Command(args[0], args[1:]...)
 	var buf bytes.Buffer
 	cmd.Stdout = &buf
 	cmd.Stderr = &buf

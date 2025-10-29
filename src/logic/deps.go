@@ -2,6 +2,7 @@ package logic
 
 import (
 	"alemongo/src/models"
+	"alemongo/src/utils"
 	"context"
 	"fmt"
 	"os"
@@ -50,7 +51,7 @@ func runWithTimeout(cmdStr string) (string, error) {
 	// run via bash -lc to resolve shell functions like nvm
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
-	cmd := exec.CommandContext(ctx, "bash", "-lc", cmdStr)
+	cmd := utils.CommandContext(ctx, "bash", "-lc", cmdStr)
 	out, err := cmd.CombinedOutput()
 	if ctx.Err() == context.DeadlineExceeded {
 		return "", fmt.Errorf("命令超时: %s", cmdStr)

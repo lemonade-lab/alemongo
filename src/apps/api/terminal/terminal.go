@@ -16,6 +16,7 @@ import (
 
 	"alemongo/src/dao"
 	"alemongo/src/pkgs/jwt"
+	"alemongo/src/utils"
 
 	"github.com/creack/pty"
 	"github.com/gin-gonic/gin"
@@ -96,7 +97,7 @@ func (tm *TerminalManager) CreateSession(sessionID string) (*TerminalSession, er
 
 	// 创建命令
 	ctx, cancel := context.WithCancel(context.Background())
-	cmd := exec.CommandContext(ctx, shell, args...)
+	cmd := utils.CommandContext(ctx, shell, args...)
 
 	// 设置工作目录为用户主目录
 	homeDir, err := os.UserHomeDir()

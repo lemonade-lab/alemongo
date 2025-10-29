@@ -2,10 +2,10 @@ package tasks
 
 import (
 	"alemongo/src/models"
+	"alemongo/src/utils"
 	"context"
 	"errors"
 	"fmt"
-	"os/exec"
 	"sort"
 	"strings"
 	"sync"
@@ -64,7 +64,7 @@ func (r *Runner) execute(t *models.Task) {
 	for i, cmdStr := range t.Commands {
 		r.appendLog(t.ID, "[%d/%d] $ %s", i+1, len(t.Commands), cmdStr)
 		// 通过 bash -lc 执行以兼容 nvm 等 shell 函数
-		cmd := exec.CommandContext(ctx, "bash", "-lc", cmdStr)
+		cmd := utils.CommandContext(ctx, "bash", "-lc", cmdStr)
 		out, err := cmd.CombinedOutput()
 		if len(out) > 0 {
 			r.appendLog(t.ID, "%s", strings.TrimRight(string(out), "\n"))

@@ -1,8 +1,8 @@
 package logic
 
 import (
+	"alemongo/src/utils"
 	"fmt"
-	"os/exec"
 	"runtime"
 	"strconv"
 	"strings"
@@ -80,7 +80,7 @@ func getCPUInfo() (*CPUInfo, error) {
 	switch runtime.GOOS {
 	case "windows":
 		// Windows: 使用wmic获取CPU信息
-		cmd := exec.Command("wmic", "cpu", "get", "name,loadpercentage", "/format:csv")
+		cmd := utils.Command("wmic", "cpu", "get", "name,loadpercentage", "/format:csv")
 		output, err := cmd.Output()
 		if err != nil {
 			return nil, err
@@ -89,21 +89,21 @@ func getCPUInfo() (*CPUInfo, error) {
 
 	case "darwin":
 		// macOS: 使用sysctl和top获取CPU信息
-		cmd := exec.Command("sysctl", "-n", "machdep.cpu.brand_string")
+		cmd := utils.Command("sysctl", "-n", "machdep.cpu.brand_string")
 		output, err := cmd.Output()
 		if err == nil {
 			cpuInfo.Model = strings.TrimSpace(string(output))
 		}
 
 		// 获取CPU使用率
-		cmd = exec.Command("top", "-l", "1", "-n", "0")
+		cmd = utils.Command("top", "-l", "1", "-n", "0")
 		output, err = cmd.Output()
 		if err == nil {
 			parseMacOSCPUInfo(output, cpuInfo)
 		}
 
 		// 获取负载平均值
-		cmd = exec.Command("uptime")
+		cmd = utils.Command("uptime")
 		output, err = cmd.Output()
 		if err == nil {
 			parseLoadAvg(string(output), cpuInfo)
@@ -111,14 +111,14 @@ func getCPUInfo() (*CPUInfo, error) {
 
 	case "linux":
 		// Linux: 使用/proc/cpuinfo和/proc/loadavg
-		cmd := exec.Command("cat", "/proc/cpuinfo")
+		cmd := utils.Command("cat", "/proc/cpuinfo")
 		output, err := cmd.Output()
 		if err == nil {
 			parseLinuxCPUInfo(output, cpuInfo)
 		}
 
 		// 获取负载平均值
-		cmd = exec.Command("cat", "/proc/loadavg")
+		cmd = utils.Command("cat", "/proc/loadavg")
 		output, err = cmd.Output()
 		if err == nil {
 			parseLoadAvg(string(output), cpuInfo)
@@ -138,7 +138,7 @@ func getMemoryInfo() (*MemoryInfo, error) {
 	switch runtime.GOOS {
 	case "windows":
 		// Windows: 使用wmic获取内存信息
-		cmd := exec.Command("wmic", "OS", "get", "TotalVisibleMemorySize,FreePhysicalMemory", "/format:csv")
+		cmd := utils.Command("wmic", "OS", "get", "TotalVisibleMemorySize,FreePhysicalMemory", "/format:csv")
 		output, err := cmd.Output()
 		if err != nil {
 			return nil, err
@@ -147,7 +147,7 @@ func getMemoryInfo() (*MemoryInfo, error) {
 
 	case "darwin":
 		// macOS: 使用vm_stat获取内存信息
-		cmd := exec.Command("vm_stat")
+		cmd := utils.Command("vm_stat")
 		output, err := cmd.Output()
 		if err != nil {
 			return nil, err
@@ -156,7 +156,7 @@ func getMemoryInfo() (*MemoryInfo, error) {
 
 	case "linux":
 		// Linux: 使用/proc/meminfo获取内存信息
-		cmd := exec.Command("cat", "/proc/meminfo")
+		cmd := utils.Command("cat", "/proc/meminfo")
 		output, err := cmd.Output()
 		if err != nil {
 			return nil, err
@@ -179,7 +179,7 @@ func getDiskInfo() (*DiskInfo, error) {
 	switch runtime.GOOS {
 	case "windows":
 		// Windows: 使用wmic获取磁盘信息
-		cmd := exec.Command("wmic", "logicaldisk", "where", "size>0", "get", "size,freespace", "/format:csv")
+		cmd := utils.Command("wmic", "logicaldisk", "where", "size>0", "get", "size,freespace", "/format:csv")
 		output, err := cmd.Output()
 		if err != nil {
 			return nil, err
@@ -188,7 +188,7 @@ func getDiskInfo() (*DiskInfo, error) {
 
 	case "darwin", "linux":
 		// macOS/Linux: 使用df获取磁盘信息
-		cmd := exec.Command("df", "-h", "/")
+		cmd := utils.Command("df", "-h", "/")
 		output, err := cmd.Output()
 		if err != nil {
 			return nil, err
@@ -208,7 +208,7 @@ func getDiskInfo() (*DiskInfo, error) {
 func getUptime() (string, error) {
 	switch runtime.GOOS {
 	case "windows":
-		cmd := exec.Command("wmic", "os", "get", "lastbootuptime", "/format:value")
+		cmd := utils.Command("wmic", "os", "get", "lastbootuptime", "/format:value")
 		output, err := cmd.Output()
 		if err != nil {
 			return "", err
@@ -216,11 +216,11 @@ func getUptime() (string, error) {
 		return parseWindowsUptime(string(output))
 
 	case "darwin", "linux":
-		cmd := exec.Command("uptime", "-p")
+		cmd := utils.Command("uptime", "-p")
 		output, err := cmd.Output()
 		if err != nil {
 			// 如果uptime -p不支持，使用uptime
-			cmd = exec.Command("uptime")
+			cmd = utils.Command("uptime")
 			output, err = cmd.Output()
 			if err != nil {
 				return "", err
@@ -300,7 +300,7 @@ func parseLoadAvg(output string, cpuInfo *CPUInfo) {
 
 func getLinuxCPUUsage() float64 {
 	// 简化的Linux CPU使用率计算
-	cmd := exec.Command("grep", "cpu ", "/proc/stat")
+	cmd := utils.Command("grep", "cpu ", "/proc/stat")
 	_, err := cmd.Output()
 	if err != nil {
 		return 0

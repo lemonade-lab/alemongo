@@ -5,10 +5,10 @@ import (
 	"alemongo/src/logic"
 	"alemongo/src/models"
 	config "alemongo/src/paths"
+	"alemongo/src/utils"
 	"fmt"
 	"net/http"
 	"os"
-	"os/exec"
 	"strconv"
 	"strings"
 
@@ -214,7 +214,7 @@ func GitFetch(c *gin.Context) {
 	}
 
 	// 获取当前分支
-	cmd := exec.Command("git", "-C", packagePath, "rev-parse", "--abbrev-ref", "HEAD")
+	cmd := utils.Command("git", "-C", packagePath, "rev-parse", "--abbrev-ref", "HEAD")
 	branchOutput, _ := cmd.Output()
 	currentBranch := strings.TrimSpace(string(branchOutput))
 
@@ -240,7 +240,7 @@ func GitFetch(c *gin.Context) {
 	}
 
 	// 获取远程分支列表
-	cmd = exec.Command("git", "-C", packagePath, "branch", "-r")
+	cmd = utils.Command("git", "-C", packagePath, "branch", "-r")
 	remoteBranchOutput, _ := cmd.Output()
 	remoteBranchLines := strings.Split(strings.TrimSpace(string(remoteBranchOutput)), "\n")
 	var remoteBranches []string
@@ -275,7 +275,7 @@ func GitFetch(c *gin.Context) {
 	ahead := 0
 	behind := 0
 	if currentBranch != "" {
-		cmd = exec.Command("git", "-C", packagePath, "rev-list", "--count", "--left-right", currentBranch+"...origin/"+currentBranch)
+		cmd = utils.Command("git", "-C", packagePath, "rev-list", "--count", "--left-right", currentBranch+"...origin/"+currentBranch)
 		revOutput, err := cmd.Output()
 		if err == nil {
 			parts := strings.Fields(strings.TrimSpace(string(revOutput)))

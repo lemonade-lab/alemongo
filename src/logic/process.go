@@ -2,6 +2,7 @@ package logic
 
 import (
 	"alemongo/src/models"
+	"alemongo/src/utils"
 	"context"
 	"os/exec"
 	"runtime"
@@ -36,7 +37,7 @@ func GetProcessPorts(pid int) (*models.ProcessPortInfo, error) {
 				Error: "netstat 未安装或不可用，无法查询进程端口",
 			}, nil
 		}
-		cmd = exec.CommandContext(ctx, "netstat", "-ano")
+		cmd = utils.CommandContext(ctx, "netstat", "-ano")
 	case "darwin", "linux":
 		// macOS/Linux使用lsof命令
 		if _, err := exec.LookPath("lsof"); err != nil {
@@ -46,7 +47,7 @@ func GetProcessPorts(pid int) (*models.ProcessPortInfo, error) {
 				Error: "lsof 未安装或不可用，请先安装 lsof 后重试（容器中已包含；若自建环境请安装）",
 			}, nil
 		}
-		cmd = exec.CommandContext(ctx, "lsof", "-Pan", "-p", pidStr, "-i")
+		cmd = utils.CommandContext(ctx, "lsof", "-Pan", "-p", pidStr, "-i")
 	default:
 		return &models.ProcessPortInfo{
 			PID:   pid,

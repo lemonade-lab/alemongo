@@ -4,6 +4,7 @@ import (
 	"alemongo/src/logger"
 	"alemongo/src/paths"
 	"alemongo/src/settings"
+	"alemongo/src/utils"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -180,7 +181,7 @@ func (mp *ManagedProcess) Start() error {
 		botLoggerWriter = logger.NewRobotLoggerWriter(botLogger)
 	}
 	mp.Ctx, mp.Cancel = context.WithCancel(context.Background())
-	mp.Cmd = exec.CommandContext(mp.Ctx, mp.Config.Node, mp.Config.ScriptJS)
+	mp.Cmd = utils.CommandContext(mp.Ctx, mp.Config.Node, mp.Config.ScriptJS)
 	mp.Cmd.Env = LoadEnvironment(mp.Config.EnvFilePath)
 	// 还要支持，直接传入的环境变量 mp.Config.Env
 	for key, value := range mp.Config.Env {

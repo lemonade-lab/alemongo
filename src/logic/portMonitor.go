@@ -2,6 +2,7 @@ package logic
 
 import (
 	"alemongo/src/models"
+	"alemongo/src/utils"
 	"fmt"
 	"os/exec"
 	"runtime"
@@ -19,13 +20,13 @@ func GetAllPorts() ([]models.PortInfo, error) {
 		if _, err := exec.LookPath("netstat"); err != nil {
 			return nil, fmt.Errorf("依赖命令缺失: netstat 不存在，请安装 net-tools 或在支持的环境运行: %w", err)
 		}
-		cmd = exec.Command("netstat", "-ano")
+		cmd = utils.Command("netstat", "-ano")
 	case "darwin", "linux":
 		// macOS/Linux使用lsof命令
 		if _, err := exec.LookPath("lsof"); err != nil {
 			return nil, fmt.Errorf("依赖命令缺失: lsof 不存在，请在容器内安装 lsof 或切换到宿主机运行: %w", err)
 		}
-		cmd = exec.Command("lsof", "-i", "-P", "-n")
+		cmd = utils.Command("lsof", "-i", "-P", "-n")
 	default:
 		return nil, fmt.Errorf("不支持的操作系统")
 	}

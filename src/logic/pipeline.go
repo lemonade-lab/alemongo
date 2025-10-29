@@ -5,12 +5,12 @@ import (
 	"alemongo/src/logger"
 	"alemongo/src/models"
 	"alemongo/src/settings"
+	"alemongo/src/utils"
 	"context"
 	"errors"
 	"fmt"
 	"log"
 	"os"
-	"os/exec"
 	"strings"
 	"time"
 
@@ -569,7 +569,7 @@ func executeCustomCommandStep(stepExecution *models.PipelineStepExecution, pipel
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
 	defer cancel()
 
-	cmd := exec.CommandContext(ctx, "sh", "-c", command)
+	cmd := utils.CommandContext(ctx, "sh", "-c", command)
 	cmd.Dir = workingDir
 
 	// 设置环境变量 (继承父进程环境变量)

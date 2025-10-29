@@ -5,7 +5,6 @@ import (
 	"errors"
 	"io/fs"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -79,13 +78,6 @@ func GetDirNames(dir string) ([]string, error) {
 		}
 	}
 	return names, nil
-}
-
-// Command 创建一个新的命令
-func Command(name string, arg ...string) *exec.Cmd {
-	cmd := exec.Command(name, arg...)
-	cmd.Env = os.Environ()
-	return cmd
 }
 
 // 通用资源复制函数，此处用于更新机器人template

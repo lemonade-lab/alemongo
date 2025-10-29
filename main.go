@@ -57,9 +57,9 @@ func getPortPID(port string) (string, error) {
 
 	switch runtime.GOOS {
 	case "windows":
-		cmd = exec.Command("netstat", "-ano")
+		cmd = utils.Command("netstat", "-ano")
 	case "darwin", "linux":
-		cmd = exec.Command("lsof", "-i", ":"+port)
+		cmd = utils.Command("lsof", "-i", ":"+port)
 	default:
 		return "", fmt.Errorf("不支持的操作系统")
 	}
@@ -99,9 +99,9 @@ func killProcess(pid string) error {
 
 	switch runtime.GOOS {
 	case "windows":
-		cmd = exec.Command("taskkill", "/F", "/PID", pid)
+		cmd = utils.Command("taskkill", "/F", "/PID", pid)
 	case "darwin", "linux":
-		cmd = exec.Command("kill", "-9", pid)
+		cmd = utils.Command("kill", "-9", pid)
 	default:
 		return fmt.Errorf("不支持的操作系统")
 	}

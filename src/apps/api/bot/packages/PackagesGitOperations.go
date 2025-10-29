@@ -5,10 +5,10 @@ import (
 	"alemongo/src/logic"
 	"alemongo/src/models"
 	config "alemongo/src/paths"
+	"alemongo/src/utils"
 	"fmt"
 	"net/http"
 	"os"
-	"os/exec"
 	"strconv"
 	"strings"
 
@@ -210,7 +210,7 @@ func GitStatus(c *gin.Context) {
 	}
 
 	// 获取当前分支
-	cmd := exec.Command("git", "-C", packagePath, "rev-parse", "--abbrev-ref", "HEAD")
+	cmd := utils.Command("git", "-C", packagePath, "rev-parse", "--abbrev-ref", "HEAD")
 	branchOutput, err := cmd.Output()
 	if err != nil {
 		response.ResponseErrorWithMsg(c, http.StatusInternalServerError, http.StatusInternalServerError, fmt.Sprintf("获取当前分支失败: %v", err))
@@ -219,7 +219,7 @@ func GitStatus(c *gin.Context) {
 	currentBranch := strings.TrimSpace(string(branchOutput))
 
 	// 获取工作区状态
-	cmd = exec.Command("git", "-C", packagePath, "status", "--porcelain")
+	cmd = utils.Command("git", "-C", packagePath, "status", "--porcelain")
 	statusOutput, err := cmd.Output()
 	if err != nil {
 		response.ResponseErrorWithMsg(c, http.StatusInternalServerError, http.StatusInternalServerError, fmt.Sprintf("获取工作区状态失败: %v", err))
@@ -297,7 +297,7 @@ func GitCheckout(c *gin.Context) {
 
 	// 检查工作区是否有未提交的修改
 	if !force {
-		cmd := exec.Command("git", "-C", packagePath, "status", "--porcelain")
+		cmd := utils.Command("git", "-C", packagePath, "status", "--porcelain")
 		statusOutput, err := cmd.Output()
 		if err != nil {
 			response.ResponseErrorWithMsg(c, http.StatusInternalServerError, http.StatusInternalServerError, fmt.Sprintf("获取工作区状态失败: %v", err))
@@ -316,7 +316,7 @@ func GitCheckout(c *gin.Context) {
 	}
 	args = append(args, branchName)
 
-	cmd := exec.Command("git", args...)
+	cmd := utils.Command("git", args...)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		response.ResponseErrorWithMsg(c, http.StatusInternalServerError, http.StatusInternalServerError, fmt.Sprintf("切换分支失败: %v, output: %s", err, string(output)))
@@ -360,7 +360,7 @@ func GitDiscardChanges(c *gin.Context) {
 	}
 
 	// 放弃所有修改：git reset --hard HEAD
-	cmd := exec.Command("git", "-C", packagePath, "reset", "--hard", "HEAD")
+	cmd := utils.Command("git", "-C", packagePath, "reset", "--hard", "HEAD")
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		response.ResponseErrorWithMsg(c, http.StatusInternalServerError, http.StatusInternalServerError, fmt.Sprintf("放弃修改失败: %v, output: %s", err, string(output)))
@@ -368,7 +368,7 @@ func GitDiscardChanges(c *gin.Context) {
 	}
 
 	// 清理未跟踪的文件：git clean -fd
-	cmd = exec.Command("git", "-C", packagePath, "clean", "-fd")
+	cmd = utils.Command("git", "-C", packagePath, "clean", "-fd")
 	output, err = cmd.CombinedOutput()
 	if err != nil {
 		response.ResponseErrorWithMsg(c, http.StatusInternalServerError, http.StatusInternalServerError, fmt.Sprintf("清理未跟踪文件失败: %v, output: %s", err, string(output)))
@@ -376,7 +376,7 @@ func GitDiscardChanges(c *gin.Context) {
 	}
 
 	// 再次检查状态
-	cmd = exec.Command("git", "-C", packagePath, "status", "--porcelain")
+	cmd = utils.Command("git", "-C", packagePath, "status", "--porcelain")
 	statusOutput, err := cmd.Output()
 	if err != nil {
 		response.ResponseErrorWithMsg(c, http.StatusInternalServerError, http.StatusInternalServerError, fmt.Sprintf("获取工作区状态失败: %v", err))
@@ -425,11 +425,11 @@ func GitCleanup(c *gin.Context) {
 	}
 
 	// 执行git fsck
-	cmd := exec.Command("git", "-C", packagePath, "fsck", "--full")
+	cmd := utils.Command("git", "-C", packagePath, "fsck", "--full")
 	_, _ = cmd.CombinedOutput() // 忽略错误，继续清理
 
 	// 执行git gc --prune=now
-	cmd = exec.Command("git", "-C", packagePath, "gc", "--prune=now", "--aggressive")
+	cmd = utils.Command("git", "-C", packagePath, "gc", "--prune=now", "--aggressive")
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		response.ResponseErrorWithMsg(c, http.StatusInternalServerError, http.StatusInternalServerError, fmt.Sprintf("清理仓库失败: %v, output: %s", err, string(output)))
@@ -473,7 +473,7 @@ func GitDiagnose(c *gin.Context) {
 	}
 
 	// 执行git fsck
-	cmd := exec.Command("git", "-C", packagePath, "fsck", "--full")
+	cmd := utils.Command("git", "-C", packagePath, "fsck", "--full")
 	output, err := cmd.CombinedOutput()
 
 	result := gin.H{
@@ -530,7 +530,7 @@ func GitUnshallow(c *gin.Context) {
 	}
 
 	// 执行git fetch --unshallow
-	cmd := exec.Command("git", "-C", packagePath, "fetch", "--unshallow")
+	cmd := utils.Command("git", "-C", packagePath, "fetch", "--unshallow")
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		response.ResponseErrorWithMsg(c, http.StatusInternalServerError, http.StatusInternalServerError, fmt.Sprintf("取消浅克隆失败: %v, output: %s", err, string(output)))
