@@ -4,13 +4,13 @@
 
 ## alemongo
 
-下载仓库文件 [docker-compose](./docker-compose.yml)
+下载仓库文件 [docker-compose](../docker-compose.yml)
 
-下载仓库文件 [alemongo.conf](./alemongo.conf)
+下载仓库文件 [alemongo.conf](../alemongo.conf)
 
 > alemongo 默认使用 `ccr.ccs.tencentyun.com`(广州腾讯云)镜像地址
 
-> 推荐配置镜像，可参考[/etc/docker/daemon.json](./docker-daemon.json) 
+> 推荐配置镜像，可参考[/etc/docker/daemon.json](../docker-daemon.json) 
 
 -  运行
 
