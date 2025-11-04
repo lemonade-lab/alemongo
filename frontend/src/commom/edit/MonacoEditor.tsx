@@ -1,7 +1,36 @@
 import MonacoEditorReact, { EditorProps, loader } from '@monaco-editor/react'
-import * as monaco from 'monaco-editor'
-import { createMonacoChineseConfig } from './monacoI18n'
 import { useEffect } from 'react'
+import { createMonacoChineseConfig } from './monacoI18n'
+import * as monaco from 'monaco-editor'
+import editorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker'
+import jsonWorker from 'monaco-editor/esm/vs/language/json/json.worker?worker'
+import cssWorker from 'monaco-editor/esm/vs/language/css/css.worker?worker'
+import htmlWorker from 'monaco-editor/esm/vs/language/html/html.worker?worker'
+import tsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker'
+try {
+  self.MonacoEnvironment = {
+    getWorker(_, label) {
+      if (label === 'json') {
+        return new jsonWorker()
+      }
+      if (label === 'css' || label === 'scss' || label === 'less') {
+        return new cssWorker()
+      }
+      if (label === 'html' || label === 'handlebars' || label === 'razor') {
+        return new htmlWorker()
+      }
+      if (label === 'typescript' || label === 'javascript') {
+        return new tsWorker()
+      }
+      return new editorWorker()
+    }
+  }
+  loader.config({ monaco })
+  loader.init()
+} catch (e) {
+  console.error('MonacoEnvironment配置失败', e)
+}
+
 const MonacoEditor = (
   props: EditorProps & {
     disabled?: boolean
@@ -46,12 +75,6 @@ const MonacoEditor = (
       document.removeEventListener('keydown', handleKeyDown)
     }
   }, [disabled, onSave, value, language, width, height, onChange, theme])
-  const onLoad = () => {
-    loader.config({ monaco })
-  }
-  useEffect(() => {
-    onLoad()
-  }, [])
   return (
     <MonacoEditorReact
       loading={<div></div>}
