@@ -13,7 +13,6 @@ import (
 	"os/exec"
 	"strconv"
 	"sync"
-	"syscall"
 	"time"
 
 	"go.uber.org/zap/zapcore"
@@ -210,10 +209,6 @@ func (mp *ManagedProcess) Start() error {
 		if mp.Config.PidFile != "" && mp.Cmd.Process != nil {
 			_ = os.WriteFile(mp.Config.PidFile, []byte(strconv.Itoa(mp.Cmd.Process.Pid)), 0644)
 		}
-		// 启动健康检查
-		go mp.monitor()
-		// 启动健康检查循环
-		go mp.healthCheckLoop()
 	}
 	// 状态持久化
 	SaveProcess(mp.Config.Name, mp.Config, mp.Status)
@@ -273,8 +268,6 @@ func (mp *ManagedProcess) Stop() error {
 	}
 	// 等待进程退出
 	mp.cleanupPIDFile()
-	// 关闭日志文件
-	mp.stopHealthCheck()
 	// 持久化状态
 	SaveProcess(mp.Config.Name, mp.Config, mp.Status)
 	return nil
@@ -304,44 +297,6 @@ func (pm *ProcessManager) StopAll() {
 	for _, p := range pm.Processes {
 		p.Stop()
 	}
-}
-
-// 定时健康检查：每 30 秒检查一次进程是否存活
-func (mp *ManagedProcess) healthCheckLoop() {
-	mp.healthTicker = time.NewTicker(TIME_OUT)
-	defer mp.healthTicker.Stop()
-	for {
-		select {
-		case <-mp.healthTicker.C:
-			if !mp.isProcessAlive() {
-				fmt.Printf("[%s] health check failed, process not alive, restarting...\n", mp.Config.Name)
-				go mp.Restart()
-				return
-			}
-		case <-mp.healthStopChan:
-			return
-		}
-	}
-}
-
-// 停止健康检查
-func (mp *ManagedProcess) stopHealthCheck() {
-	select {
-	case mp.healthStopChan <- struct{}{}:
-	default:
-	}
-}
-
-// 检查进程是否存活
-func (mp *ManagedProcess) isProcessAlive() bool {
-	mp.mu.Lock()
-	defer mp.mu.Unlock()
-	if mp.Cmd == nil || mp.Cmd.Process == nil {
-		return false
-	}
-	// Signal 0 检查进程是否存活
-	err := mp.Cmd.Process.Signal(syscall.Signal(0))
-	return err == nil
 }
 
 // 获取进程
