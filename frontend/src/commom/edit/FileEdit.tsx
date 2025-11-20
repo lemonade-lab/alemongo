@@ -1,9 +1,10 @@
 import { Button, Input, message } from 'antd'
-import { useEffect, useState } from 'react'
-import MonacoEditor from './MonacoEditor'
+import { lazy, useEffect, useState } from 'react'
 import useCodeTheme from '@/hook/useCodeTheme'
 import { SaveOutlined } from '@ant-design/icons'
 import { createMonacoChineseConfig } from './monacoI18n'
+// 懒加载
+const MonacoEditor = lazy(() => import('./MonacoEditor'))
 
 const FileEdit = ({
   name,

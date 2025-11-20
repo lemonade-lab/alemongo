@@ -2,11 +2,11 @@
   "name": "alemonb",
   "type": "module",
   "dependencies": {
-    "@alemonjs/db": "^0.0.11",
+    "@alemonjs/db": "^0.0.13",
     "@alemonjs/discord": "^2.1.0-alpha.19",
     "@alemonjs/qq-bot": "^2.1.0-alpha.19",
     "@alemonjs/onebot": "^2.1.0-alpha.11",
-    "alemonjs": "^2.1.4",
+    "alemonjs": "^2.1.7",
     "jsxp": "^1.2.3"
   },
   "devDependencies": {
