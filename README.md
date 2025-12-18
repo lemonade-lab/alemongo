@@ -2,35 +2,30 @@
 
 阿柠檬WEB面板
 
-## 配置文件
+### 配置
 
-> 根目录下，创建`./work/config.yaml`文件 (默认)
+复制 [ `.env.example`](./.env.example) 为 `.env` 并修改
 
-```yaml
-name: "alemongo"  # 项目名称
-host: "127.0.0.1" # 
+```bash
+# 服务器配置
+ALEMONGO_SERVER_HOST=127.0.0.1
+ALEMONGO_SERVER_PORT=17187
 
-# 服务器
-server: 
-  port: 17187 # 端口
-  token:
-    key: "alemongo"  # 密钥
-    expires_time: 24 # 过期时间 (h)
+# Token 认证
+ALEMONGO_TOKEN_KEY=alemongo              # 生产环境请修改
+ALEMONGO_TOKEN_EXPIRES_TIME=24           # 小时
 
-# 日志
-log:
-  level: "info" # 日志级别 ["info", "debug", ...]
-  filename: "work/logs"  # 整体项目日志所在文件夹
+# 日志配置
+ALEMONGO_LOG_LEVEL=info
+ALEMONGO_LOG_FILENAME=work/logs
 
-# 数据库 (vNext: 已完全使用 SQL, 默认内置 sqlite)
-db:
-  driver: "sqlite"          # 可选: sqlite | mysql | postgres (未配置时自动回退 sqlite)
-  dsn: ""                   # mysql/postgres 连接串, sqlite 可留空
-  sqlite_path: "work/data/alemongo.db" # sqlite 数据文件路径，未配置则使用默认
-  auto_migrate: true         # 启动时自动执行 GORM AutoMigrate
+# 数据库配置（默认 SQLite）
+ALEMONGO_DB_DRIVER=sqlite
+ALEMONGO_DB_SQLITE_PATH=work/data/alemongo.db
+ALEMONGO_DB_AUTO_MIGRATE=true
 ```
 
-> 超级管理(临时密码)会在启动时打印，直到密码更改。
+> **超级管理员**: 启动时会自动生成临时密码，修改密码后永久保存。
 
 - 工作目录
 

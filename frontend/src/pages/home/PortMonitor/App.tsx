@@ -254,7 +254,7 @@ const PortMonitor: React.FC = () => {
           <Card size="small">
             <div className="text-center">
               <div className="text-2xl font-bold text-blue-600">
-                {ports.length}
+                {ports?.length}
               </div>
               <div className="text-gray-500">总端口数</div>
             </div>
@@ -264,7 +264,7 @@ const PortMonitor: React.FC = () => {
           <Card size="small">
             <div className="text-center">
               <div className="text-2xl font-bold text-green-600">
-                {getUniqueProtocols().length}
+                {getUniqueProtocols()?.length}
               </div>
               <div className="text-gray-500">协议类型</div>
             </div>
@@ -274,7 +274,7 @@ const PortMonitor: React.FC = () => {
           <Card size="small">
             <div className="text-center">
               <div className="text-2xl font-bold text-orange-600">
-                {getUniqueStates().length}
+                {getUniqueStates()?.length}
               </div>
               <div className="text-gray-500">连接状态</div>
             </div>
@@ -284,7 +284,7 @@ const PortMonitor: React.FC = () => {
           <Card size="small">
             <div className="text-center">
               <div className="text-2xl font-bold text-purple-600">
-                {filteredPorts.length}
+                {filteredPorts?.length}
               </div>
               <div className="text-gray-500">当前显示</div>
             </div>
@@ -376,7 +376,7 @@ const PortMonitor: React.FC = () => {
           <Col flex="auto">
             <Space>
               <Text strong>端口列表</Text>
-              <Text type="secondary">({filteredPorts.length} 个端口)</Text>
+              <Text type="secondary">({filteredPorts?.length} 个端口)</Text>
             </Space>
           </Col>
           <Col>
@@ -416,7 +416,7 @@ const PortMonitor: React.FC = () => {
         </Row>
 
         <Spin spinning={loading}>
-          {filteredPorts.length === 0 ? (
+          {filteredPorts?.length === 0 ? (
             <Empty
               description="暂无端口信息"
               image={Empty.PRESENTED_IMAGE_SIMPLE}

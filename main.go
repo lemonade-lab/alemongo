@@ -24,6 +24,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/subosito/gotenv"
 )
 
 // gin-swagger middleware
@@ -181,50 +182,41 @@ func handlePortConflict(port string, isDev bool) error {
 // @BasePath http://127.0.0.1:17187/
 // 主函数
 func main() {
+	// 加载 .env 文件（如果存在）
+	if err := gotenv.Load(); err != nil {
+		log.Printf("注意: .env 文件未找到或加载失败 (将使用系统环境变量): %v\n", err)
+	} else {
+		log.Println("已加载 .env 文件")
+	}
 
-	var configFilePath string = "work/config.yaml"
-	mode := settings.Conf.Mode // 默认模式
 	isDev := false
+	mode := "release"
 
 	// 解析命令行参数
 	args := os.Args[1:] // 跳过程序名
-	for i, arg := range args {
+	for _, arg := range args {
 		lowerArg := strings.ToLower(arg)
 		if lowerArg == "debug" {
 			mode = gin.DebugMode
 			isDev = true
-			configFilePath = "work/config.dev.yaml" // 默认开发模式配置文件
 			Version = gin.DebugMode
+			// 设置环境变量
+			os.Setenv("ALEMONGO_MODE", gin.DebugMode)
+			os.Setenv("ALEMONGO_LOG_LEVEL", "debug")
 		}
 		if lowerArg == "test" {
 			mode = gin.TestMode
-			configFilePath = "work/config.test.yaml" // 默认测试模式配置文件
 			Version = gin.TestMode
-		}
-		if lowerArg == "config" || lowerArg == "-config" || lowerArg == "--config" {
-			// 检查是否有下一个参数作为配置文件路径
-			if i+1 < len(args) {
-				configFilePath = args[i+1]
-				fmt.Printf("使用配置文件: %s\n", configFilePath)
-			} else {
-				log.Fatal("config 参数需要指定配置文件路径，例如: ./app config ./config.yaml")
-			}
+			os.Setenv("ALEMONGO_MODE", gin.TestMode)
 		}
 	}
 
 	docs.SwaggerInfo.Version = Version
-
 	settings.SetBaseInfo(Version, BuildTime) // 设置版本和构建时间
 
-	if configFilePath != "" && configFilePath != "config.yaml" {
-		// 检查配置文件是否存在
-		if _, err := os.Stat(configFilePath); os.IsNotExist(err) {
-			configFilePath = ""
-		}
-	}
-
-	if err := settings.Init(configFilePath); err != nil {
-		log.Printf("load config failed, err:%v\n", err)
+	// 初始化配置 - 从环境变量加载
+	if err := settings.Init(); err != nil {
+		log.Printf("配置初始化失败: %v\n", err)
 		return
 	}
 

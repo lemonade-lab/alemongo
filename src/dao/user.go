@@ -11,11 +11,8 @@ import (
 	"encoding/base64"
 	"errors"
 	"log"
-	"os"
 	"sync"
 	"time"
-
-	"gopkg.in/yaml.v3"
 )
 
 // requireDB 确保数据库已初始化
@@ -326,14 +323,8 @@ func EditEmailConfig(cfg models.EmailConfig) error {
 		return err
 	}
 	email.Sender = sender
-	updated, err := yaml.Marshal(&settings.Conf)
-	if err != nil {
-		return err
-	}
-	if err = os.WriteFile("config.yaml", updated, os.ModePerm); err != nil {
-		return err
-	}
-	log.Println("写入配置文件成功")
+	log.Println("SMTP 配置已更新（仅内存），重启后将失效")
+	log.Println("提示: 如需永久保存，请使用环境变量 ALEMONGO_SMTP_* 进行配置")
 	return nil
 }
 
@@ -372,14 +363,8 @@ func EditGitHubConfig(cfg models.GitHubConfig) error {
 	} else {
 		settings.Conf.GitHub.RedirectURL = cfg.RedirectURL
 	}
-	updated, err := yaml.Marshal(&settings.Conf)
-	if err != nil {
-		return err
-	}
-	if err = os.WriteFile("config.yaml", updated, os.ModePerm); err != nil {
-		return err
-	}
-	log.Println("写入GitHub配置文件成功")
+	log.Println("GitHub OAuth 配置已更新（仅内存），重启后将失效")
+	log.Println("提示: 如需永久保存，请使用环境变量 ALEMONGO_GITHUB_* 进行配置")
 	return nil
 }
 

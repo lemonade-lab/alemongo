@@ -48,3 +48,10 @@ pnpm-lock.yaml
 /alemongo
 _logs
 config*.yaml
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+/*-test.yml

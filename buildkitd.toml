@@ -1,7 +1,6 @@
 [registry."docker.io"]
   mirrors = [
     "https://registry.cn-hangzhou.aliyuncs.com",
-    "https://mirror.ccs.tencentyun.com",
     "https://docker.registry.cyou",
     "https://docker-cf.registry.cyou",
     "https://dockercf.jsdelivr.fyi",

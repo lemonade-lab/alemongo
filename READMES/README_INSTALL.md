@@ -10,35 +10,39 @@
 
 [点击releases最新版](https://github.com/lemonade-lab/alemongo/releases)
 
-- 自定义配置路径
-
-```sh
---config ./work/config.test.yaml
-```
-
 ### 数据库
 
-默认无需配置即使用嵌入式 sqlite (`work/data/alemongo.db`)。
+默认无需配置即使用嵌入式 SQLite (`work/data/alemongo.db`)。
 
-使用 MySQL / PostgreSQL 需在 `config.yaml` 增加：
+#### 使用 MySQL
 
-```yaml
-db:
-	driver: mysql
-	dsn: user:password@tcp(127.0.0.1:3306)/alemongo?charset=utf8mb4&parseTime=True&loc=Local
-	auto_migrate: true
+通过环境变量配置：
+
+```bash
+export ALEMONGO_DB_DRIVER=mysql
+export ALEMONGO_DB_DSN="user:password@tcp(127.0.0.1:3306)/alemongo?charset=utf8mb4&parseTime=True&loc=Local"
+export ALEMONGO_DB_AUTO_MIGRATE=true
 ```
 
-或 PostgreSQL:
+或使用 `.env` 文件：
 
-```yaml
-db:
-	driver: postgres
-	dsn: host=127.0.0.1 user=alemongo password=pass dbname=alemongo port=5432 sslmode=disable TimeZone=Asia/Shanghai
-	auto_migrate: true
+```bash
+ALEMONGO_DB_DRIVER=mysql
+ALEMONGO_DB_DSN=user:password@tcp(127.0.0.1:3306)/alemongo?charset=utf8mb4&parseTime=True&loc=Local
+ALEMONGO_DB_AUTO_MIGRATE=true
 ```
 
-注意：旧版 JSON 用户数据不再自动迁移，如需保留请手动导入。
+#### 使用 PostgreSQL
+
+```bash
+ALEMONGO_DB_DRIVER=postgres
+ALEMONGO_DB_DSN="host=127.0.0.1 user=alemongo password=pass dbname=alemongo port=5432 sslmode=disable TimeZone=Asia/Shanghai"
+ALEMONGO_DB_AUTO_MIGRATE=true
+```
+
+> **提示**: 所有配置项详见 [.env.example](../.env.example) 文件
+
+> **注意**: 旧版 JSON 用户数据不再自动迁移，如需保留请手动导入。
 
 ## 操作指南
 
