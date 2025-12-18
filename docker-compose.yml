@@ -42,7 +42,7 @@ services:
       - alemongo-network
 
   nginx:
-    image: nginx
+    image: nginx:alpine
     container_name: nginx
     ports:
       - "17187:17187"

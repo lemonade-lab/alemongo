@@ -1,46 +1,35 @@
 # 后端构建阶段  
-FROM golang:1.24 AS builder
+FROM  golang:1.24 AS builder
 WORKDIR /app
+# 配置 Go 模块代理为国内镜像源
 ENV GOPROXY=https://goproxy.cn
-
-# 先复制 go.mod 和 go.sum 下载依赖
-COPY go.mod go.sum ./
-RUN go mod download
-
-# 然后复制其他文件
-COPY . .
-
+COPY dist ./dist
+COPY resources ./resources
+COPY src ./src
+COPY docs ./docs
+COPY go.mod go.sum main.go ./
 # 打包 go 支持多架构
-ARG TARGETOS=linux
-ARG TARGETARCH=amd64
+ARG TARGETOS
+ARG TARGETARCH
+# 若外部未传入，使用默认版本号，避免 -ldflags 将 Version 置为空
 ARG VERSION=0.0.1
 RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -ldflags "-X main.Version=${VERSION} -X main.BuildTime=$(date +%s) -s -w" -o alemongo .  
 
-# 最终运行阶段 - 轻量版 Alpine
-FROM alpine:latest
+# 最终运行阶段
+FROM  node:22
 WORKDIR /app
 COPY --from=builder /app/alemongo .
+# 设置yarn缓存目录
+ENV YARN_CACHE_FOLDER=/app/.yarn_cache
 
-RUN echo "https://mirrors.aliyun.com/alpine/v3.20/main" > /etc/apk/repositories && \
-    echo "https://mirrors.aliyun.com/alpine/v3.20/community" >> /etc/apk/repositories && \
-    apk update && \
-    apk add --no-cache \
-        nodejs \
-        npm \
-        chromium \
-        font-noto-cjk \
-        font-noto-emoji \
-        openssh-client
-
-# 设置环境变量
-ENV CHROME_BIN=/usr/bin/chromium
-ENV CHROME_PATH=/usr/lib/chromium/
-ENV NPM_CONFIG_CACHE=/app/.npm_cache
-
-# 创建 SSH 已知主机和工作目录
-RUN mkdir -p ~/.ssh && \
-    chmod 700 ~/.ssh && \
-    ssh-keyscan github.com >> ~/.ssh/known_hosts && \
-    mkdir -p /app/work/data /app/work/logs
+RUN echo "deb http://mirrors.aliyun.com/debian bookworm main contrib non-free non-free-firmware" > /etc/apt/sources.list \
+  && echo "deb http://mirrors.aliyun.com/debian bookworm-updates main contrib non-free non-free-firmware" >> /etc/apt/sources.list \
+  && echo "deb http://mirrors.aliyun.com/debian-security bookworm-security main contrib non-free non-free-firmware" >> /etc/apt/sources.list \
+  && apt-get update \
+  && apt-get install -y --fix-missing chromium fonts-noto-cjk fonts-noto-color-emoji lsof \
+  && rm -rf /var/lib/apt/lists/*  \
+  && mkdir -p ~/.ssh \
+  && chmod 700 ~/.ssh \
+  && ssh-keyscan github.com >> ~/.ssh/known_hosts
 
 CMD ["./alemongo"]
