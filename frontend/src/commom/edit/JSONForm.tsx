@@ -22,9 +22,11 @@ import {
 } from '@ant-design/icons'
 
 type BaseType = string | number | string[] | number[]
+
 type ObjectType = {
   [key: string]: BaseType | ObjectType
 }
+
 type InputDataType = 'string' | 'object' | 'array' | 'boolean'
 
 const JSONForm = ({

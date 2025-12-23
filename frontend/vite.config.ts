@@ -71,19 +71,29 @@ export default defineConfig({
             'react-router'
           ],
           'react-redux-vendor': ['react-redux', 'redux', '@reduxjs/toolkit'],
-          'monaco-vendor': ['monaco-editor'],
-          'monaco-react-vendor': ['@monaco-editor/react'],
-          'antd-vendor': ['antd'],
-          'antd-v5-vendor': ['@ant-design/v5-patch-for-react-19'],
+          'antd-core-vendor': ['antd'],
           'antd-icons-vendor': ['@ant-design/icons'],
-          'markdown-vendor': ['@uiw/react-markdown-preview'],
+          'markdown-vendor': ['markdown-to-jsx'],
           'joyride-vendor': ['react-joyride'],
-          'rehype-vendor': [
-            'rehype-highlight',
-            'rehype-prism',
-            'rehype-sanitize'
+          'codemirror-vendor': [
+            '@codemirror/commands',
+            '@codemirror/lang-json',
+            '@codemirror/lang-yaml',
+            '@codemirror/language',
+            '@codemirror/state',
+            '@codemirror/view',
+            '@uiw/codemirror-themes',
+            'codemirror',
+            '@uiw/codemirror-theme-github'
           ],
-          'axios-vendor': ['axios'],
+          'utils-vendor': [
+            'axios',
+            'dayjs',
+            'js-yaml',
+            'jwt-decode',
+            'lodash-es',
+            'classnames'
+          ],
           'xterm-vendor': [
             'xterm',
             'xterm-addon-fit',

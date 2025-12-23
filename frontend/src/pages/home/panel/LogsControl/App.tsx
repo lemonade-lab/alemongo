@@ -49,7 +49,7 @@ const LogsControl = () => {
 
   const onChange: DatePickerProps['onChange'] = date => {
     if (!date) return
-    setTimestamp(date.valueOf())
+    setTimestamp(Number(date.valueOf()))
   }
 
   const onDelete = () => {

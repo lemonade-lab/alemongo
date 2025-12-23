@@ -34,7 +34,7 @@ const Query = () => {
   const onChange: DatePickerProps['onChange'] = date => {
     if (!date) return
     setPageInfo(prev => ({ ...prev, page: 1 }))
-    setTimestamp(date.valueOf())
+    setTimestamp(Number(date.valueOf()))
   }
 
   const onCopyPage = async () => {

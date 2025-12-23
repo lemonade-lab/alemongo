@@ -182,7 +182,7 @@ const PackagesMessage = () => {
         <div className="flex-1 min-h-0">
           <div className="bg-gradient-to-br from-white/80 to-gray-50/80 dark:from-zinc-800/80 dark:to-zinc-900/80 backdrop-blur-sm rounded-lg p-6 border border-gray-200/50 dark:border-zinc-700/50 shadow-md">
             {item?.md ? (
-              <Markdown source={item.md} />
+              <Markdown content={item.md} />
             ) : (
               <div className="flex flex-col items-center justify-center py-12">
                 <div className="w-16 h-16 bg-gradient-to-r from-gray-200 to-gray-300 dark:from-zinc-700 dark:to-zinc-600 rounded-full flex items-center justify-center mb-4">

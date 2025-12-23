@@ -57,7 +57,7 @@ const SFTPPage = () => {
     name: string
     content: string
   } | null>(null)
-  const [editorLang, setEditorLang] = useState<string>('plaintext')
+  const [editorLang, setEditorLang] = useState<'yaml' | 'json' | 'env'>('env')
   const [renameValue, setRenameValue] = useState<string>('')
   const { hasPermission } = usePermission()
   const canWrite = hasPermission('admin')
@@ -104,32 +104,13 @@ const SFTPPage = () => {
     })
     // 简易按后缀识别语言
     const ext = (res.data.name as string).split('.').pop()?.toLowerCase()
-    const map: Record<string, string> = {
-      js: 'javascript',
-      ts: 'typescript',
-      tsx: 'typescript',
-      jsx: 'javascript',
+    const map: {
+      [key: string]: 'json' | 'yaml'
+    } = {
       json: 'json',
-      yaml: 'yaml',
-      yml: 'yaml',
-      md: 'markdown',
-      sh: 'shell',
-      bash: 'shell',
-      zsh: 'shell',
-      go: 'go',
-      py: 'python',
-      rs: 'rust',
-      java: 'java',
-      c: 'c',
-      h: 'c',
-      cpp: 'cpp',
-      hpp: 'cpp',
-      css: 'css',
-      scss: 'scss',
-      html: 'html',
-      vue: 'vue'
+      yaml: 'yaml'
     }
-    setEditorLang((ext && map[ext]) || 'plaintext')
+    setEditorLang((ext && map[ext]) || 'env')
   }
 
   const goParent = () => {

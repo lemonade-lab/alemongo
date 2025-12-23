@@ -1,96 +1,154 @@
-import MarkdownPreview from '@uiw/react-markdown-preview'
-import rehypeHighlight from 'rehype-highlight'
-import rehypePrism from 'rehype-prism'
-import rehypeSlug from 'rehype-slug'
-import rehypeAutolinkHeadings from 'rehype-autolink-headings'
-import rehypeRaw from 'rehype-raw'
-import rehypeAttr from 'rehype-attr'
-import { useEffect } from 'react'
+import React, { useCallback, Fragment } from 'react'
+import MarkdownJS from 'markdown-to-jsx'
+import classNames from 'classnames'
+import { Image } from 'antd'
 
-const useTheme = () => {
-  // theme
-  useEffect(() => {
-    // 读取本地存储的主题
-    const res = localStorage.getItem('theme')
-    if (res === 'dark') {
-      document.documentElement.setAttribute('data-color-mode', 'dark')
-    } else {
-      document.documentElement.setAttribute('data-color-mode', 'light')
-    }
-    // 监听主题变化
-    const observer = new MutationObserver(mutationsList => {
-      for (const mutation of mutationsList) {
-        if (
-          mutation.type === 'attributes' &&
-          mutation.attributeName === 'class'
-        ) {
-          const hasDarkClass =
-            document.documentElement.classList.contains('dark')
-          document.documentElement.setAttribute(
-            'data-color-mode',
-            hasDarkClass ? 'dark' : 'light'
-          )
-        }
-      }
-    })
-    // 监听根元素的 class 变化
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ['class']
-    })
-    return () => {
-      // 移除监听
-      observer.disconnect()
-    }
-  }, [])
+type MyTitleProps = {
+  children: React.ReactNode
+  type?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
+  className?: string
 }
 
-/**
- * @param param0
- * @returns
- */
-const Markdown = ({ source }: { source: string }) => {
-  useTheme()
-  return (
-    <MarkdownPreview
-      className="animate__animated animate__fadeIn select-text"
-      style={{
-        padding: '0.5rem',
-        backgroundColor: '#FFFFFF00'
-      }}
-      source={source}
-      components={{
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        a: ({ node, ...props }) => (
-          <span
-            {...props}
-            onClick={e => e.preventDefault()}
-            title="链接已禁用"
-            style={{ cursor: 'not-allowed' }}
-          >
-            {props.children}
-          </span>
-        )
-      }}
-      rehypePlugins={[
-        // rehypeSanitize, // 清理不安全的 HTML
-        rehypeHighlight, // 代码高亮
-        rehypePrism, // Prism.js 高亮
-        rehypeSlug, // 为标题生成锚点
-        rehypeRaw, // 允许处理原始 HTML
-        [rehypeAutolinkHeadings, { behavior: 'wrap' }], // 自动为标题添加链接
-        [
-          rehypeAttr,
+export type PropsOnInput = (params: {
+  command: string
+  reply: boolean
+  enter: boolean
+}) => void
+
+export type Props = {
+  content: string
+  className?: string
+  onInput?: PropsOnInput
+  onMention?: (username: string) => void
+  userMap?: Map<number, string>
+  channelMap?: Map<number, string>
+}
+
+function Markdown({ content, className }: Props) {
+  const handleLinkClick = useCallback(
+    (event: React.MouseEvent, url: string) => {
+      event.preventDefault()
+
+      if (url.startsWith('#')) {
+        return
+      }
+
+      if (url.startsWith('http://') || url.startsWith('https://')) {
+        window.open(url, '_blank', 'noopener,noreferrer')
+        return
+      }
+    },
+    []
+  )
+
+  const MyTitle = useCallback(
+    ({ children, type, className = '' }: MyTitleProps) => (
+      <div
+        className={classNames(
+          'flex-1 w-full text-slate-600 dark:text-slate-200',
           {
-            // 示例：为所有链接添加 target="_blank"
-            properties: {
-              target: '_blank',
-              rel: 'noopener noreferrer'
-            }
-          }
-        ]
-      ]}
-    />
+            'text-lg': type === 'h3',
+            'text-xl': type === 'h2',
+            'text-2xl': type === 'h1',
+            'text-base': type === 'h4',
+            'text-sm': type === 'h5',
+            'text-xs': type === 'h6',
+            'font-bold': type === 'h1' || type === 'h2' || type === 'h3',
+            'font-semibold': type === 'h4' || type === 'h5' || type === 'h6'
+          },
+          className
+        )}
+      >
+        {children}
+      </div>
+    ),
+    []
+  )
+
+  return (
+    <div
+      className={classNames(
+        className,
+        `
+        p-1 rounded-md
+        [&_img]:m-0
+        [&_img]:max-w-full
+        [&_img]:xs:max-w-[14rem]
+        [&_img]:sm:max-w-[16rem]
+        [&_img]:xl:max-w-[18rem]
+        [&_img]:h-auto
+        `
+      )}
+    >
+      <MarkdownJS
+        options={{
+          overrides: {
+            img: {
+              component: Image
+            },
+
+            p: {
+              // 转为 div，避免嵌套p标签问题
+              component: ({ children, ...props }) => (
+                <div {...props}>{children}</div>
+              )
+            },
+            a: {
+              component: useCallback(
+                ({ href, title, children, ...props }) => (
+                  <span
+                    {...props}
+                    title={title}
+                    onClick={e => handleLinkClick(e, href)}
+                    className="text-blue-600 underline hover:text-blue-800 transition-colors duration-200"
+                  >
+                    {children}
+                  </span>
+                ),
+                [handleLinkClick]
+              )
+            },
+            h1: useCallback(
+              ({ children }) => <MyTitle type="h1">{children}</MyTitle>,
+              [MyTitle]
+            ),
+            h2: useCallback(
+              ({ children }) => <MyTitle type="h2">{children}</MyTitle>,
+              [MyTitle]
+            ),
+            h3: useCallback(
+              ({ children }) => <MyTitle type="h3">{children}</MyTitle>,
+              [MyTitle]
+            ),
+            h4: useCallback(
+              ({ children }) => <MyTitle type="h4">{children}</MyTitle>,
+              [MyTitle]
+            ),
+            h5: useCallback(
+              ({ children }) => <MyTitle type="h5">{children}</MyTitle>,
+              [MyTitle]
+            ),
+            h6: useCallback(
+              ({ children }) => <MyTitle type="h6">{children}</MyTitle>,
+              [MyTitle]
+            ),
+            pre: useCallback(
+              ({ children }) => (
+                <pre className="px-2 py-1 bg-slate-500 dark:bg-slate-600 rounded-md text-white">
+                  {children}
+                </pre>
+              ),
+              []
+            )
+          },
+          forceBlock: false,
+          forceInline: false,
+          wrapper: Fragment
+        }}
+      >
+        {content}
+      </MarkdownJS>
+    </div>
   )
 }
 

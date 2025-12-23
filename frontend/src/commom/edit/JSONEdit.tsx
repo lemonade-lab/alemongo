@@ -1,9 +1,9 @@
 import { Button, Input, message, Form } from 'antd'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import YAML from 'js-yaml'
 import JSONForm from './JSONForm'
 import { nameMap } from '../config/NameMap'
-import MonacoEditor from './MonacoEditor'
+import MonacoEditor from './CodeEditor'
 import cloneDeep from 'lodash/cloneDeep'
 import useCodeTheme from '@/hook/useCodeTheme'
 import {
@@ -60,7 +60,7 @@ const JSONEdit = ({
   const [disabled, setDisabled] = useState(false)
   const [nameValue, setNameValue] = useState<string>('')
   const [activeKey, setActiveKey] = useState<'form' | 'code'>('form')
-  const theme = useCodeTheme()
+  const theme = useCodeTheme() as 'light' | 'dark'
 
   // 初始化数据
   useEffect(() => {
@@ -83,16 +83,19 @@ const JSONEdit = ({
   }
 
   // 处理Code模式下的数据变化
-  const handleCodeChange = (val: string | undefined) => {
-    const value = val ?? ''
-    setCodeData(value)
-    try {
-      safeDecode(value, type)
-      setDisabled(false)
-    } catch {
-      setDisabled(true)
-    }
-  }
+  const handleCodeChange = useCallback(
+    (val: string | undefined) => {
+      const value = val ?? ''
+      setCodeData(value)
+      try {
+        safeDecode(value, type)
+        setDisabled(false)
+      } catch {
+        setDisabled(true)
+      }
+    },
+    [type]
+  )
 
   // 切换模式时的数据同步
   const handleModeChange = (newMode: 'form' | 'code') => {
@@ -237,53 +240,48 @@ const JSONEdit = ({
   ]
 
   return (
-    <div className="w-full h-full flex flex-col bg-gradient-to-br from-gray-50 to-gray-100 dark:from-zinc-900 dark:to-zinc-800 rounded-xl shadow-2xl border border-gray-200/50 dark:border-zinc-700/50 backdrop-blur-sm">
+    <div className="w-full h-full flex flex-col border dark:border-zinc-700">
       {/* 顶部工具栏 */}
-      <div className="flex flex-col sm:flex-row  items-end  sm:items-center justify-end sm:justify-between gap-2 sm:gap-4 bg-gradient-to-r from-white/80 to-gray-50/80 dark:from-zinc-800/80 dark:to-zinc-900/80 backdrop-blur-xl border-b border-gray-200/50 dark:border-zinc-700/50 rounded-t-xl mobile-p-3">
-        <div className="flex items-center gap-3 justify-center">
+      <div className="flex items-center justify-between px-4 py-3 border-b dark:border-zinc-700 bg-white dark:bg-zinc-900">
+        <div className="flex items-center gap-3">
           {!disabledName && (
-            <div className="relative mobile-w-full">
-              <Input
-                value={nameValue}
-                placeholder="配置名称"
-                allowClear
-                onChange={e => setNameValue(e.target.value)}
-                style={{ minWidth: 120 }}
-              />
-            </div>
+            <Input
+              value={nameValue}
+              placeholder="配置名称"
+              allowClear
+              onChange={e => setNameValue(e.target.value)}
+              style={{ width: 200 }}
+            />
           )}
           {disabledName && (
-            <div className="px-2 py-1 bg-white/70 dark:bg-zinc-800/70 border border-gray-300/50 dark:border-zinc-600/50 rounded-lg min-w-[120px] inline-block mobile-w-full mobile-text-center">
-              <span className="text-gray-700 dark:text-gray-200 font-medium mobile-text-sm">
-                {nameValue}
-              </span>
-            </div>
+            <span className="text-gray-700 dark:text-gray-300 font-medium">
+              {nameValue}
+            </span>
           )}
           {disabled && (
-            <div className="flex items-center w-44 gap-2 px-3 py-1 bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-700/50 rounded-lg">
-              <ExclamationCircleOutlined className="text-red-500 dark:text-red-400" />
-              <span className="text-red-600 dark:text-red-400 text-sm font-medium mobile-text-xs">
+            <div className="flex items-center gap-2 px-3 py-1 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded">
+              <ExclamationCircleOutlined className="text-red-500" />
+              <span className="text-red-600 dark:text-red-400 text-sm">
                 格式错误
               </span>
             </div>
           )}
           {!disabled && (
-            <div className="flex items-center gap-2 w-44 px-3 py-1 bg-green-100 dark:bg-green-900/30 border border-green-300 dark:border-green-700/50 rounded-lg">
-              <CheckCircleOutlined className="text-green-500 dark:text-green-400" />
-              <span className="text-green-600 dark:text-green-400 text-sm font-medium mobile-text-xs">
+            <div className="flex items-center gap-2 px-3 py-1 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded">
+              <CheckCircleOutlined className="text-green-500" />
+              <span className="text-green-600 dark:text-green-400 text-sm">
                 格式正确
               </span>
             </div>
           )}
         </div>
-        <div className="flex items-end gap-3  justify-center">
+        <div className="flex items-center gap-3">
           {rightHeader || null}
           <Button
             disabled={disabled}
             onClick={handleSave}
             type="primary"
             icon={<SaveOutlined />}
-            className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 border-0  hover:shadow-xl transition-all duration-300 rounded-lg"
           >
             保存
           </Button>
@@ -291,62 +289,53 @@ const JSONEdit = ({
       </div>
 
       {/* Tab 导航 */}
-      <div className="flex flex-row bg-gradient-to-r from-gray-100/80 to-gray-200/80 dark:from-zinc-800/80 dark:to-zinc-900/80 backdrop-blur-sm border-b border-gray-200/50 dark:border-zinc-700/50">
+      <div className="flex border-b dark:border-zinc-700 bg-gray-50 dark:bg-zinc-800">
         {tabList.map(tab => (
           <button
             key={tab.key}
             className={`
-              flex items-center gap-2 py-1 px-3 sm:px-6 sm:py-3 focus:outline-none transition-all duration-300 font-medium mobile-button touch-optimized mobile-w-full mobile-justify-center mobile-h-12
+              flex items-center gap-2 px-6 py-3 focus:outline-none transition-colors
               ${
                 activeKey === tab.key
-                  ? 'bg-white dark:bg-zinc-900 text-blue-600 dark:text-blue-400 border-b-2 border-blue-500 shadow-sm'
-                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-white/50 dark:hover:bg-zinc-800/50'
+                  ? 'bg-white dark:bg-zinc-900 text-blue-600 dark:text-blue-400 border-b-2 border-blue-500'
+                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
               }
             `}
             onClick={() => handleModeChange(tab.key as 'form' | 'code')}
             type="button"
           >
             {tab.icon}
-            <span className="mobile-text-sm">{tab.label}</span>
+            <span>{tab.label}</span>
           </button>
         ))}
       </div>
 
       {/* 内容区域 */}
-      <div className="flex-1 min-h-0 flex flex-col bg-white/90 dark:bg-zinc-900/90 backdrop-blur-sm rounded-b-xl overflow-hidden">
+      <div className="flex-1 min-h-0 bg-white dark:bg-zinc-900">
         {activeKey === 'form' && (
-          <div className="flex-1 p-6 overflow-auto mobile-p-3 mobile-scroll">
+          <div className="h-full p-4 overflow-auto">
             <Form
               form={form}
               labelCol={{ span: 6 }}
               onValuesChange={handleFormChange}
-              className="h-full"
             >
-              <div className="flex flex-col gap-4">
-                <JSONForm
-                  data={formData}
-                  map={nameMap}
-                  handleAddChild={handleAddChild}
-                  handleDelChild={handleDelChild}
-                />
-              </div>
+              <JSONForm
+                data={formData}
+                map={nameMap}
+                handleAddChild={handleAddChild}
+                handleDelChild={handleDelChild}
+              />
             </Form>
           </div>
         )}
         {activeKey === 'code' && (
-          <div className="flex-1 flex flex-col min-h-0 p-2 mobile-p-1">
-            <div className="flex-1 rounded-lg overflow-hidden border border-gray-200/50 dark:border-zinc-700/50 shadow-inner">
-              <MonacoEditor
-                value={codeData}
-                disabled={disabled}
-                onSave={handleSave}
-                language={type}
-                width="100%"
-                height="100%"
-                onChange={handleCodeChange}
-                theme={theme}
-              />
-            </div>
+          <div className="h-full">
+            <MonacoEditor
+              value={codeData}
+              language={type}
+              onChange={handleCodeChange}
+              theme={theme}
+            />
           </div>
         )}
       </div>

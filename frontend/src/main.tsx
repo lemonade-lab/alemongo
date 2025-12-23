@@ -4,7 +4,6 @@ import '@/assets/css/index.scss'
 import router from './router'
 import { Provider } from 'react-redux'
 import store from './redux/index'
-import '@ant-design/v5-patch-for-react-19'
 import { RouterProvider } from 'react-router-dom'
 import ThemeProvider from './provider/ThemeProvider'
 createRoot(document.getElementById('root')!).render(
@@ -21,7 +20,7 @@ declare global {
   interface Window {
     socket: WebSocket | null
     vscode: {
-      postMessage: (message: any) => void
+      postMessage: (message) => void
     }
   }
 }

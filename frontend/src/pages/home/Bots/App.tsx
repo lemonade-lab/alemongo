@@ -57,6 +57,9 @@ const Home = () => {
     pid: number
   } | null>(null)
 
+  // Dropdown 打开状态
+  const [openDropdownKey, setOpenDropdownKey] = useState<string | null>(null)
+
   useEffect(() => {
     if (!common.info.start_at) return
     apiBotList().then(res => {
@@ -250,7 +253,13 @@ const Home = () => {
                         }}
                       >
                         {/* 背景卡片 */}
-                        <div className="flex flex-col gap-2 justify-between chatgpt-card p-6 h-full hover:scale-105 transition-transform duration-300">
+                        <div
+                          className={`flex flex-col gap-2 justify-between chatgpt-card p-6 h-full transition-transform duration-300 ${
+                            openDropdownKey === bot.name
+                              ? ''
+                              : 'hover:scale-105'
+                          }`}
+                        >
                           {/* 头部信息 */}
                           <div className="flex items-center justify-between mb-4">
                             <Tooltip
@@ -284,7 +293,10 @@ const Home = () => {
                               PID:
                               {bot.pid && bot.pid > 0 ? (
                                 <button
-                                  onClick={() => handlePidClick(bot)}
+                                  onClick={e => {
+                                    e.stopPropagation()
+                                    handlePidClick(bot)
+                                  }}
                                   className="ml-1 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline cursor-pointer transition-colors"
                                   title="点击查看端口信息"
                                 >
@@ -346,8 +358,20 @@ const Home = () => {
                             <Dropdown
                               menu={{ items: createMenu(bot) }}
                               trigger={['click']}
+                              open={openDropdownKey === bot.name}
+                              onOpenChange={open => {
+                                setOpenDropdownKey(open ? bot.name : null)
+                              }}
+                              getPopupContainer={trigger =>
+                                trigger.parentElement || document.body
+                              }
                             >
-                              <a onClick={e => e.preventDefault()}>
+                              <a
+                                onClick={e => {
+                                  e.preventDefault()
+                                  e.stopPropagation()
+                                }}
+                              >
                                 <Space>
                                   操作
                                   <DownOutlined />
