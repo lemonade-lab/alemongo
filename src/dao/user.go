@@ -9,6 +9,7 @@ import (
 	"alemongo/src/settings"
 	"crypto/rand"
 	"encoding/base64"
+	"encoding/json"
 	"errors"
 	"log"
 	"sync"
@@ -318,19 +319,54 @@ func EditEmailConfig(cfg models.EmailConfig) error {
 	} else {
 		settings.Conf.SMTP.FromEmail = cfg.From_email
 	}
+
+	// 测试配置是否有效
 	sender, err := email.NewMailSender(&settings.SMTPConfig{Provider: cfg.Provider, Host: cfg.Host, Port: cfg.Port, Username: cfg.Username, Password: cfg.Password, FromEmail: cfg.From_email})
 	if err != nil {
 		return err
 	}
+
+	// 序列化配置为 JSON 保存到数据库
+	configJSON, err := marshalEmailConfig(cfg)
+	if err != nil {
+		return err
+	}
+
+	if err := UpsertSetting(&models.Setting{
+		Key:      "smtp_config",
+		Value:    configJSON,
+		Category: "email",
+		Editable: true,
+	}); err != nil {
+		return err
+	}
+
+	// 更新内存配置和 sender
 	email.Sender = sender
-	log.Println("SMTP 配置已更新（仅内存），重启后将失效")
-	log.Println("提示: 如需永久保存，请使用环境变量 ALEMONGO_SMTP_* 进行配置")
+	log.Println("SMTP 配置已更新并保存到数据库")
 	return nil
 }
 
-// GetEmailConfig 获取邮件配置
+// GetEmailConfig 获取邮件配置（优先从数据库读取）
 func GetEmailConfig() (*models.EmailConfig, error) {
-	return &models.EmailConfig{Provider: settings.Conf.SMTP.Provider, Host: settings.Conf.SMTP.Host, Port: settings.Conf.SMTP.Port, Username: settings.Conf.SMTP.Username, Password: settings.Conf.SMTP.Password, From_email: settings.Conf.SMTP.FromEmail}, nil
+	// 尝试从数据库读取
+	setting, err := GetSetting("smtp_config")
+	if err == nil && setting != nil && setting.Value != "" {
+		cfg, err := unmarshalEmailConfig(setting.Value)
+		if err == nil {
+			return cfg, nil
+		}
+	}
+
+	// 如果数据库中没有，返回配置文件/环境变量中的默认值
+	return &models.EmailConfig{
+		Provider:   settings.Conf.SMTP.Provider,
+		Host:       settings.Conf.SMTP.Host,
+		Port:       settings.Conf.SMTP.Port,
+		Username:   settings.Conf.SMTP.Username,
+		Password:   settings.Conf.SMTP.Password,
+		From_email: settings.Conf.SMTP.FromEmail,
+	}, nil
 }
 
 // GetUserByGitHubID 通过 GitHub ID 查找
@@ -363,14 +399,43 @@ func EditGitHubConfig(cfg models.GitHubConfig) error {
 	} else {
 		settings.Conf.GitHub.RedirectURL = cfg.RedirectURL
 	}
-	log.Println("GitHub OAuth 配置已更新（仅内存），重启后将失效")
-	log.Println("提示: 如需永久保存，请使用环境变量 ALEMONGO_GITHUB_* 进行配置")
+
+	// 序列化配置为 JSON 保存到数据库
+	configJSON, err := marshalGitHubConfig(cfg)
+	if err != nil {
+		return err
+	}
+
+	if err := UpsertSetting(&models.Setting{
+		Key:      "github_oauth_config",
+		Value:    configJSON,
+		Category: "github",
+		Editable: true,
+	}); err != nil {
+		return err
+	}
+
+	log.Println("GitHub OAuth 配置已更新并保存到数据库")
 	return nil
 }
 
-// GetGitHubConfig 获取 GitHub 配置
+// GetGitHubConfig 获取 GitHub 配置（优先从数据库读取）
 func GetGitHubConfig() (*models.GitHubConfig, error) {
-	return &models.GitHubConfig{ClientID: settings.Conf.GitHub.ClientID, ClientSecret: settings.Conf.GitHub.ClientSecret, RedirectURL: settings.Conf.GitHub.RedirectURL}, nil
+	// 尝试从数据库读取
+	setting, err := GetSetting("github_oauth_config")
+	if err == nil && setting != nil && setting.Value != "" {
+		cfg, err := unmarshalGitHubConfig(setting.Value)
+		if err == nil {
+			return cfg, nil
+		}
+	}
+
+	// 如果数据库中没有，返回配置文件/环境变量中的默认值
+	return &models.GitHubConfig{
+		ClientID:     settings.Conf.GitHub.ClientID,
+		ClientSecret: settings.Conf.GitHub.ClientSecret,
+		RedirectURL:  settings.Conf.GitHub.RedirectURL,
+	}, nil
 }
 
 // IsGitHubIDBound 是否被绑定
@@ -415,4 +480,96 @@ func UnbindGitHubAccount(username string) error {
 		return err
 	}
 	return nil
+}
+
+// ================ JSON 序列化辅助函数 ================
+
+// marshalEmailConfig 将 EmailConfig 序列化为 JSON 字符串
+func marshalEmailConfig(cfg models.EmailConfig) (string, error) {
+	data, err := json.Marshal(cfg)
+	if err != nil {
+		return "", err
+	}
+	return string(data), nil
+}
+
+// unmarshalEmailConfig 将 JSON 字符串反序列化为 EmailConfig
+func unmarshalEmailConfig(jsonStr string) (*models.EmailConfig, error) {
+	var cfg models.EmailConfig
+	if err := json.Unmarshal([]byte(jsonStr), &cfg); err != nil {
+		return nil, err
+	}
+	return &cfg, nil
+}
+
+// marshalGitHubConfig 将 GitHubConfig 序列化为 JSON 字符串
+func marshalGitHubConfig(cfg models.GitHubConfig) (string, error) {
+	data, err := json.Marshal(cfg)
+	if err != nil {
+		return "", err
+	}
+	return string(data), nil
+}
+
+// unmarshalGitHubConfig 将 JSON 字符串反序列化为 GitHubConfig
+func unmarshalGitHubConfig(jsonStr string) (*models.GitHubConfig, error) {
+	var cfg models.GitHubConfig
+	if err := json.Unmarshal([]byte(jsonStr), &cfg); err != nil {
+		return nil, err
+	}
+	return &cfg, nil
+}
+
+// LoadEmailConfigFromDB 从数据库加载 Email 配置到内存
+func LoadEmailConfigFromDB() {
+	setting, err := GetSetting("smtp_config")
+	if err != nil || setting == nil || setting.Value == "" {
+		log.Println("未找到数据库中的 SMTP 配置，使用环境变量或配置文件默认值")
+		return
+	}
+
+	cfg, err := unmarshalEmailConfig(setting.Value)
+	if err != nil {
+		log.Printf("解析数据库中的 SMTP 配置失败: %v", err)
+		return
+	}
+
+	// 更新内存配置
+	settings.Conf.SMTP.Provider = cfg.Provider
+	settings.Conf.SMTP.Host = cfg.Host
+	settings.Conf.SMTP.Port = cfg.Port
+	settings.Conf.SMTP.Username = cfg.Username
+	settings.Conf.SMTP.Password = cfg.Password
+	settings.Conf.SMTP.FromEmail = cfg.From_email
+
+	// 重新初始化邮件发送者
+	sender, err := email.NewMailSender(settings.Conf.SMTP)
+	if err != nil {
+		log.Printf("使用数据库中的 SMTP 配置初始化邮件发送者失败: %v", err)
+		return
+	}
+	email.Sender = sender
+	log.Println("已从数据库加载 SMTP 配置")
+}
+
+// LoadGitHubConfigFromDB 从数据库加载 GitHub 配置到内存
+func LoadGitHubConfigFromDB() {
+	setting, err := GetSetting("github_oauth_config")
+	if err != nil || setting == nil || setting.Value == "" {
+		log.Println("未找到数据库中的 GitHub OAuth 配置，使用环境变量或配置文件默认值")
+		return
+	}
+
+	cfg, err := unmarshalGitHubConfig(setting.Value)
+	if err != nil {
+		log.Printf("解析数据库中的 GitHub OAuth 配置失败: %v", err)
+		return
+	}
+
+	// 更新内存配置
+	settings.Conf.GitHub.ClientID = cfg.ClientID
+	settings.Conf.GitHub.ClientSecret = cfg.ClientSecret
+	settings.Conf.GitHub.RedirectURL = cfg.RedirectURL
+
+	log.Println("已从数据库加载 GitHub OAuth 配置")
 }

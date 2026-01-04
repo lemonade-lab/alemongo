@@ -174,7 +174,7 @@ const Headings = ({
           >
             <Input
               placeholder="请输入机器人名称"
-              className="chatgpt-input"
+              className="chatgpt-input min-w-20"
               prefix={
                 <svg
                   className="w-4 h-4 text-gray-400"

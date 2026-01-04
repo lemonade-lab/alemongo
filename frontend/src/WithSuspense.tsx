@@ -15,7 +15,7 @@ class ErrorBoundary extends Component<
     return { hasError: true, error }
   }
 
-  componentDidCatch(error: Error, errorInfo) {
+  componentDidCatch(error: Error, errorInfo: any) {
     console.error('动态导入错误:', error)
     console.error('错误信息:', errorInfo)
   }

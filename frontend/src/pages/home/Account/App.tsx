@@ -85,7 +85,7 @@ const UserTable = () => {
   }
 
   // 更新身份
-  const updateIdentity = (item: User, value) => {
+  const updateIdentity = (item: User, value: string) => {
     // 检查是否在修改自己的身份
     if (currentUser.username === item.username) {
       message.error('禁止修改自己的身份')

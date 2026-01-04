@@ -2,7 +2,11 @@ import { useState, useEffect } from 'react'
 import { ConfigProvider, theme as antdTheme } from 'antd'
 import ThemeContext from '@/context/ThemeContext'
 
-export default function ThemeProvider({ children }) {
+export default function ThemeProvider({
+  children
+}: {
+  children: React.ReactNode
+}) {
   const [dark, setDark] = useState(() => {
     return (
       localStorage.theme === 'dark' ||

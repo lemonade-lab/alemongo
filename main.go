@@ -238,6 +238,10 @@ func main() {
 		}
 	}
 
+	// 从数据库加载 Email 和 GitHub 配置（优先级高于环境变量）
+	dao.LoadEmailConfigFromDB()
+	dao.LoadGitHubConfigFromDB()
+
 	// 打印当前工作目录
 	cwd, err := os.Getwd()
 	if err != nil {

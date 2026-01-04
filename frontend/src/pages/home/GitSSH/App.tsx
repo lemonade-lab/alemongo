@@ -54,7 +54,7 @@ const Configs = () => {
   const [form] = Form.useForm()
   const [loading, setLoading] = useState(false)
 
-  const onSubmit = values => {
+  const onSubmit = (values: any) => {
     if (loading) return
     setLoading(true)
     apiSSHGenerate(values)
@@ -72,7 +72,7 @@ const Configs = () => {
       })
   }
 
-  const onFinish = values => {
+  const onFinish = (values: any) => {
     Modal.confirm({
       title: (
         <div className="flex items-center gap-2">

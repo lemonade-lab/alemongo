@@ -20,7 +20,7 @@ declare global {
   interface Window {
     socket: WebSocket | null
     vscode: {
-      postMessage: (message) => void
+      postMessage: (message: any) => void
     }
   }
 }

@@ -333,7 +333,7 @@ const SFTPPage = () => {
                                 key: 'open',
                                 label: '打开',
                                 onClick: () => openDir(item.path)
-                              } as MenuProps['items'][number],
+                              } as any,
                               {
                                 key: 'download-zip',
                                 label: (
@@ -344,7 +344,7 @@ const SFTPPage = () => {
                                     下载ZIP
                                   </a>
                                 )
-                              } as MenuProps['items'][number]
+                              } as any
                             ]
                           : [
                               {
@@ -352,7 +352,7 @@ const SFTPPage = () => {
                                 label: '编辑',
                                 disabled: !canEdit,
                                 onClick: () => openFile(item)
-                              } as MenuProps['items'][number],
+                              } as any,
                               {
                                 key: 'download',
                                 label: (
@@ -364,7 +364,7 @@ const SFTPPage = () => {
                                     下载
                                   </a>
                                 )
-                              } as MenuProps['items'][number]
+                              } as any
                             ]),
                         { type: 'divider' },
                         {
@@ -378,7 +378,7 @@ const SFTPPage = () => {
                             message.success('已复制')
                             load()
                           }
-                        } as MenuProps['items'][number],
+                        } as any,
                         {
                           key: 'rename',
                           label: '重命名',
@@ -407,7 +407,7 @@ const SFTPPage = () => {
                               }
                             })
                           }
-                        } as MenuProps['items'][number],
+                        } as any,
                         {
                           key: 'delete',
                           label: '删除',
@@ -423,7 +423,7 @@ const SFTPPage = () => {
                               }
                             })
                           }
-                        } as MenuProps['items'][number]
+                        } as any
                       ]
                       return (
                         <Dropdown

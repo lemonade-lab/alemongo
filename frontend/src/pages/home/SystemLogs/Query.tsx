@@ -25,7 +25,7 @@ const Query = () => {
         const { log, count } = res || {}
         setTotal(count || 0)
         const lines = (log || '').split('\n')
-        const filteredLines = lines.filter(line => line.trim() !== '')
+        const filteredLines = lines.filter((line: string) => line.trim() !== '')
         setData(filteredLines)
       })
       .finally(() => setIsRefreshing(false))

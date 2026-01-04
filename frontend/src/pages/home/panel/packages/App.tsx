@@ -47,7 +47,7 @@ const Panel = () => {
     create_at: '',
     port: 0
   })
-  const [config, setConfig] = useState({
+  const [config, setConfig] = useState<{ apps: string[] }>({
     apps: []
   })
   const navigate = useNavigate()

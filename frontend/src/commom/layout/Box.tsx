@@ -12,7 +12,7 @@ const Box = ({
   rootClassName,
   className
 }: PropsWithChildren<{
-  boxRef?: React.RefObject<HTMLDivElement>
+  boxRef?: React.RefObject<HTMLDivElement | null>
   className?: string
   rootClassName?: string
 }>) => {

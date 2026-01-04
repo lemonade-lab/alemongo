@@ -3,12 +3,14 @@ import { Tabs } from 'antd'
 import {
   SettingOutlined,
   MailOutlined,
-  GithubOutlined
+  GithubOutlined,
+  CloudDownloadOutlined
 } from '@ant-design/icons'
 import { usePermission } from '@/hook/usePermission'
 import SystemInfo from './SystemInfo'
 import EmailConfig from './EmailConfig'
 import GitHubConfig from './GitHubConfig'
+import ImportExportConfig from './ImportExportConfig'
 
 const { TabPane } = Tabs
 
@@ -62,6 +64,21 @@ const SettingsTabs: React.FC<SettingsTabsProps> = ({ className = '' }) => {
             key="github"
           >
             <GitHubConfig />
+          </TabPane>
+        )}
+
+        {/* 配置导入导出 */}
+        {isSuperAdminValue && (
+          <TabPane
+            tab={
+              <div className="flex items-center gap-2">
+                <CloudDownloadOutlined />
+                导入导出
+              </div>
+            }
+            key="import-export"
+          >
+            <ImportExportConfig />
           </TabPane>
         )}
       </Tabs>

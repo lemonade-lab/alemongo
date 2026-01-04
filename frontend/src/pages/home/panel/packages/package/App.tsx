@@ -18,8 +18,8 @@ const GitPackage = () => {
     apiBotPackagesInfo({
       name,
       app_name: pkgName
-    }).then((res: BotPackages) => {
-      if (res.pkg) {
+    }).then((res: BotPackages | null) => {
+      if (res && res.pkg) {
         setPkgData(res.pkg)
       }
     })

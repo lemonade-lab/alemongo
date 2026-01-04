@@ -5,8 +5,10 @@
     "@alemonjs/db": "^0.0.13",
     "@alemonjs/discord": "^2.1.0-alpha.19",
     "@alemonjs/qq-bot": "^2.1.0-alpha.19",
+    "@alemonjs/bubble": "^2.1.0-alpha.7",
+    "@alemonjs/kook": "^2.1.0-alpha.3",
     "@alemonjs/onebot": "^2.1.0-alpha.11",
-    "alemonjs": "^2.1.7",
+    "alemonjs": "^2.1.9",
     "jsxp": "^1.2.3"
   },
   "devDependencies": {

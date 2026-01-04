@@ -14,7 +14,7 @@ const LogsOnline = () => {
   const [autoScroll, setAutoScroll] = useState(true)
   const [paused, setPaused] = useState(false)
   const length = useRef(0)
-  const logRef = useRef(null)
+  const logRef = useRef<HTMLDivElement>(null)
   const pausedRef = useRef(false)
   const autoScrollRef = useRef(true)
   const wsRef = useRef<WebSocket | null>(null)

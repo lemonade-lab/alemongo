@@ -114,6 +114,9 @@ func Create(mode string) *gin.Engine {
 				SettingsAPI.GET("/powerboot", middlewares.PermissionMiddleware(permission.SystemSettingsManage), settings.PowerBoot)             // 开机自启设置
 				SettingsAPI.GET("/powerboot/status", middlewares.PermissionMiddleware(permission.SystemConfigRead), settings.GetAutoStartStatus) // 获取开机自启状态
 				SettingsAPI.POST("/template/reset", middlewares.PermissionMiddleware(permission.SystemSettingsManage), settings.ResetTemplate)   // 重置基础机器人模板
+				// 配置导入导出
+				SettingsAPI.GET("/export", middlewares.PermissionMiddleware(permission.SystemConfigRead), settings.ExportSettings)      // 导出配置
+				SettingsAPI.POST("/import", middlewares.PermissionMiddleware(permission.SystemSettingsManage), settings.ImportSettings) // 导入配置
 			}
 
 			// config api
