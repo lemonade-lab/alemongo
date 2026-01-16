@@ -1,8 +1,7 @@
 import { defineConfig } from 'vite'
 import { fileURLToPath, URL } from 'url'
 import react from '@vitejs/plugin-react-swc'
-import viteCompression from 'vite-plugin-compression'
-// import { analyzer } from 'vite-bundle-analyzer'
+import { VitePWA } from 'vite-plugin-pwa'
 
 // https://vite.dev/config/
 const NODE_ENV = process.env.NODE_ENV === 'development'
@@ -10,8 +9,8 @@ const outDir = '../dist'
 export default defineConfig({
   plugins: [
     react(),
-    viteCompression({ algorithm: 'gzip', ext: '.gz' }),
-    viteCompression({ algorithm: 'brotliCompress', ext: '.br' })
+    // 注册 PWA
+    VitePWA({ registerType: 'autoUpdate' })
     // analyzer({
     //   openAnalyzer: false
     // })
@@ -60,7 +59,9 @@ export default defineConfig({
         entryFileNames: 'js/[name]-[hash].js',
         chunkFileNames: 'js/[name]-[hash].js',
         assetFileNames: ({ name }) => {
-          if (/\.(css)$/.test(name ?? '')) return 'css/[name]-[hash][extname]'
+          // 自动根据文件类型分类存放
+          const ext = name?.split('.').pop()
+          if (ext) return `assets/${ext}/[name]-[hash][extname]`
           return 'assets/[name]-[hash][extname]'
         },
         manualChunks: {
@@ -71,7 +72,8 @@ export default defineConfig({
             'react-router'
           ],
           'react-redux-vendor': ['react-redux', 'redux', '@reduxjs/toolkit'],
-          'antd-core-vendor': ['antd'],
+          // 让antd自动分配到各个chunk中
+          // 'antd-core-vendor': ['antd'],
           'antd-icons-vendor': ['@ant-design/icons'],
           'markdown-vendor': ['markdown-to-jsx'],
           'joyride-vendor': ['react-joyride'],
