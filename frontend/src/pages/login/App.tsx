@@ -122,7 +122,7 @@ const Login = () => {
                 alt="Alemongo"
               />
             </div>
-            <h2 className="text-3xl font-bold gradient-text mb-2">欢迎登录</h2>
+            <h2 className="text-3xl font-bold  mb-2">欢迎登录</h2>
             <p className="text-gray-300 dark:text-gray-400 text-sm">
               阿柠檬服务端平台
             </p>

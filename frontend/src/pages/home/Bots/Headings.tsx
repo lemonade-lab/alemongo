@@ -144,7 +144,7 @@ const Headings = ({
                 d="M12 6v6m0 0v6m0-6h6m-6 0H6"
               />
             </svg>
-            <span className="gradient-text font-semibold">创建机器人</span>
+            <span className=" font-semibold">创建机器人</span>
           </div>
         }
         onOk={() => {

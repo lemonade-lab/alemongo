@@ -170,9 +170,7 @@ const FloatButtons = () => {
                 clipRule="evenodd"
               />
             </svg>
-            <span className="gradient-text font-semibold text-sm">
-              重要通知
-            </span>
+            <span className=" font-semibold text-sm">重要通知</span>
           </div>
         }
         closable={{ 'aria-label': 'Close Button' }}

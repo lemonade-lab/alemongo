@@ -95,7 +95,7 @@ const Apps: React.FC = () => {
       <div className="w-full h-full flex gap-4 flex-col bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 duration-300">
         <div className="chatgpt-card p-4">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold gradient-text">Git 管理</h2>
+            <h2 className="text-xl font-semibold ">Git 管理</h2>
             <Space>
               <Button
                 onClick={refresh}

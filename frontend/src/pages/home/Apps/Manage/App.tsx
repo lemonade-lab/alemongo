@@ -220,7 +220,7 @@ const AppsManage: React.FC = () => {
       <div className="w-full h-full flex gap-4 flex-col bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900  duration-300">
         {/* 页面标题 */}
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold gradient-text">应用管理</h1>
+          <h1 className="text-2xl font-bold ">应用管理</h1>
           <Button
             onClick={refresh}
             loading={loading}
@@ -234,7 +234,7 @@ const AppsManage: React.FC = () => {
         {/* NVM 管理 */}
         <div className="chatgpt-card p-4">
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-lg font-semibold gradient-text">NVM 管理</h2>
+            <h2 className="text-lg font-semibold ">NVM 管理</h2>
             <Space>
               <Button
                 onClick={refresh}
@@ -295,9 +295,7 @@ const AppsManage: React.FC = () => {
         {/* Node.js 管理 */}
         <div className="chatgpt-card p-4">
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-lg font-semibold gradient-text">
-              Node.js 管理
-            </h2>
+            <h2 className="text-lg font-semibold ">Node.js 管理</h2>
             <Space>
               <Button
                 onClick={refresh}
@@ -360,7 +358,7 @@ const AppsManage: React.FC = () => {
         {/* Git 管理 */}
         <div className="chatgpt-card p-4">
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-lg font-semibold gradient-text">Git 管理</h2>
+            <h2 className="text-lg font-semibold ">Git 管理</h2>
             <Space>
               <Button
                 onClick={refresh}

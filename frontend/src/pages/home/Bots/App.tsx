@@ -265,7 +265,7 @@ const Home = () => {
                             <Tooltip
                               title={bot?.name.length > 12 ? bot.name : ''}
                             >
-                              <h3 className="text-lg font-bold gradient-text truncate">
+                              <h3 className="text-lg font-bold  truncate">
                                 {bot.name}
                               </h3>
                             </Tooltip>

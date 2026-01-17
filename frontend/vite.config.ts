@@ -2,6 +2,7 @@ import { defineConfig } from 'vite'
 import { fileURLToPath, URL } from 'url'
 import react from '@vitejs/plugin-react-swc'
 import { VitePWA } from 'vite-plugin-pwa'
+// import analyzer from 'vite-bundle-analyzer'
 
 // https://vite.dev/config/
 const NODE_ENV = process.env.NODE_ENV === 'development'
@@ -10,7 +11,7 @@ export default defineConfig({
   plugins: [
     react(),
     // 注册 PWA
-    VitePWA({ registerType: 'autoUpdate' })
+    VitePWA({ registerType: 'autoUpdate', outDir: outDir })
     // analyzer({
     //   openAnalyzer: false
     // })

@@ -115,7 +115,7 @@ const Apps: React.FC = () => {
       <div className="">
         {/* 页面标题 */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold gradient-text mb-2">应用中心</h1>
+          <h1 className="text-3xl font-bold  mb-2">应用中心</h1>
           <p className="text-gray-600 dark:text-gray-400">
             管理和访问各种工具和服务
           </p>
