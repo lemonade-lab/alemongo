@@ -93,7 +93,6 @@ export default defineConfig({
             'axios',
             'dayjs',
             'js-yaml',
-            'jwt-decode',
             'lodash-es',
             'classnames'
           ],

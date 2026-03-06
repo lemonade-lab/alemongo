@@ -14,7 +14,6 @@ import {
 } from '@ant-design/icons'
 import useTheme from '@/hook/useTheme'
 import './Terminal.css'
-import { TOKEN_KEY } from '@/api'
 
 const { Text } = Typography
 
@@ -35,7 +34,7 @@ const Terminal: React.FC<TerminalProps> = ({ className = '' }) => {
   const fitAddonRef = useRef<FitAddon | null>(null)
   const searchAddonRef = useRef<SearchAddon | null>(null)
   const wsRef = useRef<WebSocket | null>(null)
-  const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const reconnectTimeoutRef = useRef<null | number>(null)
   const sendQueueRef = useRef<string[]>([])
   const isSendingRef = useRef(false)
 
@@ -276,14 +275,14 @@ const Terminal: React.FC<TerminalProps> = ({ className = '' }) => {
     })
 
     // 处理窗口大小变化 - 浏览器窗口resize时触发
-    let resizeTimeout: NodeJS.Timeout | null = null
+    let resizeTimeout: number | null = null
     const handleResize = () => {
       // 防抖：避免频繁调用
       if (resizeTimeout) {
         clearTimeout(resizeTimeout)
       }
 
-      resizeTimeout = setTimeout(() => {
+      resizeTimeout = window.setTimeout(() => {
         if (fitAddonRef.current) {
           console.log('窗口大小变化，重新fit')
           fitAddonRef.current.fit()
@@ -314,18 +313,9 @@ const Terminal: React.FC<TerminalProps> = ({ className = '' }) => {
 
     const wsUrl = `/api/v1/terminal/ws`
 
-    // 获取 token
-    const token =
-      localStorage.getItem(TOKEN_KEY) || sessionStorage.getItem(TOKEN_KEY)
-    if (!token) {
-      message.error('认证失败，请重新登录')
-      setIsConnecting(false)
-      return
-    }
-
     try {
-      // 使用 subprotocol 传递 token
-      const ws = new WebSocket(wsUrl, [`token.${token}`])
+      // cookie 会由浏览器自动携带
+      const ws = new WebSocket(wsUrl)
       wsRef.current = ws
 
       ws.onopen = () => {
@@ -405,7 +395,7 @@ const Terminal: React.FC<TerminalProps> = ({ className = '' }) => {
         if (isMounted && event.code !== 1000) {
           message.warning('终端连接已断开，3秒后尝试重连...')
           // 自动重连
-          reconnectTimeoutRef.current = setTimeout(() => {
+          reconnectTimeoutRef.current = window.setTimeout(() => {
             // 再次检查组件是否仍然挂载
             if (isMounted) {
               connectWebSocket()
@@ -421,7 +411,7 @@ const Terminal: React.FC<TerminalProps> = ({ className = '' }) => {
 
         // 连接失败时也尝试重连
         if (isMounted) {
-          reconnectTimeoutRef.current = setTimeout(() => {
+          reconnectTimeoutRef.current = window.setTimeout(() => {
             if (isMounted) {
               connectWebSocket()
             }

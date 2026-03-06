@@ -22,7 +22,7 @@ const MobileSidebar = ({
         <div className="flex items-center gap-2">
           <img
             className="h-6 w-auto"
-            src="https://alemonjs.com/img/alemon.png"
+            src="me.png"
             alt="Alemongo"
           />
           <span className="text-white font-semibold mobile-text-sm">
@@ -70,7 +70,7 @@ const MobileNavbar = ({ onMenuClick }: { onMenuClick: () => void }) => {
       <div className="flex items-center gap-2">
         <img
           className="h-6 w-auto"
-          src="https://alemonjs.com/img/alemon.png"
+          src="me.png"
           alt="Alemongo"
         />
         <span className="text-white font-semibold mobile-text-sm">

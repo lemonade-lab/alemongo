@@ -5,6 +5,7 @@ import (
 	"alemongo/src/dao"
 	"alemongo/src/logic"
 	"alemongo/src/models"
+	"alemongo/src/pkgs/session"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -54,7 +55,7 @@ func GitHubLogin(ctx *gin.Context) {
 		return
 	}
 
-	tokenValue, err := logic.GitHubLogin(req.Code)
+	loginUser, err := logic.GitHubLogin(req.Code)
 	if err != nil {
 		// 根据错误类型返回不同的状态码
 		statusCode := http.StatusBadRequest
@@ -65,7 +66,16 @@ func GitHubLogin(ctx *gin.Context) {
 		return
 	}
 
-	response.ResponseSuccess(ctx, tokenValue)
+	// 创建 session 并设置 cookie
+	sessionID, err := session.Create(loginUser)
+	if err != nil {
+		response.ResponseErrorWithMsg(ctx, http.StatusInternalServerError, http.StatusInternalServerError, "创建会话失败")
+		return
+	}
+
+	ctx.SetCookie(session.CookieName, sessionID, session.MaxAge(), "/", "", false, true)
+
+	response.ResponseSuccess(ctx, nil)
 }
 
 // BindGitHubAccount 绑定 GitHub 账号
@@ -76,7 +86,7 @@ func GitHubLogin(ctx *gin.Context) {
 // @Failure 401 {object} response.ResponseData "认证失败"
 // @Router /user/github/bind [post]
 func BindGitHubAccount(ctx *gin.Context) {
-	// 从JWT token中获取当前登录的用户名
+	// 从 session 中获取当前登录的用户名
 	username, exists := ctx.Get("username")
 	if !exists {
 		response.ResponseErrorWithMsg(ctx, http.StatusUnauthorized, http.StatusUnauthorized, "未登录")

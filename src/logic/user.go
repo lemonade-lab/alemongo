@@ -5,7 +5,6 @@ import (
 	"alemongo/src/models"
 	"alemongo/src/pkgs/email"
 	"alemongo/src/pkgs/github"
-	"alemongo/src/pkgs/jwt"
 	passwordpkg "alemongo/src/pkgs/password"
 	"alemongo/src/settings"
 	"alemongo/src/utils"
@@ -92,16 +91,12 @@ func Login(username, plainPwd string) (string, error) {
 	// 登录成功，清除失败记录
 	dao.ClearLoginFailures(username)
 
-	// 生成 token
-	tokenValue, err := jwt.CreateToken(username)
-	if err != nil {
-		return "", errors.New("生成 token 失败")
-	}
-	return tokenValue, nil
+	return username, nil
 }
 
-func Logout(tokenValue string) error {
-	return jwt.DeleteToken(tokenValue)
+func Logout() error {
+	// Session 由调用方（handler）负责删除
+	return nil
 }
 
 func ChangePassword(username, oldPassword, newPassword string) error {
@@ -185,13 +180,8 @@ func GitHubLogin(code string) (string, error) {
 		return "", errors.New("该 GitHub 账号未绑定任何用户，请先绑定")
 	}
 
-	// 4. 生成 JWT token
-	tokenValue, err := jwt.CreateToken(user.UserName)
-	if err != nil {
-		return "", errors.New("生成 token 失败")
-	}
-
-	return tokenValue, nil
+	// 4. 返回用户名（由调用方创建 session）
+	return user.UserName, nil
 }
 
 // BindGitHubAccount 绑定 GitHub 账号

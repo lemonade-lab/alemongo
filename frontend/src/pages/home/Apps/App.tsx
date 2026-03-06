@@ -18,7 +18,7 @@ const Apps: React.FC = () => {
       icon: (
         <img
           className="w-20 h-20 object-contain transition-transform duration-200 group-hover:scale-110"
-          src="https://alemonjs.com/img/alemon.png"
+          src="me.png"
         />
       ),
       onClick: () => navigate('/bots'),

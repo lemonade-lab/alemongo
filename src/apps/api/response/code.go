@@ -25,7 +25,7 @@ const (
 	ErrCreateConfigCatFailed
 	ErrReadConfigCatFailed
 
-	TokenInvalid
+	SessionInvalid
 )
 
 var codeMsgMap = map[ResCode]string{
@@ -51,7 +51,7 @@ var codeMsgMap = map[ResCode]string{
 	ErrCreateConfigCatFailed: "创建配置目录失败",
 	ErrReadConfigCatFailed:   "读取配置目录失败",
 
-	TokenInvalid: "无效token",
+	SessionInvalid: "无效会话",
 }
 
 func (c ResCode) Msg() string {

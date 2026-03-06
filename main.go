@@ -9,6 +9,7 @@ import (
 	"alemongo/src/files"
 	"alemongo/src/logger"
 	"alemongo/src/pkgs/email"
+	"alemongo/src/pkgs/session"
 	"alemongo/src/route"
 	"alemongo/src/settings"
 	"alemongo/src/utils"
@@ -271,6 +272,9 @@ func main() {
 	// 获得全局进程管理
 	pm := process.GetProcessManager()
 	_ = pm.ReviveAll() // 复活所有进程
+
+	// 启动 session 过期清理任务
+	session.StartCleanupTask()
 
 	// 创建路由
 	app := route.Create(mode)

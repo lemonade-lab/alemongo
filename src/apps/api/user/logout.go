@@ -2,7 +2,7 @@ package user
 
 import (
 	"alemongo/src/apps/api/response"
-	"alemongo/src/logic"
+	"alemongo/src/pkgs/session"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -10,16 +10,17 @@ import (
 
 // 退出登录
 func Logout(ctx *gin.Context) {
-	tokenValue, exists := ctx.Get("token")
+	sessionID, exists := ctx.Get("sessionID")
 	if !exists {
-		response.ResponseErrorWithMsg(ctx, http.StatusBadRequest, http.StatusBadRequest, "无效token")
+		response.ResponseErrorWithMsg(ctx, http.StatusBadRequest, http.StatusBadRequest, "无效会话")
 		return
 	}
-	err := logic.Logout(tokenValue.(string))
 
-	if err != nil {
-		response.ResponseErrorWithMsg(ctx, http.StatusBadRequest, http.StatusBadRequest, "退出登录失败")
-		return
-	}
+	// 删除服务端会话
+	session.Delete(sessionID.(string))
+
+	// 清除 cookie
+	ctx.SetCookie(session.CookieName, "", -1, "/", "", false, true)
+
 	response.ResponseSuccess(ctx, nil)
 }

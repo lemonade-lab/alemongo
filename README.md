@@ -11,9 +11,8 @@
 ALEMONGO_SERVER_HOST=127.0.0.1
 ALEMONGO_SERVER_PORT=17187
 
-# Token 认证
-ALEMONGO_TOKEN_KEY=alemongo              # 生产环境请修改
-ALEMONGO_TOKEN_EXPIRES_TIME=24           # 小时
+# 会话配置
+ALEMONGO_SESSION_EXPIRES_DAYS=30         # 会话有效天数，默认30天
 
 # 日志配置
 ALEMONGO_LOG_LEVEL=info

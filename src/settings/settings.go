@@ -15,24 +15,24 @@ const (
 var Conf = new(AppConfig)
 
 type AppConfig struct {
-	Name   string          `json:"name"`
-	Mode   string          `json:"mode"`
-	Server *ServerConfig   `json:"server"`
-	Log    *LogConfig      `json:"log"`
-	SMTP   *SMTPConfig     `json:"smtp"`
-	GitHub *GitHubConfig   `json:"github"`
-	DB     *DatabaseConfig `json:"database"`
+	Name    string          `json:"name"`
+	Mode    string          `json:"mode"`
+	Server  *ServerConfig   `json:"server"`
+	Session *SessionConfig  `json:"session"`
+	Log     *LogConfig      `json:"log"`
+	SMTP    *SMTPConfig     `json:"smtp"`
+	GitHub  *GitHubConfig   `json:"github"`
+	DB      *DatabaseConfig `json:"database"`
 }
 
 type ServerConfig struct {
-	Host         string `json:"host"`
-	Port         string `json:"port"`
-	*TokenConfig `json:"token"`
+	Host string `json:"host"`
+	Port string `json:"port"`
 }
 
-type TokenConfig struct {
-	Key         string `json:"key"`
-	ExpiresTime int64  `json:"expires_time"`
+// SessionConfig 会话配置
+type SessionConfig struct {
+	ExpiresDays int64 `json:"expires_days"`
 }
 
 type LogConfig struct {
@@ -79,10 +79,11 @@ func Init() error {
 	Conf.Server = &ServerConfig{
 		Host: getEnv("ALEMONGO_SERVER_HOST", "127.0.0.1"),
 		Port: getEnv("ALEMONGO_SERVER_PORT", "17187"),
-		TokenConfig: &TokenConfig{
-			Key:         getEnv("ALEMONGO_TOKEN_KEY", "alemongo"),
-			ExpiresTime: getEnvAsInt64("ALEMONGO_TOKEN_EXPIRES_TIME", 24),
-		},
+	}
+
+	// 会话配置
+	Conf.Session = &SessionConfig{
+		ExpiresDays: getEnvAsInt64("ALEMONGO_SESSION_EXPIRES_DAYS", 30),
 	}
 
 	// 日志配置

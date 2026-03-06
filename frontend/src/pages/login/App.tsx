@@ -8,7 +8,7 @@ import {
   apiGitHubLogin,
   apiGetGeneralConfig
 } from '@/api'
-import { setToken } from '@/redux/me'
+import { setLoggedIn } from '@/redux/me'
 import './index.css'
 
 const Login = () => {
@@ -32,8 +32,8 @@ const Login = () => {
     apiLogin({
       password,
       username
-    }).then(data => {
-      dispatch(setToken(data))
+    }).then(() => {
+      dispatch(setLoggedIn())
       navigate('/')
     })
   }
@@ -61,8 +61,8 @@ const Login = () => {
 
     if (code && state === 'login') {
       try {
-        const token = await apiGitHubLogin({ code, state })
-        dispatch(setToken(token))
+        await apiGitHubLogin({ code, state })
+        dispatch(setLoggedIn())
         navigate('/')
       } catch (error: unknown) {
         const errorMessage =
@@ -118,7 +118,7 @@ const Login = () => {
             <div className="flex items-center justify-center mb-4">
               <img
                 className="h-12 w-auto mr-3"
-                src="https://alemonjs.com/img/alemon.png"
+                src="me.png"
                 alt="Alemongo"
               />
             </div>

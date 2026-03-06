@@ -3,10 +3,11 @@ import axios, { AxiosRequestConfig } from 'axios'
 
 const api = axios.create({
   baseURL: '/api/v1',
-  timeout: 1000 * 60 * 3 // 3分钟超时
+  timeout: 1000 * 60 * 3, // 3分钟超时
+  withCredentials: true // 自动发送 cookie
 })
 
-export const TOKEN_KEY = 'alemongo:token'
+export const LOGIN_FLAG_KEY = 'alemongo:logged_in'
 
 export const QQ_TEMPLATE_KEY = 'alemongo:qq:template'
 
@@ -87,7 +88,6 @@ export const request = async (
   return new Promise((resolve, reject) => {
     api({
       headers: {
-        'Authorization': `Bearer ${localStorage.getItem(TOKEN_KEY)}`,
         'Content-Type': getContentType(cfg.method || 'GET'),
         ...headers
       },
@@ -101,6 +101,7 @@ export const request = async (
         if (err?.response?.data?.msg) {
           message.error(err.response.data.msg)
         } else if (err?.response?.status === 401) {
+          localStorage.removeItem(LOGIN_FLAG_KEY)
           window.location.href = '/login'
           message.error('授权失败，请重新登录')
         } else if (err?.response?.status === 404) {

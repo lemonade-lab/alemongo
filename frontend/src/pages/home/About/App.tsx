@@ -50,7 +50,7 @@ const About: React.FC = () => {
         className="mb-6"
         title={
           <div className="flex items-center gap-2">
-            🖥️ 系统监控 V{common.info.base?.version}(
+            🖥️ {common.info.base?.version}(
             {common.info.base?.build_time})
           </div>
         }

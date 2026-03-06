@@ -15,7 +15,7 @@ import (
 	"time"
 
 	"alemongo/src/dao"
-	"alemongo/src/pkgs/jwt"
+	authsession "alemongo/src/pkgs/session"
 	"alemongo/src/utils"
 
 	"github.com/creack/pty"
@@ -242,41 +242,29 @@ func (tm *TerminalManager) ReadFromSession(sessionID string) ([]byte, error) {
 
 // HandleWebSocket 处理WebSocket连接
 func HandleWebSocket(c *gin.Context) {
-	// 从 WebSocket subprotocol 中获取 token
-	subprotocols := websocket.Subprotocols(c.Request)
-	var token string
-	for _, protocol := range subprotocols {
-		if len(protocol) > 6 && protocol[:6] == "token." {
-			token = protocol[6:] // 提取 "token." 后面的部分
-			break
-		}
-	}
-
-	if token == "" {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "缺少认证token"})
+	// 从 cookie 中读取 session
+	sessionCookie, err := c.Cookie(authsession.CookieName)
+	if err != nil || sessionCookie == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "未认证或会话已过期"})
 		return
 	}
 
-	// 验证 JWT token
-	mc, err := jwt.ParseToken(token)
-	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "无效的认证token"})
+	data, ok := authsession.Get(sessionCookie)
+	if !ok {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "未认证或会话已过期"})
 		return
 	}
 
 	// 权限检查：仅允许超级管理员（包括临时超级管理员）使用终端
-	// 与账户管理保持一致：dao.IsSuperAdmin 会同时判断持久化超级管理员与临时超级管理员
-	if !dao.IsSuperAdmin(mc.Username) {
+	if !dao.IsSuperAdmin(data.Username) {
 		c.JSON(http.StatusForbidden, gin.H{"error": "仅超级管理员可使用终端"})
 		return
 	}
 
-	log.Printf("超级管理员 %s 请求终端连接", mc.Username)
+	log.Printf("超级管理员 %s 请求终端连接", data.Username)
 
-	// 升级为WebSocket连接，支持 subprotocol
-	conn, err := manager.upgrader.Upgrade(c.Writer, c.Request, http.Header{
-		"Sec-WebSocket-Protocol": []string{fmt.Sprintf("token.%s", token)},
-	})
+	// 升级为WebSocket连接
+	conn, err := manager.upgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
 		log.Printf("WebSocket升级失败: %v", err)
 		return

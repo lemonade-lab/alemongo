@@ -4,11 +4,10 @@ import (
 	"alemongo/src/dao"
 	"alemongo/src/paths"
 	"alemongo/src/permission"
-	"alemongo/src/pkgs/jwt"
+	"alemongo/src/pkgs/session"
 	"alemongo/src/settings"
 	"bufio"
 	"errors"
-	"fmt"
 	"io"
 	"net/http"
 	"os"
@@ -27,15 +26,17 @@ type logWSMsg struct {
 	Data string `json:"data"`
 }
 
-// auth via websocket subprotocol: token.<JWT>
-func extractTokenFromSubprotocol(r *http.Request) string {
-	subs := websocket.Subprotocols(r)
-	for _, s := range subs {
-		if len(s) > 6 && s[:6] == "token." {
-			return s[6:]
-		}
+// extractUsernameFromSession 从请求 cookie 中提取 session 用户名
+func extractUsernameFromSession(c *gin.Context) (string, bool) {
+	sessionID, err := c.Cookie(session.CookieName)
+	if err != nil || sessionID == "" {
+		return "", false
 	}
-	return ""
+	data, ok := session.Get(sessionID)
+	if !ok {
+		return "", false
+	}
+	return data.Username, true
 }
 
 func hasPermission(username string, required int) bool {
@@ -53,24 +54,17 @@ func hasPermission(username string, required int) bool {
 
 // SystemLogWS: /api/v1/system/log/ws?size=200&timestamp=ms
 func SystemLogWS(c *gin.Context) {
-	token := extractTokenFromSubprotocol(c.Request)
-	if token == "" {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "缺少认证token"})
+	username, ok := extractUsernameFromSession(c)
+	if !ok {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "未认证或会话已过期"})
 		return
 	}
-	mc, err := jwt.ParseToken(token)
-	if err != nil || mc == nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "无效的认证token"})
-		return
-	}
-	if !hasPermission(mc.Username, permission.SystemConfigRead) {
+	if !hasPermission(username, permission.SystemConfigRead) {
 		c.JSON(http.StatusForbidden, gin.H{"error": "权限不足"})
 		return
 	}
 
-	conn, err := logWSUpgrader.Upgrade(c.Writer, c.Request, http.Header{
-		"Sec-WebSocket-Protocol": []string{fmt.Sprintf("token.%s", token)},
-	})
+	conn, err := logWSUpgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
 		return
 	}
@@ -101,17 +95,12 @@ func SystemLogWS(c *gin.Context) {
 
 // BotLogWS: /api/v1/bot/log/ws?name=xxx&size=200&timestamp=ms
 func BotLogWS(c *gin.Context) {
-	token := extractTokenFromSubprotocol(c.Request)
-	if token == "" {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "缺少认证token"})
+	username, ok := extractUsernameFromSession(c)
+	if !ok {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "未认证或会话已过期"})
 		return
 	}
-	mc, err := jwt.ParseToken(token)
-	if err != nil || mc == nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "无效的认证token"})
-		return
-	}
-	if !hasPermission(mc.Username, permission.BotLogManage) {
+	if !hasPermission(username, permission.BotLogManage) {
 		c.JSON(http.StatusForbidden, gin.H{"error": "权限不足"})
 		return
 	}
@@ -122,9 +111,7 @@ func BotLogWS(c *gin.Context) {
 		return
 	}
 
-	conn, err := logWSUpgrader.Upgrade(c.Writer, c.Request, http.Header{
-		"Sec-WebSocket-Protocol": []string{fmt.Sprintf("token.%s", token)},
-	})
+	conn, err := logWSUpgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
 		return
 	}

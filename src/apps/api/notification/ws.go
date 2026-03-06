@@ -3,7 +3,7 @@ package notification
 import (
 	"alemongo/src/dao"
 	"alemongo/src/permission"
-	"alemongo/src/pkgs/jwt"
+	"alemongo/src/pkgs/session"
 	"net/http"
 	"sync"
 	"time"
@@ -12,8 +12,7 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-// WebSocket 协议复用：subprotocol token.<JWT>
-// 与 log/ws 实现保持一致：放开 Origin 校验（生产可后续集中加一道网关/反代限制）。
+// 放开 Origin 校验（生产可后续集中加一道网关/反代限制）。
 var notifyUpgrader = websocket.Upgrader{CheckOrigin: func(r *http.Request) bool { return true }}
 
 // 消息类型常量
@@ -146,30 +145,20 @@ func (h *Hub) broadcastAll(msg wsMessage) {
 	}
 }
 
-func extractTokenFromSubprotocol(r *http.Request) string {
-	subs := websocket.Subprotocols(r)
-	for _, s := range subs {
-		if len(s) > 6 && s[:6] == "token." {
-			return s[6:]
-		}
-	}
-	return ""
-}
-
 // NotificationWS WebSocket 入口 /api/v1/notifications/ws
 // 仅认证用户可连接；权限：普通用户可连接并接收自己的通知
 func NotificationWS(c *gin.Context) {
-	token := extractTokenFromSubprotocol(c.Request)
-	if token == "" {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "缺少认证token"})
+	sessionID, err := c.Cookie(session.CookieName)
+	if err != nil || sessionID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "未认证或会话已过期"})
 		return
 	}
-	mc, err := jwt.ParseToken(token)
-	if err != nil || mc == nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "无效的认证token"})
+	data, ok := session.Get(sessionID)
+	if !ok {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "未认证或会话已过期"})
 		return
 	}
-	username := mc.Username
+	username := data.Username
 	// 用户存在校验；但允许临时超级管理员（尚未持久化）通过
 	if _, ok := dao.GetUserByUserName(username); !ok {
 		if !dao.IsTemporarySuperAdmin(username) { // 既不是持久化用户也不是临时超级管理员
@@ -178,9 +167,7 @@ func NotificationWS(c *gin.Context) {
 		}
 	}
 
-	conn, err := notifyUpgrader.Upgrade(c.Writer, c.Request, http.Header{
-		"Sec-WebSocket-Protocol": []string{"token." + token},
-	})
+	conn, err := notifyUpgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
 		return
 	}
