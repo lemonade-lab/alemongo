@@ -1,5 +1,6 @@
 import { message } from 'antd'
 import axios, { AxiosRequestConfig } from 'axios'
+import { emitSessionExpired } from '@/utils/authEvent'
 
 const api = axios.create({
   baseURL: '/api/v1',
@@ -54,7 +55,14 @@ export const server = async (
         resolve(res.data)
       })
       .catch(err => {
-        if (err?.response?.data?.msg) {
+        if (err?.response?.status === 401) {
+          localStorage.removeItem(LOGIN_FLAG_KEY)
+          if (window.location.pathname === '/login') {
+            window.location.href = '/login'
+          } else {
+            emitSessionExpired()
+          }
+        } else if (err?.response?.data?.msg) {
           message.error(err.response.data.msg)
         } else if (err?.response?.status === 404) {
           message.error('API未找到，请检查网络连接或联系管理员')
@@ -98,12 +106,16 @@ export const request = async (
         resolve(res.data)
       })
       .catch(err => {
-        if (err?.response?.data?.msg) {
-          message.error(err.response.data.msg)
-        } else if (err?.response?.status === 401) {
+        if (err?.response?.status === 401) {
           localStorage.removeItem(LOGIN_FLAG_KEY)
-          window.location.href = '/login'
-          message.error('授权失败，请重新登录')
+          // 如果已在登录页则跳转，否则弹出登录弹窗
+          if (window.location.pathname === '/login') {
+            window.location.href = '/login'
+          } else {
+            emitSessionExpired()
+          }
+        } else if (err?.response?.data?.msg) {
+          message.error(err.response.data.msg)
         } else if (err?.response?.status === 404) {
           message.error('API未找到，请检查网络连接或联系管理员')
         } else if (err?.response?.status === 500) {

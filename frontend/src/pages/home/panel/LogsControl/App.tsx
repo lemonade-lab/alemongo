@@ -106,42 +106,36 @@ const LogsControl = () => {
   }
 
   return (
-    <Box>
-      <div className="h-full flex flex-col gap-2 justify-between">
-        {/* 头部区域 + Tabs */}
-        <div className="flex items-center justify-between flex-wrap gap-3">
-          <div className="w-full">
-            <Tabs
-              activeKey="query"
-              items={[
-                { key: 'online', label: '在线日志' },
-                { key: 'query', label: '查询日志' }
-              ]}
-              onChange={key => {
-                if (key === 'online') {
-                  const name = getBotName()
-                  window.location.href = `/bots/${name}/logs`
-                }
-              }}
-            />
-          </div>
-          <div className="flex items-center gap-3 flex-wrap">
-            <div className="flex-1 min-w-0 bg-white rounded-md dark:bg-slate-500">
+    <Box rootClassName="!overflow-hidden">
+      <div className="flex-1 flex flex-col gap-2 min-h-0">
+        {/* 头部区域：Tabs + 日期选择 + 操作按钮 */}
+        <div className="flex-shrink-0">
+          <Tabs
+            activeKey="query"
+            items={[
+              { key: 'online', label: '在线日志' },
+              { key: 'query', label: '查询日志' }
+            ]}
+            onChange={key => {
+              if (key === 'online') {
+                const name = getBotName()
+                window.location.href = `/bots/${name}/logs`
+              }
+            }}
+          />
+          <div className="flex items-center gap-2 flex-wrap">
+            <div className="bg-white rounded-md dark:bg-slate-500">
               <DatePicker
                 value={dayjs(timestamp)}
                 onChange={onChange}
-                className="chatgpt-input w-full"
-                size="large"
+                className="chatgpt-input"
+                size="middle"
                 showTime={false}
                 format="YYYY-MM-DD"
               />
             </div>
-          </div>
-
-          {/* 操作按钮组 */}
-          <div className="flex items-center gap-3 flex-wrap">
             <Popconfirm
-              placement="leftTop"
+              placement="bottomLeft"
               title={
                 <div className="flex items-center gap-2">
                   <DeleteOutlined className="text-red-500" />
@@ -158,133 +152,135 @@ const LogsControl = () => {
               <Button
                 type="primary"
                 danger
+                size="small"
                 icon={<DeleteOutlined />}
                 loading={isLoading}
                 disabled={data.length === 0}
-                className="shadow-lg shadow-red-500/20 hover:shadow-red-500/30"
               >
-                删除日志
+                删除
               </Button>
             </Popconfirm>
             <Button
+              size="small"
               icon={<CopyOutlined />}
               onClick={onCopyPage}
               disabled={data.length === 0}
             >
-              复制本页
+              复制
             </Button>
             <Button
+              size="small"
               icon={<DownloadOutlined />}
               onClick={onDownloadPage}
               disabled={data.length === 0}
             >
-              下载本页
+              本页
             </Button>
-            <Button icon={<DownloadOutlined />} onClick={onDownloadSelectedDay}>
-              下载所选日
+            <Button
+              size="small"
+              icon={<DownloadOutlined />}
+              onClick={onDownloadSelectedDay}
+            >
+              整天
             </Button>
           </div>
         </div>
 
-        {/* 日志内容区域（与在线日志页风格统一） */}
-        <div className="flex-1 min-w-0 w-full max-w-full">
-          <div className="flex-1 min-w-0 w-full max-w-full bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl border border-white/20 dark:border-gray-700/20 overflow-hidden shadow-lg">
-            {isRefreshing && data.length === 0 ? (
-              <div className="flex items-center justify-center h-full py-12">
-                <div className="text-center">
-                  <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
-                    <svg
-                      className="w-8 h-8 text-white animate-spin"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                      />
-                    </svg>
-                  </div>
-                  <p className="text-gray-600 dark:text-gray-400">
-                    正在加载日志...
-                  </p>
-                </div>
-              </div>
-            ) : data.length === 0 ? (
-              <div className="flex items-center justify-center h-full py-12">
-                <div className="text-center">
-                  <div className="w-16 h-16 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <svg
-                      className="w-8 h-8 text-gray-400"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                      />
-                    </svg>
-                  </div>
-                  <p className="text-gray-600 dark:text-gray-400">
-                    暂无日志数据
-                  </p>
-                </div>
-              </div>
-            ) : (
-              <div className="h-full overflow-y-auto overflow-x-auto p-4 space-y-1  max-h-[calc(100vh-25rem)] sm:max-h-[calc(100vh-19rem)] md:max-h-[calc(100vh-16rem)] lg:max-h-[calc(100vh-17rem)] xl:max-h-[calc(100vh-14rem)] min-w-0 w-full max-w-full">
-                {data.map((item, index) => (
-                  <div
-                    key={index}
-                    className="group flex items-start gap-3 p-3 bg-white/50 dark:bg-gray-700/50 backdrop-blur-sm rounded-lg border border-white/20 dark:border-gray-600/20 hover:bg-white/80 dark:hover:bg-gray-700/80  duration-200"
+        {/* 日志内容区域 — 填充剩余空间 */}
+        <div className="flex-1 min-h-0 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl border border-white/20 dark:border-gray-700/20 overflow-hidden shadow-lg">
+          {isRefreshing && data.length === 0 ? (
+            <div className="flex items-center justify-center h-full">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
+                  <svg
+                    className="w-8 h-8 text-white animate-spin"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
                   >
-                    {/* 行号 */}
-                    <div className="flex-shrink-0 w-10 text-xs text-gray-400 dark:text-gray-500 font-mono text-right pt-1">
-                      {index + 1}
-                    </div>
-                    {/* 日志内容 */}
-                    <div className="flex-1 min-w-0 w-full max-w-full">
-                      <pre className="select-text text-sm text-gray-700 dark:text-gray-300 font-mono whitespace-pre-wrap break-words break-all md:break-words leading-relaxed">
-                        {item}
-                      </pre>
-                    </div>
-                    {/* 单行复制按钮 */}
-                    <div className="flex-shrink-0 opacity-0 group-hover:opacity-100 transition">
-                      <Button
-                        size="small"
-                        type="text"
-                        icon={<CopyOutlined />}
-                        onClick={async () => {
-                          try {
-                            await navigator.clipboard.writeText(item)
-                            message.success('已复制该行')
-                          } catch {
-                            message.error('复制失败')
-                          }
-                        }}
-                      />
-                    </div>
-                  </div>
-                ))}
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                    />
+                  </svg>
+                </div>
+                <p className="text-gray-600 dark:text-gray-400">
+                  正在加载日志...
+                </p>
               </div>
-            )}
-          </div>
+            </div>
+          ) : data.length === 0 ? (
+            <div className="flex items-center justify-center h-full">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg
+                    className="w-8 h-8 text-gray-400"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                    />
+                  </svg>
+                </div>
+                <p className="text-gray-600 dark:text-gray-400">
+                  暂无日志数据
+                </p>
+              </div>
+            </div>
+          ) : (
+            <div className="h-full overflow-y-auto overflow-x-auto p-4 space-y-1">
+              {data.map((item, index) => (
+                <div
+                  key={index}
+                  className="group flex items-start gap-2 sm:gap-3 p-2 sm:p-3 bg-white/50 dark:bg-gray-700/50 backdrop-blur-sm rounded-lg border border-white/20 dark:border-gray-600/20 hover:bg-white/80 dark:hover:bg-gray-700/80 duration-200"
+                >
+                  {/* 行号 */}
+                  <div className="flex-shrink-0 w-8 sm:w-10 text-xs text-gray-400 dark:text-gray-500 font-mono text-right pt-1">
+                    {(pageInfo.page - 1) * pageInfo.pageSize + index + 1}
+                  </div>
+                  {/* 日志内容 */}
+                  <div className="flex-1 min-w-0">
+                    <pre className="select-text text-xs sm:text-sm text-gray-700 dark:text-gray-300 font-mono whitespace-pre-wrap break-words leading-relaxed">
+                      {item}
+                    </pre>
+                  </div>
+                  {/* 单行复制按钮 */}
+                  <div className="flex-shrink-0 opacity-0 group-hover:opacity-100 transition">
+                    <Button
+                      size="small"
+                      type="text"
+                      icon={<CopyOutlined />}
+                      onClick={async () => {
+                        try {
+                          await navigator.clipboard.writeText(item)
+                          message.success('已复制该行')
+                        } catch {
+                          message.error('复制失败')
+                        }
+                      }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
-        {/* 分页器 */}
-        <div className="flex justify-center w-full">
-          <div className="w-full bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm rounded-lg px-4 py-2 border border-white/20 dark:border-gray-700/20">
-            <Pagination
-              total={total}
-              pageSize={pageInfo.pageSize}
-              page={pageInfo.page}
-              onPageChange={page => setPageInfo({ ...pageInfo, page })}
-            />
-          </div>
+        {/* 分页器 — 始终可见 */}
+        <div className="flex-shrink-0 bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm rounded-lg px-3 py-2 border border-white/20 dark:border-gray-700/20">
+          <Pagination
+            total={total}
+            pageSize={pageInfo.pageSize}
+            page={pageInfo.page}
+            onPageChange={page => setPageInfo({ ...pageInfo, page })}
+          />
         </div>
       </div>
     </Box>

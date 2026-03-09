@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState, useCallback } from 'react'
 import Box from '@/commom/layout/Box'
 import { Button, Switch } from 'antd'
 import { createAuthedWS } from '@/api/ws'
@@ -8,14 +8,14 @@ const Online = () => {
   const [isLoading, setIsLoading] = useState(true)
   const [autoScroll, setAutoScroll] = useState(true)
   const [paused, setPaused] = useState(false)
-  const length = useRef(0)
-  const logRef = useRef<HTMLDivElement | null>(null)
+  const scrollRef = useRef<HTMLDivElement | null>(null)
   const pausedRef = useRef(false)
   const autoScrollRef = useRef(true)
   const wsRef = useRef<WebSocket | null>(null)
   const mountedRef = useRef(true)
   const retryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const retryCountRef = useRef(0)
+  const userScrolledRef = useRef(false)
 
   useEffect(() => {
     pausedRef.current = paused
@@ -23,9 +23,39 @@ const Online = () => {
 
   useEffect(() => {
     autoScrollRef.current = autoScroll
+    if (autoScroll) {
+      userScrolledRef.current = false
+      scrollToBottom()
+    }
   }, [autoScroll])
 
+  const scrollToBottom = useCallback(() => {
+    const el = scrollRef.current
+    if (!el) return
+    // flex-col-reverse 下 scrollTop=0 即底部
+    el.scrollTop = 0
+  }, [])
+
+  // 监听用户手动滚动
   useEffect(() => {
+    const el = scrollRef.current
+    if (!el) return
+    const handleScroll = () => {
+      if (Math.abs(el.scrollTop) > 30) {
+        if (autoScrollRef.current && !userScrolledRef.current) {
+          userScrolledRef.current = true
+          setAutoScroll(false)
+        }
+      } else {
+        userScrolledRef.current = false
+      }
+    }
+    el.addEventListener('scroll', handleScroll, { passive: true })
+    return () => el.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  useEffect(() => {
+    mountedRef.current = true
     const connect = () => {
       if (!mountedRef.current) return
       try {
@@ -52,7 +82,6 @@ const Online = () => {
               setData(prev => [...prev, line])
             }
           } catch {
-            // 兼容纯文本
             const text = String(ev.data || '')
             if (!text.trim()) return
             setData(prev => [...prev, text])
@@ -63,7 +92,6 @@ const Online = () => {
         }
         ws.onclose = () => {
           if (!mountedRef.current) return
-          // 指数退避重连（上限 10s）
           const attempt = Math.min(retryCountRef.current + 1, 6)
           retryCountRef.current = attempt
           const delay = Math.min(1000 * Math.pow(2, attempt - 1), 10000)
@@ -71,7 +99,6 @@ const Online = () => {
           retryTimerRef.current = setTimeout(connect, delay)
         }
       } catch {
-        // 首次创建失败也尝试重连
         if (!mountedRef.current) return
         retryTimerRef.current = setTimeout(connect, 2000)
       }
@@ -86,51 +113,46 @@ const Online = () => {
     }
   }, [])
 
+  // 数据变化时自动滚到底部
   useEffect(() => {
-    if (autoScrollRef.current && length.current < data.length) {
-      if (logRef.current) {
-        const element = logRef.current
-        element.scrollTop = element.scrollHeight
-      }
+    if (autoScrollRef.current) {
+      scrollToBottom()
     }
-    length.current = data.length
-  }, [data])
+  }, [data, scrollToBottom])
 
   const renderData = useMemo(() => data.slice(-200), [data])
 
   return (
-    <Box rootClassName="p-[0!important]" boxRef={logRef}>
-      <div className="flex items-center justify-between mb-2 flex-wrap gap-3">
-        {/* 左侧：状态指示器 */}
-        <div className="flex items-center gap-3">
-          <div
-            className={`w-3 h-3 rounded-full ${paused ? 'bg-gray-400' : 'bg-green-500 animate-pulse'}`}
-          ></div>
-          <span className="text-sm text-gray-600 dark:text-gray-400 font-medium">
-            {paused ? '已暂停' : '实时更新中'}
+    <Box rootClassName="p-[0!important] !overflow-hidden">
+      <div className="flex-1 flex flex-col gap-2 min-h-0">
+      {/* 头部区域 */}
+      <div className="flex-shrink-0 flex items-center gap-2 flex-wrap">
+        <div
+          className={`w-3 h-3 rounded-full ${paused ? 'bg-gray-400' : 'bg-green-500 animate-pulse'}`}
+        ></div>
+        <span className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 font-medium">
+          {paused ? '已暂停' : '实时更新中'}
+        </span>
+        <div className="flex items-center gap-1">
+          <span className="text-xs text-gray-500 dark:text-gray-400">
+            自动滚动
           </span>
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-gray-500 dark:text-gray-400">
-              自动滚动
-            </span>
-            <Switch
-              size="small"
-              checked={autoScroll}
-              onChange={setAutoScroll}
-            />
-          </div>
+          <Switch
+            size="small"
+            checked={autoScroll}
+            onChange={v => {
+              setAutoScroll(v)
+              userScrolledRef.current = !v
+            }}
+          />
         </div>
-
-        {/* 右侧：操作按钮（仅暂停/继续） */}
-        <div className="flex items-center gap-2">
-          <Button size="small" onClick={() => setPaused(p => !p)}>
-            {paused ? '继续刷新' : '暂停刷新'}
-          </Button>
-        </div>
+        <Button size="small" onClick={() => setPaused(p => !p)}>
+          {paused ? '继续' : '暂停'}
+        </Button>
       </div>
 
       {/* 日志内容区域 */}
-      <div className="flex-1 min-w-0 w-full max-w-full bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl border border-white/20 dark:border-gray-700/20 overflow-hidden shadow-lg">
+      <div className="flex-1 min-h-0 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl border border-white/20 dark:border-gray-700/20 overflow-hidden shadow-lg">
         {isLoading && data.length === 0 ? (
           <div className="flex items-center justify-center h-full">
             <div className="text-center">
@@ -176,36 +198,42 @@ const Online = () => {
             </div>
           </div>
         ) : (
-          <div className="h-full overflow-y-auto overflow-x-auto p-4 space-y-1 max-h-[calc(100vh-12rem)] min-w-0 w-full max-w-full">
-            {renderData.map((item, index) => (
-              <div
-                key={index}
-                className="group flex items-start gap-3 p-3 bg-white/50 dark:bg-gray-700/50 backdrop-blur-sm rounded-lg border border-white/20 dark:border-gray-600/20 hover:bg-white/80 dark:hover:bg-gray-700/80  duration-200"
-              >
-                <div className="flex-1 min-w-0 w-full max-w-full">
-                  <div className="select-text text-sm text-gray-800 dark:text-gray-200 font-mono leading-relaxed whitespace-pre-wrap break-words break-all md:break-words">
-                    {item}
+          <div
+            ref={scrollRef}
+            className="h-full overflow-y-auto overflow-x-auto p-4 space-y-1 flex flex-col-reverse"
+          >
+            <div className="space-y-1">
+              {renderData.map((item, index) => (
+                <div
+                  key={index}
+                  className="group flex items-start gap-3 p-3 bg-white/50 dark:bg-gray-700/50 backdrop-blur-sm rounded-lg border border-white/20 dark:border-gray-600/20 hover:bg-white/80 dark:hover:bg-gray-700/80 duration-200"
+                >
+                  <div className="flex-1 min-w-0">
+                    <div className="select-text text-xs sm:text-sm text-gray-800 dark:text-gray-200 font-mono leading-relaxed whitespace-pre-wrap break-words">
+                      {item}
+                    </div>
+                  </div>
+                  <div className="flex-shrink-0">
+                    {item.toLowerCase().includes('error') ? (
+                      <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                    ) : item.toLowerCase().includes('warn') ? (
+                      <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                    ) : item.toLowerCase().includes('info') ? (
+                      <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                    ) : (
+                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    )}
                   </div>
                 </div>
-                <div className="flex-shrink-0">
-                  {item.toLowerCase().includes('error') ? (
-                    <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                  ) : item.toLowerCase().includes('warn') ? (
-                    <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
-                  ) : item.toLowerCase().includes('info') ? (
-                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                  ) : (
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  )}
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         )}
       </div>
 
-      <div className="mt-4 flex items-center justify-end text-sm text-gray-600 dark:text-gray-400">
+      <div className="flex-shrink-0 flex items-center justify-end text-xs sm:text-sm text-gray-600 dark:text-gray-400 pt-1">
         <div>共 {renderData.length} 条日志记录</div>
+      </div>
       </div>
     </Box>
   )

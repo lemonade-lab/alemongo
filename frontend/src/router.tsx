@@ -1,9 +1,8 @@
 import { lazy } from 'react'
-import { createBrowserRouter } from 'react-router-dom'
+import { createBrowserRouter, Navigate } from 'react-router-dom'
 import { WithSuspense } from './WithSuspense'
 
 const Home = lazy(() => import('./pages/home/App'))
-const NotRoute = lazy(() => import('./pages/404'))
 const Login = lazy(() => import('./pages/login/App'))
 const Panel = lazy(() => import('./pages/home/panel/App'))
 const Main = lazy(() => import('./pages/Main'))
@@ -387,16 +386,12 @@ const router = createBrowserRouter([
             )
           }
         ]
-      },
-      {
-        path: '*',
-        element: (
-          <WithSuspense>
-            <NotRoute />
-          </WithSuspense>
-        )
       }
     ]
+  },
+  {
+    path: '*',
+    element: <Navigate to="/" replace />
   }
 ])
 export default router

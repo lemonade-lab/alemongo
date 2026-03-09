@@ -32,8 +32,12 @@ const App = () => {
   )
 
   return (
-    <Box>
-      <Tabs defaultActiveKey="online" items={items} />
+    <Box rootClassName="!overflow-hidden">
+      <Tabs
+        className="flex-1 flex flex-col [&_.ant-tabs-content-holder]:flex-1 [&_.ant-tabs-content-holder]:min-h-0 [&_.ant-tabs-content]:h-full [&_.ant-tabs-tabpane]:h-full"
+        defaultActiveKey="online"
+        items={items}
+      />
     </Box>
   )
 }

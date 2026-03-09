@@ -5,6 +5,7 @@ import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { apiInfo } from '@/api'
 import { setUserInfo } from '@/redux/me'
+import LoginModal from '@/components/LoginModal'
 
 const Main = () => {
   const me = useSelector((state: RootState) => state.me)
@@ -30,6 +31,8 @@ const Main = () => {
           <Outlet />
         </div>
       </main>
+      {/* 会话过期登录弹窗 */}
+      <LoginModal />
     </div>
   )
 }
