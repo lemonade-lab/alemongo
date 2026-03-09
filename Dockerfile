@@ -1,8 +1,8 @@
 # 后端构建阶段  
 FROM  golang:1.24 AS builder
 WORKDIR /app
-# 配置 Go 模块代理为国内镜像源
-ENV GOPROXY=https://goproxy.cn
+# 配置 Go 模块代理为国内镜像源（多源 fallback）
+ENV GOPROXY=https://goproxy.cn,https://goproxy.io,direct
 COPY dist ./dist
 COPY resources ./resources
 COPY src ./src
