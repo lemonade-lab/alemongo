@@ -743,7 +743,7 @@ const MultiBots = () => {
           {/* 顶部 */}
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-2xl font-bold">多进程机器人</h1>
+              <h1 className="text-2xl font-bold">多进程机器</h1>
               <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
                 一个文件夹，多份配置，多进程并行启动
               </p>
