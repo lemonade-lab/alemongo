@@ -184,6 +184,54 @@ func ExistsNodeModules(name string) bool {
 	return !os.IsNotExist(err) && !os.IsNotExist(err2)
 }
 
+func ExistsMultiBotNodeModules(name string) bool {
+	botPath := GetMultiBotPath(name)
+	nodeModulesPath := filepath.Join(botPath, "node_modules")
+	_, err := os.Stat(nodeModulesPath)
+	return !os.IsNotExist(err)
+}
+
+// ===== 多配置机器人 packages 路径 =====
+
+func GetMultiBotPackagesPath(name string) string {
+	multiBotPath := GetMultiBotPath(name)
+	return filepath.Join(multiBotPath, "packages")
+}
+
+func GetMultiBotPackagesPathByName(name string, appName string) string {
+	multiBotPath := GetMultiBotPath(name)
+	return filepath.Join(multiBotPath, "packages", appName)
+}
+
+func GetMultiBotPackagesMdPathByName(name string, appName string) string {
+	pkgsPath := GetMultiBotPackagesPathByName(name, appName)
+	return filepath.Join(pkgsPath, "README.md")
+}
+
+func GetMultiBotPackagesGitPathByName(name string, appName string) string {
+	pkgsPath := GetMultiBotPackagesPathByName(name, appName)
+	return filepath.Join(pkgsPath, ".git")
+}
+
+func GetMultiBotPackagesPKGFilePathByName(name string, appName string) string {
+	return filepath.Join(GetMultiBotPackagesPathByName(name, appName), "package.json")
+}
+
+func GetMultiBotNodeModulesPathByName(name string, pkgName string) string {
+	multiBotPath := GetMultiBotPath(name)
+	return filepath.Join(multiBotPath, "node_modules", pkgName)
+}
+
+func GetMultiBotEnvPath(name string) string {
+	multiBotPath := GetMultiBotPath(name)
+	return filepath.Join(multiBotPath, ".env")
+}
+
+func GetMultiBotPKGPath(name string) string {
+	multiBotPath := GetMultiBotPath(name)
+	return filepath.Join(multiBotPath, "package.json")
+}
+
 func GetBotLogsPath(name string) string {
 	botPath := GetBotPath(name)
 	logPath := filepath.Join(botPath, "alemonjs", "log")

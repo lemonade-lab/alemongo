@@ -7,12 +7,14 @@ import {
   ConsoleSqlOutlined,
   MonitorOutlined,
   InfoCircleOutlined,
-  CodeOutlined
+  CodeOutlined,
+  ClusterOutlined
 } from '@ant-design/icons'
 
 export const menuItems = [
   { key: '/', icon: <AppstoreOutlined />, label: '应用中心' },
-  { key: '/bots', icon: <RobotOutlined />, label: '机器列表' },
+  { key: '/bots', icon: <RobotOutlined />, label: '单进程机器' },
+  { key: '/multibots', icon: <ClusterOutlined />, label: '多进程机器人' },
   { key: '/configs', icon: <FileTextOutlined />, label: '配置管理' },
   {
     key: '/pipeline',

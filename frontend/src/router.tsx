@@ -44,6 +44,7 @@ const Pipeline = lazy(() => import('./pages/home/Pipeline/App'))
 const PipelineCreate = lazy(() => import('./pages/home/Pipeline/Create'))
 const PipelineDetail = lazy(() => import('./pages/home/Pipeline/Detail'))
 const PipelineExecution = lazy(() => import('./pages/home/Pipeline/Execution'))
+const MultiBots = lazy(() => import('./pages/home/MultiBots/App'))
 
 const router = createBrowserRouter([
   {
@@ -134,6 +135,14 @@ const router = createBrowserRouter([
               </WithSuspense>
             ),
             children: []
+          },
+          {
+            path: 'multibots',
+            element: (
+              <WithSuspense>
+                <MultiBots />
+              </WithSuspense>
+            )
           },
           {
             path: 'bots/:name',

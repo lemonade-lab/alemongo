@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"os"
+	"path/filepath"
 	"regexp"
 	"runtime/debug"
 	"strings"
@@ -199,7 +200,14 @@ func Init(cfg *settings.LogConfig, mode string) (err error) {
 
 // NewRobotLogger 为每个机器人单独建立一个日志管理
 func NewRobotLogger(botName string, level zapcore.Level) (*RobotLoggerWithRotate, error) {
-	robotLogPath := paths.GetBotLogsPath(botName)
+	var robotLogPath string
+	if strings.Contains(botName, ":") {
+		// 多配置机器人进程，名字格式为 "botName:configName"
+		parts := strings.SplitN(botName, ":", 2)
+		robotLogPath = filepath.Join(paths.GetMultiBotLogsPath(parts[0]), botName)
+	} else {
+		robotLogPath = paths.GetBotLogsPath(botName)
+	}
 	if _, err := os.Stat(robotLogPath); os.IsNotExist(err) {
 		if err := os.Mkdir(robotLogPath, os.ModePerm); err != nil {
 			// 创建目录失败

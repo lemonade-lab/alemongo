@@ -107,6 +107,25 @@ const Apps: React.FC = () => {
       open: true,
       description: '管理和监控自动化部署流水线',
       color: 'from-blue-500 to-purple-500'
+    },
+    {
+      name: '多进程机器',
+      icon: (
+        <div className="w-20 h-20 flex items-center justify-center">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+            className="w-14 h-14 text-teal-600 dark:text-teal-400"
+          >
+            <path d="M4 4h4v4H4V4zm6 0h4v4h-4V4zm6 0h4v4h-4V4zM4 10h4v4H4v-4zm6 0h4v4h-4v-4zm6 0h4v4h-4v-4zM4 16h4v4H4v-4zm6 0h4v4h-4v-4zm6 0h4v4h-4v-4z" />
+          </svg>
+        </div>
+      ),
+      onClick: () => navigate('/multibots'),
+      open: true,
+      description: '一个文件夹多份配置并行启动',
+      color: 'from-teal-500 to-emerald-500'
     }
   ]
 

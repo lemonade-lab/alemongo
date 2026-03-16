@@ -303,12 +303,63 @@ func Create(mode string) *gin.Engine {
 			// MultiBot
 			MultiBotAPI := v1.Group("/multibot")
 			{
-				// 创建多配置机器人
-				MultiBotAPI.POST("/multibot", multibots.CreateMultiConfigBot)
-				// 创建多配置机器人配置
-				MultiBotAPI.POST("/addconfig", multibots.AddBotConfig)
-				// 启动多配置机器人(根据配置文件启动对应的机器人)
-				MultiBotAPI.POST("/start", multibots.StartMultiBot)
+				// WebSocket 日志流 (使用 session cookie 鉴权，不走 HTTP AuthMiddleware)
+				MultiBotAPI.GET("/log/ws", multibots.MultiBotLogWS)
+
+				// 开始鉴权
+				MultiBotAPI.Use(middlewares.AuthMiddleware())
+
+				// 基础管理
+				MultiBotAPI.GET("/list", middlewares.PermissionMiddleware(permission.BotRead), multibots.ListMultiBots)
+				MultiBotAPI.POST("/multibot", middlewares.PermissionMiddleware(permission.BotCreate), multibots.CreateMultiConfigBot)
+				MultiBotAPI.DELETE("/bot", middlewares.PermissionMiddleware(permission.BotDelete), multibots.DeleteMultiBot)
+				MultiBotAPI.POST("/info", middlewares.PermissionMiddleware(permission.BotRead), multibots.InfoMultiBot)
+
+				// 运行控制（全部实例）
+				MultiBotAPI.POST("/start", middlewares.PermissionMiddleware(permission.BotControl), multibots.StartMultiBot)
+				MultiBotAPI.POST("/stop", middlewares.PermissionMiddleware(permission.BotControl), multibots.StopMultiBot)
+				MultiBotAPI.POST("/restart", middlewares.PermissionMiddleware(permission.BotControl), multibots.RestartMultiBot)
+
+				// 单实例控制
+				MultiBotAPI.POST("/instance/start", middlewares.PermissionMiddleware(permission.BotControl), multibots.StartInstance)
+				MultiBotAPI.POST("/instance/stop", middlewares.PermissionMiddleware(permission.BotControl), multibots.StopInstance)
+				MultiBotAPI.POST("/instance/restart", middlewares.PermissionMiddleware(permission.BotControl), multibots.RestartInstance)
+
+				// Yarn 依赖管理
+				MultiBotAPI.POST("/yarn/install", middlewares.PermissionMiddleware(permission.BotPackageManage), multibots.YarnInstall)
+
+				// 配置文件管理
+				MultiBotAPI.POST("/addconfig", middlewares.PermissionMiddleware(permission.BotConfigCreate), multibots.AddBotConfig)
+				MultiBotAPI.GET("/configs", middlewares.PermissionMiddleware(permission.BotConfigRead), multibots.ConfigsList)
+				MultiBotAPI.POST("/configs/read", middlewares.PermissionMiddleware(permission.BotConfigRead), multibots.ConfigRead)
+				MultiBotAPI.PUT("/configs", middlewares.PermissionMiddleware(permission.BotConfigUpdate), multibots.ConfigUpdate)
+				MultiBotAPI.DELETE("/configs", middlewares.PermissionMiddleware(permission.BotConfigDelete), multibots.ConfigDelete)
+
+				// 环境变量
+				MultiBotAPI.POST("/env", middlewares.PermissionMiddleware(permission.BotConfigRead), multibots.EnvRead)
+				MultiBotAPI.PUT("/env", middlewares.PermissionMiddleware(permission.BotConfigUpdate), multibots.EnvUpdate)
+
+				// package.json
+				MultiBotAPI.POST("/package", middlewares.PermissionMiddleware(permission.BotConfigRead), multibots.PackageRead)
+				MultiBotAPI.PUT("/package", middlewares.PermissionMiddleware(permission.BotConfigUpdate), multibots.PackageUpdate)
+
+				// 日志管理
+				MultiBotAPI.POST("/log", middlewares.PermissionMiddleware(permission.BotLogManage), multibots.MultiBotLog)
+				MultiBotAPI.POST("/log-online", middlewares.PermissionMiddleware(permission.BotLogManage), multibots.MultiBotLogOnline)
+				MultiBotAPI.POST("/log/delete", middlewares.PermissionMiddleware(permission.BotLogManage), multibots.MultiBotLogDelete)
+				MultiBotAPI.GET("/log/download", middlewares.PermissionMiddleware(permission.BotLogManage), multibots.MultiBotLogDownload)
+
+				// 应用管理（packages）
+				MultiBotPackagesAPI := MultiBotAPI.Group("/packages")
+				{
+					MultiBotPackagesAPI.POST("", middlewares.PermissionMiddleware(permission.BotConfigRead), multibots.MultiBotPackagesInfo)
+					MultiBotPackagesAPI.POST("/list", middlewares.PermissionMiddleware(permission.BotConfigRead), multibots.MultiBotPackagesList)
+					MultiBotPackagesAPI.POST("/clone", middlewares.PermissionMiddleware(permission.BotConfigCreate), multibots.MultiBotPackagesClone)
+					MultiBotPackagesAPI.DELETE("", middlewares.PermissionMiddleware(permission.BotConfigDelete), multibots.MultiBotPackagesDelete)
+					MultiBotPackagesAPI.PUT("/pkg", middlewares.PermissionMiddleware(permission.BotConfigUpdate), multibots.MultiBotPackagesUpdate)
+					MultiBotPackagesAPI.POST("/pull", middlewares.PermissionMiddleware(permission.BotGitManage), multibots.MultiBotPackagesPull)
+					MultiBotPackagesAPI.POST("/pull/force", middlewares.PermissionMiddleware(permission.BotGitManage), multibots.MultiBotPackagesForcePull)
+				}
 			}
 
 			// Terminal - 仅超级管理员可使用
