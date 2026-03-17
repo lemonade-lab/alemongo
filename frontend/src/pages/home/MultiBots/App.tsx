@@ -34,7 +34,8 @@ import {
   CopyOutlined,
   SearchOutlined,
   CheckOutlined,
-  StopOutlined
+  StopOutlined,
+  MonitorOutlined
 } from '@ant-design/icons'
 import { Box, Pagination } from '@/commom'
 import {
@@ -654,7 +655,6 @@ const MultiBots = () => {
         message.success('拉取成功')
         refreshPackages()
       })
-      .catch(err => message.error(err?.msg || '拉取失败'))
       .finally(() => setPkgsLoading(false))
   }
 
@@ -669,7 +669,6 @@ const MultiBots = () => {
         message.success('强制更新成功')
         refreshPackages()
       })
-      .catch(err => message.error(err?.msg || '强制更新失败'))
       .finally(() => setPkgsLoading(false))
   }
 
@@ -805,6 +804,13 @@ const MultiBots = () => {
                           size="small"
                           loading={installingBots.has(bot.name)}
                           onClick={() => onYarnInstall(bot.name)}
+                        />
+                      </Tooltip>
+                      <Tooltip title="系统日志">
+                        <Button
+                          icon={<MonitorOutlined />}
+                          size="small"
+                          onClick={() => onOpenLog(bot.name, bot.name + ':_system')}
                         />
                       </Tooltip>
                       <Tooltip title="添加配置">

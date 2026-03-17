@@ -2,8 +2,10 @@ package logic
 
 import (
 	"alemongo/src/core/process"
+	"alemongo/src/logger"
 	"alemongo/src/models"
 	config "alemongo/src/paths"
+	"alemongo/src/settings"
 	"alemongo/src/utils"
 	"errors"
 	"fmt"
@@ -11,6 +13,8 @@ import (
 	"os/exec"
 	"path"
 	"path/filepath"
+
+	"go.uber.org/zap/zapcore"
 )
 
 // 运行机器人
@@ -252,13 +256,47 @@ func MultiBotInstall(name string) (string, error) {
 	cliDir := config.GetBotYarnJavaScriptPath()
 	cmd := utils.Command("node", cliDir, "install", "--ignore-engines")
 	cmd.Dir = config.GetMultiBotPath(name)
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
+
+	// 创建日志记录器，使用 name:_system 作为进程名
+	var l = new(zapcore.Level)
+	if err := l.UnmarshalText([]byte(settings.Conf.Log.Level)); err != nil {
+		fmt.Printf("unable to unmarshal zapcore.Level: %v\n", err)
+	}
+	botLogger, err := logger.GetOrCreateBotLogger(name+":_system", *l)
+	if err != nil {
+		fmt.Printf("unable to create logger: %v\n", err)
+		// 降级：无法创建日志时使用 stdout
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+	} else {
+		botLoggerWriter := logger.NewRobotLoggerWriter(botLogger)
+		botLoggerWriter.RobotLogger.Logger.Info("========== [依赖安装] 开始执行 yarn install ==========\n")
+		cmd.Stdout = botLoggerWriter.Writer(logger.WriterOption{
+			DetectLevel: false,
+			StripDate:   false,
+			StripLevel:  false,
+		})
+		cmd.Stderr = botLoggerWriter.Writer(logger.WriterOption{
+			DetectLevel: false,
+			StripDate:   false,
+			StripLevel:  false,
+		})
+	}
+
 	if err := cmd.Run(); err != nil {
 		if exitError, ok := err.(*exec.ExitError); ok && exitError.ExitCode() == 0 {
+			if botLogger != nil {
+				botLogger.Logger.Info("========== [依赖安装] 完成 ==========\n")
+			}
 			return "依赖安装成功", nil
 		}
+		if botLogger != nil {
+			botLogger.Logger.Error(fmt.Sprintf("========== [依赖安装] 异常: %v ==========\n", err))
+		}
 		return fmt.Sprintf("依赖安装异常: %v", err), err
+	}
+	if botLogger != nil {
+		botLogger.Logger.Info("========== [依赖安装] 完成 ==========\n")
 	}
 	return "依赖安装成功", nil
 }

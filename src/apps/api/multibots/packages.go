@@ -2,9 +2,12 @@ package multibots
 
 import (
 	"alemongo/src/dao"
+	"alemongo/src/logger"
 	config "alemongo/src/paths"
+	"alemongo/src/settings"
 	"alemongo/src/utils"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -15,6 +18,8 @@ import (
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/go-git/go-git/v5/plumbing/transport"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
 // getMultiBotPackageInfo 获取单个包的信息（多配置机器人版本）
@@ -268,6 +273,20 @@ func MultiBotPackagesClone(ctx *gin.Context) {
 
 	clonePath := config.GetMultiBotPackagesPathByName(name, appName)
 
+	// 创建日志记录器，使用 name:_system 作为进程名
+	var l = new(zapcore.Level)
+	if err := l.UnmarshalText([]byte(settings.Conf.Log.Level)); err != nil {
+		fmt.Printf("unable to unmarshal zapcore.Level: %v\n", err)
+	}
+	botLogger, logErr := logger.GetOrCreateBotLogger(name+":_system", *l)
+	var botLoggerWriter *logger.RobotLoggerWriter
+	if logErr != nil {
+		fmt.Printf("unable to create multibot logger: %v\n", logErr)
+	} else {
+		botLoggerWriter = logger.NewRobotLoggerWriter(botLogger)
+		botLoggerWriter.RobotLogger.Logger.Info("========== [应用安装] 开始克隆仓库 ==========\n", zap.String("repo", repoURL), zap.String("branch", branchName))
+	}
+
 	cloneOpts := &git.CloneOptions{
 		URL:          repoURL,
 		SingleBranch: true,
@@ -276,11 +295,21 @@ func MultiBotPackagesClone(ctx *gin.Context) {
 	if branchName != "" {
 		cloneOpts.ReferenceName = plumbing.NewBranchReferenceName(branchName)
 	}
+	if botLoggerWriter != nil {
+		cloneOpts.Progress = botLoggerWriter.Writer(logger.WriterOption{
+			DetectLevel: false,
+			StripDate:   false,
+			StripLevel:  false,
+		})
+	}
 
 	if strings.Contains(repoURL, "git@") || strings.HasPrefix(repoURL, "ssh://") {
 		auth, err := utils.GetSSHAuth()
 		if err != nil {
 			log.Println(err)
+			if botLoggerWriter != nil {
+				botLoggerWriter.RobotLogger.Logger.Error("获取 SSH 认证失败", zap.Error(err))
+			}
 			ctx.JSON(http.StatusInternalServerError, gin.H{
 				"code": http.StatusInternalServerError,
 				"msg":  "获取 SSH 认证失败",
@@ -289,10 +318,20 @@ func MultiBotPackagesClone(ctx *gin.Context) {
 			return
 		}
 		cloneOpts.Auth = auth
+		if botLoggerWriter != nil {
+			botLoggerWriter.RobotLogger.Logger.Info("检测到 SSH 源，使用 SSH 认证", zap.String("url", repoURL))
+		}
+	} else {
+		if botLoggerWriter != nil {
+			botLoggerWriter.RobotLogger.Logger.Info("检测到 HTTPS 源，不使用 SSH 认证", zap.String("url", repoURL))
+		}
 	}
 
 	_, err := git.PlainClone(clonePath, false, cloneOpts)
 	if err != nil {
+		if botLoggerWriter != nil {
+			botLoggerWriter.RobotLogger.Logger.Error("========== [应用安装] 克隆失败 ==========\n", zap.Error(err))
+		}
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"code": http.StatusInternalServerError,
 			"msg":  "克隆失败",
@@ -301,6 +340,9 @@ func MultiBotPackagesClone(ctx *gin.Context) {
 		return
 	}
 
+	if botLoggerWriter != nil {
+		botLoggerWriter.RobotLogger.Logger.Info("========== [应用安装] 克隆成功 ==========\n", zap.String("repo", repoURL), zap.String("app", appName))
+	}
 	ctx.JSON(http.StatusOK, gin.H{
 		"code": http.StatusOK,
 		"msg":  "克隆成功",
@@ -549,31 +591,124 @@ func multiBotPull(ctx *gin.Context, isForce bool) {
 		}
 	}
 
-	err = worktree.Pull(&git.PullOptions{
-		RemoteName:    "origin",
-		Auth:          auth,
-		ReferenceName: plumbing.NewBranchReferenceName(branchName),
-		SingleBranch:  true,
-		Force:         isForce,
-	})
+	// 创建日志记录器，使用 name:_system 作为进程名
+	var l = new(zapcore.Level)
+	if err := l.UnmarshalText([]byte(settings.Conf.Log.Level)); err != nil {
+		fmt.Printf("unable to unmarshal zapcore.Level: %v\n", err)
+	}
+	botLogger, logErr := logger.GetOrCreateBotLogger(name+":_system", *l)
+	var botLoggerWriter *logger.RobotLoggerWriter
+	if logErr != nil {
+		fmt.Printf("unable to create multibot logger: %v\n", logErr)
+	} else {
+		botLoggerWriter = logger.NewRobotLoggerWriter(botLogger)
+		botLoggerWriter.RobotLogger.Logger.Info("========== [应用更新] 开始拉取更新 ==========\n", zap.String("repo", repoName), zap.String("branch", branchName))
+	}
 
-	if err != nil {
-		if err == git.NoErrAlreadyUpToDate {
-			ctx.JSON(http.StatusOK, gin.H{
-				"code": http.StatusOK,
-				"msg":  "仓库已经是最新",
-				"data": nil,
-			})
-			return
+	// 使用 Fetch + Reset 代替 worktree.Pull()
+	// 因为 worktree.Pull() 在浅克隆(Depth:1)仓库上拉取新提交时会失败
+	// (go-git v5 的已知问题：无法正确处理 shallow 边界更新)
+
+	// 1. 记录当前 HEAD
+	head, _ := repo.Head()
+
+	// 2. Fetch 远程最新
+	fetchOpts := &git.FetchOptions{
+		RemoteName: "origin",
+		Auth:       auth,
+		Force:      true,
+	}
+	if botLoggerWriter != nil {
+		fetchOpts.Progress = botLoggerWriter.Writer(logger.WriterOption{
+			DetectLevel: false,
+			StripDate:   false,
+			StripLevel:  false,
+		})
+	}
+
+	fetchErr := repo.Fetch(fetchOpts)
+	if fetchErr != nil && fetchErr != git.NoErrAlreadyUpToDate {
+		if botLoggerWriter != nil {
+			botLoggerWriter.RobotLogger.Logger.Error("fetch 失败", zap.Error(fetchErr))
 		}
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"code": http.StatusInternalServerError,
 			"msg":  "拉取失败",
+			"data": fetchErr.Error(),
+		})
+		return
+	}
+
+	// 3. 获取远程分支引用
+	remoteRefName := plumbing.NewRemoteReferenceName("origin", branchName)
+	remoteRef, err := repo.Reference(remoteRefName, true)
+	if err != nil {
+		if botLoggerWriter != nil {
+			botLoggerWriter.RobotLogger.Logger.Error("未找到远程分支", zap.String("branch", branchName), zap.Error(err))
+		}
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"code": http.StatusInternalServerError,
+			"msg":  fmt.Sprintf("未找到远程分支 origin/%s", branchName),
 			"data": err.Error(),
 		})
 		return
 	}
 
+	// 4. 检查是否已经是最新
+	if head != nil && head.Hash() == remoteRef.Hash() {
+		if botLoggerWriter != nil {
+			botLoggerWriter.RobotLogger.Logger.Info("========== [应用更新] 仓库已是最新，无需更新 ==========\n")
+		}
+		ctx.JSON(http.StatusOK, gin.H{
+			"code": http.StatusOK,
+			"msg":  "仓库已经是最新",
+			"data": nil,
+		})
+		return
+	}
+
+	// 5. 确保本地分支存在
+	localRefName := plumbing.NewBranchReferenceName(branchName)
+	if _, err := repo.Reference(localRefName, true); err != nil {
+		if err := repo.Storer.SetReference(plumbing.NewHashReference(localRefName, remoteRef.Hash())); err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{
+				"code": http.StatusInternalServerError,
+				"msg":  "创建本地分支失败",
+				"data": err.Error(),
+			})
+			return
+		}
+	}
+
+	// 6. Checkout 到本地分支
+	if err := worktree.Checkout(&git.CheckoutOptions{Branch: localRefName, Force: true}); err != nil {
+		if botLoggerWriter != nil {
+			botLoggerWriter.RobotLogger.Logger.Error("切换分支失败", zap.Error(err))
+		}
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"code": http.StatusInternalServerError,
+			"msg":  "切换分支失败",
+			"data": err.Error(),
+		})
+		return
+	}
+
+	// 7. Reset 到远程最新提交
+	if err := worktree.Reset(&git.ResetOptions{Commit: remoteRef.Hash(), Mode: git.HardReset}); err != nil {
+		if botLoggerWriter != nil {
+			botLoggerWriter.RobotLogger.Logger.Error("reset 失败", zap.Error(err))
+		}
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"code": http.StatusInternalServerError,
+			"msg":  "更新失败",
+			"data": err.Error(),
+		})
+		return
+	}
+
+	if botLoggerWriter != nil {
+		botLoggerWriter.RobotLogger.Logger.Info("========== [应用更新] 拉取成功 ==========\n", zap.String("commit", remoteRef.Hash().String()[:7]))
+	}
 	ctx.JSON(http.StatusOK, gin.H{
 		"code": http.StatusOK,
 		"msg":  "拉取成功",
