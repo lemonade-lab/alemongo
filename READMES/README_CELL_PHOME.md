@@ -1,16 +1,10 @@
 # 关于手机如何进行爽玩alemongo
 
-alemongo 是一个 Bot 管理面板，可以通过网页管理和部署你的机器人。
-
-本教程教你在 Android 手机上通过 Termux 运行 alemongo。
-
----
-
 ## 前置准备
 
 ### 1. 安装 Termux
 
-从 [F-Droid](https://f-droid.org/packages/com.termux/) 下载安装 Termux（不要用 Play Store 版本，已过时）。
+从  https://f-droid.org/packages/com.termux/ 下载安装 Termux（不要用 Play Store 版本，已过时）。
 
 打开 Termux 后，先更新软件包：
 
@@ -22,11 +16,15 @@ pkg update && pkg upgrade
 
 udocker 是一个无需 root 权限的轻量级容器工具，用来在手机上运行 alemongo 镜像。
 
+> 如果没有 pip，先安装 Python
+
+```bash
+pkg install python-pip`
+```
+
 ```bash
 pip install udocker
 ```
-
-> 如果提示没有 pip，先安装 Python：`pkg install python`
 
 安装完成后拉取镜像：
 
@@ -79,7 +77,7 @@ udocker run \
   -e ALEMONGO_MODE=release \
   -e ALEMONGO_DB_DRIVER=sqlite \
   -e ALEMONGO_DB_SQLITE_PATH=/app/work/data/alemongo.db \
-  -e ALEMONGO_TOKEN_KEY=my-secret-key-change-me \
+  -e ALEMONGO_TOKEN_KEY=alemongo-key \
   -e ALEMONGO_TOKEN_EXPIRES_TIME=24 \
   -v ~/.ssh:/root/.ssh \
   -v /data/data/com.termux/files/home/docker/alemongo/work:/app/work \
