@@ -72,6 +72,8 @@ import {
   apiMultiBotConfigHistoryList,
   apiMultiBotConfigHistoryRead,
   apiMultiBotConfigHistoryRestore,
+  apiBotConfigsList,
+  apiBotConfigs,
   MultiBotInfo,
   MultiBotPackage,
   MultiBotConfigHistoryItem,
@@ -95,6 +97,9 @@ const MultiBots = () => {
   const [addConfigName, setAddConfigName] = useState('')
   const [addConfigContent, setAddConfigContent] = useState('')
   const [addConfigLoading, setAddConfigLoading] = useState(false)
+  const [quickConfigNames, setQuickConfigNames] = useState<string[]>([])
+  const [quickConfigSelected, setQuickConfigSelected] = useState('')
+  const [quickConfigLoading, setQuickConfigLoading] = useState(false)
   const [form] = Form.useForm()
 
   // 端口弹窗
@@ -239,9 +244,36 @@ const MultiBots = () => {
         setConfigVisible(false)
         setAddConfigName('')
         setAddConfigContent('')
+        setQuickConfigSelected('')
         fetchList()
       })
       .finally(() => setAddConfigLoading(false))
+  }
+
+  const loadQuickConfigNames = () => {
+    setQuickConfigLoading(true)
+    apiBotConfigsList()
+      .then(res => {
+        setQuickConfigNames(res || [])
+      })
+      .finally(() => setQuickConfigLoading(false))
+  }
+
+  const onQuickImportConfig = () => {
+    if (!quickConfigSelected) {
+      message.warning('请选择配置文件后引入当前配置')
+      return
+    }
+    setQuickConfigLoading(true)
+    apiBotConfigs({ name: quickConfigSelected })
+      .then(res => {
+        setAddConfigContent(res || '')
+        if (!addConfigName.trim()) {
+          setAddConfigName(quickConfigSelected)
+        }
+        message.success('引入成功，请确认保存')
+      })
+      .finally(() => setQuickConfigLoading(false))
   }
 
   // 删除多配置机器人
@@ -373,10 +405,16 @@ const MultiBots = () => {
 
   const onOpenConfigHistory = () => {
     if (!editConfigBot || !editConfigName) return
+    setEditConfigVisible(false)
     setConfigHistoryVisible(true)
     setSelectedHistoryId('')
     setSelectedHistoryContent('')
     loadConfigHistory(editConfigBot, editConfigName)
+  }
+
+  const onCloseConfigHistory = () => {
+    setConfigHistoryVisible(false)
+    setEditConfigVisible(true)
   }
 
   const onSelectConfigHistory = (historyID: string) => {
@@ -408,6 +446,7 @@ const MultiBots = () => {
         setEditConfigContent(content || '')
         message.success('已恢复到所选历史版本')
         setConfigHistoryVisible(false)
+        setEditConfigVisible(true)
       })
       .finally(() => setSelectedHistoryLoading(false))
   }
@@ -929,6 +968,8 @@ const MultiBots = () => {
                             setSelectedBot(bot.name)
                             setAddConfigName('')
                             setAddConfigContent('')
+                            setQuickConfigSelected('')
+                            loadQuickConfigNames()
                             setConfigVisible(true)
                           }}
                         />
@@ -1199,12 +1240,13 @@ const MultiBots = () => {
 
       {/* 添加配置弹窗 */}
       <Modal
-        title={`为 ${selectedBot} 添加配置`}
+        title={`为 ${selectedBot} 添加YAML配置`}
         open={configVisible}
         onCancel={() => {
           setConfigVisible(false)
           setAddConfigName('')
           setAddConfigContent('')
+          setQuickConfigSelected('')
         }}
         footer={null}
         width={860}
@@ -1217,9 +1259,24 @@ const MultiBots = () => {
             onSave={onAddConfig}
             type="yaml"
             rightHeader={
-              <span className="text-xs text-gray-500 dark:text-gray-400">
-                文件名不需要扩展名，将自动保存为 YAML
-              </span>
+              <div className="flex gap-2 flex-wrap items-center">
+                <Select
+                  showSearch
+                  placeholder="快速引入配置"
+                  optionFilterProp="label"
+                  className="min-w-44"
+                  loading={quickConfigLoading}
+                  value={quickConfigSelected || undefined}
+                  onChange={value => setQuickConfigSelected(value)}
+                  options={quickConfigNames.map(item => ({
+                    label: item,
+                    value: item
+                  }))}
+                />
+                <Button size="small" loading={quickConfigLoading} onClick={onQuickImportConfig}>
+                  引入
+                </Button>
+              </div>
             }
           />
           {addConfigLoading && (
@@ -1249,9 +1306,6 @@ const MultiBots = () => {
             rightHeader={
               <Space>
                 <Button size="small" onClick={onOpenConfigHistory}>历史记录</Button>
-                <span className="text-xs text-gray-500 dark:text-gray-400">
-                  YAML 注释会被保留，格式化为显式操作
-                </span>
               </Space>
             }
           />
@@ -1266,11 +1320,11 @@ const MultiBots = () => {
       <Modal
         title={`历史记录与对比 — ${editConfigName}`}
         open={configHistoryVisible}
-        onCancel={() => setConfigHistoryVisible(false)}
+        onCancel={onCloseConfigHistory}
         width={1200}
         footer={
           <Space>
-            <Button onClick={() => setConfigHistoryVisible(false)}>关闭</Button>
+            <Button onClick={onCloseConfigHistory}>关闭</Button>
             <Button onClick={onRestoreConfigHistory} type="primary" disabled={!selectedHistoryId}>
               恢复所选版本
             </Button>
