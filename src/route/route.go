@@ -324,6 +324,7 @@ func Create(mode string) *gin.Engine {
 				MultiBotAPI.POST("/instance/start", middlewares.PermissionMiddleware(permission.BotControl), multibots.StartInstance)
 				MultiBotAPI.POST("/instance/stop", middlewares.PermissionMiddleware(permission.BotControl), multibots.StopInstance)
 				MultiBotAPI.POST("/instance/restart", middlewares.PermissionMiddleware(permission.BotControl), multibots.RestartInstance)
+				MultiBotAPI.POST("/instance/toggle-enabled", middlewares.PermissionMiddleware(permission.BotControl), multibots.ToggleConfigEnabled)
 
 				// Yarn 依赖管理
 				MultiBotAPI.POST("/yarn/install", middlewares.PermissionMiddleware(permission.BotPackageManage), multibots.YarnInstall)
@@ -334,6 +335,9 @@ func Create(mode string) *gin.Engine {
 				MultiBotAPI.POST("/configs/read", middlewares.PermissionMiddleware(permission.BotConfigRead), multibots.ConfigRead)
 				MultiBotAPI.PUT("/configs", middlewares.PermissionMiddleware(permission.BotConfigUpdate), multibots.ConfigUpdate)
 				MultiBotAPI.DELETE("/configs", middlewares.PermissionMiddleware(permission.BotConfigDelete), multibots.ConfigDelete)
+				MultiBotAPI.GET("/configs/history", middlewares.PermissionMiddleware(permission.BotConfigRead), multibots.ConfigHistoryList)
+				MultiBotAPI.POST("/configs/history/read", middlewares.PermissionMiddleware(permission.BotConfigRead), multibots.ConfigHistoryRead)
+				MultiBotAPI.POST("/configs/history/restore", middlewares.PermissionMiddleware(permission.BotConfigUpdate), multibots.ConfigHistoryRestore)
 
 				// 环境变量
 				MultiBotAPI.POST("/env", middlewares.PermissionMiddleware(permission.BotConfigRead), multibots.EnvRead)

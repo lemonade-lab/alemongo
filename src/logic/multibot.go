@@ -7,6 +7,7 @@ import (
 	config "alemongo/src/paths"
 	"alemongo/src/settings"
 	"alemongo/src/utils"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
@@ -16,6 +17,47 @@ import (
 
 	"go.uber.org/zap/zapcore"
 )
+
+// enabledFilePath 返回 .enabled.json 的路径
+func enabledFilePath(name string) string {
+	return filepath.Join(config.GetMultiBotPath(name), "configs", ".enabled.json")
+}
+
+// ReadEnabledMap 读取配置启用状态，返回 map[configName]bool
+// 不存在的配置默认视为 enabled
+func ReadEnabledMap(name string) map[string]bool {
+	fp := enabledFilePath(name)
+	data, err := os.ReadFile(fp)
+	if err != nil {
+		return map[string]bool{}
+	}
+	var m map[string]bool
+	if err := json.Unmarshal(data, &m); err != nil {
+		return map[string]bool{}
+	}
+	return m
+}
+
+// IsConfigEnabled 判断某个配置是否启用，默认启用
+func IsConfigEnabled(name, configName string) bool {
+	m := ReadEnabledMap(name)
+	enabled, exists := m[configName]
+	if !exists {
+		return true // 默认启用
+	}
+	return enabled
+}
+
+// SetConfigEnabled 设置某个配置的启用状态
+func SetConfigEnabled(name, configName string, enabled bool) error {
+	m := ReadEnabledMap(name)
+	m[configName] = enabled
+	data, err := json.MarshalIndent(m, "", "  ")
+	if err != nil {
+		return err
+	}
+	return os.WriteFile(enabledFilePath(name), data, 0644)
+}
 
 // 运行机器人
 func RunMultiBot(name string) (string, error) {
@@ -64,6 +106,7 @@ func RunMultiBot(name string) (string, error) {
 	}
 
 	var startedCount int
+	var skippedDisabled int
 	for _, configFile := range configFiles {
 		if configFile.IsDir() {
 			continue
@@ -74,6 +117,11 @@ func RunMultiBot(name string) (string, error) {
 			continue
 		}
 		configName := configFile.Name()[:len(configFile.Name())-len(ext)]
+		// 跳过被禁用的配置
+		if !IsConfigEnabled(name, configName) {
+			skippedDisabled++
+			continue
+		}
 		processName := fmt.Sprintf("%s:%s", name, configName)
 		if pm.IsRunning(processName) {
 			// 跳过已在运行的实例，继续启动其他的
@@ -106,9 +154,16 @@ func RunMultiBot(name string) (string, error) {
 		startedCount++
 	}
 	if startedCount == 0 {
+		if skippedDisabled > 0 {
+			return fmt.Sprintf("没有新的实例需要启动（跳过 %d 个已禁用配置）", skippedDisabled), nil
+		}
 		return "没有新的实例需要启动（可能全部已在运行）", nil
 	}
-	return fmt.Sprintf("成功启动 %d 个实例", startedCount), nil
+	msg := fmt.Sprintf("成功启动 %d 个实例", startedCount)
+	if skippedDisabled > 0 {
+		msg += fmt.Sprintf("（跳过 %d 个已禁用配置）", skippedDisabled)
+	}
+	return msg, nil
 }
 
 // 停止机器人
@@ -176,6 +231,10 @@ func RestartMultiBot(name string) (string, error) {
 			continue
 		}
 		configName := file.Name()[:len(file.Name())-len(ext)]
+		// 跳过被禁用的配置
+		if !IsConfigEnabled(name, configName) {
+			continue
+		}
 		processName := fmt.Sprintf("%s:%s", name, configName)
 		proc := pm.GetProcess(processName)
 		if proc == nil {

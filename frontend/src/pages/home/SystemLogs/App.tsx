@@ -1,5 +1,5 @@
 import { Tabs } from 'antd'
-import { lazy, useMemo } from 'react'
+import { lazy, useMemo, useState } from 'react'
 import { WithSuspense } from '@/WithSuspense'
 import { Box } from '@/commom'
 
@@ -7,25 +7,17 @@ const Online = lazy(() => import('./Online'))
 const Query = lazy(() => import('./Query'))
 
 const App = () => {
+  const [activeKey, setActiveKey] = useState('online')
+
   const items = useMemo(
     () => [
       {
         key: 'online',
-        label: '在线日志',
-        children: (
-          <WithSuspense>
-            <Online />
-          </WithSuspense>
-        )
+        label: '在线日志'
       },
       {
         key: 'query',
-        label: '查询日志',
-        children: (
-          <WithSuspense>
-            <Query />
-          </WithSuspense>
-        )
+        label: '查询日志'
       }
     ],
     []
@@ -33,11 +25,22 @@ const App = () => {
 
   return (
     <Box rootClassName="!overflow-hidden">
-      <Tabs
-        className="flex-1 flex flex-col [&_.ant-tabs-content-holder]:flex-1 [&_.ant-tabs-content-holder]:min-h-0 [&_.ant-tabs-content]:h-full [&_.ant-tabs-tabpane]:h-full"
-        defaultActiveKey="online"
-        items={items}
-      />
+      <div className="flex-1 flex flex-col gap-2 min-h-0">
+        <div className="flex-shrink-0">
+          <Tabs activeKey={activeKey} items={items} onChange={setActiveKey} />
+        </div>
+        <div className="flex-1 min-h-0 overflow-hidden">
+          {activeKey === 'online' ? (
+            <WithSuspense>
+              <Online />
+            </WithSuspense>
+          ) : (
+            <WithSuspense>
+              <Query />
+            </WithSuspense>
+          )}
+        </div>
+      </div>
     </Box>
   )
 }

@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Button, DatePicker, DatePickerProps, message } from 'antd'
 import dayjs from 'dayjs'
-import Box from '@/commom/layout/Box'
 import { apiSystemLog, apiSystemLogDownloadUrl } from '@/api/system/logs'
 import { CopyOutlined, DownloadOutlined } from '@ant-design/icons'
 import { Pagination } from '@/commom'
@@ -79,16 +78,15 @@ const Query = () => {
   }
 
   return (
-    <Box rootClassName="p-[0!important] !overflow-hidden">
-      <div className="flex-1 flex flex-col gap-2 min-h-0">
+    <div className="h-full flex flex-col gap-2 min-h-0 overflow-hidden">
         {/* 头部：日期选择 + 操作按钮 */}
-        <div className="flex-shrink-0 flex items-center gap-2 flex-wrap">
+        <div className="flex-shrink-0 flex items-center gap-1.5 sm:gap-2 flex-wrap">
           <div className="bg-white rounded-md dark:bg-slate-500">
             <DatePicker
               value={dayjs(timestamp)}
               onChange={onChange}
               className="chatgpt-input"
-              size="middle"
+              size="small"
               showTime={false}
               format="YYYY-MM-DD"
             />
@@ -99,7 +97,7 @@ const Query = () => {
             onClick={onCopyPage}
             disabled={data.length === 0}
           >
-            复制
+            <span className="hidden sm:inline">复制</span>
           </Button>
           <Button
             size="small"
@@ -107,19 +105,19 @@ const Query = () => {
             onClick={onDownloadPage}
             disabled={data.length === 0}
           >
-            本页
+            <span className="hidden sm:inline">本页</span>
           </Button>
           <Button
             size="small"
             icon={<DownloadOutlined />}
             onClick={onDownloadSelectedDay}
           >
-            整天
+            <span className="hidden sm:inline">整天</span>
           </Button>
         </div>
 
         {/* 日志内容区域 */}
-        <div className="flex-1 min-h-0 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl border border-white/20 dark:border-gray-700/20 overflow-hidden shadow-lg">
+        <div className="flex-1 min-h-0 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-lg sm:rounded-xl border border-white/20 dark:border-gray-700/20 overflow-hidden shadow-lg">
           {isRefreshing && data.length === 0 ? (
             <div className="flex items-center justify-center h-full">
               <div className="text-center">
@@ -168,42 +166,44 @@ const Query = () => {
             </div>
           ) : (
             <div className="h-full overflow-y-auto overflow-x-auto p-4 space-y-1">
-              {data.map((item, index) => (
-                <div
-                  key={index}
-                  className="group flex items-start gap-2 sm:gap-3 p-2 sm:p-3 bg-white/50 dark:bg-gray-700/50 backdrop-blur-sm rounded-lg border border-white/20 dark:border-gray-600/20 hover:bg-white/80 dark:hover:bg-gray-700/80 duration-200"
-                >
-                  <div className="flex-shrink-0 w-8 sm:w-10 text-xs text-gray-400 dark:text-gray-500 font-mono text-right pt-1">
-                    {(pageInfo.page - 1) * pageInfo.pageSize + index + 1}
+              <div className="space-y-1">
+                {data.map((item, index) => (
+                  <div
+                    key={index}
+                    className="group flex items-start gap-2 sm:gap-3 p-2 sm:p-3 bg-white/50 dark:bg-gray-700/50 backdrop-blur-sm rounded-lg border border-white/20 dark:border-gray-600/20 hover:bg-white/80 dark:hover:bg-gray-700/80 duration-200"
+                  >
+                    <div className="flex-shrink-0 w-8 sm:w-10 text-xs text-gray-400 dark:text-gray-500 font-mono text-right pt-1">
+                      {(pageInfo.page - 1) * pageInfo.pageSize + index + 1}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <pre className="select-text text-xs sm:text-sm text-gray-700 dark:text-gray-300 font-mono whitespace-pre-wrap break-words leading-relaxed">
+                        {item}
+                      </pre>
+                    </div>
+                    <div className="flex-shrink-0 opacity-0 group-hover:opacity-100 transition">
+                      <Button
+                        size="small"
+                        type="text"
+                        icon={<CopyOutlined />}
+                        onClick={async () => {
+                          try {
+                            await navigator.clipboard.writeText(item)
+                            message.success('已复制该行')
+                          } catch {
+                            message.error('复制失败')
+                          }
+                        }}
+                      />
+                    </div>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <pre className="select-text text-xs sm:text-sm text-gray-700 dark:text-gray-300 font-mono whitespace-pre-wrap break-words leading-relaxed">
-                      {item}
-                    </pre>
-                  </div>
-                  <div className="flex-shrink-0 opacity-0 group-hover:opacity-100 transition">
-                    <Button
-                      size="small"
-                      type="text"
-                      icon={<CopyOutlined />}
-                      onClick={async () => {
-                        try {
-                          await navigator.clipboard.writeText(item)
-                          message.success('已复制该行')
-                        } catch {
-                          message.error('复制失败')
-                        }
-                      }}
-                    />
-                  </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           )}
         </div>
 
         {/* 分页器 — 始终可见 */}
-        <div className="flex-shrink-0 bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm rounded-lg px-3 py-2 border border-white/20 dark:border-gray-700/20">
+        <div className="flex-shrink-0 bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm rounded-lg px-2 sm:px-3 py-1.5 sm:py-2 border border-white/20 dark:border-gray-700/20">
           <Pagination
             total={total}
             pageSize={pageInfo.pageSize}
@@ -211,8 +211,7 @@ const Query = () => {
             onPageChange={page => setPageInfo({ ...pageInfo, page })}
           />
         </div>
-      </div>
-    </Box>
+    </div>
   )
 }
 

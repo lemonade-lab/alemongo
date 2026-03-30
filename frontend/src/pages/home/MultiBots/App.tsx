@@ -13,7 +13,8 @@ import {
   Collapse,
   Empty,
   Popconfirm,
-  DatePicker
+  DatePicker,
+  Select
 } from 'antd'
 import {
   PlusOutlined,
@@ -37,7 +38,7 @@ import {
   StopOutlined,
   MonitorOutlined
 } from '@ant-design/icons'
-import { Box, Pagination } from '@/commom'
+import { Box, Markdown, Pagination } from '@/commom'
 import {
   apiMultiBotList,
   apiMultiBotCreate,
@@ -68,14 +69,20 @@ import {
   apiMultiBotPackagesUpdate,
   apiMultiBotPackagesInfo,
   apiMultiBotConfigsList,
+  apiMultiBotConfigHistoryList,
+  apiMultiBotConfigHistoryRead,
+  apiMultiBotConfigHistoryRestore,
   MultiBotInfo,
-  MultiBotPackage
+  MultiBotPackage,
+  MultiBotConfigHistoryItem,
+  apiMultiBotToggleEnabled
 } from '@/api'
 import { createAuthedWS } from '@/api/ws'
 import classNames from 'classnames'
 import ProcessPortModal from '@/components/ProcessPortModal'
+import JSONEdit from '@/commom/edit/JSONEdit'
 import dayjs from 'dayjs'
-import YAML from 'js-yaml'
+import { updateYamlAppsPreserveComments } from '@/utils/yaml'
 
 const { TextArea } = Input
 
@@ -85,8 +92,10 @@ const MultiBots = () => {
   const [createVisible, setCreateVisible] = useState(false)
   const [configVisible, setConfigVisible] = useState(false)
   const [selectedBot, setSelectedBot] = useState<string>('')
+  const [addConfigName, setAddConfigName] = useState('')
+  const [addConfigContent, setAddConfigContent] = useState('')
+  const [addConfigLoading, setAddConfigLoading] = useState(false)
   const [form] = Form.useForm()
-  const [configForm] = Form.useForm()
 
   // 端口弹窗
   const [portModalVisible, setPortModalVisible] = useState(false)
@@ -101,6 +110,12 @@ const MultiBots = () => {
   const [editConfigName, setEditConfigName] = useState('')
   const [editConfigContent, setEditConfigContent] = useState('')
   const [editConfigLoading, setEditConfigLoading] = useState(false)
+  const [configHistoryVisible, setConfigHistoryVisible] = useState(false)
+  const [configHistoryLoading, setConfigHistoryLoading] = useState(false)
+  const [configHistoryList, setConfigHistoryList] = useState<MultiBotConfigHistoryItem[]>([])
+  const [selectedHistoryId, setSelectedHistoryId] = useState('')
+  const [selectedHistoryContent, setSelectedHistoryContent] = useState('')
+  const [selectedHistoryLoading, setSelectedHistoryLoading] = useState(false)
 
   // 环境变量弹窗
   const [envVisible, setEnvVisible] = useState(false)
@@ -157,6 +172,27 @@ const MultiBots = () => {
   const [pkgEditName, setPkgEditName] = useState('')
   const [pkgEditContent, setPkgEditContent] = useState('')
   const [pkgEditLoading, setPkgEditLoading] = useState(false)
+  const [pkgReadmeVisible, setPkgReadmeVisible] = useState(false)
+  const [pkgReadmeName, setPkgReadmeName] = useState('')
+  const [pkgReadmeContent, setPkgReadmeContent] = useState('')
+
+  const getPackageMeta = (pkgContent: string) => {
+    try {
+      const parsed = JSON.parse(pkgContent || '{}')
+      return {
+        name: typeof parsed.name === 'string' ? parsed.name : '-',
+        version: typeof parsed.version === 'string' ? parsed.version : '-',
+        description:
+          typeof parsed.description === 'string' ? parsed.description : '-'
+      }
+    } catch {
+      return {
+        name: '-',
+        version: '-',
+        description: '-'
+      }
+    }
+  }
 
   const fetchList = () => {
     setLoading(true)
@@ -187,17 +223,25 @@ const MultiBots = () => {
   }
 
   // 添加配置
-  const onAddConfig = (values: { name: string; content: string }) => {
+  const onAddConfig = (name: string, content: string) => {
+    if (!name.trim()) {
+      message.error('请输入配置名称')
+      return
+    }
+    setAddConfigLoading(true)
     apiMultiBotAddConfig({
       bot_name: selectedBot,
-      name: values.name,
-      content: values.content
-    }).then(() => {
-      message.success('配置已添加')
-      setConfigVisible(false)
-      configForm.resetFields()
-      fetchList()
+      name: name.trim(),
+      content
     })
+      .then(() => {
+        message.success('配置已添加')
+        setConfigVisible(false)
+        setAddConfigName('')
+        setAddConfigContent('')
+        fetchList()
+      })
+      .finally(() => setAddConfigLoading(false))
   }
 
   // 删除多配置机器人
@@ -297,6 +341,14 @@ const MultiBots = () => {
     })
   }
 
+  // 切换配置启用状态
+  const onToggleEnabled = (name: string, configName: string, enabled: boolean) => {
+    apiMultiBotToggleEnabled({ name, config_name: configName, enabled }).then(msg => {
+      message.success(msg || (enabled ? '已启用' : '已禁用'))
+      fetchList()
+    })
+  }
+
   // 查看/编辑配置
   const onOpenConfig = (botName: string, cfgName: string) => {
     setEditConfigBot(botName)
@@ -310,15 +362,66 @@ const MultiBots = () => {
       .finally(() => setEditConfigLoading(false))
   }
 
-  const onSaveConfig = () => {
+  const loadConfigHistory = (botName: string, cfgName: string) => {
+    setConfigHistoryLoading(true)
+    apiMultiBotConfigHistoryList({ bot_name: botName, name: cfgName })
+      .then(res => {
+        setConfigHistoryList(res || [])
+      })
+      .finally(() => setConfigHistoryLoading(false))
+  }
+
+  const onOpenConfigHistory = () => {
+    if (!editConfigBot || !editConfigName) return
+    setConfigHistoryVisible(true)
+    setSelectedHistoryId('')
+    setSelectedHistoryContent('')
+    loadConfigHistory(editConfigBot, editConfigName)
+  }
+
+  const onSelectConfigHistory = (historyID: string) => {
+    setSelectedHistoryId(historyID)
+    setSelectedHistoryLoading(true)
+    apiMultiBotConfigHistoryRead({
+      bot_name: editConfigBot,
+      name: editConfigName,
+      history_id: historyID
+    })
+      .then(content => {
+        setSelectedHistoryContent(content || '')
+      })
+      .finally(() => setSelectedHistoryLoading(false))
+  }
+
+  const onRestoreConfigHistory = () => {
+    if (!selectedHistoryId) {
+      message.warning('请先选择一个历史版本')
+      return
+    }
+    setSelectedHistoryLoading(true)
+    apiMultiBotConfigHistoryRestore({
+      bot_name: editConfigBot,
+      name: editConfigName,
+      history_id: selectedHistoryId
+    })
+      .then(content => {
+        setEditConfigContent(content || '')
+        message.success('已恢复到所选历史版本')
+        setConfigHistoryVisible(false)
+      })
+      .finally(() => setSelectedHistoryLoading(false))
+  }
+
+  const onSaveConfig = (_name: string, content: string) => {
     setEditConfigLoading(true)
     apiMultiBotConfigUpdate({
       bot_name: editConfigBot,
       name: editConfigName,
-      content: editConfigContent
+      content
     })
       .then(() => {
         message.success('配置已保存')
+        setEditConfigContent(content)
         setEditConfigVisible(false)
       })
       .finally(() => setEditConfigLoading(false))
@@ -569,10 +672,22 @@ const MultiBots = () => {
   }
 
   const onCloneSubmit = (values: { repo_url: string; branch_name: string; force?: boolean }) => {
+    const proxy = cloneForm.getFieldValue('proxy') as string | undefined
+    let repoURL = values.repo_url.trim()
+
+    if (
+      proxy &&
+      proxy !== 'direct' &&
+      /^https:\/\/github\.com\//i.test(repoURL) &&
+      !repoURL.startsWith(proxy)
+    ) {
+      repoURL = `${proxy}${repoURL}`
+    }
+
     setPkgsLoading(true)
     apiMultiBotPackagesClone({
       name: pkgsBot,
-      repo_url: values.repo_url,
+      repo_url: repoURL,
       branch_name: values.branch_name,
       force: values.force ? '1' : undefined
     })
@@ -626,6 +741,12 @@ const MultiBots = () => {
         setPkgEditContent(res?.pkg || '{}')
       })
       .finally(() => setPkgEditLoading(false))
+  }
+
+  const onOpenPkgReadme = (pkg: MultiBotPackage) => {
+    setPkgReadmeName(pkg.name)
+    setPkgReadmeContent(pkg.md || '')
+    setPkgReadmeVisible(true)
   }
 
   const onSavePkgEdit = () => {
@@ -694,27 +815,14 @@ const MultiBots = () => {
       let updated = 0
       for (const cfgName of configs) {
         const content = await apiMultiBotConfigRead({ bot_name: pkgsBot, name: cfgName })
-        const raw = YAML.load(content || '')
-        const data: Record<string, unknown> =
-          raw && typeof raw === 'object' && !Array.isArray(raw)
-            ? (raw as Record<string, unknown>)
-            : {}
-        const apps: string[] = Array.isArray(data.apps) ? [...data.apps] : []
-
-        if (enable && !apps.includes(pkgName)) {
-          apps.push(pkgName)
-        } else if (!enable && apps.includes(pkgName)) {
-          const idx = apps.indexOf(pkgName)
-          apps.splice(idx, 1)
-        } else {
+        const result = updateYamlAppsPreserveComments(content || '', pkgName, enable)
+        if (!result.changed) {
           continue // 无需改动
         }
-
-        data.apps = apps
         await apiMultiBotConfigUpdate({
           bot_name: pkgsBot,
           name: cfgName,
-          content: YAML.dump(data)
+          content: result.content
         })
         updated++
       }
@@ -819,6 +927,8 @@ const MultiBots = () => {
                           size="small"
                           onClick={() => {
                             setSelectedBot(bot.name)
+                            setAddConfigName('')
+                            setAddConfigContent('')
                             setConfigVisible(true)
                           }}
                         />
@@ -902,9 +1012,11 @@ const MultiBots = () => {
                                     'flex items-center justify-between p-3 rounded-lg',
                                     'bg-gray-50/80 dark:bg-gray-700/50',
                                     'border',
-                                    inst.status === 1
-                                      ? 'border-green-200 dark:border-green-800'
-                                      : 'border-gray-200 dark:border-gray-600'
+                                    inst.enabled === false
+                                      ? 'border-gray-300 dark:border-gray-600 opacity-60'
+                                      : inst.status === 1
+                                        ? 'border-green-200 dark:border-green-800'
+                                        : 'border-gray-200 dark:border-gray-600'
                                   )}
                                 >
                                   <div className="flex-1 min-w-0">
@@ -932,6 +1044,16 @@ const MultiBots = () => {
                                     </div>
                                   </div>
                                   <div className="flex items-center gap-1 ml-2">
+                                    {/* 启用/禁用开关 */}
+                                    <Tooltip title={inst.enabled !== false ? '批量操作时启用' : '批量操作时跳过'}>
+                                      <Switch
+                                        size="small"
+                                        checked={inst.enabled !== false}
+                                        onChange={(checked) =>
+                                          onToggleEnabled(bot.name, inst.config_name, checked)
+                                        }
+                                      />
+                                    </Tooltip>
                                     {/* 查看/编辑配置 */}
                                     <Tooltip title="编辑配置">
                                       <Button
@@ -1013,11 +1135,15 @@ const MultiBots = () => {
                                     </Popconfirm>
                                     <Tag
                                       color={
-                                        inst.status === 1 ? 'green' : 'default'
+                                        inst.enabled === false
+                                          ? 'default'
+                                          : inst.status === 1 ? 'green' : 'default'
                                       }
                                       className="rounded-full ml-1"
                                     >
-                                      {inst.status === 1 ? '运行中' : '已停止'}
+                                      {inst.enabled === false
+                                        ? '已禁用'
+                                        : inst.status === 1 ? '运行中' : '已停止'}
                                     </Tag>
                                   </div>
                                 </div>
@@ -1077,35 +1203,31 @@ const MultiBots = () => {
         open={configVisible}
         onCancel={() => {
           setConfigVisible(false)
-          configForm.resetFields()
+          setAddConfigName('')
+          setAddConfigContent('')
         }}
         footer={null}
-        width={600}
+        width={860}
+        destroyOnClose
       >
-        <Form form={configForm} onFinish={onAddConfig} layout="vertical">
-          <Form.Item
-            name="name"
-            label="配置名称"
-            rules={[{ required: true, message: '请输入配置名称' }]}
-          >
-            <Input placeholder="例如: qq_bot_1（不需要扩展名）" />
-          </Form.Item>
-          <Form.Item
-            name="content"
-            label="配置内容 (YAML)"
-          >
-            <TextArea
-              rows={10}
-              placeholder={'# 在这里编写你的 YAML 配置（可为空）\n# 例如:\ntoken: xxx\nappid: 123'}
-              className="font-mono"
-            />
-          </Form.Item>
-          <Form.Item>
-            <Button type="primary" htmlType="submit" block>
-              添加配置
-            </Button>
-          </Form.Item>
-        </Form>
+        <div className="h-[70vh] min-h-[520px]">
+          <JSONEdit
+            name={addConfigName}
+            value={addConfigContent || '# 在这里编写你的 YAML 配置（可为空）\n'}
+            onSave={onAddConfig}
+            type="yaml"
+            rightHeader={
+              <span className="text-xs text-gray-500 dark:text-gray-400">
+                文件名不需要扩展名，将自动保存为 YAML
+              </span>
+            }
+          />
+          {addConfigLoading && (
+            <div className="absolute inset-0 flex items-center justify-center bg-white/40 dark:bg-black/30 pointer-events-none">
+              <Spin />
+            </div>
+          )}
+        </div>
       </Modal>
 
       {/* 查看/编辑配置弹窗 */}
@@ -1113,28 +1235,90 @@ const MultiBots = () => {
         title={`配置: ${editConfigName}`}
         open={editConfigVisible}
         onCancel={() => setEditConfigVisible(false)}
-        width={640}
+        width={860}
+        footer={null}
+        destroyOnClose
+      >
+        <div className="relative h-[70vh] min-h-[520px]">
+          <JSONEdit
+            name={editConfigName}
+            value={editConfigContent}
+            onSave={onSaveConfig}
+            disabledName
+            type="yaml"
+            rightHeader={
+              <Space>
+                <Button size="small" onClick={onOpenConfigHistory}>历史记录</Button>
+                <span className="text-xs text-gray-500 dark:text-gray-400">
+                  YAML 注释会被保留，格式化为显式操作
+                </span>
+              </Space>
+            }
+          />
+          {editConfigLoading && (
+            <div className="absolute inset-0 flex items-center justify-center bg-white/40 dark:bg-black/30 pointer-events-none">
+              <Spin />
+            </div>
+          )}
+        </div>
+      </Modal>
+
+      <Modal
+        title={`历史记录与对比 — ${editConfigName}`}
+        open={configHistoryVisible}
+        onCancel={() => setConfigHistoryVisible(false)}
+        width={1200}
         footer={
           <Space>
-            <Button onClick={() => setEditConfigVisible(false)}>取消</Button>
-            <Button
-              type="primary"
-              loading={editConfigLoading}
-              onClick={onSaveConfig}
-            >
-              保存
+            <Button onClick={() => setConfigHistoryVisible(false)}>关闭</Button>
+            <Button onClick={onRestoreConfigHistory} type="primary" disabled={!selectedHistoryId}>
+              恢复所选版本
             </Button>
           </Space>
         }
       >
-        <Spin spinning={editConfigLoading}>
-          <TextArea
-            rows={16}
-            value={editConfigContent}
-            onChange={e => setEditConfigContent(e.target.value)}
-            className="font-mono"
-          />
-        </Spin>
+        <div className="grid grid-cols-12 gap-3 h-[70vh] min-h-[520px]">
+          <div className="col-span-4 border rounded-lg overflow-hidden flex flex-col min-h-0">
+            <div className="px-3 py-2 text-sm font-medium border-b">编辑历史</div>
+            <Spin spinning={configHistoryLoading} className="flex-1 min-h-0">
+              {configHistoryList.length === 0 ? (
+                <div className="h-full flex items-center justify-center text-sm text-gray-400">暂无历史记录</div>
+              ) : (
+                <div className="h-full overflow-auto p-2 space-y-2">
+                  {configHistoryList.map(item => (
+                    <button
+                      key={item.id}
+                      className={classNames(
+                        'w-full text-left px-3 py-2 rounded border text-xs transition-colors',
+                        selectedHistoryId === item.id
+                          ? 'border-blue-400 bg-blue-50 dark:bg-blue-900/20'
+                          : 'border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/60'
+                      )}
+                      onClick={() => onSelectConfigHistory(item.id)}
+                    >
+                      <div className="font-medium">{item.create_at}</div>
+                      <div className="text-gray-500 mt-1">{(item.size / 1024).toFixed(2)} KB</div>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </Spin>
+          </div>
+          <div className="col-span-4 border rounded-lg overflow-hidden flex flex-col min-h-0">
+            <div className="px-3 py-2 text-sm font-medium border-b">当前内容</div>
+            <pre className="flex-1 min-h-0 overflow-auto p-3 text-xs font-mono whitespace-pre-wrap break-words bg-gray-50 dark:bg-gray-900/60">
+              {editConfigContent || '(空)'}
+            </pre>
+          </div>
+          <div className="col-span-4 border rounded-lg overflow-hidden flex flex-col min-h-0">
+            <div className="px-3 py-2 text-sm font-medium border-b">历史版本内容</div>
+            <Spin spinning={selectedHistoryLoading} className="flex-1 min-h-0">
+              <pre className="h-full overflow-auto p-3 text-xs font-mono whitespace-pre-wrap break-words bg-gray-50 dark:bg-gray-900/60">
+                {selectedHistoryContent || '(请在左侧选择历史版本)'}
+              </pre>
+            </Spin>
+          </div>
+        </div>
       </Modal>
 
       {/* 环境变量弹窗 */}
@@ -1398,8 +1582,7 @@ const MultiBots = () => {
               onClick={refreshPackages}
             >
               刷新
-            </Button>
-            <Button onClick={() => setPkgsVisible(false)}>关闭</Button>
+            </Button>  
           </Space>
         }
       >
@@ -1417,12 +1600,21 @@ const MultiBots = () => {
                     'border border-gray-200 dark:border-gray-600'
                   )}
                 >
+                  {(() => {
+                    const meta = getPackageMeta(pkg.pkg)
+                    return (
                   <div className="flex justify-between items-start">
                     <div className="flex-1 min-w-0">
                       <div className="font-semibold text-gray-800 dark:text-gray-200">
                         {pkg.name}
                       </div>
                       <div className="text-xs text-gray-500 dark:text-gray-400 mt-1 space-y-0.5">
+                        <div>
+                          包名: {meta.name} | 版本: {meta.version}
+                        </div>
+                        <div className="break-words">
+                          描述: {meta.description}
+                        </div>
                         <div>仓库: {pkg.git?.repo || '-'}</div>
                         <div>
                           分支: <Tag color="blue" className="text-xs">{pkg.git?.branch || '-'}</Tag>
@@ -1454,6 +1646,13 @@ const MultiBots = () => {
                           size="small"
                           icon={<EditOutlined />}
                           onClick={() => onOpenPkgEdit(pkg.name)}
+                        />
+                      </Tooltip>
+                      <Tooltip title="查看 README">
+                        <Button
+                          size="small"
+                          icon={<FileTextOutlined />}
+                          onClick={() => onOpenPkgReadme(pkg)}
                         />
                       </Tooltip>
                       <Tooltip title="拉取更新">
@@ -1488,11 +1687,33 @@ const MultiBots = () => {
                       </Popconfirm>
                     </Space>
                   </div>
+                    )
+                  })()}
                 </div>
               ))}
             </div>
           )}
         </Spin>
+      </Modal>
+
+      <Modal
+        title={`README — ${pkgReadmeName}`}
+        open={pkgReadmeVisible}
+        onCancel={() => setPkgReadmeVisible(false)}
+        width={900}
+        footer={
+          <Space>
+            <Button onClick={() => setPkgReadmeVisible(false)}>关闭</Button>
+          </Space>
+        }
+      >
+        <div className="max-h-[70vh] overflow-auto rounded-lg border border-gray-200 dark:border-gray-700 p-4 bg-white dark:bg-gray-900">
+          {pkgReadmeContent ? (
+            <Markdown content={pkgReadmeContent} />
+          ) : (
+            <Empty description="该应用没有 README.md" />
+          )}
+        </div>
       </Modal>
 
       {/* 包配置 (package.json) 弹窗 */}
@@ -1565,6 +1786,24 @@ const MultiBots = () => {
         width={500}
       >
         <Form form={cloneForm} onFinish={onCloneSubmit} layout="vertical">
+          <Form.Item
+            name="proxy"
+            label="代理"
+            initialValue="https://ghfast.top/"
+            tooltip="仅对 https://github.com/... 地址生效，git@ 地址保持不变"
+          >
+            <Select
+              options={[
+                { label: 'ghfast.top（默认）', value: 'https://ghfast.top/' },
+                { label: 'ghproxy.com', value: 'https://ghproxy.com/' },
+                { label: 'ghproxy.net', value: 'https://ghproxy.net/' },
+                { label: 'ghp.ci', value: 'https://ghp.ci/' },
+                { label: 'gitclone.com', value: 'https://gitclone.com/github.com/' },
+                { label: 'hub.gitmirror.com', value: 'https://hub.gitmirror.com/' },
+                { label: '直连', value: 'direct' }
+              ]}
+            />
+          </Form.Item>
           <Form.Item
             name="repo_url"
             label="仓库地址"

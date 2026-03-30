@@ -3,8 +3,10 @@ import { useEffect, useState, useCallback } from 'react'
 import YAML from 'js-yaml'
 import MonacoEditor from './CodeEditor'
 import useCodeTheme from '@/hook/useCodeTheme'
+import { formatYamlPreserveComments, validateYaml } from '@/utils/yaml'
 import {
   SaveOutlined,
+  AlignLeftOutlined,
   ExclamationCircleOutlined,
   CheckCircleOutlined
 } from '@ant-design/icons'
@@ -44,12 +46,13 @@ const JSONEdit = ({
   useEffect(() => {
     try {
       if (value) {
-        const parsed = safeDecode(value, type)
-        setCodeData(
-          type === 'yaml'
-            ? YAML.dump(parsed)
-            : JSON.stringify(parsed, null, 2)
-        )
+        if (type === 'yaml') {
+          validateYaml(value)
+          setCodeData(value)
+        } else {
+          const parsed = safeDecode(value, type)
+          setCodeData(JSON.stringify(parsed, null, 2))
+        }
       } else {
         setCodeData(type === 'yaml' ? '' : '{}')
       }
@@ -65,7 +68,11 @@ const JSONEdit = ({
       const v = val ?? ''
       setCodeData(v)
       try {
-        safeDecode(v, type)
+        if (type === 'yaml') {
+          validateYaml(v)
+        } else {
+          safeDecode(v, type)
+        }
         setDisabled(false)
       } catch {
         setDisabled(true)
@@ -73,6 +80,21 @@ const JSONEdit = ({
     },
     [type]
   )
+
+  const handleFormat = () => {
+    try {
+      if (type === 'yaml') {
+        setCodeData(formatYamlPreserveComments(codeData))
+      } else {
+        const parsed = safeDecode(codeData, type)
+        setCodeData(JSON.stringify(parsed, null, 2))
+      }
+      setDisabled(false)
+      message.success('格式化完成')
+    } catch {
+      message.error('格式错误，无法格式化')
+    }
+  }
 
   const handleSave = () => {
     if (!nameValue) {
@@ -128,6 +150,13 @@ const JSONEdit = ({
         </div>
         <div className="flex items-center gap-3">
           {rightHeader || null}
+          <Button
+            disabled={disabled}
+            onClick={handleFormat}
+            icon={<AlignLeftOutlined />}
+          >
+            格式化
+          </Button>
           <Button
             disabled={disabled}
             onClick={handleSave}

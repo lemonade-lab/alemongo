@@ -6,6 +6,7 @@ import (
 	"alemongo/src/logic"
 	config "alemongo/src/paths"
 	"alemongo/src/utils"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -30,6 +31,7 @@ type MultiBotInstance struct {
 	ProcessName string `json:"process_name"`
 	Status      int    `json:"status"` // 0: 停止, 1: 运行中
 	Pid         int    `json:"pid"`
+	Enabled     bool   `json:"enabled"` // 是否启用（批量操作时跳过禁用的配置）
 }
 
 // @summary 多配置机器人列表
@@ -82,6 +84,7 @@ func ListMultiBots(c *gin.Context) {
 					ProcessName: processName,
 					Status:      0,
 					Pid:         0,
+					Enabled:     logic.IsConfigEnabled(name, cfgName),
 				}
 				proc := pm.GetProcess(processName)
 				if proc != nil {
@@ -249,4 +252,29 @@ func InfoMultiBot(c *gin.Context) {
 		"msg":  "请求成功",
 		"data": res.Data,
 	})
+}
+
+// ToggleConfigEnabled 切换配置启用状态
+func ToggleConfigEnabled(c *gin.Context) {
+	name := c.PostForm("name")
+	configName := c.PostForm("config_name")
+	enabledStr := c.PostForm("enabled")
+	if name == "" || configName == "" {
+		response.ResponseErrorWithMsg(c, http.StatusBadRequest, http.StatusBadRequest, "参数不完整")
+		return
+	}
+	if !config.MultiBotExists(name) {
+		response.ResponseErrorWithMsg(c, http.StatusBadRequest, http.StatusBadRequest, "多配置机器人不存在")
+		return
+	}
+	enabled := enabledStr == "true" || enabledStr == "1"
+	if err := logic.SetConfigEnabled(name, configName, enabled); err != nil {
+		response.ResponseErrorWithMsg(c, http.StatusInternalServerError, http.StatusInternalServerError, "设置失败")
+		return
+	}
+	state := "已启用"
+	if !enabled {
+		state = "已禁用"
+	}
+	response.ResponseSuccess(c, fmt.Sprintf("配置 [%s] %s", configName, state))
 }

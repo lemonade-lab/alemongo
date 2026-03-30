@@ -25,6 +25,7 @@ import { getBotName } from '../core'
 import Box from '@/commom/layout/Box'
 import { useNavigate } from 'react-router-dom'
 import YAML from 'js-yaml'
+import { updateYamlAppsPreserveComments } from '@/utils/yaml'
 import {
   DownOutlined,
   PlusOutlined,
@@ -194,19 +195,20 @@ const Panel = () => {
   const onStart = (name: string) => {
     if (isLoadingStatus) return
     setIsLoadingStatus(true)
-    let value = ''
     if (!config.apps.includes(name)) {
-      const cfg = {
-        ...config,
-        apps: [...config.apps, name]
-      }
-      value = YAML.dump(cfg)
-      apiBotConfigUpdate({
-        name: info.name,
-        content: value
-      })
+      apiBotConfig({ name: info.name })
+        .then(res => {
+          const result = updateYamlAppsPreserveComments(res || '', name, true)
+          return apiBotConfigUpdate({
+            name: info.name,
+            content: result.content
+          })
+        })
         .then(() => {
-          setConfig(cfg)
+          setConfig(prev => ({
+            ...prev,
+            apps: [...prev.apps, name]
+          }))
           message.success('扩展启用成功')
         })
         .finally(() => {
@@ -226,19 +228,20 @@ const Panel = () => {
   const onStop = (name: string) => {
     if (isLoadingStatus) return
     setIsLoadingStatus(true)
-    let value = ''
     if (config.apps.includes(name)) {
-      const cfg = {
-        ...config,
-        apps: config.apps.filter(item => item !== name)
-      }
-      value = YAML.dump(cfg)
-      apiBotConfigUpdate({
-        name: info.name,
-        content: value
-      })
+      apiBotConfig({ name: info.name })
+        .then(res => {
+          const result = updateYamlAppsPreserveComments(res || '', name, false)
+          return apiBotConfigUpdate({
+            name: info.name,
+            content: result.content
+          })
+        })
         .then(() => {
-          setConfig(cfg)
+          setConfig(prev => ({
+            ...prev,
+            apps: prev.apps.filter(item => item !== name)
+          }))
           message.success('扩展停用成功')
         })
         .finally(() => {

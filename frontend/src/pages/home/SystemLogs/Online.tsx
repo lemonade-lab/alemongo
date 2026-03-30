@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useRef, useState, useCallback } from 'react'
-import Box from '@/commom/layout/Box'
 import { Button, Switch } from 'antd'
 import { createAuthedWS } from '@/api/ws'
 
@@ -123,18 +122,17 @@ const Online = () => {
   const renderData = useMemo(() => data.slice(-200), [data])
 
   return (
-    <Box rootClassName="p-[0!important] !overflow-hidden">
-      <div className="flex-1 flex flex-col gap-2 min-h-0">
+    <div className="h-full flex flex-col gap-2 min-h-0 overflow-hidden">
       {/* 头部区域 */}
-      <div className="flex-shrink-0 flex items-center gap-2 flex-wrap">
+      <div className="flex-shrink-0 flex items-center gap-1.5 sm:gap-2 flex-wrap">
         <div
-          className={`w-3 h-3 rounded-full ${paused ? 'bg-gray-400' : 'bg-green-500 animate-pulse'}`}
+          className={`w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full ${paused ? 'bg-gray-400' : 'bg-green-500 animate-pulse'}`}
         ></div>
-        <span className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 font-medium">
+        <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">
           {paused ? '已暂停' : '实时更新中'}
         </span>
         <div className="flex items-center gap-1">
-          <span className="text-xs text-gray-500 dark:text-gray-400">
+          <span className="text-xs text-gray-500 dark:text-gray-400 hidden sm:inline">
             自动滚动
           </span>
           <Switch
@@ -152,7 +150,7 @@ const Online = () => {
       </div>
 
       {/* 日志内容区域 */}
-      <div className="flex-1 min-h-0 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl border border-white/20 dark:border-gray-700/20 overflow-hidden shadow-lg">
+      <div className="flex-1 min-h-0 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-lg sm:rounded-xl border border-white/20 dark:border-gray-700/20 overflow-hidden shadow-lg">
         {isLoading && data.length === 0 ? (
           <div className="flex items-center justify-center h-full">
             <div className="text-center">
@@ -206,14 +204,9 @@ const Online = () => {
               {renderData.map((item, index) => (
                 <div
                   key={index}
-                  className="group flex items-start gap-3 p-3 bg-white/50 dark:bg-gray-700/50 backdrop-blur-sm rounded-lg border border-white/20 dark:border-gray-600/20 hover:bg-white/80 dark:hover:bg-gray-700/80 duration-200"
+                  className="group flex items-start gap-2 sm:gap-3 p-2 sm:p-3 bg-white/50 dark:bg-gray-700/50 backdrop-blur-sm rounded-lg border border-white/20 dark:border-gray-600/20 hover:bg-white/80 dark:hover:bg-gray-700/80 duration-200"
                 >
-                  <div className="flex-1 min-w-0">
-                    <div className="select-text text-xs sm:text-sm text-gray-800 dark:text-gray-200 font-mono leading-relaxed whitespace-pre-wrap break-words">
-                      {item}
-                    </div>
-                  </div>
-                  <div className="flex-shrink-0">
+                  <div className="flex-shrink-0 pt-1">
                     {item.toLowerCase().includes('error') ? (
                       <div className="w-2 h-2 bg-red-500 rounded-full"></div>
                     ) : item.toLowerCase().includes('warn') ? (
@@ -224,6 +217,11 @@ const Online = () => {
                       <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                     )}
                   </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="select-text text-xs sm:text-sm text-gray-800 dark:text-gray-200 font-mono leading-relaxed whitespace-pre-wrap break-words">
+                      {item}
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>
@@ -231,11 +229,10 @@ const Online = () => {
         )}
       </div>
 
-      <div className="flex-shrink-0 flex items-center justify-end text-xs sm:text-sm text-gray-600 dark:text-gray-400 pt-1">
+      <div className="flex-shrink-0 flex items-center justify-end text-xs text-gray-600 dark:text-gray-400 pt-1">
         <div>共 {renderData.length} 条日志记录</div>
       </div>
-      </div>
-    </Box>
+    </div>
   )
 }
 

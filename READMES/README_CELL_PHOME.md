@@ -138,7 +138,7 @@ ifconfig
 
 **Q: 提示找不到 udocker 命令？**
 
-确认 Python 和 pip 已安装：`pkg install python && pip install udocker`
+确认 Python 和 pip 已安装：`pkg install python-pip && pip install udocker`
 
 **Q: 端口被占用怎么办？**
 

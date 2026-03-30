@@ -6,6 +6,7 @@ export type MultiBotInstance = {
   process_name: string
   status: number // 0=停止, 1=运行中
   pid: number
+  enabled: boolean // 是否启用（批量操作时跳过禁用的配置）
 }
 
 /** 多配置机器人信息 */
@@ -152,6 +153,24 @@ export const apiMultiBotInstanceRestart = async (data: {
   }).then(res => res.data)
 }
 
+/**
+ * 切换配置启用状态
+ */
+export const apiMultiBotToggleEnabled = async (data: {
+  name: string
+  config_name: string
+  enabled: boolean
+}) => {
+  return request({
+    url: '/multibot/instance/toggle-enabled',
+    method: 'POST',
+    data: {
+      ...data,
+      enabled: data.enabled ? 'true' : 'false'
+    }
+  }).then(res => res.data)
+}
+
 // ========= Yarn 依赖管理 =========
 
 /**
@@ -219,6 +238,58 @@ export const apiMultiBotConfigDelete = async (data: {
     method: 'DELETE',
     data
   }).then(res => res.data)
+}
+
+export type MultiBotConfigHistoryItem = {
+  id: string
+  create_at: string
+  size: number
+  file_name: string
+  timestamp: number
+}
+
+/**
+ * 获取配置编辑历史列表
+ */
+export const apiMultiBotConfigHistoryList = async (params: {
+  bot_name: string
+  name: string
+}): Promise<MultiBotConfigHistoryItem[]> => {
+  return request({
+    url: '/multibot/configs/history',
+    method: 'GET',
+    params
+  }).then(res => res.data || [])
+}
+
+/**
+ * 读取历史版本内容
+ */
+export const apiMultiBotConfigHistoryRead = async (data: {
+  bot_name: string
+  name: string
+  history_id: string
+}): Promise<string> => {
+  return request({
+    url: '/multibot/configs/history/read',
+    method: 'POST',
+    data
+  }).then(res => res.data || '')
+}
+
+/**
+ * 恢复历史版本
+ */
+export const apiMultiBotConfigHistoryRestore = async (data: {
+  bot_name: string
+  name: string
+  history_id: string
+}): Promise<string> => {
+  return request({
+    url: '/multibot/configs/history/restore',
+    method: 'POST',
+    data
+  }).then(res => res.data || '')
 }
 
 // ========= 环境变量 =========
