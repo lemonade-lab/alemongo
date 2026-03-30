@@ -55,8 +55,12 @@ export const useGitOperations = ({
       try {
         const result = await apiCall()
         return result
-      } catch (error: any) {
-        const msg = error?.response?.data?.msg || error?.message || errorMsg
+      } catch (error: unknown) {
+        const err = error as {
+          response?: { data?: { msg?: string } }
+          message?: string
+        }
+        const msg = err?.response?.data?.msg || err?.message || errorMsg
         message.error(msg)
         return null
       } finally {

@@ -76,13 +76,14 @@ export const guessBranchCacheKeys = (): string[] => {
 /**
  * 尝试从所有缓存中获取分支列表并去重
  * 用于流水线页面，当不知道具体 bot_name 时使用
- * @param _repository 仓库地址（保留参数以备将来扩展）
+ * @param repository 仓库地址（保留参数以备将来扩展）
  * @returns 去重后的分支列表
  */
 export const getAllCachedBranchesForRepository = (
-  _repository: string
+  repository: string
 ): string[] => {
   const allBranches = new Set<string>()
+  const hasRepository = Boolean(repository?.trim())
 
   // 查找所有分支缓存
   const cacheKeys = guessBranchCacheKeys()
@@ -91,6 +92,11 @@ export const getAllCachedBranchesForRepository = (
     const branches = getCachedBranches(key)
     branches.forEach(branch => allBranches.add(branch))
   })
+
+  // 预留：后续可按 repository 精准过滤缓存来源。
+  if (hasRepository) {
+    return Array.from(allBranches).sort()
+  }
 
   return Array.from(allBranches).sort()
 }

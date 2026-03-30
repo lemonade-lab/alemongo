@@ -164,7 +164,7 @@ const Home = () => {
     })
   }
 
-  const createMenu = (bot: any) => {
+  const createMenu = (bot: BotInfo) => {
     return [
       {
         key: '1',

@@ -27,7 +27,17 @@ export const updateYamlAppsPreserveComments = (
   }
 
   if (doc.contents == null) {
-    doc.contents = doc.createNode({})
+    if (!enable) {
+      return {
+        changed: false,
+        content: String(doc)
+      }
+    }
+    doc.set('apps', [pkgName])
+    return {
+      changed: true,
+      content: String(doc)
+    }
   }
 
   if (!isMap(doc.contents)) {
@@ -58,7 +68,7 @@ export const updateYamlAppsPreserveComments = (
     if (isScalar(item)) {
       return String(item.value ?? '')
     }
-    return String(item?.toJSON?.() ?? '')
+    return ''
   })
 
   const index = values.indexOf(pkgName)

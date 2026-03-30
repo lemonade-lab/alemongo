@@ -9,6 +9,20 @@ type MyTitleProps = {
   className?: string
 }
 
+type MarkdownAnchorProps = {
+  href?: string
+  title?: string
+  children?: React.ReactNode
+} & React.HTMLAttributes<HTMLSpanElement>
+
+type MarkdownHeadingProps = {
+  children?: React.ReactNode
+}
+
+type MarkdownPreProps = {
+  children?: React.ReactNode
+}
+
 export type PropsOnInput = (params: {
   command: string
   reply: boolean
@@ -95,7 +109,7 @@ function Markdown({ content, className }: Props) {
             },
             a: {
               component: useCallback(
-                ({ href, title, children, ...props }: any) => (
+                ({ href, title, children, ...props }: MarkdownAnchorProps) => (
                   <span
                     {...props}
                     title={title}
@@ -109,31 +123,31 @@ function Markdown({ content, className }: Props) {
               )
             },
             h1: useCallback(
-              ({ children }: any) => <MyTitle type="h1">{children}</MyTitle>,
+              ({ children }: MarkdownHeadingProps) => <MyTitle type="h1">{children}</MyTitle>,
               [MyTitle]
             ),
             h2: useCallback(
-              ({ children }: any) => <MyTitle type="h2">{children}</MyTitle>,
+              ({ children }: MarkdownHeadingProps) => <MyTitle type="h2">{children}</MyTitle>,
               [MyTitle]
             ),
             h3: useCallback(
-              ({ children }: any) => <MyTitle type="h3">{children}</MyTitle>,
+              ({ children }: MarkdownHeadingProps) => <MyTitle type="h3">{children}</MyTitle>,
               [MyTitle]
             ),
             h4: useCallback(
-              ({ children }: any) => <MyTitle type="h4">{children}</MyTitle>,
+              ({ children }: MarkdownHeadingProps) => <MyTitle type="h4">{children}</MyTitle>,
               [MyTitle]
             ),
             h5: useCallback(
-              ({ children }: any) => <MyTitle type="h5">{children}</MyTitle>,
+              ({ children }: MarkdownHeadingProps) => <MyTitle type="h5">{children}</MyTitle>,
               [MyTitle]
             ),
             h6: useCallback(
-              ({ children }: any) => <MyTitle type="h6">{children}</MyTitle>,
+              ({ children }: MarkdownHeadingProps) => <MyTitle type="h6">{children}</MyTitle>,
               [MyTitle]
             ),
             pre: useCallback(
-              ({ children }: any) => (
+              ({ children }: MarkdownPreProps) => (
                 <pre className="px-2 py-1 bg-slate-500 dark:bg-slate-600 rounded-md text-white">
                   {children}
                 </pre>

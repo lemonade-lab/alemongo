@@ -15,6 +15,16 @@ import {
 } from '@/api/ssh'
 import Box from '@/commom/layout/Box'
 
+type SSHGenerateFormValues = {
+  name: string
+  key_type: string
+  bit_size: number
+  passphrase?: string
+  hash_algo?: string
+  key_format?: string
+  comment: string
+}
+
 const Configs = () => {
   const navigate = useNavigate()
   const [sshNames, setSSHName] = useState<string[]>([])
@@ -54,7 +64,7 @@ const Configs = () => {
   const [form] = Form.useForm()
   const [loading, setLoading] = useState(false)
 
-  const onSubmit = (values: any) => {
+  const onSubmit = (values: SSHGenerateFormValues) => {
     if (loading) return
     setLoading(true)
     apiSSHGenerate(values)
@@ -72,7 +82,7 @@ const Configs = () => {
       })
   }
 
-  const onFinish = (values: any) => {
+  const onFinish = (values: SSHGenerateFormValues) => {
     Modal.confirm({
       title: (
         <div className="flex items-center gap-2">

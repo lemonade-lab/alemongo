@@ -1,4 +1,4 @@
-import { PropsWithChildren, Suspense, Component, ReactNode } from 'react'
+import { PropsWithChildren, Suspense, Component, ReactNode, ErrorInfo } from 'react'
 import Loading from './Loading'
 
 // 错误边界组件
@@ -15,7 +15,7 @@ class ErrorBoundary extends Component<
     return { hasError: true, error }
   }
 
-  componentDidCatch(error: Error, errorInfo: any) {
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error('动态导入错误:', error)
     console.error('错误信息:', errorInfo)
   }

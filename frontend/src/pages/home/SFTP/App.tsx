@@ -333,7 +333,7 @@ const SFTPPage = () => {
                                 key: 'open',
                                 label: '打开',
                                 onClick: () => openDir(item.path)
-                              } as any,
+                              },
                               {
                                 key: 'download-zip',
                                 label: (
@@ -344,7 +344,7 @@ const SFTPPage = () => {
                                     下载ZIP
                                   </a>
                                 )
-                              } as any
+                              }
                             ]
                           : [
                               {
@@ -352,7 +352,7 @@ const SFTPPage = () => {
                                 label: '编辑',
                                 disabled: !canEdit,
                                 onClick: () => openFile(item)
-                              } as any,
+                              },
                               {
                                 key: 'download',
                                 label: (
@@ -364,7 +364,7 @@ const SFTPPage = () => {
                                     下载
                                   </a>
                                 )
-                              } as any
+                              }
                             ]),
                         { type: 'divider' },
                         {
@@ -378,7 +378,7 @@ const SFTPPage = () => {
                             message.success('已复制')
                             load()
                           }
-                        } as any,
+                        },
                         {
                           key: 'rename',
                           label: '重命名',
@@ -407,7 +407,7 @@ const SFTPPage = () => {
                               }
                             })
                           }
-                        } as any,
+                        },
                         {
                           key: 'delete',
                           label: '删除',
@@ -423,7 +423,7 @@ const SFTPPage = () => {
                               }
                             })
                           }
-                        } as any
+                        }
                       ]
                       return (
                         <Dropdown

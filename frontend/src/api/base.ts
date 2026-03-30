@@ -35,7 +35,7 @@ export const server = async (
   config: AxiosRequestConfig & {
     method: MethodType
   }
-): Promise<any> => {
+): Promise<unknown> => {
   const { headers, ...cfg } = config
   // 判断请求是否符合规范
   if (!Method[cfg.method]) {
@@ -86,7 +86,7 @@ export const request = async (
   config: AxiosRequestConfig & {
     method: MethodType
   }
-): Promise<any> => {
+): Promise<unknown> => {
   const { headers, ...cfg } = config
   // 判断请求是否符合规范
   if (!Method[cfg.method]) {

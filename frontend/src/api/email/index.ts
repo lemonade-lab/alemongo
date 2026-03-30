@@ -29,7 +29,7 @@ export const apiBindEmail = async (data: { email: string }) => {
  * @param data
  * @returns
  */
-export const apiVerifyEmail = async (data: any) => {
+export const apiVerifyEmail = async (data: { email: string; code: string }) => {
   return new Promise((resolve, reject) => {
     request({
       url: '/user/verify_email',
