@@ -1,2 +1,1 @@
-port: 0 # 机器人端口, 0 表示不启用端口
-serverPort: 0 # 服务器端口, 0 表示不启用端口
+# https://alemonjs.com/docs/config

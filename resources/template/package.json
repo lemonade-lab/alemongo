@@ -3,12 +3,12 @@
   "type": "module",
   "dependencies": {
     "@alemonjs/db": "^0.0.16",
-    "@alemonjs/discord": "^2.1.8",
-    "@alemonjs/qq-bot": "^2.1.8",
-    "@alemonjs/bubble": "^2.1.5",
-    "@alemonjs/kook": "^2.1.5",
-    "@alemonjs/onebot": "^2.1.8",
-    "alemonjs": "^2.1.44",
+    "@alemonjs/discord": "^2.1.10",
+    "@alemonjs/qq-bot": "^2.1.11",
+    "@alemonjs/bubble": "^2.1.7",
+    "@alemonjs/kook": "^2.1.7",
+    "@alemonjs/onebot": "^2.1.11",
+    "alemonjs": "^2.1.48",
     "jsxp": "^1.3.0"
   },
   "devDependencies": {
