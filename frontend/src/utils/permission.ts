@@ -65,30 +65,30 @@ export const isAdmin = (userIdentity: string): boolean => {
 
 // 检查是否为运维人员（包括管理员和超级管理员）
 export const isDevOps = (
-  userIdentity: 'devops' | 'super_admin' | 'admin'
+  userIdentity: string
 ): boolean => {
-  return [IDENTITY.DEVOPS, IDENTITY.ADMIN, IDENTITY.SUPER_ADMIN].includes(
+  return ([IDENTITY.DEVOPS, IDENTITY.ADMIN, IDENTITY.SUPER_ADMIN] as string[]).includes(
     userIdentity
   )
 }
 
 // 检查是否为开发人员（包括运维、管理员和超级管理员）
 export const isDeveloper = (
-  userIdentity: 'devops' | 'super_admin' | 'admin' | 'developer'
+  userIdentity: string
 ): boolean => {
-  return [
+  return ([
     IDENTITY.DEVELOPER,
     IDENTITY.DEVOPS,
     IDENTITY.ADMIN,
     IDENTITY.SUPER_ADMIN
-  ].includes(userIdentity)
+  ] as string[]).includes(userIdentity)
 }
 
 // 检查是否为运营人员（包括管理员和超级管理员）
 export const isOperator = (
-  userIdentity: 'super_admin' | 'admin' | 'operator'
+  userIdentity: string
 ): boolean => {
-  return [IDENTITY.OPERATOR, IDENTITY.ADMIN, IDENTITY.SUPER_ADMIN].includes(
+  return ([IDENTITY.OPERATOR, IDENTITY.ADMIN, IDENTITY.SUPER_ADMIN] as string[]).includes(
     userIdentity
   )
 }

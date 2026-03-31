@@ -113,7 +113,7 @@ function Markdown({ content, className }: Props) {
                   <span
                     {...props}
                     title={title}
-                    onClick={e => handleLinkClick(e, href)}
+                    onClick={e => href && handleLinkClick(e, href)}
                     className="text-blue-600 underline hover:text-blue-800 transition-colors duration-200"
                   >
                     {children}

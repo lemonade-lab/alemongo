@@ -31,11 +31,11 @@ type MethodType = keyof typeof Method
 
 let count = 0
 
-export const server = async (
+export const server = async <T = any>(
   config: AxiosRequestConfig & {
     method: MethodType
   }
-): Promise<unknown> => {
+): Promise<T> => {
   const { headers, ...cfg } = config
   // 判断请求是否符合规范
   if (!Method[cfg.method]) {
@@ -82,11 +82,11 @@ export const server = async (
   })
 }
 
-export const request = async (
+export const request = async <T = any>(
   config: AxiosRequestConfig & {
     method: MethodType
   }
-): Promise<unknown> => {
+): Promise<T> => {
   const { headers, ...cfg } = config
   // 判断请求是否符合规范
   if (!Method[cfg.method]) {
