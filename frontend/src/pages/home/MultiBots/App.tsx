@@ -36,7 +36,8 @@ import {
   SearchOutlined,
   CheckOutlined,
   StopOutlined,
-  MonitorOutlined
+  MonitorOutlined,
+  HistoryOutlined
 } from '@ant-design/icons'
 import { Box, Markdown, Pagination } from '@/commom'
 import {
@@ -77,7 +78,11 @@ import {
   MultiBotInfo,
   MultiBotPackage,
   MultiBotConfigHistoryItem,
-  apiMultiBotToggleEnabled
+  apiMultiBotToggleEnabled,
+  apiMultiBotPackagesCommits,
+  apiMultiBotPackagesCheckout,
+  apiMultiBotPackagesFetchCommits,
+  MultiBotCommitItem
 } from '@/api'
 import { createAuthedWS } from '@/api/ws'
 import classNames from 'classnames'
@@ -180,6 +185,17 @@ const MultiBots = () => {
   const [pkgReadmeVisible, setPkgReadmeVisible] = useState(false)
   const [pkgReadmeName, setPkgReadmeName] = useState('')
   const [pkgReadmeContent, setPkgReadmeContent] = useState('')
+
+  // commit 版本管理弹窗
+  const [commitVisible, setCommitVisible] = useState(false)
+  const [commitPkg, setCommitPkg] = useState<MultiBotPackage | null>(null)
+  const [commitList, setCommitList] = useState<MultiBotCommitItem[]>([])
+  const [commitLoading, setCommitLoading] = useState(false)
+  const [commitCurrentHash, setCommitCurrentHash] = useState('')
+  const [commitTotal, setCommitTotal] = useState(0)
+  const [commitPage, setCommitPage] = useState(1)
+  const [commitFetching, setCommitFetching] = useState(false)
+  const [commitCheckingOut, setCommitCheckingOut] = useState('')
 
   const getPackageMeta = (pkgContent: string) => {
     try {
@@ -881,6 +897,70 @@ const MultiBots = () => {
   // 统计运行实例数
   const runningCount = (bot: MultiBotInfo) =>
     (bot.instances || []).filter(i => i.status === 1).length
+
+  // ========= commit 版本管理 =========
+  const onOpenCommits = (pkg: MultiBotPackage) => {
+    setCommitPkg(pkg)
+    setCommitVisible(true)
+    setCommitPage(1)
+    loadCommits(pkg.name, 1)
+  }
+
+  const loadCommits = (appName: string, page: number) => {
+    setCommitLoading(true)
+    apiMultiBotPackagesCommits({
+      name: pkgsBot,
+      app_name: appName,
+      page,
+      page_size: 20
+    })
+      .then(res => {
+        setCommitList(res.commits || [])
+        setCommitTotal(res.total || 0)
+        setCommitCurrentHash(res.current_hash || '')
+      })
+      .finally(() => setCommitLoading(false))
+  }
+
+  const onCommitPageChange = (page: number) => {
+    setCommitPage(page)
+    if (commitPkg) loadCommits(commitPkg.name, page)
+  }
+
+  const onCheckoutCommit = (hash: string) => {
+    if (!commitPkg) return
+    setCommitCheckingOut(hash)
+    apiMultiBotPackagesCheckout({
+      name: pkgsBot,
+      app_name: commitPkg.name,
+      commit_hash: hash
+    })
+      .then(() => {
+        message.success('已切换到 ' + hash.slice(0, 7))
+        setCommitCurrentHash(hash)
+        loadCommits(commitPkg.name, commitPage)
+        refreshPackages()
+      })
+      .catch(() => message.error('切换失败'))
+      .finally(() => setCommitCheckingOut(''))
+  }
+
+  const onFetchCommits = () => {
+    if (!commitPkg) return
+    setCommitFetching(true)
+    apiMultiBotPackagesFetchCommits({
+      name: pkgsBot,
+      app_name: commitPkg.name,
+      branch_name: commitPkg.git?.branch || 'release'
+    })
+      .then(() => {
+        message.success('拉取完成')
+        loadCommits(commitPkg.name, 1)
+        setCommitPage(1)
+      })
+      .catch(() => message.error('拉取失败'))
+      .finally(() => setCommitFetching(false))
+  }
 
   return (
     <Box>
@@ -1709,6 +1789,13 @@ const MultiBots = () => {
                           onClick={() => onOpenPkgReadme(pkg)}
                         />
                       </Tooltip>
+                      <Tooltip title="版本管理">
+                        <Button
+                          size="small"
+                          icon={<HistoryOutlined />}
+                          onClick={() => onOpenCommits(pkg)}
+                        />
+                      </Tooltip>
                       <Tooltip title="拉取更新">
                         <Button
                           size="small"
@@ -1887,6 +1974,104 @@ const MultiBots = () => {
             </Button>
           </Form.Item>
         </Form>
+      </Modal>
+
+      {/* commit 版本管理弹窗 */}
+      <Modal
+        title={
+          <div className="flex items-center gap-2">
+            <HistoryOutlined />
+            <span>版本管理 — {commitPkg?.name}</span>
+          </div>
+        }
+        open={commitVisible}
+        onCancel={() => {
+          setCommitVisible(false)
+          setCommitPkg(null)
+        }}
+        width={700}
+        footer={
+          <div className="flex justify-between items-center">
+            <div className="text-xs text-gray-500">
+              当前: {commitCurrentHash?.slice(0, 7) || '-'} · 共 {commitTotal} 个提交
+            </div>
+            <Space>
+              <Button
+                icon={<CloudDownloadOutlined />}
+                loading={commitFetching}
+                onClick={onFetchCommits}
+              >
+                拉取远程提交
+              </Button>
+              <Button onClick={() => setCommitVisible(false)}>关闭</Button>
+            </Space>
+          </div>
+        }
+      >
+        <Spin spinning={commitLoading}>
+          {commitList.length === 0 ? (
+            <Empty description="暂无提交记录，请点击「拉取远程提交」获取" />
+          ) : (
+            <div className="flex flex-col gap-2 max-h-[480px] overflow-auto">
+              {commitList.map(commit => (
+                <div
+                  key={commit.hash}
+                  className={classNames(
+                    'p-3 rounded-lg border transition-colors',
+                    commit.hash === commitCurrentHash
+                      ? 'border-blue-400 bg-blue-50 dark:bg-blue-900/20'
+                      : 'border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800/60'
+                  )}
+                >
+                  <div className="flex justify-between items-start">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <code className="text-xs font-mono text-blue-600 dark:text-blue-400">
+                          {commit.hash.slice(0, 7)}
+                        </code>
+                        {commit.hash === commitCurrentHash && (
+                          <Tag color="blue" className="text-xs">当前</Tag>
+                        )}
+                      </div>
+                      <div className="text-sm text-gray-800 dark:text-gray-200 mt-1 break-words whitespace-pre-wrap">
+                        {commit.message.trim()}
+                      </div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        {commit.author} · {commit.date}
+                      </div>
+                    </div>
+                    <div className="ml-3 flex-shrink-0">
+                      {commit.hash === commitCurrentHash ? (
+                        <Tag color="green">
+                          <CheckOutlined className="mr-1" />使用中
+                        </Tag>
+                      ) : (
+                        <Button
+                          size="small"
+                          type="primary"
+                          loading={commitCheckingOut === commit.hash}
+                          onClick={() => onCheckoutCommit(commit.hash)}
+                        >
+                          切换
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+          {commitTotal > 20 && (
+            <div className="pt-3">
+              <Pagination
+                page={commitPage}
+                total={commitTotal}
+                pageSize={20}
+                onPageChange={onCommitPageChange}
+              />
+            </div>
+          )}
+        </Spin>
       </Modal>
     </Box>
   )

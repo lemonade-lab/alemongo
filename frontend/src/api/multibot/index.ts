@@ -534,3 +534,58 @@ export const apiMultiBotPackagesPullForce = async (data: {
     data
   }).then(res => res.data)
 }
+
+export type MultiBotCommitItem = {
+  hash: string
+  message: string
+  author: string
+  email: string
+  date: string
+  current: boolean
+}
+
+/**
+ * 获取应用 commit 列表
+ */
+export const apiMultiBotPackagesCommits = async (data: {
+  name: string
+  app_name: string
+  page?: number
+  page_size?: number
+}): Promise<{ commits: MultiBotCommitItem[]; total: number; current_hash: string }> => {
+  return request({
+    url: '/multibot/packages/commits',
+    method: 'POST',
+    data
+  }).then(res => res.data || { commits: [], total: 0, current_hash: '' })
+}
+
+/**
+ * 切换应用到指定 commit
+ */
+export const apiMultiBotPackagesCheckout = async (data: {
+  name: string
+  app_name: string
+  commit_hash: string
+}) => {
+  return request({
+    url: '/multibot/packages/checkout',
+    method: 'POST',
+    data
+  }).then(res => res.data)
+}
+
+/**
+ * 从远程拉取 commit 到本地（不切换版本）
+ */
+export const apiMultiBotPackagesFetchCommits = async (data: {
+  name: string
+  app_name: string
+  branch_name: string
+}) => {
+  return request({
+    url: '/multibot/packages/fetch-commits',
+    method: 'POST',
+    data
+  }).then(res => res.data)
+}

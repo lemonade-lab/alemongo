@@ -363,6 +363,9 @@ func Create(mode string) *gin.Engine {
 					MultiBotPackagesAPI.PUT("/pkg", middlewares.PermissionMiddleware(permission.BotConfigUpdate), multibots.MultiBotPackagesUpdate)
 					MultiBotPackagesAPI.POST("/pull", middlewares.PermissionMiddleware(permission.BotGitManage), multibots.MultiBotPackagesPull)
 					MultiBotPackagesAPI.POST("/pull/force", middlewares.PermissionMiddleware(permission.BotGitManage), multibots.MultiBotPackagesForcePull)
+					MultiBotPackagesAPI.POST("/commits", middlewares.PermissionMiddleware(permission.BotConfigRead), multibots.MultiBotPackagesCommits)
+					MultiBotPackagesAPI.POST("/checkout", middlewares.PermissionMiddleware(permission.BotGitManage), multibots.MultiBotPackagesCheckout)
+					MultiBotPackagesAPI.POST("/fetch-commits", middlewares.PermissionMiddleware(permission.BotGitManage), multibots.MultiBotPackagesFetchCommits)
 				}
 			}
 

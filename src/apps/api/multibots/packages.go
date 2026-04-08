@@ -12,11 +12,13 @@ import (
 	"net/http"
 	"os"
 	"path"
+	"strconv"
 	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
+	"github.com/go-git/go-git/v5/plumbing/object"
 	"github.com/go-git/go-git/v5/plumbing/transport"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -712,6 +714,324 @@ func multiBotPull(ctx *gin.Context, isForce bool) {
 	ctx.JSON(http.StatusOK, gin.H{
 		"code": http.StatusOK,
 		"msg":  "拉取成功",
+		"data": nil,
+	})
+}
+
+// MultiBotPackagesCommits 获取应用的 commit 列表
+// POST /api/v1/multibot/packages/commits
+func MultiBotPackagesCommits(ctx *gin.Context) {
+	name := ctx.PostForm("name")
+	appName := ctx.PostForm("app_name")
+	pageStr := ctx.DefaultPostForm("page", "1")
+	pageSizeStr := ctx.DefaultPostForm("page_size", "20")
+
+	if name == "" || appName == "" {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"code": http.StatusBadRequest,
+			"msg":  "name 和 app_name 不能为空",
+			"data": nil,
+		})
+		return
+	}
+	if !config.MultiBotExists(name) {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"code": http.StatusBadRequest,
+			"msg":  "多配置机器人不存在",
+			"data": nil,
+		})
+		return
+	}
+
+	repoPath := config.GetMultiBotPackagesPathByName(name, appName)
+	if _, err := os.Stat(repoPath); os.IsNotExist(err) {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"code": http.StatusBadRequest,
+			"msg":  "应用不存在",
+			"data": nil,
+		})
+		return
+	}
+
+	repo, err := git.PlainOpen(repoPath)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"code": http.StatusInternalServerError,
+			"msg":  "打开仓库失败",
+			"data": nil,
+		})
+		return
+	}
+
+	head, err := repo.Head()
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"code": http.StatusInternalServerError,
+			"msg":  "获取 HEAD 失败",
+			"data": nil,
+		})
+		return
+	}
+
+	page, _ := strconv.Atoi(pageStr)
+	pageSize, _ := strconv.Atoi(pageSizeStr)
+	if page < 1 {
+		page = 1
+	}
+	if pageSize < 1 || pageSize > 100 {
+		pageSize = 20
+	}
+
+	logIter, err := repo.Log(&git.LogOptions{})
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"code": http.StatusInternalServerError,
+			"msg":  "获取日志失败",
+			"data": nil,
+		})
+		return
+	}
+	defer logIter.Close()
+
+	var commits []map[string]interface{}
+	skip := (page - 1) * pageSize
+	idx := 0
+	total := 0
+
+	err = logIter.ForEach(func(c *object.Commit) error {
+		total++
+		if idx >= skip && len(commits) < pageSize {
+			commits = append(commits, map[string]interface{}{
+				"hash":    c.Hash.String(),
+				"message": c.Message,
+				"author":  c.Author.Name,
+				"email":   c.Author.Email,
+				"date":    c.Author.When.Format("2006-01-02 15:04:05"),
+				"current": c.Hash == head.Hash(),
+			})
+		}
+		idx++
+		return nil
+	})
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"code": http.StatusInternalServerError,
+			"msg":  "遍历提交历史失败",
+			"data": nil,
+		})
+		return
+	}
+
+	if commits == nil {
+		commits = []map[string]interface{}{}
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"code": http.StatusOK,
+		"msg":  "获取成功",
+		"data": gin.H{
+			"commits":      commits,
+			"total":        total,
+			"current_hash": head.Hash().String(),
+		},
+	})
+}
+
+// MultiBotPackagesCheckout 切换应用到指定 commit
+// POST /api/v1/multibot/packages/checkout
+func MultiBotPackagesCheckout(ctx *gin.Context) {
+	name := ctx.PostForm("name")
+	appName := ctx.PostForm("app_name")
+	commitHash := ctx.PostForm("commit_hash")
+
+	if name == "" || appName == "" || commitHash == "" {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"code": http.StatusBadRequest,
+			"msg":  "name、app_name 和 commit_hash 不能为空",
+			"data": nil,
+		})
+		return
+	}
+	if !config.MultiBotExists(name) {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"code": http.StatusBadRequest,
+			"msg":  "多配置机器人不存在",
+			"data": nil,
+		})
+		return
+	}
+
+	repoPath := config.GetMultiBotPackagesPathByName(name, appName)
+	if _, err := os.Stat(repoPath); os.IsNotExist(err) {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"code": http.StatusBadRequest,
+			"msg":  "应用不存在",
+			"data": nil,
+		})
+		return
+	}
+
+	repo, err := git.PlainOpen(repoPath)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"code": http.StatusInternalServerError,
+			"msg":  "打开仓库失败",
+			"data": nil,
+		})
+		return
+	}
+
+	worktree, err := repo.Worktree()
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"code": http.StatusInternalServerError,
+			"msg":  "获取工作区失败",
+			"data": nil,
+		})
+		return
+	}
+
+	hash := plumbing.NewHash(commitHash)
+
+	// 验证 commit 存在
+	if _, err := repo.CommitObject(hash); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"code": http.StatusBadRequest,
+			"msg":  "该提交不在本地，请先点击拉取获取最新提交",
+			"data": nil,
+		})
+		return
+	}
+
+	if err := worktree.Reset(&git.ResetOptions{
+		Commit: hash,
+		Mode:   git.HardReset,
+	}); err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"code": http.StatusInternalServerError,
+			"msg":  "切换版本失败",
+			"data": err.Error(),
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"code": http.StatusOK,
+		"msg":  "已切换到 " + commitHash[:7],
+		"data": nil,
+	})
+}
+
+// MultiBotPackagesFetchCommits 从远程拉取最新 commit 到本地（不切换）
+// POST /api/v1/multibot/packages/fetch-commits
+func MultiBotPackagesFetchCommits(ctx *gin.Context) {
+	name := ctx.PostForm("name")
+	appName := ctx.PostForm("app_name")
+	branchName := ctx.PostForm("branch_name")
+
+	if name == "" || appName == "" {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"code": http.StatusBadRequest,
+			"msg":  "name 和 app_name 不能为空",
+			"data": nil,
+		})
+		return
+	}
+	if branchName == "" {
+		branchName = "release"
+	}
+	if !config.MultiBotExists(name) {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"code": http.StatusBadRequest,
+			"msg":  "多配置机器人不存在",
+			"data": nil,
+		})
+		return
+	}
+
+	repoPath := config.GetMultiBotPackagesPathByName(name, appName)
+	if _, err := os.Stat(repoPath); os.IsNotExist(err) {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"code": http.StatusBadRequest,
+			"msg":  "应用不存在",
+			"data": nil,
+		})
+		return
+	}
+
+	repo, err := git.PlainOpen(repoPath)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"code": http.StatusInternalServerError,
+			"msg":  "打开仓库失败",
+			"data": nil,
+		})
+		return
+	}
+
+	// 检测 SSH 认证
+	var auth transport.AuthMethod
+	remotes, err := repo.Remotes()
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"code": http.StatusInternalServerError,
+			"msg":  "获取远程仓库信息失败",
+			"data": nil,
+		})
+		return
+	}
+
+	var originURL string
+	for _, remote := range remotes {
+		if remote.Config().Name == "origin" {
+			if len(remote.Config().URLs) > 0 {
+				originURL = remote.Config().URLs[0]
+			}
+			break
+		}
+	}
+
+	if strings.HasPrefix(originURL, "git@") || strings.HasPrefix(originURL, "ssh://") {
+		auth, err = utils.GetSSHAuth()
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{
+				"code": http.StatusInternalServerError,
+				"msg":  "获取 SSH 认证失败",
+				"data": err.Error(),
+			})
+			return
+		}
+	}
+
+	// 取消 depth=1 限制：unshallow fetch
+	fetchOpts := &git.FetchOptions{
+		RemoteName: "origin",
+		Auth:       auth,
+		Force:      true,
+		Depth:      0, // 拉取全部历史
+	}
+
+	fetchErr := repo.Fetch(fetchOpts)
+	if fetchErr != nil && fetchErr != git.NoErrAlreadyUpToDate {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"code": http.StatusInternalServerError,
+			"msg":  "拉取失败",
+			"data": fetchErr.Error(),
+		})
+		return
+	}
+
+	// 用远程分支更新本地分支引用
+	remoteRefName := plumbing.NewRemoteReferenceName("origin", branchName)
+	remoteRef, err := repo.Reference(remoteRefName, true)
+	if err == nil {
+		localRefName := plumbing.NewBranchReferenceName(branchName)
+		_ = repo.Storer.SetReference(plumbing.NewHashReference(localRefName, remoteRef.Hash()))
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"code": http.StatusOK,
+		"msg":  "拉取完成",
 		"data": nil,
 	})
 }
