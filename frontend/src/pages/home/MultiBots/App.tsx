@@ -705,7 +705,12 @@ const MultiBots = () => {
       ? dayjs(logQueryTimestamp).format('YYYY-MM-DD')
       : new Date().toISOString().slice(0, 10)
     const url = getMultiBotLogDownloadUrl(logBot, logProcess, dateStr)
-    window.open(url, '_blank')
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `${logBot}-${logProcess}-${dateStr}.log`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
   }
 
   // ========= 应用管理 =========
