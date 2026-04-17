@@ -56,6 +56,10 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
       keymap.of(defaultKeymap),
       EditorView.lineWrapping,
       EditorView.editable.of(!readOnly),
+      EditorView.theme({
+        '&': { height: '100%' },
+        '.cm-scroller': { overflow: 'auto' }
+      }),
       theme === 'dark' ? githubDark : githubLight
     ]
 
@@ -109,7 +113,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
     }
   }, [value])
 
-  return <div ref={editorRef} className="code-editor" />
+  return <div ref={editorRef} className="code-editor h-full overflow-hidden" />
 }
 
 export default CodeEditor

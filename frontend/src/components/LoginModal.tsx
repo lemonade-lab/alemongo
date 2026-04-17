@@ -1,8 +1,8 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import { Modal, message } from 'antd'
 import { useDispatch } from 'react-redux'
-import { apiLogin, apiGetGitHubAuthURL, apiGitHubLogin, apiGetGeneralConfig } from '@/api'
-import { setLoggedIn } from '@/redux/me'
+import { apiLogin, apiGetGitHubAuthURL, apiGitHubLogin, apiGetGeneralConfig, apiInfo } from '@/api'
+import { setLoggedIn, setUserInfo } from '@/redux/me'
 import {
   onSessionExpired,
   resetSessionExpired
@@ -41,9 +41,15 @@ const LoginModal: React.FC = () => {
       }
       setLoading(true)
       apiLogin({ username, password })
-        .then(() => {
+        .then(async () => {
           dispatch(setLoggedIn())
           resetSessionExpired()
+          try {
+            const info = await apiInfo()
+            dispatch(setUserInfo(info))
+          } catch {
+            // 忽略获取用户信息失败
+          }
           setOpen(false)
           message.success('登录成功')
         })
@@ -76,6 +82,12 @@ const LoginModal: React.FC = () => {
             await apiGitHubLogin({ code, state })
             dispatch(setLoggedIn())
             resetSessionExpired()
+            try {
+              const info = await apiInfo()
+              dispatch(setUserInfo(info))
+            } catch {
+              // 忽略获取用户信息失败
+            }
             setOpen(false)
             message.success('登录成功')
           } catch {

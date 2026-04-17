@@ -813,7 +813,8 @@ func MultiBotPackagesCommits(ctx *gin.Context) {
 		idx++
 		return nil
 	})
-	if err != nil {
+	// 浅克隆（Depth:1）在走到父提交时会返回 object not found，这种情况视为历史结束而非错误
+	if err != nil && err != plumbing.ErrObjectNotFound {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"code": http.StatusInternalServerError,
 			"msg":  "遍历提交历史失败",
