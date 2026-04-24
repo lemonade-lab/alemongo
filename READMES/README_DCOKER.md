@@ -6,17 +6,6 @@
 
 适用于 Linux / macOS。脚本会自动检查 `docker` / `docker compose`，并在缺失 `docker-compose.yml`、`alemongo.conf` 时从仓库拉取。
 
-### 方式1 克隆
-
-拉取整个仓库后进入目录使用：
-
-```bash
-git clone --depth=1 -b main https://github.com/lemonade-lab/alemongo.git
-cd alemongo
-```
-
-### 方式2 curl
-
 ```bash
 curl -fsSL -o docker-install.bash https://raw.githubusercontent.com/lemonade-lab/alemongo/main/docker-install.bash
 ```
@@ -30,8 +19,6 @@ curl -fsSL -o docker-compose.yml   "$BASE/docker-compose.yml"
 curl -fsSL -o alemongo.conf        "$BASE/alemongo.conf"
 ```
 
-### 操作
-
 ```bash
 chmod +x docker-install.bash
 
@@ -40,6 +27,7 @@ chmod +x docker-install.bash
 ./docker-install.bash restart  # 重启
 ./docker-install.bash logs     # 跟随日志（查看默认密码）
 ./docker-install.bash status   # 查看容器状态
+./docker-install.bash mirrors  # 对比本机 daemon.json 与仓库推荐镜像，交互式差量合并
 ```
 
 可用环境变量：
@@ -50,6 +38,9 @@ ALEMONGO_RAW_BASE=https://your.mirror/lemonade-lab/alemongo/main ./docker-instal
 
 # 强制覆盖本地已有的 docker-compose.yml / alemongo.conf
 FORCE_PULL=1 ./docker-install.bash up
+
+# mirrors 命令时跳过 [y/N] 确认，直接合并
+ASSUME_YES=1 ./docker-install.bash mirrors
 ```
 
 ## 手操版
@@ -77,6 +68,25 @@ docker compose up -d
 ```sh
 docker logs alemongo
 ```
+
+- 可选的 `.env` 文件
+
+```dotenv
+# .env (按需填写，未填写的项使用 compose 默认值)
+ALEMONGO_TOKEN_KEY=change-me
+
+# ALEMONGO_GITHUB_CLIENT_ID=xxx
+# ALEMONGO_GITHUB_CLIENT_SECRET=xxx
+# ALEMONGO_GITHUB_REDIRECT_URL=http://localhost:17187/login
+
+# ALEMONGO_SMTP_HOST=smtp.qq.com
+# ALEMONGO_SMTP_PORT=587
+# ALEMONGO_SMTP_USERNAME=
+# ALEMONGO_SMTP_PASSWORD=
+# ALEMONGO_SMTP_FROM_EMAIL=
+```
+
+> `env_file` 使用 `required: false`，文件缺失不会报错；需要 Docker Compose v2.24+。
 
 - alemon.config.yaml
 
