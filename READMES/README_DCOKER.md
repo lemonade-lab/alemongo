@@ -2,7 +2,57 @@
 
 你将了解如何快速拉取alemongo镜像，并在不重启alemongo的情况下处理端口问题
 
-## alemongo
+## 脚本版
+
+适用于 Linux / macOS。脚本会自动检查 `docker` / `docker compose`，并在缺失 `docker-compose.yml`、`alemongo.conf` 时从仓库拉取。
+
+### 方式1 克隆
+
+拉取整个仓库后进入目录使用：
+
+```bash
+git clone --depth=1 -b main https://github.com/lemonade-lab/alemongo.git
+cd alemongo
+```
+
+### 方式2 curl
+
+```bash
+curl -fsSL -o docker-install.bash https://raw.githubusercontent.com/lemonade-lab/alemongo/main/docker-install.bash
+```
+
+如果你想在启动前先手动检查/修改配置，也可以一次性下载所有必要文件：
+
+```bash
+BASE=https://raw.githubusercontent.com/lemonade-lab/alemongo/main
+curl -fsSL -o docker-install.bash  "$BASE/docker-install.bash"
+curl -fsSL -o docker-compose.yml   "$BASE/docker-compose.yml"
+curl -fsSL -o alemongo.conf        "$BASE/alemongo.conf"
+```
+
+### 操作
+
+```bash
+chmod +x docker-install.bash
+
+./docker-install.bash up       # 启动（自动补全配置文件）
+./docker-install.bash down     # 停止并移除容器
+./docker-install.bash restart  # 重启
+./docker-install.bash logs     # 跟随日志（查看默认密码）
+./docker-install.bash status   # 查看容器状态
+```
+
+可用环境变量：
+
+```bash
+# 自定义配置文件下载源（默认 GitHub raw）
+ALEMONGO_RAW_BASE=https://your.mirror/lemonade-lab/alemongo/main ./docker-install.bash up
+
+# 强制覆盖本地已有的 docker-compose.yml / alemongo.conf
+FORCE_PULL=1 ./docker-install.bash up
+```
+
+## 手操版
 
 下载仓库文件 [docker-compose](../docker-compose.yml)
 
@@ -58,79 +108,4 @@ docker compose rm -sf nginx
 ```sh
 # 仅启动 nginx
 docker compose up -d nginx
-```
-
-## onebot
-
-以下内容为，在linux中，如何快速使用 onebot，
-
-如果你在使用桌面，请参考其他pc登录方案
-
-> 先下载 Lagrange.OneBot。具体了解 [https://lagrangedev.github.io/Lagrange.Doc](https://lagrangedev.github.io/Lagrange.Doc/v1/Lagrange.OneBot/Config/)
-
-> 下载后，把 `Lagrange.OneBot` 放在同级目录
-
-新增 Dockerfile-onebot 以打包进docker
-
-```sh
-FROM ubuntu:22.04
-WORKDIR /app
-RUN apt-get update && \
-    apt-get install -y \
-    ca-certificates \
-    curl \
-    wget \
-    libicu70 \
-    && rm -rf /var/lib/apt/lists/*
-COPY ./Lagrange.OneBot .
-RUN chmod +x ./Lagrange.OneBot
-CMD ["./Lagrange.OneBot"]
-```
-
-补充 `docker-compose.yml` 以启动onebot
-
-```yml
-services:
-  onebot:
-    build:
-      context: .
-      dockerfile: Dockerfile-onebot
-    container_name: onebot
-    volumes:
-      - ./appsettings.json:/app/appsettings.json 
-      - ./device.json:/app/device.json 
-    restart: unless-stopped
-    environment:
-      - DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=true
-    networks:
-      - alemongo-network
-    depends_on:
-      - alemongo
-
-```
-
-还补充 `alemongo.conf` 以转发 onebot，同时调整nginx
-
-```sh
-# 查看目录
-docker logs onebot
-```
-
-> 自建/自动生成的`appsettings.json`文件需要补充下面的内容
-
-> Implementations，新增type为`ForwardWebSocket`,Host`0.0.0.1`,port`8081`的配置
-
-```sh
-{
-    "Implementations": [
-        {
-            "Type": "ForwardWebSocket",
-            "Host": "0.0.0.0",
-            "Port": 8081,
-            "HeartBeatInterval": 5000,
-            "HeartBeatEnable": true,
-            "AccessToken": ""
-        }
-    ]
-}
 ```
