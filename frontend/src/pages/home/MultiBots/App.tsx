@@ -90,10 +90,12 @@ import ProcessPortModal from '@/components/ProcessPortModal'
 import JSONEdit from '@/commom/edit/JSONEdit'
 import dayjs from 'dayjs'
 import { updateYamlAppsPreserveComments } from '@/utils/yaml'
+import { useNavigate } from 'react-router-dom'
 
 const { TextArea } = Input
 
 const MultiBots = () => {
+  const navigate = useNavigate()
   const [loading, setLoading] = useState(true)
   const [bots, setBots] = useState<MultiBotInfo[]>([])
   const [createVisible, setCreateVisible] = useState(false)
@@ -122,7 +124,9 @@ const MultiBots = () => {
   const [editConfigLoading, setEditConfigLoading] = useState(false)
   const [configHistoryVisible, setConfigHistoryVisible] = useState(false)
   const [configHistoryLoading, setConfigHistoryLoading] = useState(false)
-  const [configHistoryList, setConfigHistoryList] = useState<MultiBotConfigHistoryItem[]>([])
+  const [configHistoryList, setConfigHistoryList] = useState<
+    MultiBotConfigHistoryItem[]
+  >([])
   const [selectedHistoryId, setSelectedHistoryId] = useState('')
   const [selectedHistoryContent, setSelectedHistoryContent] = useState('')
   const [selectedHistoryLoading, setSelectedHistoryLoading] = useState(false)
@@ -313,7 +317,11 @@ const MultiBots = () => {
   // Yarn Install
   const onYarnInstall = (name: string) => {
     setInstallingBots(prev => new Set(prev).add(name))
-    message.loading({ content: `正在安装依赖...`, key: `yarn-${name}`, duration: 0 })
+    message.loading({
+      content: `正在安装依赖...`,
+      key: `yarn-${name}`,
+      duration: 0
+    })
     apiMultiBotYarnInstall({ name })
       .then(() => {
         message.success({ content: '依赖安装成功', key: `yarn-${name}` })
@@ -390,11 +398,17 @@ const MultiBots = () => {
   }
 
   // 切换配置启用状态
-  const onToggleEnabled = (name: string, configName: string, enabled: boolean) => {
-    apiMultiBotToggleEnabled({ name, config_name: configName, enabled }).then(msg => {
-      message.success(msg || (enabled ? '已启用' : '已禁用'))
-      fetchList()
-    })
+  const onToggleEnabled = (
+    name: string,
+    configName: string,
+    enabled: boolean
+  ) => {
+    apiMultiBotToggleEnabled({ name, config_name: configName, enabled }).then(
+      msg => {
+        message.success(msg || (enabled ? '已启用' : '已禁用'))
+        fetchList()
+      }
+    )
   }
 
   // 查看/编辑配置
@@ -570,12 +584,14 @@ const MultiBots = () => {
         setLogStreaming(true)
         logRetryCountRef.current = 0
       }
-      ws.onmessage = (evt) => {
+      ws.onmessage = evt => {
         if (logPausedRef.current) return
         try {
           const msg = JSON.parse(evt.data)
           if (msg?.type === 'init') {
-            const lines = String(msg.data || '').split('\n').filter((l: string) => l.trim() !== '')
+            const lines = String(msg.data || '')
+              .split('\n')
+              .filter((l: string) => l.trim() !== '')
             setLogLines(lines)
           } else if (msg?.type === 'append') {
             const line = String(msg.data || '')
@@ -594,12 +610,20 @@ const MultiBots = () => {
         logRetryCountRef.current = attempt
         const delay = Math.min(1000 * Math.pow(2, attempt - 1), 10000)
         if (logRetryTimerRef.current) clearTimeout(logRetryTimerRef.current)
-        logRetryTimerRef.current = setTimeout(() => connectLogWS(botName, processName), delay)
+        logRetryTimerRef.current = setTimeout(
+          () => connectLogWS(botName, processName),
+          delay
+        )
       }
-      ws.onerror = () => { /* onclose handles retry */ }
+      ws.onerror = () => {
+        /* onclose handles retry */
+      }
     } catch {
       if (logMountedRef.current) {
-        logRetryTimerRef.current = setTimeout(() => connectLogWS(botName, processName), 2000)
+        logRetryTimerRef.current = setTimeout(
+          () => connectLogWS(botName, processName),
+          2000
+        )
       }
     }
   }, [])
@@ -665,7 +689,9 @@ const MultiBots = () => {
       pageSize: String(logQueryPageSize)
     })
       .then(res => {
-        const lines = (res?.log || '').split('\n').filter((l: string) => l.trim() !== '')
+        const lines = (res?.log || '')
+          .split('\n')
+          .filter((l: string) => l.trim() !== '')
         setLogQueryLines(lines)
         setLogQueryTotal(res?.count || 0)
       })
@@ -701,9 +727,10 @@ const MultiBots = () => {
   }
 
   const onDownloadLog = () => {
-    const dateStr = logMode === 'query'
-      ? dayjs(logQueryTimestamp).format('YYYY-MM-DD')
-      : new Date().toISOString().slice(0, 10)
+    const dateStr =
+      logMode === 'query'
+        ? dayjs(logQueryTimestamp).format('YYYY-MM-DD')
+        : new Date().toISOString().slice(0, 10)
     const url = getMultiBotLogDownloadUrl(logBot, logProcess, dateStr)
     const a = document.createElement('a')
     a.href = url
@@ -731,7 +758,11 @@ const MultiBots = () => {
       .finally(() => setPkgsLoading(false))
   }
 
-  const onCloneSubmit = (values: { repo_url: string; branch_name: string; force?: boolean }) => {
+  const onCloneSubmit = (values: {
+    repo_url: string
+    branch_name: string
+    force?: boolean
+  }) => {
     const proxy = cloneForm.getFieldValue('proxy') as string | undefined
     let repoURL = values.repo_url.trim()
 
@@ -862,7 +893,9 @@ const MultiBots = () => {
       try {
         const pkgJSON = JSON.parse(pkg.pkg)
         if (pkgJSON.name) pkgName = pkgJSON.name
-      } catch { /* use dir name */ }
+      } catch {
+        /* use dir name */
+      }
 
       // 获取所有配置文件
       const configs = await apiMultiBotConfigsList(pkgsBot)
@@ -874,8 +907,15 @@ const MultiBots = () => {
 
       let updated = 0
       for (const cfgName of configs) {
-        const content = await apiMultiBotConfigRead({ bot_name: pkgsBot, name: cfgName })
-        const result = updateYamlAppsPreserveComments(content || '', pkgName, enable)
+        const content = await apiMultiBotConfigRead({
+          bot_name: pkgsBot,
+          name: cfgName
+        })
+        const result = updateYamlAppsPreserveComments(
+          content || '',
+          pkgName,
+          enable
+        )
         if (!result.changed) {
           continue // 无需改动
         }
@@ -888,7 +928,9 @@ const MultiBots = () => {
       }
 
       if (updated > 0) {
-        message.success(`已在 ${updated} 个配置中${enable ? '启用' : '停用'} ${pkgName}`)
+        message.success(
+          `已在 ${updated} 个配置中${enable ? '启用' : '停用'} ${pkgName}`
+        )
       } else {
         message.info(`所有配置已是${enable ? '启用' : '停用'}状态`)
       }
@@ -982,6 +1024,15 @@ const MultiBots = () => {
             <Button
               type="primary"
               icon={<PlusOutlined />}
+              onClick={() => {
+                navigate('/bots')
+              }}
+            >
+              前往旧版本
+            </Button>
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
               onClick={() => setCreateVisible(true)}
               className="bg-gradient-to-r from-purple-500 to-blue-500 border-none"
             >
@@ -1017,11 +1068,7 @@ const MultiBots = () => {
                         <Tag color={bot.node_modules ? 'green' : 'orange'}>
                           {bot.node_modules ? '依赖已安装' : '未安装依赖'}
                         </Tag>
-                        <Tag
-                          color={
-                            runningCount(bot) > 0 ? 'blue' : 'default'
-                          }
-                        >
+                        <Tag color={runningCount(bot) > 0 ? 'blue' : 'default'}>
                           {runningCount(bot)} / {(bot.configs || []).length}{' '}
                           运行中
                         </Tag>
@@ -1042,7 +1089,9 @@ const MultiBots = () => {
                         <Button
                           icon={<MonitorOutlined />}
                           size="small"
-                          onClick={() => onOpenLog(bot.name, bot.name + ':_system')}
+                          onClick={() =>
+                            onOpenLog(bot.name, bot.name + ':_system')
+                          }
                         />
                       </Tooltip>
                       <Tooltip title="添加配置">
@@ -1171,12 +1220,22 @@ const MultiBots = () => {
                                   </div>
                                   <div className="flex items-center gap-1 ml-2">
                                     {/* 启用/禁用开关 */}
-                                    <Tooltip title={inst.enabled !== false ? '批量操作时启用' : '批量操作时跳过'}>
+                                    <Tooltip
+                                      title={
+                                        inst.enabled !== false
+                                          ? '批量操作时启用'
+                                          : '批量操作时跳过'
+                                      }
+                                    >
                                       <Switch
                                         size="small"
                                         checked={inst.enabled !== false}
-                                        onChange={(checked) =>
-                                          onToggleEnabled(bot.name, inst.config_name, checked)
+                                        onChange={checked =>
+                                          onToggleEnabled(
+                                            bot.name,
+                                            inst.config_name,
+                                            checked
+                                          )
                                         }
                                       />
                                     </Tooltip>
@@ -1187,7 +1246,10 @@ const MultiBots = () => {
                                         size="small"
                                         icon={<EditOutlined />}
                                         onClick={() =>
-                                          onOpenConfig(bot.name, inst.config_name)
+                                          onOpenConfig(
+                                            bot.name,
+                                            inst.config_name
+                                          )
                                         }
                                       />
                                     </Tooltip>
@@ -1212,7 +1274,10 @@ const MultiBots = () => {
                                             danger
                                             icon={<PauseCircleOutlined />}
                                             onClick={() =>
-                                              onInstanceStop(bot.name, inst.config_name)
+                                              onInstanceStop(
+                                                bot.name,
+                                                inst.config_name
+                                              )
                                             }
                                           />
                                         </Tooltip>
@@ -1222,7 +1287,10 @@ const MultiBots = () => {
                                             size="small"
                                             icon={<ReloadOutlined />}
                                             onClick={() =>
-                                              onInstanceRestart(bot.name, inst.config_name)
+                                              onInstanceRestart(
+                                                bot.name,
+                                                inst.config_name
+                                              )
                                             }
                                           />
                                         </Tooltip>
@@ -1235,7 +1303,10 @@ const MultiBots = () => {
                                           className="text-green-500"
                                           icon={<PlayCircleOutlined />}
                                           onClick={() =>
-                                            onInstanceStart(bot.name, inst.config_name)
+                                            onInstanceStart(
+                                              bot.name,
+                                              inst.config_name
+                                            )
                                           }
                                         />
                                       </Tooltip>
@@ -1245,7 +1316,10 @@ const MultiBots = () => {
                                       title="删除此配置？"
                                       description="关联的实例将被移除"
                                       onConfirm={() =>
-                                        onDeleteConfig(bot.name, inst.config_name)
+                                        onDeleteConfig(
+                                          bot.name,
+                                          inst.config_name
+                                        )
                                       }
                                       okText="删除"
                                       cancelText="取消"
@@ -1263,13 +1337,17 @@ const MultiBots = () => {
                                       color={
                                         inst.enabled === false
                                           ? 'default'
-                                          : inst.status === 1 ? 'green' : 'default'
+                                          : inst.status === 1
+                                            ? 'green'
+                                            : 'default'
                                       }
                                       className="rounded-full ml-1"
                                     >
                                       {inst.enabled === false
                                         ? '已禁用'
-                                        : inst.status === 1 ? '运行中' : '已停止'}
+                                        : inst.status === 1
+                                          ? '运行中'
+                                          : '已停止'}
                                     </Tag>
                                   </div>
                                 </div>
@@ -1358,7 +1436,11 @@ const MultiBots = () => {
                     value: item
                   }))}
                 />
-                <Button size="small" loading={quickConfigLoading} onClick={onQuickImportConfig}>
+                <Button
+                  size="small"
+                  loading={quickConfigLoading}
+                  onClick={onQuickImportConfig}
+                >
                   引入
                 </Button>
               </div>
@@ -1390,7 +1472,9 @@ const MultiBots = () => {
             type="yaml"
             rightHeader={
               <Space>
-                <Button size="small" onClick={onOpenConfigHistory}>历史记录</Button>
+                <Button size="small" onClick={onOpenConfigHistory}>
+                  历史记录
+                </Button>
               </Space>
             }
           />
@@ -1410,7 +1494,11 @@ const MultiBots = () => {
         footer={
           <Space>
             <Button onClick={onCloseConfigHistory}>关闭</Button>
-            <Button onClick={onRestoreConfigHistory} type="primary" disabled={!selectedHistoryId}>
+            <Button
+              onClick={onRestoreConfigHistory}
+              type="primary"
+              disabled={!selectedHistoryId}
+            >
               恢复所选版本
             </Button>
           </Space>
@@ -1418,10 +1506,14 @@ const MultiBots = () => {
       >
         <div className="grid grid-cols-12 gap-3 h-[70vh] min-h-[520px]">
           <div className="col-span-4 border rounded-lg overflow-hidden flex flex-col min-h-0">
-            <div className="px-3 py-2 text-sm font-medium border-b">编辑历史</div>
+            <div className="px-3 py-2 text-sm font-medium border-b">
+              编辑历史
+            </div>
             <Spin spinning={configHistoryLoading} className="flex-1 min-h-0">
               {configHistoryList.length === 0 ? (
-                <div className="h-full flex items-center justify-center text-sm text-gray-400">暂无历史记录</div>
+                <div className="h-full flex items-center justify-center text-sm text-gray-400">
+                  暂无历史记录
+                </div>
               ) : (
                 <div className="h-full overflow-auto p-2 space-y-2">
                   {configHistoryList.map(item => (
@@ -1436,7 +1528,9 @@ const MultiBots = () => {
                       onClick={() => onSelectConfigHistory(item.id)}
                     >
                       <div className="font-medium">{item.create_at}</div>
-                      <div className="text-gray-500 mt-1">{(item.size / 1024).toFixed(2)} KB</div>
+                      <div className="text-gray-500 mt-1">
+                        {(item.size / 1024).toFixed(2)} KB
+                      </div>
                     </button>
                   ))}
                 </div>
@@ -1444,13 +1538,17 @@ const MultiBots = () => {
             </Spin>
           </div>
           <div className="col-span-4 border rounded-lg overflow-hidden flex flex-col min-h-0">
-            <div className="px-3 py-2 text-sm font-medium border-b">当前内容</div>
+            <div className="px-3 py-2 text-sm font-medium border-b">
+              当前内容
+            </div>
             <pre className="flex-1 min-h-0 overflow-auto p-3 text-xs font-mono whitespace-pre-wrap break-words bg-gray-50 dark:bg-gray-900/60">
               {editConfigContent || '(空)'}
             </pre>
           </div>
           <div className="col-span-4 border rounded-lg overflow-hidden flex flex-col min-h-0">
-            <div className="px-3 py-2 text-sm font-medium border-b">历史版本内容</div>
+            <div className="px-3 py-2 text-sm font-medium border-b">
+              历史版本内容
+            </div>
             <Spin spinning={selectedHistoryLoading} className="flex-1 min-h-0">
               <pre className="h-full overflow-auto p-3 text-xs font-mono whitespace-pre-wrap break-words bg-gray-50 dark:bg-gray-900/60">
                 {selectedHistoryContent || '(请在左侧选择历史版本)'}
@@ -1504,8 +1602,14 @@ const MultiBots = () => {
         title={
           <div className="flex items-center gap-2">
             <FileTextOutlined />
-            <span>日志 — {logBot} / {logProcess}</span>
-            {logMode === 'online' && logStreaming && <Tag color="green" className="ml-2">实时</Tag>}
+            <span>
+              日志 — {logBot} / {logProcess}
+            </span>
+            {logMode === 'online' && logStreaming && (
+              <Tag color="green" className="ml-2">
+                实时
+              </Tag>
+            )}
           </div>
         }
         open={logVisible}
@@ -1531,10 +1635,18 @@ const MultiBots = () => {
               </Button>
             </div>
             <Space>
-              <Button size="small" icon={<CopyOutlined />} onClick={onCopyLogPage}>
+              <Button
+                size="small"
+                icon={<CopyOutlined />}
+                onClick={onCopyLogPage}
+              >
                 复制
               </Button>
-              <Button size="small" icon={<DownloadOutlined />} onClick={onDownloadLog}>
+              <Button
+                size="small"
+                icon={<DownloadOutlined />}
+                onClick={onDownloadLog}
+              >
                 下载
               </Button>
               <Popconfirm
@@ -1547,7 +1659,9 @@ const MultiBots = () => {
                   清空
                 </Button>
               </Popconfirm>
-              <Button size="small" onClick={onCloseLog}>关闭</Button>
+              <Button size="small" onClick={onCloseLog}>
+                关闭
+              </Button>
             </Space>
           </div>
         }
@@ -1575,19 +1689,22 @@ const MultiBots = () => {
                   }}
                 />
               </div>
-              <Button
-                size="small"
-                onClick={() => setLogPaused(p => !p)}
-              >
+              <Button size="small" onClick={() => setLogPaused(p => !p)}>
                 {logPaused ? '继续' : '暂停'}
               </Button>
             </div>
             {logLoading && logRenderData.length === 0 ? (
-              <div className="flex items-center justify-center" style={{ height: 440 }}>
+              <div
+                className="flex items-center justify-center"
+                style={{ height: 440 }}
+              >
                 <Spin tip="正在连接日志..." />
               </div>
             ) : logRenderData.length === 0 ? (
-              <div className="flex items-center justify-center text-gray-400" style={{ height: 440 }}>
+              <div
+                className="flex items-center justify-center text-gray-400"
+                style={{ height: 440 }}
+              >
                 暂无日志数据
               </div>
             ) : (
@@ -1644,15 +1761,22 @@ const MultiBots = () => {
                 />
               </div>
               <span className="text-xs text-gray-500">
-                {dayjs(logQueryTimestamp).format('YYYY-MM-DD')} · 第 {logQueryPage} 页 · 共 {logQueryTotal} 行
+                {dayjs(logQueryTimestamp).format('YYYY-MM-DD')} · 第{' '}
+                {logQueryPage} 页 · 共 {logQueryTotal} 行
               </span>
             </div>
             {logQueryLoading ? (
-              <div className="flex items-center justify-center" style={{ height: 400 }}>
+              <div
+                className="flex items-center justify-center"
+                style={{ height: 400 }}
+              >
                 <Spin tip="加载中..." />
               </div>
             ) : logQueryLines.length === 0 ? (
-              <div className="flex items-center justify-center text-gray-400" style={{ height: 400 }}>
+              <div
+                className="flex items-center justify-center text-gray-400"
+                style={{ height: 400 }}
+              >
                 该日期暂无日志
               </div>
             ) : (
@@ -1716,12 +1840,9 @@ const MultiBots = () => {
             >
               克隆应用
             </Button>
-            <Button
-              icon={<ReloadOutlined />}
-              onClick={refreshPackages}
-            >
+            <Button icon={<ReloadOutlined />} onClick={refreshPackages}>
               刷新
-            </Button>  
+            </Button>
           </Space>
         }
       >
@@ -1742,97 +1863,110 @@ const MultiBots = () => {
                   {(() => {
                     const meta = getPackageMeta(pkg.pkg)
                     return (
-                  <div className="flex justify-between items-start">
-                    <div className="flex-1 min-w-0">
-                      <div className="font-semibold text-gray-800 dark:text-gray-200">
-                        {pkg.name}
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1 min-w-0">
+                          <div className="font-semibold text-gray-800 dark:text-gray-200">
+                            {pkg.name}
+                          </div>
+                          <div className="text-xs text-gray-500 dark:text-gray-400 mt-1 space-y-0.5">
+                            <div>
+                              包名: {meta.name} | 版本: {meta.version}
+                            </div>
+                            <div className="break-words">
+                              描述: {meta.description}
+                            </div>
+                            <div>仓库: {pkg.git?.repo || '-'}</div>
+                            <div>
+                              分支:{' '}
+                              <Tag color="blue" className="text-xs">
+                                {pkg.git?.branch || '-'}
+                              </Tag>
+                              <Tag
+                                color={pkg.status === 1 ? 'green' : 'orange'}
+                                className="text-xs"
+                              >
+                                {pkg.status === 1 ? '已安装' : '未安装'}
+                              </Tag>
+                            </div>
+                            <div>
+                              作者: {pkg.git?.author || '-'} | 提交:{' '}
+                              {pkg.git?.commit?.slice(0, 8) || '-'}
+                            </div>
+                          </div>
+                        </div>
+                        <Space>
+                          <Tooltip title="启用">
+                            <Button
+                              size="small"
+                              icon={<CheckOutlined />}
+                              className="text-green-500"
+                              onClick={() => onTogglePackage(pkg, true)}
+                            />
+                          </Tooltip>
+                          <Tooltip title="停用">
+                            <Button
+                              size="small"
+                              icon={<StopOutlined />}
+                              onClick={() => onTogglePackage(pkg, false)}
+                            />
+                          </Tooltip>
+                          <Tooltip title="编辑配置">
+                            <Button
+                              size="small"
+                              icon={<EditOutlined />}
+                              onClick={() => onOpenPkgEdit(pkg.name)}
+                            />
+                          </Tooltip>
+                          <Tooltip title="查看 README">
+                            <Button
+                              size="small"
+                              icon={<FileTextOutlined />}
+                              onClick={() => onOpenPkgReadme(pkg)}
+                            />
+                          </Tooltip>
+                          <Tooltip title="版本管理">
+                            <Button
+                              size="small"
+                              icon={<HistoryOutlined />}
+                              onClick={() => onOpenCommits(pkg)}
+                            />
+                          </Tooltip>
+                          <Tooltip title="拉取更新">
+                            <Button
+                              size="small"
+                              icon={<SyncOutlined />}
+                              onClick={() => onPullPackage(pkg)}
+                            />
+                          </Tooltip>
+                          <Popconfirm
+                            title="强制更新"
+                            description="确定强制更新吗？将放弃本地所有修改"
+                            onConfirm={() => onForcePullPackage(pkg)}
+                            okText="确定"
+                            cancelText="取消"
+                          >
+                            <Tooltip title="强制更新">
+                              <Button
+                                size="small"
+                                icon={<ExclamationCircleOutlined />}
+                                className="text-orange-500"
+                              />
+                            </Tooltip>
+                          </Popconfirm>
+                          <Popconfirm
+                            title={`确定删除 "${pkg.name}" 吗？`}
+                            onConfirm={() => onDeletePackage(pkg.name)}
+                            okText="删除"
+                            cancelText="取消"
+                          >
+                            <Button
+                              size="small"
+                              danger
+                              icon={<DeleteOutlined />}
+                            />
+                          </Popconfirm>
+                        </Space>
                       </div>
-                      <div className="text-xs text-gray-500 dark:text-gray-400 mt-1 space-y-0.5">
-                        <div>
-                          包名: {meta.name} | 版本: {meta.version}
-                        </div>
-                        <div className="break-words">
-                          描述: {meta.description}
-                        </div>
-                        <div>仓库: {pkg.git?.repo || '-'}</div>
-                        <div>
-                          分支: <Tag color="blue" className="text-xs">{pkg.git?.branch || '-'}</Tag>
-                          <Tag color={pkg.status === 1 ? 'green' : 'orange'} className="text-xs">
-                            {pkg.status === 1 ? '已安装' : '未安装'}
-                          </Tag>
-                        </div>
-                        <div>作者: {pkg.git?.author || '-'} | 提交: {pkg.git?.commit?.slice(0, 8) || '-'}</div>
-                      </div>
-                    </div>
-                    <Space>
-                      <Tooltip title="启用">
-                        <Button
-                          size="small"
-                          icon={<CheckOutlined />}
-                          className="text-green-500"
-                          onClick={() => onTogglePackage(pkg, true)}
-                        />
-                      </Tooltip>
-                      <Tooltip title="停用">
-                        <Button
-                          size="small"
-                          icon={<StopOutlined />}
-                          onClick={() => onTogglePackage(pkg, false)}
-                        />
-                      </Tooltip>
-                      <Tooltip title="编辑配置">
-                        <Button
-                          size="small"
-                          icon={<EditOutlined />}
-                          onClick={() => onOpenPkgEdit(pkg.name)}
-                        />
-                      </Tooltip>
-                      <Tooltip title="查看 README">
-                        <Button
-                          size="small"
-                          icon={<FileTextOutlined />}
-                          onClick={() => onOpenPkgReadme(pkg)}
-                        />
-                      </Tooltip>
-                      <Tooltip title="版本管理">
-                        <Button
-                          size="small"
-                          icon={<HistoryOutlined />}
-                          onClick={() => onOpenCommits(pkg)}
-                        />
-                      </Tooltip>
-                      <Tooltip title="拉取更新">
-                        <Button
-                          size="small"
-                          icon={<SyncOutlined />}
-                          onClick={() => onPullPackage(pkg)}
-                        />
-                      </Tooltip>
-                      <Popconfirm
-                        title="强制更新"
-                        description="确定强制更新吗？将放弃本地所有修改"
-                        onConfirm={() => onForcePullPackage(pkg)}
-                        okText="确定"
-                        cancelText="取消"
-                      >
-                        <Tooltip title="强制更新">
-                          <Button
-                            size="small"
-                            icon={<ExclamationCircleOutlined />}
-                            className="text-orange-500"
-                          />
-                        </Tooltip>
-                      </Popconfirm>
-                      <Popconfirm
-                        title={`确定删除 "${pkg.name}" 吗？`}
-                        onConfirm={() => onDeletePackage(pkg.name)}
-                        okText="删除"
-                        cancelText="取消"
-                      >
-                        <Button size="small" danger icon={<DeleteOutlined />} />
-                      </Popconfirm>
-                    </Space>
-                  </div>
                     )
                   })()}
                 </div>
@@ -1944,8 +2078,14 @@ const MultiBots = () => {
                 { label: 'ghproxy.com', value: 'https://ghproxy.com/' },
                 { label: 'ghproxy.net', value: 'https://ghproxy.net/' },
                 { label: 'ghp.ci', value: 'https://ghp.ci/' },
-                { label: 'gitclone.com', value: 'https://gitclone.com/github.com/' },
-                { label: 'hub.gitmirror.com', value: 'https://hub.gitmirror.com/' },
+                {
+                  label: 'gitclone.com',
+                  value: 'https://gitclone.com/github.com/'
+                },
+                {
+                  label: 'hub.gitmirror.com',
+                  value: 'https://hub.gitmirror.com/'
+                },
                 { label: '直连', value: 'direct' }
               ]}
             />
@@ -1974,7 +2114,12 @@ const MultiBots = () => {
             </label>
           </Form.Item>
           <Form.Item>
-            <Button type="primary" htmlType="submit" block loading={pkgsLoading}>
+            <Button
+              type="primary"
+              htmlType="submit"
+              block
+              loading={pkgsLoading}
+            >
               克隆
             </Button>
           </Form.Item>
@@ -1998,7 +2143,8 @@ const MultiBots = () => {
         footer={
           <div className="flex justify-between items-center">
             <div className="text-xs text-gray-500">
-              当前: {commitCurrentHash?.slice(0, 7) || '-'} · 共 {commitTotal} 个提交
+              当前: {commitCurrentHash?.slice(0, 7) || '-'} · 共 {commitTotal}{' '}
+              个提交
             </div>
             <Space>
               <Button
@@ -2035,7 +2181,9 @@ const MultiBots = () => {
                           {commit.hash.slice(0, 7)}
                         </code>
                         {commit.hash === commitCurrentHash && (
-                          <Tag color="blue" className="text-xs">当前</Tag>
+                          <Tag color="blue" className="text-xs">
+                            当前
+                          </Tag>
                         )}
                       </div>
                       <div className="text-sm text-gray-800 dark:text-gray-200 mt-1 break-words whitespace-pre-wrap">
@@ -2048,7 +2196,8 @@ const MultiBots = () => {
                     <div className="ml-3 flex-shrink-0">
                       {commit.hash === commitCurrentHash ? (
                         <Tag color="green">
-                          <CheckOutlined className="mr-1" />使用中
+                          <CheckOutlined className="mr-1" />
+                          使用中
                         </Tag>
                       ) : (
                         <Button

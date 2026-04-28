@@ -2,7 +2,6 @@ import {
   AppstoreOutlined,
   DesktopOutlined,
   FileTextOutlined,
-  RobotOutlined,
   SettingOutlined,
   ConsoleSqlOutlined,
   MonitorOutlined,
@@ -13,7 +12,6 @@ import {
 
 export const menuItems = [
   { key: '/', icon: <AppstoreOutlined />, label: '应用中心' },
-  { key: '/bots', icon: <RobotOutlined />, label: '单进程机器' },
   { key: '/multibots', icon: <ClusterOutlined />, label: '多进程机器' },
   { key: '/configs', icon: <FileTextOutlined />, label: '配置管理' },
   {

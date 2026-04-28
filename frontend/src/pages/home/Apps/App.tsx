@@ -33,19 +33,6 @@ const Apps: React.FC = () => {
       color: 'from-teal-500 to-emerald-500'
     },
     {
-      name: 'ALmeonBot',
-      icon: (
-        <img
-          className="w-20 h-20 object-contain transition-transform duration-200 group-hover:scale-110"
-          src="me.png"
-        />
-      ),
-      onClick: () => navigate('/bots'),
-      open: true,
-      description: '单进程机器人管理(旧版)',
-      color: 'from-purple-500 to-blue-500'
-    },
-    {
       name: 'QQ MD',
       icon: (
         <img
