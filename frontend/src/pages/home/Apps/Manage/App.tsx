@@ -220,7 +220,7 @@ const AppsManage: React.FC = () => {
       <div className="w-full h-full flex gap-4 flex-col bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900  duration-300">
         {/* 页面标题 */}
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold ">应用管理</h1>
+          <h1 className="text-2xl font-bold dark:text-white">应用管理</h1>
           <Button
             onClick={refresh}
             loading={loading}

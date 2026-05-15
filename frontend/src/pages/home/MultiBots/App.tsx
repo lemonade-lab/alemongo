@@ -1016,28 +1016,30 @@ const MultiBots = () => {
           {/* 顶部 */}
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-2xl font-bold">多进程机器</h1>
+              <h1 className="text-2xl font-bold dark:text-white">多进程机器</h1>
               <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
                 一个文件夹，多份配置，多进程并行启动
               </p>
             </div>
-            <Button
-              type="primary"
-              icon={<PlusOutlined />}
-              onClick={() => {
-                navigate('/bots')
-              }}
-            >
-              前往旧版本
-            </Button>
-            <Button
-              type="primary"
-              icon={<PlusOutlined />}
-              onClick={() => setCreateVisible(true)}
-              className="bg-gradient-to-r from-purple-500 to-blue-500 border-none"
-            >
-              新建
-            </Button>
+            <div className="flex gap-4">
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                onClick={() => {
+                  navigate('/bots')
+                }}
+              >
+                前往旧版本
+              </Button>
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                onClick={() => setCreateVisible(true)}
+                className="bg-gradient-to-r from-purple-500 to-blue-500 border-none"
+              >
+                新建
+              </Button>
+            </div>
           </div>
 
           {/* 列表 */}

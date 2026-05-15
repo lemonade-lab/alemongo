@@ -1,19 +1,19 @@
-import { useEffect, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { menuItems } from './menuItems'
+import {
+  getStoredMenuItems,
+  materializeMenuItems,
+  type EditableMenuItem,
+  type MenuItemType
+} from './menuItems'
 import { useSelector } from 'react-redux'
 import { RootState } from '@/redux'
 import { ReactNode } from 'react'
 import classNames from 'classnames'
 import { hasPermission } from '@/utils/permission'
-
-// 菜单项类型定义
-interface MenuItemType {
-  key: string
-  icon: ReactNode
-  label: string
-  identity?: string
-}
+import { Button } from 'antd'
+import { SettingOutlined } from '@ant-design/icons'
+import MenuManager from './MenuManager'
 
 // 自定义菜单项组件
 interface MenuItemProps {
@@ -126,15 +126,17 @@ const MenuItem = ({
 interface CustomMenuProps {
   items: MenuItemType[]
   selectedKeys: string[]
-  onSelect: (key: string) => void
+  onSelect: (item: MenuItemType) => void
   collapsed?: boolean
+  footer?: ReactNode
 }
 
 const CustomMenu = ({
   items,
   selectedKeys,
   onSelect,
-  collapsed = false
+  collapsed = false,
+  footer
 }: CustomMenuProps) => {
   return (
     <div className="flex flex-col h-full">
@@ -151,15 +153,16 @@ const CustomMenu = ({
       <div className="flex-1 mobile-scroll overflow-y-auto px-2">
         {items.map((item, index) => (
           <MenuItem
-            key={item.key}
+            key={item.id || item.key}
             item={item}
             isSelected={selectedKeys.includes(item.key)}
-            onClick={() => onSelect(item.key)}
+            onClick={() => onSelect(item)}
             isCollapsed={collapsed}
             index={index}
           />
         ))}
       </div>
+      {footer ? <div className="px-2 pt-3">{footer}</div> : null}
     </div>
   )
 }
@@ -175,17 +178,15 @@ const SiderMenu = ({
 }) => {
   const navigate = useNavigate()
   const location = useLocation()
-  const [selectedKeys, setSelectedKeys] = useState<string[]>(['/'])
+  const [managerOpen, setManagerOpen] = useState(false)
+  const [managedItems, setManagedItems] = useState<EditableMenuItem[]>(() =>
+    getStoredMenuItems()
+  )
 
-  useEffect(() => {
-    const path = location.pathname
-    const menuItem = menuItems.find(item => item?.key === path)
-    if (menuItem?.key && typeof menuItem?.key === 'string') {
-      setSelectedKeys([menuItem.key])
-    } else {
-      setSelectedKeys([])
-    }
-  }, [location])
+  const menuItems = useMemo(
+    () => materializeMenuItems(managedItems),
+    [managedItems]
+  )
 
   const storeMe = useSelector((state: RootState) => state.me)
   // 过滤得到 item - 使用新的权限判断逻辑
@@ -197,8 +198,21 @@ const SiderMenu = ({
     return true
   })
 
-  const handleMenuSelect = (key: string) => {
-    navigate(key)
+  const selectedKeys = useMemo(() => {
+    const path = location.pathname
+    const menuItem = curMenuItems.find(
+      item => item.targetType !== 'external' && item.key === path
+    )
+
+    return menuItem?.key ? [menuItem.key] : []
+  }, [curMenuItems, location.pathname])
+
+  const handleMenuSelect = (item: MenuItemType) => {
+    if (item.targetType === 'external') {
+      window.open(item.key, '_blank', 'noopener,noreferrer')
+    } else {
+      navigate(item.key)
+    }
     // 如果是移动端，点击后关闭侧边栏
     if (onMobileItemClick) {
       onMobileItemClick()
@@ -219,8 +233,26 @@ const SiderMenu = ({
           items={curMenuItems}
           selectedKeys={selectedKeys}
           onSelect={handleMenuSelect}
+          footer={
+            <Button
+              block
+              type="text"
+              icon={<SettingOutlined />}
+              onClick={() => setManagerOpen(true)}
+              className="!h-10 !rounded-xl !border !border-white/10 !bg-white/5 !text-gray-200 hover:!border-white/20 hover:!bg-white/10 hover:!text-white"
+            >
+              管理菜单
+            </Button>
+          }
         />
       </div>
+
+      <MenuManager
+        open={managerOpen}
+        items={managedItems}
+        onClose={() => setManagerOpen(false)}
+        onSave={items => setManagedItems(items)}
+      />
     </div>
   )
 }

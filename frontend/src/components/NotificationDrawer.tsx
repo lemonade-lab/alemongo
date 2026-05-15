@@ -1,20 +1,9 @@
 import { useEffect, useState, useCallback } from 'react'
-import {
-  List,
-  Badge,
-  Button,
-  Empty,
-  Spin,
-  Popconfirm,
-  Tabs,
-  Space,
-  Typography
-} from 'antd'
+import { List, Badge, Button, Empty, Spin, Popconfirm, Tabs } from 'antd'
 import {
   fetchNotifications,
   fetchUnreadCount,
   markNotificationRead,
-  markAllNotificationsRead,
   deleteNotification,
   NotificationItem
 } from '@/api'
@@ -25,12 +14,14 @@ interface NotificationDrawerProps {
   open: boolean
   onClose: () => void
   refreshSignal?: number // 外部触发刷新
+  onUnreadChange?: (count: number) => void
 }
 
 export default function NotificationDrawer({
   open,
   onClose,
-  refreshSignal = 0
+  refreshSignal = 0,
+  onUnreadChange
 }: NotificationDrawerProps) {
   const [loading, setLoading] = useState(false)
   const [list, setList] = useState<NotificationItem[]>([])
@@ -42,9 +33,12 @@ export default function NotificationDrawer({
 
   const loadUnread = useCallback(() => {
     fetchUnreadCount()
-      .then(r => setUnread(r.unread))
+      .then(r => {
+        setUnread(r.unread)
+        onUnreadChange?.(r.unread)
+      })
       .catch(() => {})
-  }, [])
+  }, [onUnreadChange])
 
   const loadList = useCallback(() => {
     setLoading(true)
@@ -90,13 +84,6 @@ export default function NotificationDrawer({
     })
   }
 
-  const handleAllRead = () => {
-    markAllNotificationsRead().then(() => {
-      setRefreshFlag(f => f + 1)
-      loadUnread()
-    })
-  }
-
   const tabs = [
     {
       key: 'unread',
@@ -112,17 +99,6 @@ export default function NotificationDrawer({
 
   return (
     <div className="h-full flex flex-col">
-      <div className="flex items-center justify-between mb-2">
-        <Space size={8}>
-          <Typography.Text strong>通知中心</Typography.Text>
-          <Button size="small" onClick={() => setRefreshFlag(f => f + 1)}>
-            刷新
-          </Button>
-          <Button size="small" onClick={handleAllRead} disabled={!unread}>
-            全部已读
-          </Button>
-        </Space>
-      </div>
       <Tabs
         activeKey={statusFilter}
         onChange={k => {

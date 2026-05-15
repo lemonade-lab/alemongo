@@ -4,12 +4,12 @@ import {
   BellOutlined,
   AppstoreOutlined
 } from '@ant-design/icons'
-import { FloatButton, Drawer, Badge } from 'antd'
+import { FloatButton, Drawer, Badge, Button, Space } from 'antd'
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import useTheme from '@/hook/useTheme'
 import NotificationDrawer from '@/components/NotificationDrawer'
-import { fetchUnreadCount } from '@/api'
+import { fetchUnreadCount, markAllNotificationsRead } from '@/api'
 import { createAuthedWS } from '@/api/ws'
 
 const FloatButtons = () => {
@@ -19,6 +19,17 @@ const FloatButtons = () => {
   const [unread, setUnread] = useState(0)
   const [refreshSignal, setRefreshSignal] = useState(0)
   const wsRef = useRef<WebSocket | null>(null)
+
+  const handleRefreshNotifications = () => {
+    setRefreshSignal(signal => signal + 1)
+  }
+
+  const handleAllReadNotifications = () => {
+    markAllNotificationsRead().then(() => {
+      setUnread(0)
+      setRefreshSignal(signal => signal + 1)
+    })
+  }
 
   useEffect(() => {
     // 初始一次
@@ -179,11 +190,26 @@ const FloatButtons = () => {
         placement="left"
         className="dark:[&>.ant-drawer-content]:bg-zinc-900/95 dark:[&>.ant-drawer-header]:bg-zinc-900/95 backdrop-blur-xl"
         width="80%"
+        extra={
+          <Space size={8}>
+            <Button size="small" onClick={handleRefreshNotifications}>
+              刷新
+            </Button>
+            <Button
+              size="small"
+              onClick={handleAllReadNotifications}
+              disabled={!unread}
+            >
+              全部已读
+            </Button>
+          </Space>
+        }
       >
         <NotificationDrawer
           open={open}
           onClose={() => setOpen(false)}
           refreshSignal={refreshSignal}
+          onUnreadChange={setUnread}
         />
       </Drawer>
     </>

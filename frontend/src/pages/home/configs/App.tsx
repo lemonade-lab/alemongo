@@ -77,7 +77,7 @@ const Configs = () => {
               </svg>
             </div>
             <div>
-              <h1 className="text-2xl font-bold ">配置管理</h1>
+              <h1 className="text-2xl font-bold dark:text-white">配置管理</h1>
               <p className="text-gray-600 dark:text-gray-400">
                 管理机器人配置文件
               </p>
